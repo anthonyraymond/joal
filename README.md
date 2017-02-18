@@ -1,35 +1,68 @@
 # Disclamer
 This soft is provided as is, without any warrantly.
 
-This project use http://mpetazzoni.github.com/ttorrent/ library. Thanks to mpetazzoni for this.
+This project use a modified version of the awesome [mpetazzoni/ttorrent] library. Thanks to **mpetazzoni** for this.
 
-### How to use
-1. Copy the `resources` on your disk.
-2. Add some `.torrent` file to your `resources/torrents/` new folder.
-3. Deploy with docker.
+# How to use
+### 1. Configuration
+```
+git clone git@github.com:anthonyraymond/joal.git
+cd joal
+cp -R resources <MY_CONFIG_FOLDER_PATH>
+```
+We are almost ready to go, we still need to add some of your private tracker's `.torrent` file to `<MY_CONFIG_FOLDER_PATH>/torrents/`
 
-While the client is running all .torrent files added to the folder will be hot loaded, there is no need to restart the client.
+```
+cp *.torrent <MY_CONFIG_FOLDER_PATH>/torrents/
+```
+We are now ready to press the red button and fire up the ratio faker.
 
-#### Docker support
-##### Build it
+### 2. Building and running
+
+##### With Docker
+At the moment only an ARM based docker file is available.
 ```
 docker build -f Dockerfile.arm -t araymond/joal .
-```
-
-##### Run it
-```
 docker run -d -v <PATH_TO_CONFIG_DIR>:/data -p 49152-65534:49152 --name="joal" araymond/joal
 ```
-Where `<PATH_TO_CONFIG_DIR>` is the resources folder path where you store:
-- `config.json` : the configuration file.
-- `clients/` : folder with all the clients files.
-- `torrents/` : folder with all the .torrent files to seed.
 
-### Emulated client file
+##### Without Docker
+```
+cd joal
+mvn clean package
+java -jar target/jack-of-all-trades-1.0-SNAPSHOT.jar /<MY_CONFIG_FOLDER_PATH>
+```
+
+# How it works
+#### Application configuration
+The application configuration belongs in `<MY_CONFIG_FOLDER_PATH>/config.json`.
+
+```
+{
+  "minUploadRate": 180,
+  "maxUploadRate": 190,
+  "seedFor": 840,
+  "waitBetweenSeed": 600,
+  "client": "azureus-5.7.4.0.client"
+}
+```
+- `minUploadRate` : The minimum uploadRate you want to fake (in kB/s) (**required**)
+- `maxUploadRate` : The maximum uploadRate you want to fake (in kB/s) (**required**)
+- `seedFor` : How long the client should seed for in a row (seeding session in minutes) (**required**)
+- `waitBetweenSeed` : How long the client should wait before two seeding session (in minutes) (**required**)
+- `client` : The name of the .client file to use in `<MY_CONFIG_FOLDER_PATH>/clients/` (**required**)
+
+
+#### Torrent files
+- All torrent file in `<MY_CONFIG_FOLDER_PATH>/torrents/` will be available for sharing.
+- The torrent file to share is randomly selected between all files on every seed session (seed session duration is managed by the configuration file).
+- All torrent file added/removed/modified in `<MY_CONFIG_FOLDER_PATH>/torrents/` while the client is running will be automatically hot loaded, there is no need to restart.
+- If the torrent currently seeding reach 0 peers, the .torrent file associated is removed from the disk.
+
+#### Emulated client file
 Event if the soft works out of the box, you can add your own torrent clients.
-A client file is required to start seeding, here a some instruction on what you can use to customise your client file.
 
-#### .client file
+###### .client file format
 The below file correspond to azureus-3.0.5.0.client
 ```json
 {
@@ -75,7 +108,7 @@ The below file correspond to azureus-3.0.5.0.client
 
 - requestHeaders (optional)
 
-#### Query variables:
+###### Query variables:
 - `{peerid}`     : BitTorrent client peerId (value from **peerIdInfo**)
 - `{key}`        : The key for the current session (value from **keyInfo**, optional if there is no key param in query string)
 - `{numwant}`    : BitTorrent client numwant (default is 50)  
@@ -87,7 +120,7 @@ The below file correspond to azureus-3.0.5.0.client
 - `{ip}`         : Local ip address (auto-generated)
 - `{event}`      : Event to be send to the tracker (auto-generated)
 
-#### Header variables:
+###### Header variables:
 - `{host}`       : The remote host (auto-generated)
 - `{os}`         : The current os (auto-generated)
 - `{java}`       : The current running version of java (auto-generated)
@@ -95,13 +128,10 @@ The below file correspond to azureus-3.0.5.0.client
 
 ## ROADMAP
 - [x] Add application setting with setting file
-- [x] App setting : min_seed_time_per_day
-- [x] App setting : max_seed_time_per_day
 - [x] App setting : min_upload_rate
 - [x] App setting : max_upload_rate
 - [x] Externalise client definition to .clients file
 - [x] Add client header to HttpRequest
-- [x] If torrent command line argument is a folder, seed a random torrent from it.
 - [x] When a torrent reach 0 peers, try with another torrent instead of stopping.
 - [x] When a torrent reach 0 peers, remove the torrent file from the directory.
 - [x] Add a file watcher to monitor torrent folder (hot loading .torrent files instead of restarting)
@@ -109,3 +139,6 @@ The below file correspond to azureus-3.0.5.0.client
 - [ ] Add a config to define if torrent should be deleted or skipped if 0 peers were leeching.
 - [ ] Add test.
 - [ ] Refactoring.
+
+
+[mpetazzoni/ttorrent]: http://mpetazzoni.github.com/ttorrent/
