@@ -1,0 +1,22 @@
+FROM hypriot/rpi-java:1.8.0
+
+ADD . /jack-of-all-trades/sources
+
+WORKDIR /jack-of-all-trades/
+
+RUN wget http://www-us.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz -O apache-maven-3.3.9.tar.gz \
+        && tar -xzf apache-maven-3.3.9.tar.gz \
+        && rm apache-maven-3.3.9.tar.gz \
+        && cd sources \
+        && /jack-of-all-trades/apache-maven-3.3.9/bin/mvn clean package \
+        && rm -rf ~/.m2 \
+        && mv target/jack-of-all-trades-1.0-SNAPSHOT.jar /jack-of-all-trades/jack-of-all-trades.jar \
+        && cd .. \
+        && rm -rf ./sources ./apache-maven-3.3.9
+
+WORKDIR /jack-of-all-trades
+
+EXPOSE 49152-65534
+VOLUME /data
+
+CMD ["java","-jar","/jack-of-all-trades/jack-of-all-trades.jar","/data"]

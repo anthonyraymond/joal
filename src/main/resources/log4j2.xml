@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration shutdownHook="disable">
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <loggers>
+        <Logger name="org.apache.log4j.xml" level="all"/>
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </loggers>
+</Configuration>
