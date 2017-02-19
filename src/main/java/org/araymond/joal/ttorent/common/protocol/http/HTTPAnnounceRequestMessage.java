@@ -146,7 +146,7 @@ public final class HTTPAnnounceRequestMessage extends HTTPTrackerMessage impleme
             emulatedClientQuery = emulatedClientQuery
                     .replaceAll("\\{key}", URLEncoder.encode(emulatedClient.getKey().get(), Torrent.BYTE_ENCODING));
         }
-        if (this.getEvent() == null || RequestEvent.NONE != this.getEvent()) {
+        if (this.getEvent() == null || this.getEvent() == RequestEvent.NONE) {
             // if event was NONE, remove the event from the query string
             emulatedClientQuery = emulatedClientQuery.replaceAll("(event=\\{event})", "");
         } else {
