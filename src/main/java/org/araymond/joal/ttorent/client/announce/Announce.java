@@ -71,10 +71,10 @@ public class Announce implements Runnable {
                     tierClients.add(client);
                     this.allClients.add(client);
                 } catch (final Exception e) {
-                    logger.warn("Will not announce on {}: {}!", tracker,
-                            e.getMessage() != null
-                                    ? e.getMessage()
-                                    : e.getClass().getSimpleName());
+                    logger.warn("Will not announce on {}: {}!",
+                            tracker,
+                            e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()
+                    );
                 }
             }
 
@@ -145,6 +145,7 @@ public class Announce implements Runnable {
      * </p>
      */
     public void stop() {
+        logger.trace("Call to stop Announce");
         this.stop = true;
 
         if (this.thread != null && this.thread.isAlive()) {
@@ -162,6 +163,7 @@ public class Announce implements Runnable {
         }
 
         this.thread = null;
+        logger.trace("Announce stopped");
     }
 
     /**
