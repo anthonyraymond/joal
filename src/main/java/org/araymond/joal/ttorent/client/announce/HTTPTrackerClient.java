@@ -94,6 +94,7 @@ public class HTTPTrackerClient extends TrackerClient {
             if (conn != null) {
                 in = conn.getErrorStream();
             }
+            logger.trace("Tracker answer was an error: {}", ioe);
         }
 
         // At this point if the input stream is null it means we have neither a
@@ -135,6 +136,7 @@ public class HTTPTrackerClient extends TrackerClient {
                     logger.warn("Problem ensuring error stream closed!", ioe);
                 }
             }
+            conn.disconnect();
         }
     }
 
