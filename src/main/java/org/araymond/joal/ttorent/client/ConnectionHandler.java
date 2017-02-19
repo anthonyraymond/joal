@@ -38,8 +38,7 @@ public class ConnectionHandler {
      * @throws IOException When the service can't be started because no port in
      *                     the defined range is available or usable.
      */
-    ConnectionHandler(final MockedTorrent torrent, final String id, final InetAddress address)
-            throws IOException {
+    ConnectionHandler(final MockedTorrent torrent, final String id, final InetAddress address) throws IOException {
         this.torrent = torrent;
         this.id = id;
 
@@ -75,10 +74,12 @@ public class ConnectionHandler {
     }
 
     public void close() throws IOException {
+        logger.trace("Call to close ConnectionHandler.");
         if (this.channel != null) {
             this.channel.close();
             this.channel = null;
         }
+        logger.trace("ConnectionHandler closed.");
     }
 
 }

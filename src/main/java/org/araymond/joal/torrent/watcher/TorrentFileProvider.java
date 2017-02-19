@@ -101,13 +101,15 @@ public class TorrentFileProvider {
     }
 
     public void stop() {
+        logger.trace("Call to stop TorrentFileProvider.");
         this.observer.getListeners()
                 .forEach(observer::removeListener);
         try {
-            this.monitor.stop();
+            this.monitor.stop(10);
         } catch (final Exception ignored) {
         }
         this.monitor.removeObserver(observer);
+        logger.trace("TorrentFileProvider stopped.");
     }
 
 }

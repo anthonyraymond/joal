@@ -110,8 +110,6 @@ public class HTTPTrackerClient extends TrackerClient {
             } else {
                 baos.write(new GZIPInputStream(in));
             }
-
-
             // Parse and handle the response
             final HTTPTrackerMessage message = HTTPTrackerMessage.parse(ByteBuffer.wrap(baos.toByteArray()));
             this.handleTrackerAnnounceResponse(message, inhibitEvents);

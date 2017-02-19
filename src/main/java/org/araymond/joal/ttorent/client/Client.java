@@ -115,6 +115,7 @@ public class Client implements Runnable, AnnounceResponseListener {
     /* Runnable implementation *****************************************/
     @Override
     public void run() {
+        logger.trace("Running Client");
         this.seed();
         this.announce.start();
 
@@ -137,6 +138,7 @@ public class Client implements Runnable, AnnounceResponseListener {
                 logger.debug("BitTorrent main loop interrupted.");
             }
         }
+        logger.trace("Client has exited loop, going to stop.");
 
         try {
             this.service.close();
@@ -161,6 +163,7 @@ public class Client implements Runnable, AnnounceResponseListener {
      *             the <tt>DONE</tt> or <tt>ERROR</tt> states when this method returns.
      */
     public void stop(final boolean wait) {
+        logger.trace("Call to stop Client");
         this.stop = true;
 
         if (this.thread != null && this.thread.isAlive()) {
@@ -175,6 +178,7 @@ public class Client implements Runnable, AnnounceResponseListener {
         }
 
         this.thread = null;
+        logger.trace("Client has stopped.");
     }
 
     /**

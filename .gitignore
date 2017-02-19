@@ -2,7 +2,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 dependency-reduced-pom.xml
 jack-of-all-trades.iml
-t411-log.txt
+resources/torrents/*.torrent
 
 ### STS ###
 .apt_generated
