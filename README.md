@@ -27,6 +27,7 @@ docker run -d -v <PATH_TO_CONFIG_DIR>:/data -p 49152-65534:49152 --name="joal" a
 ```
 
 ##### Without Docker
+You need to have Java 8 installed.
 ```
 cd joal
 mvn clean package
