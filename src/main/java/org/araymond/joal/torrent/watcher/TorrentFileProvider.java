@@ -30,6 +30,10 @@ public class TorrentFileProvider {
     private final Random rand;
 
     public TorrentFileProvider(final Path torrentFolder) {
+        this(torrentFolder, 30 * 1000);
+    }
+
+    public TorrentFileProvider(final Path torrentFolder, final int scanInterval) {
         this.torrentFiles = Collections.synchronizedList(new ArrayList<>());
         this.rand = new Random();
 
@@ -37,7 +41,7 @@ public class TorrentFileProvider {
                 .forEach(torrentFiles::add);
 
         observer = new FileAlterationObserver(torrentFolder.toFile(), torrentFileFilter);
-        monitor = new FileAlterationMonitor(30 * 1000);
+        monitor = new FileAlterationMonitor(scanInterval);
 
         observer.addListener(new FileAlterationListenerAdaptor() {
             @Override
@@ -111,5 +115,4 @@ public class TorrentFileProvider {
         this.monitor.removeObserver(observer);
         logger.trace("TorrentFileProvider stopped.");
     }
-
 }
