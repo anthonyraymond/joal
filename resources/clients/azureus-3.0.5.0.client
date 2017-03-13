@@ -17,7 +17,6 @@
       { "name": "User-Agent", "value":"Azureus 3.0.5.0;{os};{java}" },
       { "name": "Connection", "value": "close" },
       { "name": "Accept-Encoding", "value":"gzip" },
-      { "name": "Host", "value":"{host}" },
       { "name": "Accept", "value":"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2" },
       { "name": "Content-type", "value":"application/x-www-form-urlencoded" }
     ]
