@@ -6,13 +6,22 @@
 
     <groupId>org.araymond.joal</groupId>
     <artifactId>jack-of-all-trades</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
+
+    <scm>
+        <connection>scm:git:https://github.com/anthonyraymond/joal.git</connection>
+        <developerConnection>scm:git:git@github.com:anthonyraymond/joal.git</developerConnection>
+        <url>https://github.com/anthonyraymond/joal</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
+        <!-- Project -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
 
+        <!-- COMPILE  -->
         <apache.common-cli.version>1.3.1</apache.common-cli.version>
         <google.guava.version>20.0</google.guava.version>
         <commons-io.version>2.5</commons-io.version>
@@ -96,14 +105,49 @@
             <artifactId>mockito-all</artifactId>
             <version>${mockito.version}</version>
         </dependency>
-
     </dependencies>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>bintray-cy6ergn0m-maven</id>
+            <name>bintray-plugins</name>
+            <url>http://dl.bintray.com/cy6ergn0m/maven</url>
+        </pluginRepository>
+    </pluginRepositories>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>2.5.3</version>
+            </plugin>
+
+            <!-- Push jar to github and set a Release -->
+            <plugin>
+                <groupId>cy.github</groupId>
+                <artifactId>github-release-plugin</artifactId>
+                <version>0.5.1</version>
+                <configuration>
+                    <tagName>${project.artifactId}-${project.version}</tagName>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>gh-upload</goal>
+                        </goals>
+                        <phase>install</phase>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -132,7 +176,6 @@
                     </execution>
                 </executions>
             </plugin>
-
         </plugins>
     </build>
 
