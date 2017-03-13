@@ -16,7 +16,6 @@
     "requestHeaders": [
       { "name": "User-Agent", "value":"BitTorrent/799(255043872)(43296)" },
       { "name": "Accept-Encoding", "value":"gzip" },
-      { "name": "Connection", "value": "close" },
-      { "name": "Host", "value":"{host}" }
+      { "name": "Connection", "value": "close" }
     ]
 }

@@ -15,7 +15,6 @@
     "numwant": 200,
     "requestHeaders": [
       { "name": "User-Agent", "value":"BitTorrent/6400(18095)" },
-      { "name": "Accept-Encoding", "value":"gzip" },
-      { "name": "Host", "value":"{host}" }
+      { "name": "Accept-Encoding", "value":"gzip" }
     ]
 }

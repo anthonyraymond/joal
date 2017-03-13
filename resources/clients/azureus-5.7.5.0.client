@@ -17,7 +17,6 @@
       { "name": "User-Agent", "value":"Azureus 5.7.5.0;{os};1.8.0_66" },
       { "name": "Connection", "value": "close" },
       { "name": "Accept-Encoding", "value":"gzip" },
-      { "name": "Host", "value":"{host}" },
       { "name": "Accept", "value":"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2" }
     ]
 }

@@ -16,7 +16,6 @@
     "requestHeaders": [
       { "name": "User-Agent", "value":"uTorrent/2210(25130)" },
       { "name": "Connection", "value": "close" },
-      { "name": "Accept-Encoding", "value":"gzip" },
-      { "name": "Host", "value":"{host}" }
+      { "name": "Accept-Encoding", "value":"gzip" }
     ]
 }
