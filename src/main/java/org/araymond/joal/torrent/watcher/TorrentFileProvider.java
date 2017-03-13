@@ -10,7 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,12 +24,14 @@ import java.util.Random;
  */
 public class TorrentFileProvider {
     private static final Logger logger = LoggerFactory.getLogger(TorrentFileProvider.class);
+    public static final String ARCHIVE_FOLDER = "archived";
     private static final IOFileFilter torrentFileFilter = FileFilterUtils.suffixFileFilter(".torrent");
 
     private final FileAlterationObserver observer;
     private final FileAlterationMonitor monitor;
 
     private final List<File> torrentFiles;
+    private final Path archiveFolder;
     private final Random rand;
 
     public TorrentFileProvider(final Path torrentFolder) {
@@ -34,8 +39,23 @@ public class TorrentFileProvider {
     }
 
     public TorrentFileProvider(final Path torrentFolder, final int scanInterval) {
+        this.archiveFolder = torrentFolder.resolve(ARCHIVE_FOLDER);
         this.torrentFiles = Collections.synchronizedList(new ArrayList<>());
         this.rand = new Random();
+
+        if (!Files.exists(torrentFolder)) {
+            logger.error("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
+            throw new IllegalStateException("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
+        }
+
+        if (!Files.exists(archiveFolder)) {
+            try {
+                Files.createDirectory(archiveFolder);
+            } catch (final IOException e) {
+                logger.error("Failed to create archive folder.", e);
+                throw new IllegalStateException("Failed to create archive folder.", e);
+            }
+        }
 
         FileUtils.listFiles(torrentFolder.toFile(), torrentFileFilter, null)
                 .forEach(torrentFiles::add);
@@ -47,7 +67,7 @@ public class TorrentFileProvider {
             @Override
             public void onFileChange(final File file) {
                 removeFileFromList(file);
-                onFileCreate(file);
+                addFileToList(file);
                 logger.info("Torrent file change detected, hot reloaded file: {}", file.getAbsolutePath());
             }
 
@@ -82,18 +102,23 @@ public class TorrentFileProvider {
         return this.torrentFiles.get(this.rand.nextInt(this.torrentFiles.size()));
     }
 
-    public void forceRemoveTorrent(final File torrent) {
-        this.removeFileFromList(torrent);
+    public void moveToArchiveFolder(final File torrentFile) {
+        this.removeFileFromList(torrentFile);
 
-        if (!torrent.exists()) {
+        if (!torrentFile.exists()) {
             return;
         }
-        final boolean deleted = torrent.delete();
-        if (deleted) {
-            logger.info("Successfully deleted file: {}", torrent.getAbsolutePath());
-        } else {
-            logger.warn("Failed to delete file: {}, the file won't be used anymore for the current session, but it remains on the disk.");
+
+        try {
+            Files.move(torrentFile.toPath(), archiveFolder.resolve(torrentFile.getName()));
+            logger.info("Successfully moved file: {} to archive folder", torrentFile.getAbsolutePath());
+        } catch (final IOException e) {
+            logger.warn("Failed to archive file: {}, the file won't be used anymore for the current session, but it remains on the folder.", e);
         }
+    }
+
+    public int getTorrentCount() {
+        return this.torrentFiles.size();
     }
 
     public void start() {
@@ -106,8 +131,7 @@ public class TorrentFileProvider {
 
     public void stop() {
         logger.trace("Call to stop TorrentFileProvider.");
-        this.observer.getListeners()
-                .forEach(observer::removeListener);
+        this.observer.getListeners().forEach(observer::removeListener);
         try {
             this.monitor.stop(10);
         } catch (final Exception ignored) {
