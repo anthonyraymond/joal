@@ -100,7 +100,7 @@ public class SeedManager {
     private void handleEvent(final Client.Event event) {
         if (event == Client.Event.ENCOUNTER_ZERO_PEER) {
             this.actionOnStopSeeding = ActionOnStopSeeding.RESTART_IMMEDIATLY;
-            this.torrentFileProvider.forceRemoveTorrent(this.currentTorrent);
+            this.torrentFileProvider.moveToArchiveFolder(this.currentTorrent);
         }
     }
 
