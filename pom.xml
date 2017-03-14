@@ -6,7 +6,7 @@
 
     <groupId>org.araymond.joal</groupId>
     <artifactId>jack-of-all-trades</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
 
     <scm>
         <connection>scm:git:https://github.com/anthonyraymond/joal.git</connection>
@@ -120,13 +120,7 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-            </plugin>
-
-            <!-- Push jar to github and set a Release -->
+            <!-- Create a release on GitHub -->
             <plugin>
                 <groupId>cy.github</groupId>
                 <artifactId>github-release-plugin</artifactId>
