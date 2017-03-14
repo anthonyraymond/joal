@@ -1,41 +1,46 @@
-# Disclamer
-This soft is provided as is, without any warrantly.
-
-This project use a modified version of the awesome [mpetazzoni/ttorrent] library. Thanks to **mpetazzoni** for this.
-
-# How to use
-### 1. Configuration
+# Prepare confguration folder
+You first need to get the cofiguration folder. Replace `<MY_CONFIG_FOLDER_PATH>` by whatever path you want.
 ```
 git clone git@github.com:anthonyraymond/joal.git
 cd joal
 cp -R resources <MY_CONFIG_FOLDER_PATH>
 ```
-We are almost ready to go, we still need to add some of your private tracker's `.torrent` file to `<MY_CONFIG_FOLDER_PATH>/torrents/`
+Now add some of your private tracker's `.torrent` file to `<MY_CONFIG_FOLDER_PATH>/torrents/`. But **be aware** that only torrent with at least 1 leecher will actually be used by *joal*, to keep your account from being banned.
 
-```
-cp *.torrent <MY_CONFIG_FOLDER_PATH>/torrents/
-```
-We are now ready to press the red button and fire up the ratio faker.
 
-### 2. Building and running
-
-##### With Docker
+# Install and run
+### With Docker
 At the moment only an ARM based docker file is available.
 ```
 docker build -f Dockerfile.arm -t araymond/joal .
 docker run -d -v <PATH_TO_CONFIG_DIR>:/data -p 49152-65534:49152 --name="joal" araymond/joal
 ```
 
-##### Without Docker
-You need to have Java 8 installed.
+### Without Docker
+You need to have **Java 8** installed.
+
+We first need to download the latest version of the .jar. Once again replace  `<MY_CONFIG_FOLDER_PATH>` by your choosen path and execute this script
 ```
-cd joal
-mvn clean package
-java -jar target/jack-of-all-trades-1.0-SNAPSHOT.jar /<MY_CONFIG_FOLDER_PATH>
+cd <MY_CONFIG_FOLDER_PATH> \
+&& GITHUB_REPO="https://github.com/anthonyraymond/joal" \
+&& LATEST=$(curl -sSI $GITHUB_REPO"/releases/latest" | perl -n -e '/^Location: .*?tag\/(.*?)\r*$/ && print "$1\n"') \
+&& curl -f -L $GITHUB_REPO"/releases/download/"$LATEST"/"$LATEST".jar" > ./jack-of-all-trades.jar
 ```
 
-# How it works
-#### Application configuration
+Then you can run the application with the following command *(replace X.X.X with your own version)*
+```
+java -jar jack-of-all-trades-X.X.X.jar <MY_CONFIG_FOLDER_PATH>
+```
+
+# Understanding configuration (optional)
+### Torrent files
+- All torrent file in `<MY_CONFIG_FOLDER_PATH>/torrents/` will be available for sharing.
+- One random torrent file from `<MY_CONFIG_FOLDER_PATH>/torrents/` is choosed randmfly for each seed session.
+- All torrent file added/removed/modified in `<MY_CONFIG_FOLDER_PATH>/torrents/` while the client is running will be automatically hot loaded, there is no need to restart.
+- **If the torrent currently seeding reach 0 peers, the file will be moved to `<MY_CONFIG_FOLDER_PATH>/torrents/archived` folder.**
+
+
+### Application configuration
 The application configuration belongs in `<MY_CONFIG_FOLDER_PATH>/config.json`.
 
 ```
@@ -53,79 +58,8 @@ The application configuration belongs in `<MY_CONFIG_FOLDER_PATH>/config.json`.
 - `waitBetweenSeed` : How long the client should wait before two seeding session (in minutes) (**required**)
 - `client` : The name of the .client file to use in `<MY_CONFIG_FOLDER_PATH>/clients/` (**required**)
 
-
-#### Torrent files
-- All torrent file in `<MY_CONFIG_FOLDER_PATH>/torrents/` will be available for sharing.
-- The torrent file to share is randomly selected between all files on every seed session (seed session duration is managed by the configuration file).
-- All torrent file added/removed/modified in `<MY_CONFIG_FOLDER_PATH>/torrents/` while the client is running will be automatically hot loaded, there is no need to restart.
-- If the torrent currently seeding reach 0 peers, the .torrent file associated is removed from the disk.
-
-#### Emulated client file
-Event if the soft works out of the box, you can add your own torrent clients.
-
-###### .client file format
-The below file correspond to azureus-3.0.5.0.client
-```json
-{
-    "peerIdInfo": {
-        "prefix": "-AZ3050-",
-        "type": "alphanumeric",
-        "upperCase": false,
-        "lowerCase": false
-    },
-    "keyInfo": {
-        "length": 8,
-        "type": "alphanumeric",
-        "upperCase": false,
-        "lowerCase": false
-    },
-    "query": "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3",
-    "numwant": 100,
-    "requestHeaders": [
-      { "name": "User-Agent", "value":"Azureus 3.0.5.0;{os};{java}" },
-      { "name": "Connection", "value": "close" },
-      { "name": "Accept-Encoding", "value":"gzip" },
-      { "name": "Host", "value":"{host}" },
-      { "name": "Accept", "value":"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2" },
-      { "name": "Content-type", "value":"application/x-www-form-urlencoded" }
-    ]
-}
-```
-- peerIdInfo (**required**)
-  - prefix    : The BitTorrentClient prefix (**required**)
-  - type      : The type of the peer_id_suffix (**required**, supported types: alphabetic, alphanumeric, numeric, random, printable, hexadecimal)
-  - upperCase : Is the suffix uppercased? (optional, default=false)
-  - lowerCase : Is the suffix lowercased? (optional, default=false)
-
-- keyInfo (**required only if query contains {key}**)
-  - length    : Length of the key (**required**)
-  - type      : The type of the peer_id_suffix (**required**, supported types: alphabetic, alphanumeric, numeric, random, printable, hexadecimal)
-  - upperCase : Is the suffix uppercased? (optional, default=false)
-  - lowerCase : Is the suffix lowercased? (optional, default=false)
-
-- query (**required**) : The BitTorrent client HTTP query string with **variables**
-
-- numwant (optional, default 50) : The BitTorrent numwant
-
-- requestHeaders (optional)
-
-###### Query variables:
-- `{peerid}`     : BitTorrent client peerId (value from **peerIdInfo**)
-- `{key}`        : The key for the current session (value from **keyInfo**, optional if there is no key param in query string)
-- `{numwant}`    : BitTorrent client numwant (default is 50)  
-- `{infohash}`   : Torrent file info_hash (auto-generated)
-- `{uploaded}`   : Total uploaded during this session (auto-generated)
-- `{downloaded}` : Total downloaded during this session (auto-generated)
-- `{left}`       : Remaining to download for this torrent (auto-generated, and hardcoded to 0)
-- `{port}`       : Port you are listening on (auto-generated)
-- `{ip}`         : Local ip address (auto-generated)
-- `{event}`      : Event to be send to the tracker (auto-generated)
-
-###### Header variables:
-- `{host}`       : The remote host (auto-generated)
-- `{os}`         : The current os (auto-generated)
-- `{java}`       : The current running version of java (auto-generated)
-
+### Create your own torrent clients
+To learn more about .client, head to the [project's wiki][project-wiki].
 
 ## ROADMAP
 - [x] Add application setting with setting file
@@ -137,9 +71,12 @@ The below file correspond to azureus-3.0.5.0.client
 - [x] When a torrent reach 0 peers, remove the torrent file from the directory.
 - [x] Add a file watcher to monitor torrent folder (hot loading .torrent files instead of restarting)
 - [x] Implement appear as contactable to peers.
-- [ ] Add a config to define if torrent should be deleted or skipped if 0 peers were leeching.
-- [ ] Add test.
+- [x] Add a config to define if torrent should be deleted or skipped if 0 peers were leeching.
+- [ ] Add tests.
 - [ ] Refactoring.
 
+# Thanks:
+This project use a modified version of the awesome [mpetazzoni/ttorrent] library. Thanks to **mpetazzoni** for this.
 
+[project-wiki]: https://github.com/anthonyraymond/joal/wiki
 [mpetazzoni/ttorrent]: http://mpetazzoni.github.com/ttorrent/
