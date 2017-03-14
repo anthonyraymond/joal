@@ -1,18 +1,14 @@
 FROM hypriot/rpi-java:1.8.0
 
-ADD . /jack-of-all-trades/sources
-
 WORKDIR /jack-of-all-trades/
 
-RUN wget http://www-us.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz -O apache-maven-3.3.9.tar.gz \
-        && tar -xzf apache-maven-3.3.9.tar.gz \
-        && rm apache-maven-3.3.9.tar.gz \
-        && cd sources \
-        && /jack-of-all-trades/apache-maven-3.3.9/bin/mvn clean package \
-        && rm -rf ~/.m2 \
-        && mv target/jack-of-all-trades-1.0.2-SNAPSHOT.jar /jack-of-all-trades/jack-of-all-trades.jar \
-        && cd .. \
-        && rm -rf ./sources ./apache-maven-3.3.9
+RUN apt-get update \
+    && apt-get install -y ca-certificates curl \
+    && GITHUB_REPO="https://github.com/anthonyraymond/joal" \
+    && LATEST=$(curl -sSI $GITHUB_REPO"/releases/latest" | perl -n -e '/^Location: .*?tag\/(.*?)\r*$/ && print "$1\n"') \
+    && curl -f -L $GITHUB_REPO"/releases/download/"$LATEST"/"$LATEST".jar" > /jack-of-all-trades/jack-of-all-trades.jar \
+    && apt-get remove --purge --auto-remove curl \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /jack-of-all-trades
 
