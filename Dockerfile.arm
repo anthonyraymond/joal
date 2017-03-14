@@ -10,7 +10,7 @@ RUN wget http://www-us.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven
         && cd sources \
         && /jack-of-all-trades/apache-maven-3.3.9/bin/mvn clean package \
         && rm -rf ~/.m2 \
-        && mv target/jack-of-all-trades-1.0.1.jar /jack-of-all-trades/jack-of-all-trades.jar \
+        && mv target/jack-of-all-trades-1.0.2-SNAPSHOT.jar /jack-of-all-trades/jack-of-all-trades.jar \
         && cd .. \
         && rm -rf ./sources ./apache-maven-3.3.9
 
