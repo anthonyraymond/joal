@@ -6,7 +6,7 @@
 
     <groupId>org.araymond.joal</groupId>
     <artifactId>jack-of-all-trades</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:https://github.com/anthonyraymond/joal.git</connection>
@@ -127,6 +127,7 @@
                 <version>0.5.1</version>
                 <configuration>
                     <tagName>${project.artifactId}-${project.version}</tagName>
+                    <releaseTitle>Version ${project.version}</releaseTitle>
                 </configuration>
                 <executions>
                     <execution>
