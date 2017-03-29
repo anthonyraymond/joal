@@ -17,9 +17,9 @@ import java.util.stream.IntStream;
  * Created by raymo on 24/01/2017.
  */
 class TorrentClientConfig {
-    private PeerIdInfo peerIdInfo;
-    private String query;
-    private KeyInfo keyInfo;
+    @SuppressWarnings("unused") private PeerIdInfo peerIdInfo; // JSON provided
+    @SuppressWarnings("unused") private String query;  // JSON provided
+    @SuppressWarnings("unused") private KeyInfo keyInfo;  // JSON provided
     private List<HttpHeader> requestHeaders = new ArrayList<>();
     private Integer numwant = null;
 
@@ -55,6 +55,9 @@ class TorrentClientConfig {
             case RANDOM:
                 peerIdSuffix = RandomStringUtils.random(peerSuffixLength, IntStream.range(0, 256).mapToObj(i -> Character.toString((char) i)).collect(Collectors.joining()).toCharArray());
                 break;
+            case PRINTABLE:
+                peerIdSuffix = RandomStringUtils.randomPrint(peerSuffixLength);
+                break;
             default:
                 throw new TorrentClientConfigIntegrityException("Unhandled peer id type: " + this.peerIdInfo.getType());
         }
@@ -84,6 +87,9 @@ class TorrentClientConfig {
                 break;
             case RANDOM:
                 key = RandomStringUtils.random(this.keyInfo.length, IntStream.range(0, 256).mapToObj(i -> Character.toString((char) i)).collect(Collectors.joining()).toCharArray());
+                break;
+            case PRINTABLE:
+                key = RandomStringUtils.randomPrint(this.keyInfo.length);
                 break;
             default:
                 throw new TorrentClientConfigIntegrityException("Unhandled key type: " + this.peerIdInfo.getType());
@@ -207,7 +213,9 @@ class TorrentClientConfig {
         @SerializedName("alphanumeric")
         ALPHANUMERIC,
         @SerializedName("random")
-        RANDOM
+        RANDOM,
+        @SerializedName("printable")
+        PRINTABLE
     }
 
 }
