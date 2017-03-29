@@ -26,19 +26,17 @@ class TorrentClientConfig {
     TorrentClientConfig() {
     }
 
-    public List<HttpHeader> getRequestHeaders() {
-        return ImmutableList.copyOf(requestHeaders);
+    EmulatedClient createClient() {
+        return new EmulatedClient(
+                this.generatePeerId(),
+                this.generateNewKey().orElse(""),
+                query,
+                ImmutableList.copyOf(requestHeaders),
+                numwant
+        );
     }
 
-    public String getQuery() {
-        return query;
-    }
-
-    public Integer getNumwant() {
-        return numwant;
-    }
-
-    String createNewPeerId() {
+    private String generatePeerId() {
         final String peerIdPrefix = this.peerIdInfo.getPrefix();
         final int peerSuffixLength = PeerIdInfo.PEER_ID_LENGTH - this.peerIdInfo.getPrefix().length();
         String peerIdSuffix;
@@ -70,7 +68,7 @@ class TorrentClientConfig {
         return peerIdPrefix + peerIdSuffix;
     }
 
-    Optional<String> createNewKey() {
+    private Optional<String> generateNewKey() {
         if (Objects.isNull(this.keyInfo)) {
             return Optional.empty();
         }
@@ -122,7 +120,7 @@ class TorrentClientConfig {
         }
     }
 
-    static class PeerIdInfo {
+    private static class PeerIdInfo {
         static int PEER_ID_LENGTH = 20;
         private String prefix;
         private ValueType type;
@@ -156,7 +154,7 @@ class TorrentClientConfig {
         }
     }
 
-    static class KeyInfo {
+    private static class KeyInfo {
         private Integer length;
         private ValueType type;
         private boolean upperCase = false;
