@@ -25,13 +25,7 @@ public final class EmulatedClientFactory {
     }
 
     public EmulatedClient createClient() {
-        return new EmulatedClient(
-                this.emulatedClientConfig.createNewPeerId(),
-                this.emulatedClientConfig.createNewKey().orElse(null),
-                this.emulatedClientConfig.getQuery(),
-                this.emulatedClientConfig.getRequestHeaders(),
-                this.emulatedClientConfig.getNumwant()
-        );
+        return this.emulatedClientConfig.createClient();
     }
 
     private static TorrentClientConfig getClientConfigFromFile(final Path clientConfigFilePath) throws IOException {
