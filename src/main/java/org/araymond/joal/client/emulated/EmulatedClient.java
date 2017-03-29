@@ -20,7 +20,7 @@ public class EmulatedClient {
     public EmulatedClient(final String peerId, final String key, final String query, final Collection<HttpHeader> headers, final Integer numwant) {
         this.peerId = peerId;
         this.query = query;
-        this.headers = headers.stream().map(h -> new AbstractMap.SimpleEntry<>(h.getName(), h.getValue())).collect(Collectors.toList());
+        this.headers = headers.stream().map(h -> new AbstractMap.SimpleImmutableEntry<>(h.getName(), h.getValue())).collect(Collectors.toList());
         this.key = key;
         this.numwant = numwant;
     }
