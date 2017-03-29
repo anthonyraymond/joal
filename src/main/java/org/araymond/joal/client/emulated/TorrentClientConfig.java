@@ -72,7 +72,7 @@ class TorrentClientConfig {
 
     Optional<String> createNewKey() {
         if (Objects.isNull(this.keyInfo)) {
-            Optional.empty();
+            return Optional.empty();
         }
         String key;
         switch (this.peerIdInfo.getType()) {
