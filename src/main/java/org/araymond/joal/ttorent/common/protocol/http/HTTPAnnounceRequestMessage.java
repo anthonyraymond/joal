@@ -33,7 +33,7 @@ import java.util.Map;
  *
  * @author mpetazzoni
  */
-public final class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements AnnounceRequestMessage {
+public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements AnnounceRequestMessage {
 
     private final byte[] infoHash;
     private final Peer peer;
