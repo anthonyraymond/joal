@@ -6,7 +6,7 @@
 
     <groupId>org.araymond.joal</groupId>
     <artifactId>jack-of-all-trades</artifactId>
-    <version>1.0.3</version>
+    <version>1.0.4-SNAPSHOT</version>
 
     <scm>
         <connection>scm:git:https://github.com/anthonyraymond/joal.git</connection>
