@@ -1,3 +1,5 @@
+Un guide en francais est disponible [ici](http://h5ckfun.info/joal-le-nouveau-ratiomaster/)
+
 # Prepare confguration folder
 You first need to get the cofiguration folder. Replace `<MY_CONFIG_FOLDER_PATH>` by whatever path you want.
 ```
