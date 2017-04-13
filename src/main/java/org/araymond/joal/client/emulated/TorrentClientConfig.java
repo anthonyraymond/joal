@@ -204,9 +204,9 @@ class TorrentClientConfig {
     }
 
     enum ValueType {
-        @SerializedName("random")
+        @SerializedName("alphabetic")
         ALPHABETIC,
-        @SerializedName("random")
+        @SerializedName("numeric")
         NUMERIC,
         @SerializedName("alphanumeric")
         ALPHANUMERIC,
