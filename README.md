@@ -74,6 +74,7 @@ To learn more about .client, head to the [project's wiki][project-wiki].
 - [x] Add a file watcher to monitor torrent folder (hot loading .torrent files instead of restarting)
 - [x] Implement appear as contactable to peers.
 - [x] Add a config to define if torrent should be deleted or skipped if 0 peers were leeching.
+- [ ] Replace Gson with jackson and ensure ValueType deserialization will fail if unknown value is given.
 - [ ] Add tests.
 - [ ] Refactoring.
 

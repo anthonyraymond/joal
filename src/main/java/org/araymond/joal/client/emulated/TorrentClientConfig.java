@@ -28,7 +28,7 @@ class TorrentClientConfig {
 
     EmulatedClient createClient() {
         return new EmulatedClient(
-                this.generatePeerId(),
+                this.peerIdInfo.generateNewPeerId(),
                 this.generateNewKey().orElse(""),
                 query,
                 ImmutableList.copyOf(requestHeaders),
@@ -36,62 +36,11 @@ class TorrentClientConfig {
         );
     }
 
-    private String generatePeerId() {
-        final String peerIdPrefix = this.peerIdInfo.getPrefix();
-        final int peerSuffixLength = PeerIdInfo.PEER_ID_LENGTH - this.peerIdInfo.getPrefix().length();
-        String peerIdSuffix;
-        switch (this.peerIdInfo.getType()) {
-            case ALPHABETIC:
-                peerIdSuffix = RandomStringUtils.randomAlphabetic(peerSuffixLength);
-                break;
-            case NUMERIC:
-                peerIdSuffix = RandomStringUtils.randomNumeric(peerSuffixLength);
-                break;
-            case ALPHANUMERIC:
-                peerIdSuffix = RandomStringUtils.randomAlphanumeric(peerSuffixLength);
-                break;
-            case RANDOM:
-                peerIdSuffix = RandomStringUtils.random(peerSuffixLength, IntStream.range(0, 256).mapToObj(i -> Character.toString((char) i)).collect(Collectors.joining()).toCharArray());
-                break;
-            case PRINTABLE:
-                peerIdSuffix = RandomStringUtils.randomPrint(peerSuffixLength);
-                break;
-            default:
-                throw new TorrentClientConfigIntegrityException("Unhandled peer id type: " + this.peerIdInfo.getType());
-        }
-        if (this.peerIdInfo.isUpperCase()) {
-            peerIdSuffix = peerIdSuffix.toUpperCase();
-        } else if (this.peerIdInfo.isLowerCase()) {
-            peerIdSuffix = peerIdSuffix.toLowerCase();
-        }
-
-        return peerIdPrefix + peerIdSuffix;
-    }
-
     private Optional<String> generateNewKey() {
         if (Objects.isNull(this.keyInfo)) {
             return Optional.empty();
         }
-        String key;
-        switch (this.peerIdInfo.getType()) {
-            case ALPHABETIC:
-                key = RandomStringUtils.randomAlphabetic(this.keyInfo.length);
-                break;
-            case NUMERIC:
-                key = RandomStringUtils.randomNumeric(this.keyInfo.length);
-                break;
-            case ALPHANUMERIC:
-                key = RandomStringUtils.randomAlphanumeric(this.keyInfo.length);
-                break;
-            case RANDOM:
-                key = RandomStringUtils.random(this.keyInfo.length, IntStream.range(0, 256).mapToObj(i -> Character.toString((char) i)).collect(Collectors.joining()).toCharArray());
-                break;
-            case PRINTABLE:
-                key = RandomStringUtils.randomPrint(this.keyInfo.length);
-                break;
-            default:
-                throw new TorrentClientConfigIntegrityException("Unhandled key type: " + this.peerIdInfo.getType());
-        }
+        String key = this.keyInfo.getType().generateString(this.keyInfo.length);
         if (this.keyInfo.isUpperCase()) {
             key = key.toUpperCase();
         } else if (this.keyInfo.isLowerCase()) {
@@ -144,6 +93,19 @@ class TorrentClientConfig {
 
         boolean isLowerCase() {
             return lowerCase;
+        }
+
+        String generateNewPeerId() {
+            final String peerIdPrefix = this.getPrefix();
+            final int peerSuffixLength = PEER_ID_LENGTH - this.getPrefix().length();
+            String peerIdSuffix = this.getType().generateString(peerSuffixLength);
+            if (this.isUpperCase()) {
+                peerIdSuffix = peerIdSuffix.toUpperCase();
+            } else if (this.isLowerCase()) {
+                peerIdSuffix = peerIdSuffix.toLowerCase();
+            }
+
+            return peerIdPrefix + peerIdSuffix;
         }
 
         void validate() {
@@ -213,7 +175,31 @@ class TorrentClientConfig {
         @SerializedName("random")
         RANDOM,
         @SerializedName("printable")
-        PRINTABLE
+        PRINTABLE;
+
+        public String generateString(final int length) {
+            final String value;
+            switch (this) {
+                case ALPHABETIC:
+                    value = RandomStringUtils.randomAlphabetic(length);
+                    break;
+                case NUMERIC:
+                    value = RandomStringUtils.randomNumeric(length);
+                    break;
+                case ALPHANUMERIC:
+                    value = RandomStringUtils.randomAlphanumeric(length);
+                    break;
+                case RANDOM:
+                    value = RandomStringUtils.random(length, IntStream.range(0, 256).mapToObj(i -> Character.toString((char) i)).collect(Collectors.joining()).toCharArray());
+                    break;
+                case PRINTABLE:
+                    value = RandomStringUtils.randomPrint(length);
+                    break;
+                default:
+                    throw new TorrentClientConfigIntegrityException("Unhandled type: " + this.name());
+            }
+            return value;
+        }
     }
 
 }
