@@ -83,3 +83,5 @@ This project use a modified version of the awesome [mpetazzoni/ttorrent] library
 
 [project-wiki]: https://github.com/anthonyraymond/joal/wiki
 [mpetazzoni/ttorrent]: http://mpetazzoni.github.com/ttorrent/
+
+[![Analytics](https://ga-beacon.appspot.com/UA-97530761-1/joal/readme?pixel&useReferer)](https://github.com/igrigorik/ga-beacon)
