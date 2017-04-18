@@ -47,10 +47,10 @@ The application configuration belongs in `<MY_CONFIG_FOLDER_PATH>/config.json`.
 
 ```
 {
-  "minUploadRate": 180,
+  "minUploadRate": 180,
   "maxUploadRate": 190,
-  "seedFor": 840,
-  "waitBetweenSeed": 600,
+  "seedFor": 840,
+  "waitBetweenSeed": 600,
   "client": "azureus-5.7.4.0.client"
 }
 ```
@@ -84,4 +84,4 @@ This project use a modified version of the awesome [mpetazzoni/ttorrent] library
 [project-wiki]: https://github.com/anthonyraymond/joal/wiki
 [mpetazzoni/ttorrent]: http://mpetazzoni.github.com/ttorrent/
 
-[![Analytics](https://ga-beacon.appspot.com/UA-97530761-1/joal/readme?pixel&useReferer)](https://github.com/igrigorik/ga-beacon)
+[![Analytics](https://ga-beacon.appspot.com/UA-97530761-1/joal/readme?pixel)](https://github.com/igrigorik/ga-beacon)
