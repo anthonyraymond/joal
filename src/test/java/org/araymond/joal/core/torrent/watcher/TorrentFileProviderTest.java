@@ -98,16 +98,14 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldDetectFileAlreadyCreatedOnStartup() throws InterruptedException, IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(torrentFolderPath, 10);
-
-        provider.start();
-
         addTorrentFile("I have a dream.torrent");
         addTorrentFile("That one day torrent file would be loaded on startup.torrent");
         addTorrentFile("I have a dream today.torrent");
-        Thread.sleep(15);
-        assertThat(provider.getTorrentCount()).isEqualTo(3);
 
+        final TorrentFileProvider provider = new TorrentFileProvider(torrentFolderPath, 10);
+
+        provider.start();
+        assertThat(provider.getTorrentCount()).isEqualTo(3);
         provider.stop();
     }
 
