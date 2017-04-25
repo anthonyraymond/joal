@@ -63,20 +63,8 @@ The application configuration belongs in `<MY_CONFIG_FOLDER_PATH>/config.json`.
 ### Create your own torrent clients
 To learn more about .client, head to the [project's wiki][project-wiki].
 
-## ROADMAP
-- [x] Add application setting with setting file
-- [x] App setting : min_upload_rate
-- [x] App setting : max_upload_rate
-- [x] Externalise client definition to .clients file
-- [x] Add client header to HttpRequest
-- [x] When a torrent reach 0 peers, try with another torrent instead of stopping.
-- [x] When a torrent reach 0 peers, remove the torrent file from the directory.
-- [x] Add a file watcher to monitor torrent folder (hot loading .torrent files instead of restarting)
-- [x] Implement appear as contactable to peers.
-- [x] Add a config to define if torrent should be deleted or skipped if 0 peers were leeching.
-- [ ] Replace Gson with jackson and ensure ValueType deserialization will fail if unknown value is given.
-- [ ] Add tests.
-- [ ] Refactoring.
+## ROADMAP to v2
+- https://github.com/anthonyraymond/joal/issues/4
 
 # Thanks:
 This project use a modified version of the awesome [mpetazzoni/ttorrent] library. Thanks to **mpetazzoni** for this.
