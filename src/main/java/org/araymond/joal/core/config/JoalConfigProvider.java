@@ -60,7 +60,6 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
-        configuration.validate();
         this.isDirty = false;
         return configuration;
     }

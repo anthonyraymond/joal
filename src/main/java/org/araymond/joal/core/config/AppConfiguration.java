@@ -1,6 +1,8 @@
 package org.araymond.joal.core.config;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.base.Objects;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -8,23 +10,27 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class AppConfiguration {
 
-    private int minUploadRate = 180;
-    private int maxUploadRate = 195;
-    private int seedFor = 840;
-    private int waitBetweenSeed = 600;
-    @JsonProperty("client")
-    private String client = "azureus-5.7.4.0.client";
+    private final int minUploadRate;
+    private final int maxUploadRate;
+    private final int seedFor;
+    private final int waitBetweenSeed;
+    private final String client;
 
-    AppConfiguration(){
-
-    }
-
-    public AppConfiguration(final int minUploadRate, final int maxUploadRate, final int seedFor, final int waitBetweenSeed, final String client) {
+    @JsonCreator
+    AppConfiguration(
+            @JsonProperty(value = "minUploadRate", required = true) final int minUploadRate,
+            @JsonProperty(value = "maxUploadRate", required = true) final int maxUploadRate,
+            @JsonProperty(value = "seedFor", required = true) final int seedFor,
+            @JsonProperty(value = "waitBetweenSeed", required = true) final int waitBetweenSeed,
+            @JsonProperty(value = "client", required = true) final String client
+    ) {
         this.minUploadRate = minUploadRate;
         this.maxUploadRate = maxUploadRate;
         this.seedFor = seedFor;
         this.waitBetweenSeed = waitBetweenSeed;
         this.client = client;
+
+        validate();
     }
 
     public int getMaxUploadRate() {
@@ -48,22 +54,41 @@ public class AppConfiguration {
         return client;
     }
 
-    void validate() {
+    private void validate() {
         if (minUploadRate < 0) {
-            throw new ConfigurationIntegrityException("minUploadRate must be at least 0.");
+            throw new AppConfigurationIntegrityException("minUploadRate must be at least 0.");
+        }
+        if (maxUploadRate < 0) {
+            throw new AppConfigurationIntegrityException("maxUploadRate must greater than 0.");
         }
         if (maxUploadRate <= minUploadRate) {
-            throw new ConfigurationIntegrityException("maxUploadRate must be greater than minUploadRate.");
+            throw new AppConfigurationIntegrityException("maxUploadRate must be strictly greater than minUploadRate.");
         }
         if (seedFor < 1) {
-            throw new ConfigurationIntegrityException("seedFor must be greater than 1.");
+            throw new AppConfigurationIntegrityException("seedFor must be greater than 1.");
         }
         if (waitBetweenSeed < 1) {
-            throw new ConfigurationIntegrityException("seedFor must be greater than 1.");
+            throw new AppConfigurationIntegrityException("waitBetweenSeed must be greater than 1.");
         }
         if (StringUtils.isBlank(client)) {
-            throw new ConfigurationIntegrityException("client cannot be blank.");
+            throw new AppConfigurationIntegrityException("client is required, no file name given.");
         }
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final AppConfiguration that = (AppConfiguration) o;
+        return minUploadRate == that.minUploadRate &&
+                maxUploadRate == that.maxUploadRate &&
+                seedFor == that.seedFor &&
+                waitBetweenSeed == that.waitBetweenSeed &&
+                Objects.equal(client, that.client);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(minUploadRate, maxUploadRate, seedFor, waitBetweenSeed, client);
+    }
 }

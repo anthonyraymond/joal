@@ -24,7 +24,6 @@ public class ConfigProvider {
         try (Reader reader = new FileReader(configPath.toFile())) {
             config = new GsonBuilder().create().fromJson(reader, AppConfiguration.class);
         }
-        config.validate();
     }
 
     public static AppConfiguration get() {

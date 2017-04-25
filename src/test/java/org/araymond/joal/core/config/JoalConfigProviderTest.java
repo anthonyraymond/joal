@@ -21,7 +21,7 @@ import static org.junit.Assert.fail;
 public class JoalConfigProviderTest {
 
     static final Path resourcePath = Paths.get("src/test/resources/configtest");
-    static final AppConfiguration defaultConfig = new AppConfiguration(
+    public static final AppConfiguration defaultConfig = new AppConfiguration(
         180,
         190,
         840,

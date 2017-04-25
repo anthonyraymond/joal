@@ -3,25 +3,25 @@ package org.araymond.joal.core.config;
 /**
  * Created by raymo on 24/01/2017.
  */
-public class ConfigurationIntegrityException extends RuntimeException {
+public class AppConfigurationIntegrityException extends RuntimeException {
     private static final long serialVersionUID = 2653545407314227748L;
 
-    ConfigurationIntegrityException() {
+    AppConfigurationIntegrityException() {
     }
 
-    ConfigurationIntegrityException(final String message) {
+    AppConfigurationIntegrityException(final String message) {
         super(message);
     }
 
-    ConfigurationIntegrityException(final String message, final Throwable cause) {
+    AppConfigurationIntegrityException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    ConfigurationIntegrityException(final Throwable cause) {
+    AppConfigurationIntegrityException(final Throwable cause) {
         super(cause);
     }
 
-    ConfigurationIntegrityException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
+    AppConfigurationIntegrityException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }
