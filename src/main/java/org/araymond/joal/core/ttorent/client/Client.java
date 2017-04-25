@@ -5,7 +5,7 @@ import com.turn.ttorrent.client.Client.ClientState;
 import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
-import org.araymond.joal.core.client.emulated.EmulatedClient;
+import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.ConfigProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announce;
 import org.slf4j.Logger;
@@ -41,12 +41,12 @@ public class Client implements Runnable, AnnounceResponseListener {
     private Timer seedShutdownTimer;
     private final Random random;
 
-    public Client(final InetAddress address, final MockedTorrent torrent, final EmulatedClient emulatedClient) throws UnknownHostException, IOException {
+    public Client(final InetAddress address, final MockedTorrent torrent, final BitTorrentClient bitTorrentClient) throws UnknownHostException, IOException {
         this.torrent = torrent;
         this.eventBus = new EventBus();
         this.state = ClientState.WAITING;
 
-        final String id = emulatedClient.getPeerId();
+        final String id = bitTorrentClient.getPeerId();
         this.service = new ConnectionHandler(this.torrent, id, address);
 
         this.self = new Peer(
@@ -56,7 +56,7 @@ public class Client implements Runnable, AnnounceResponseListener {
         );
 
         // Initialize the announce request thread, and register ourselves to it as well.
-        this.announce = new Announce(this.torrent, this.self, emulatedClient);
+        this.announce = new Announce(this.torrent, this.self, bitTorrentClient);
         this.announce.register(this);
 
         this.peerCount = 0;

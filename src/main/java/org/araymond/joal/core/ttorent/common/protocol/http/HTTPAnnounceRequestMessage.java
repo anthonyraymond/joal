@@ -9,7 +9,7 @@ import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
-import org.araymond.joal.core.client.emulated.EmulatedClient;
+import org.araymond.joal.core.client.emulated.BitTorrentClient;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -129,22 +129,22 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements An
      * @param trackerAnnounceURL The tracker's announce URL.
      * @return The URL object representing the announce request URL.
      */
-    public URL buildAnnounceURL(final URL trackerAnnounceURL, final EmulatedClient emulatedClient) throws UnsupportedEncodingException, MalformedURLException {
+    public URL buildAnnounceURL(final URL trackerAnnounceURL, final BitTorrentClient bitTorrentClient) throws UnsupportedEncodingException, MalformedURLException {
         final String base = trackerAnnounceURL.toString();
-        String emulatedClientQuery = emulatedClient.getQuery()
+        String emulatedClientQuery = bitTorrentClient.getQuery()
                 .replaceAll("\\{infohash}", URLEncoder.encode(new String(this.getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING))
                 .replaceAll("\\{peerid}", URLEncoder.encode(new String(this.getPeerId(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING))
                 .replaceAll("\\{uploaded}", String.valueOf(this.getUploaded()))
                 .replaceAll("\\{downloaded}", String.valueOf(this.getDownloaded()))
                 .replaceAll("\\{left}", String.valueOf(this.getLeft()))
-                .replaceAll("\\{numwant}", String.valueOf(emulatedClient.getNumwant().orElse(HTTPAnnounceRequestMessage.DEFAULT_NUM_WANT)))
+                .replaceAll("\\{numwant}", String.valueOf(bitTorrentClient.getNumwant()))
                 .replaceAll("\\{port}", String.valueOf(this.getPort()))
                 .replaceAll("\\{ip}", this.getIp());
 
 
         if (emulatedClientQuery.contains("{key}")) {
             emulatedClientQuery = emulatedClientQuery
-                    .replaceAll("\\{key}", URLEncoder.encode(emulatedClient.getKey().get(), Torrent.BYTE_ENCODING));
+                    .replaceAll("\\{key}", URLEncoder.encode(bitTorrentClient.getKey().get(), Torrent.BYTE_ENCODING));
         }
         if (this.getEvent() == null || this.getEvent() == RequestEvent.NONE) {
             // if event was NONE, remove the event from the query string
@@ -253,6 +253,7 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements An
         params.put("left", new BEValue(left));
         params.put("compact", new BEValue(compact ? 1 : 0));
         params.put("no_peer_id", new BEValue(noPeerId ? 1 : 0));
+        params.put("numwant", new BEValue(numWant));
 
         if (event != null) {
             params.put("event", new BEValue(event.getEventName(), Torrent.BYTE_ENCODING));
@@ -260,10 +261,6 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements An
 
         if (ip != null) {
             params.put("ip", new BEValue(ip, Torrent.BYTE_ENCODING));
-        }
-
-        if (numWant != AnnounceRequestMessage.DEFAULT_NUM_WANT) {
-            params.put("numwant", new BEValue(numWant));
         }
 
         return new HTTPAnnounceRequestMessage(

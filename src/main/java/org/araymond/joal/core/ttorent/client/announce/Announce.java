@@ -4,7 +4,7 @@ import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import org.apache.commons.lang3.NotImplementedException;
-import org.araymond.joal.core.client.emulated.EmulatedClient;
+import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class Announce implements Runnable {
      * @param torrent The torrent we're announcing about.
      * @param peer    Our peer specification.
      */
-    public Announce(final MockedTorrent torrent, final Peer peer, final EmulatedClient emulatedClient) {
+    public Announce(final MockedTorrent torrent, final Peer peer, final BitTorrentClient bitTorrentClient) {
         this.peer = peer;
         this.clients = new ArrayList<>();
         this.allClients = new HashSet<>();
@@ -66,7 +66,7 @@ public class Announce implements Runnable {
             final List<TrackerClient> tierClients = new ArrayList<>();
             for (final URI tracker : tier) {
                 try {
-                    final TrackerClient client = this.createTrackerClient(torrent, peer, tracker, emulatedClient);
+                    final TrackerClient client = this.createTrackerClient(torrent, peer, tracker, bitTorrentClient);
 
                     tierClients.add(client);
                     this.allClients.add(client);
@@ -233,15 +233,15 @@ public class Announce implements Runnable {
      * @param torrent        The torrent the tracker client will be announcing for.
      * @param peer           The peer the tracker client will announce on behalf of.
      * @param tracker        The tracker address as a {@link URI}.
-     * @param emulatedClient
+     * @param bitTorrentClient
      * @throws UnknownHostException    If the tracker address is invalid.
      * @throws UnknownServiceException If the tracker protocol is not supported.
      */
-    private TrackerClient createTrackerClient(final MockedTorrent torrent, final Peer peer, final URI tracker, final EmulatedClient emulatedClient) throws UnknownHostException, UnknownServiceException {
+    private TrackerClient createTrackerClient(final MockedTorrent torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) throws UnknownHostException, UnknownServiceException {
         final String scheme = tracker.getScheme();
 
         if ("http".equals(scheme) || "https".equals(scheme)) {
-            return new HTTPTrackerClient(torrent, peer, tracker, emulatedClient);
+            return new HTTPTrackerClient(torrent, peer, tracker, bitTorrentClient);
         } else if ("udp".equals(scheme)) {
             // FIXME: implement UDPTracketClient
             throw new NotImplementedException("UDP Client not implemented yet.");

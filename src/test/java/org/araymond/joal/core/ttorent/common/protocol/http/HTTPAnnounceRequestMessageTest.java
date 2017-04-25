@@ -1,14 +1,13 @@
 package org.araymond.joal.core.ttorent.common.protocol.http;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.EmulatedClient;
+import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,8 +18,8 @@ import static org.assertj.core.api.Assertions.fail;
  */
 public class HTTPAnnounceRequestMessageTest {
 
-    private EmulatedClient createEmulatedClientForQuery(final String query) {
-        return new EmulatedClient(
+    private BitTorrentClient createEmulatedClientForQuery(final String query) {
+        return new BitTorrentClient(
                 "A2-1-30-0-qdsqdsqz",
                 "1q5d4z9",
                 query,
@@ -46,7 +45,7 @@ public class HTTPAnnounceRequestMessageTest {
     @Test
     public void shouldBuildAnnounceURL() throws MalformedURLException, UnsupportedEncodingException {
         final URL baseUrl = new URL("http://localhost");
-        final EmulatedClient client = createEmulatedClientForQuery(
+        final BitTorrentClient client = createEmulatedClientForQuery(
                 "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&event={event}&numwant={numwant}&key={key}&ip={ip}"
         );
 
@@ -63,7 +62,7 @@ public class HTTPAnnounceRequestMessageTest {
                 .contains("downloaded=" + 0L)
                 .contains("left=" + 0L)
                 .contains("event=" + RequestEvent.STARTED.getEventName())
-                .contains("numwant=" + client.getNumwant().get())
+                .contains("numwant=" + client.getNumwant())
                 .contains("key=" + client.getKey().get())
                 .contains("ip=" + announceMsg.getIp());
     }
@@ -71,7 +70,7 @@ public class HTTPAnnounceRequestMessageTest {
     @Test
     public void shouldBuildCorrectlyEvenIfBaseUrlContainsParams() throws MalformedURLException, UnsupportedEncodingException {
         final URL baseUrl = new URL("http://localhost?name=jack");
-        final EmulatedClient client = createEmulatedClientForQuery(
+        final BitTorrentClient client = createEmulatedClientForQuery(
                 "info_hash={infohash}"
         );
 
@@ -91,7 +90,7 @@ public class HTTPAnnounceRequestMessageTest {
     @Test
     public void shouldBuildAnnounceURLAnStayOrderedAsQuery() throws MalformedURLException, UnsupportedEncodingException {
         final URL baseUrl = new URL("http://localhost");
-        final EmulatedClient client = createEmulatedClientForQuery(
+        final BitTorrentClient client = createEmulatedClientForQuery(
                 "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&event={event}&numwant={numwant}&key={key}&ip={ip}"
         );
 
@@ -108,7 +107,7 @@ public class HTTPAnnounceRequestMessageTest {
                         + "&" + "downloaded=" + 0L
                         + "&" + "left=" + 0L
                         + "&" + "event=" + RequestEvent.STARTED.getEventName()
-                        + "&" + "numwant=" + client.getNumwant().get()
+                        + "&" + "numwant=" + client.getNumwant()
                         + "&" + "key=" + client.getKey().get()
                         + "&" + "ip=" + announceMsg.getIp()
                 );
@@ -117,7 +116,7 @@ public class HTTPAnnounceRequestMessageTest {
     @Test
     public void shouldRemoveEventIfEventIsNONE() throws MalformedURLException, UnsupportedEncodingException {
         final URL baseUrl = new URL("http://localhost");
-        final EmulatedClient client = createEmulatedClientForQuery(
+        final BitTorrentClient client = createEmulatedClientForQuery(
                 "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&event={event}&numwant={numwant}&key={key}&ip={ip}"
         );
 
@@ -127,24 +126,6 @@ public class HTTPAnnounceRequestMessageTest {
 
         assertThat(announceMsg.buildAnnounceURL(baseUrl, client).toString())
                 .doesNotContain("event");
-    }
-
-    @Test
-    public void shouldUseDefaultNumWantIfNotProvidedByClient() throws MalformedURLException, UnsupportedEncodingException {
-        final URL baseUrl = new URL("http://localhost");
-        final EmulatedClient client = new EmulatedClient(
-                "A2-1-30-0-qdsqdsqz",
-                "1q5d4z9",
-                "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&event={event}&numwant={numwant}&key={key}&ip={ip}",
-                new ArrayList<>(),
-                null
-        );
-
-        final HTTPAnnounceRequestMessage announceMsg = createDefaultAnnounceMessageMock();
-        Mockito.when(announceMsg.buildAnnounceURL(Mockito.any(), Mockito.any())).thenCallRealMethod();
-
-        assertThat(announceMsg.buildAnnounceURL(baseUrl, client).toString())
-                .contains("numwant=" + HTTPAnnounceRequestMessage.DEFAULT_NUM_WANT);
     }
 
 }

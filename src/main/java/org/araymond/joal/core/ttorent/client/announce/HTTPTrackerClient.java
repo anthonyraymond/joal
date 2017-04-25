@@ -5,7 +5,7 @@ import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.araymond.joal.core.client.emulated.EmulatedClient;
+import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.common.protocol.http.HTTPAnnounceRequestMessage;
 import org.slf4j.Logger;
@@ -32,7 +32,7 @@ import static com.turn.ttorrent.common.protocol.TrackerMessage.MessageValidation
 public class HTTPTrackerClient extends TrackerClient {
 
     protected static final Logger logger = LoggerFactory.getLogger(HTTPTrackerClient.class);
-    private final EmulatedClient emulatedClient;
+    private final BitTorrentClient bitTorrentClient;
 
     /**
      * Create a new HTTP announcer for the given torrent.
@@ -40,10 +40,10 @@ public class HTTPTrackerClient extends TrackerClient {
      * @param torrent The torrent we're announcing about.
      * @param peer Our own peer specification.
      */
-    protected HTTPTrackerClient(final MockedTorrent torrent, final Peer peer, final URI tracker, final EmulatedClient emulatedClient) {
+    protected HTTPTrackerClient(final MockedTorrent torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) {
         super(torrent, peer, tracker);
 
-        this.emulatedClient = emulatedClient;
+        this.bitTorrentClient = bitTorrentClient;
     }
 
     /**
@@ -75,7 +75,7 @@ public class HTTPTrackerClient extends TrackerClient {
         final URL target;
         try {
             final HTTPAnnounceRequestMessage request = this.buildAnnounceRequest(event);
-            target = request.buildAnnounceURL(this.tracker.toURL(), this.emulatedClient);
+            target = request.buildAnnounceURL(this.tracker.toURL(), this.bitTorrentClient);
         } catch (final MalformedURLException mue) {
             throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
         } catch (final MessageValidationException mve) {
@@ -141,7 +141,7 @@ public class HTTPTrackerClient extends TrackerClient {
     }
 
     private void addHttpHeaders(final HttpURLConnection conn) {
-        for (final Map.Entry<String, String> header : this.emulatedClient.getHeaders()) {
+        for (final Map.Entry<String, String> header : this.bitTorrentClient.getHeaders()) {
             final String value = header.getValue()
                     .replaceAll("\\{host}", conn.getURL().getHost())
                     .replaceAll("\\{java}", "Java " + System.getProperty("java.version"))
@@ -161,7 +161,7 @@ public class HTTPTrackerClient extends TrackerClient {
      * @throws IOException
      * @throws MessageValidationException
      */
-    private HTTPAnnounceRequestMessage buildAnnounceRequest(final AnnounceRequestMessage.RequestEvent event) throws UnsupportedEncodingException, IOException,
+    private HTTPAnnounceRequestMessage buildAnnounceRequest(final AnnounceRequestMessage.RequestEvent event) throws IOException,
             MessageValidationException {
         // Build announce request message
         return HTTPAnnounceRequestMessage.craft(
@@ -173,7 +173,8 @@ public class HTTPTrackerClient extends TrackerClient {
                 this.torrent.getLeft(),
                 true, false, event,
                 this.peer.getIp(),
-                AnnounceRequestMessage.DEFAULT_NUM_WANT);
+                bitTorrentClient.getNumwant()
+        );
     }
 
 }

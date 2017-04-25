@@ -14,9 +14,9 @@ import java.nio.file.Path;
  */
 public final class EmulatedClientFactory {
 
-    private final TorrentClientConfig emulatedClientConfig;
+    private final BitTorrentClientConfig emulatedClientConfig;
 
-    private EmulatedClientFactory(final TorrentClientConfig emulatedClientConfig) {
+    private EmulatedClientFactory(final BitTorrentClientConfig emulatedClientConfig) {
         this.emulatedClientConfig = emulatedClientConfig;
     }
 
@@ -24,20 +24,19 @@ public final class EmulatedClientFactory {
         return new EmulatedClientFactory(getClientConfigFromFile(clientConfigFilePath));
     }
 
-    public EmulatedClient createClient() {
+    public BitTorrentClient createClient() {
         return this.emulatedClientConfig.createClient();
     }
 
-    private static TorrentClientConfig getClientConfigFromFile(final Path clientConfigFilePath) throws IOException {
+    private static BitTorrentClientConfig getClientConfigFromFile(final Path clientConfigFilePath) throws IOException {
         if (!Files.exists(clientConfigFilePath)) {
             throw new FileNotFoundException(String.format("Configuration file '%s' not found.", clientConfigFilePath.toString()));
         }
 
-        final TorrentClientConfig config;
+        final BitTorrentClientConfig config;
         try (Reader reader = new FileReader(clientConfigFilePath.toFile())) {
-            config = new GsonBuilder().create().fromJson(reader, TorrentClientConfig.class);
+            config = new GsonBuilder().create().fromJson(reader, BitTorrentClientConfig.class);
         }
-        config.validate();
         return config;
     }
 
