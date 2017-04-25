@@ -1,5 +1,7 @@
 package org.araymond.joal.core.client.emulated;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.gson.annotations.SerializedName;
@@ -17,17 +19,30 @@ import java.util.stream.IntStream;
  * Created by raymo on 24/01/2017.
  */
 class TorrentClientConfig {
-    @SuppressWarnings("unused") private PeerIdInfo peerIdInfo; // JSON provided
-    @SuppressWarnings("unused") private String query;  // JSON provided
-    @SuppressWarnings("unused") private KeyInfo keyInfo;  // JSON provided
-    private List<HttpHeader> requestHeaders = new ArrayList<>();
-    private Integer numwant = null;
+    private final PeerIdInfo peerIdInfo;
+    private final String query;
+    private final KeyInfo keyInfo;
+    private final List<HttpHeader> requestHeaders;
+    private final Integer numwant;
 
-    TorrentClientConfig() {
+
+    @JsonCreator
+    TorrentClientConfig(
+            @JsonProperty(value = "peerIdInfo", required = true) final PeerIdInfo peerIdInfo,
+            @JsonProperty(value = "query", required = true) final String query,
+            @JsonProperty("keyInfo") final KeyInfo keyInfo,
+            @JsonProperty(value = "requestHeaders", required = true) final List<HttpHeader> requestHeaders,
+            @JsonProperty(value = "numwant", required = true) final Integer numwant
+    ) {
+        this.peerIdInfo = peerIdInfo;
+        this.query = query;
+        this.keyInfo = keyInfo; // May be null
+        this.requestHeaders = requestHeaders; // May be empty, but not null
+        this.numwant = numwant;
     }
 
-    EmulatedClient createClient() {
-        return new EmulatedClient(
+    BitTorrentClient createClient() {
+        return new BitTorrentClient(
                 this.peerIdInfo.generateNewPeerId(),
                 this.generateNewKey().orElse(""),
                 query,
@@ -71,12 +86,22 @@ class TorrentClientConfig {
 
     private static class PeerIdInfo {
         static int PEER_ID_LENGTH = 20;
-        private String prefix;
-        private ValueType type;
-        private boolean upperCase = false;
-        private boolean lowerCase = false;
+        private final String prefix;
+        private final ValueType type;
+        private final boolean upperCase;
+        private final boolean lowerCase;
 
-        PeerIdInfo() {
+        @JsonCreator
+        public PeerIdInfo(
+                @JsonProperty(value = "prefix", required = true) final String prefix,
+                @JsonProperty(value = "type", required = true) final ValueType type,
+                @JsonProperty(value = "upperCase", required = true) final boolean upperCase,
+                @JsonProperty(value = "lowerCase", required = true) final boolean lowerCase
+        ) {
+            this.prefix = prefix;
+            this.type = type;
+            this.upperCase = upperCase;
+            this.lowerCase = lowerCase;
         }
 
         String getPrefix() {
@@ -117,12 +142,21 @@ class TorrentClientConfig {
     }
 
     private static class KeyInfo {
-        private Integer length;
-        private ValueType type;
-        private boolean upperCase = false;
-        private boolean lowerCase = false;
+        private final Integer length;
+        private final ValueType type;
+        private final boolean upperCase;
+        private final boolean lowerCase;
 
-        KeyInfo() {
+        public KeyInfo(
+                @JsonProperty(value = "length", required = true) final Integer length,
+                @JsonProperty(value = "type", required = true) final ValueType type,
+                @JsonProperty(value = "upperCase", required = true) final boolean upperCase,
+                @JsonProperty(value = "lowerCase", required = true) final boolean lowerCase
+        ) {
+            this.length = length;
+            this.type = type;
+            this.upperCase = upperCase;
+            this.lowerCase = lowerCase;
         }
 
         public int getLength() {
@@ -151,7 +185,8 @@ class TorrentClientConfig {
         private final String name;
         private final String value;
 
-        HttpHeader(final String name, final String value) {
+        @JsonCreator
+        HttpHeader(@JsonProperty(value = "name", required = true) final String name, @JsonProperty(value = "value", required = true) final String value) {
             this.name = name;
             this.value = value;
         }
@@ -166,15 +201,15 @@ class TorrentClientConfig {
     }
 
     enum ValueType {
-        @SerializedName("alphabetic")
+        @JsonProperty("alphabetic")
         ALPHABETIC,
-        @SerializedName("numeric")
+        @JsonProperty("numeric")
         NUMERIC,
-        @SerializedName("alphanumeric")
+        @JsonProperty("alphanumeric")
         ALPHANUMERIC,
-        @SerializedName("random")
+        @JsonProperty("random")
         RANDOM,
-        @SerializedName("printable")
+        @JsonProperty("printable")
         PRINTABLE;
 
         public String generateString(final int length) {
