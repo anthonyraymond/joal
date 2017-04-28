@@ -2,6 +2,8 @@ package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,7 +22,6 @@ import java.nio.file.Paths;
 public class JoalConfigProvider implements Provider<AppConfiguration> {
     private static final String CONF_FILE_NAME = "config.json";
 
-
     private final String joalConfFolder;
     private final ObjectMapper objectMapper;
     private boolean isDirty = true;
@@ -35,12 +36,17 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     @Override
     public AppConfiguration get() {
         if (this.isDirty || this.config == null) {
+
             this.config = loadConfiguration();
         }
         return this.config;
     }
 
     // TODO: implement a watcher to check if config is updated (and then set isDirty)
+    void setDirtyState() {
+        this.isDirty = true;
+    }
+
 
     AppConfiguration loadConfiguration() {
         if (StringUtils.isBlank(joalConfFolder)) {

@@ -1,16 +1,10 @@
 package org.araymond.joal.core.config;
 
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import javax.inject.Provider;
-import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -20,7 +14,7 @@ import static org.junit.Assert.fail;
  */
 public class JoalConfigProviderTest {
 
-    static final Path resourcePath = Paths.get("src/test/resources/configtest");
+    private static final Path resourcePath = Paths.get("src/test/resources/configtest");
     public static final AppConfiguration defaultConfig = new AppConfiguration(
         180,
         190,
@@ -54,9 +48,29 @@ public class JoalConfigProviderTest {
     @Test
     public void shouldLoadConf() {
         final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString());
-        final AppConfiguration conf = provider.loadConfiguration();
 
-        assertThat(conf).isEqualToComparingFieldByField(defaultConfig);
+        assertThat(provider.get()).isEqualToComparingFieldByField(defaultConfig);
+    }
+
+    @Test
+    public void shouldLoadConfOnlyOneTimeIfNoDirtyState() {
+        final JoalConfigProvider provider = Mockito.spy(new JoalConfigProvider(new ObjectMapper(), resourcePath.toString()));
+
+        provider.get();
+        provider.get();
+
+        Mockito.verify(provider, Mockito.times(1)).loadConfiguration();
+    }
+
+    @Test
+    public void shouldReLoadConfOnlyOneTimeIfSetToDirtyState() {
+        final JoalConfigProvider provider = Mockito.spy(new JoalConfigProvider(new ObjectMapper(), resourcePath.toString()));
+
+        provider.get();
+        provider.setDirtyState();
+        provider.get();
+
+        Mockito.verify(provider, Mockito.times(2)).loadConfiguration();
     }
 
 }
