@@ -37,14 +37,18 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         }
         this.joalConfPath = Paths.get(confFolder).resolve(CONF_FILE_NAME);
         if (!Files.exists(joalConfPath)) {
-            throw new FileNotFoundException(String.format("Configuration file '%s' not found.", joalConfPath));
+            throw new FileNotFoundException(String.format("App configuration file '%s' not found.", joalConfPath));
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("App configuration file will be searched for in {}", joalConfPath.toAbsolutePath());
         }
     }
 
     @Override
     public AppConfiguration get() {
         if (this.isDirty || this.config == null) {
-
+            logger.info("App configuration is dirty or has not been loaded yet.");
             this.config = loadConfiguration();
         }
         return this.config;
@@ -52,6 +56,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
 
     // TODO: implement a watcher to check if config is updated (and then set isDirty)
     void setDirtyState() {
+        logger.debug("App configuration has been set to dirty state.");
         this.isDirty = true;
     }
 
@@ -59,11 +64,17 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     AppConfiguration loadConfiguration() {
         final AppConfiguration configuration;
         try {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Reading json configuration from '{}'.", joalConfPath.toAbsolutePath());
+            }
             configuration = objectMapper.readValue(joalConfPath.toFile(), AppConfiguration.class);
+            logger.debug("Successfully red json configuration.");
         } catch (final IOException e) {
+            logger.error("Failed to read configuration file", e);
             throw new IllegalStateException(e);
         }
         this.isDirty = false;
+        logger.info("App configuration has been successfully loaded.");
         return configuration;
     }
 

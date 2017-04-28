@@ -37,7 +37,7 @@ public class JoalConfigProviderTest {
         final String fakePath = resourcePath.resolve("nop").toString();
         assertThatThrownBy(() ->new JoalConfigProvider(new ObjectMapper(), fakePath))
                 .isInstanceOf(FileNotFoundException.class)
-                .hasMessageContaining("Configuration file '" + fakePath + "\\config.json' not found.");
+                .hasMessageContaining("App configuration file '" + fakePath + "\\config.json' not found.");
     }
 
     @Test
