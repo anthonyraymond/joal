@@ -20,17 +20,25 @@ import java.nio.file.Paths;
  */
 @Component
 public class JoalConfigProvider implements Provider<AppConfiguration> {
+    private static final Logger logger = LoggerFactory.getLogger(JoalConfigProvider.class);
     private static final String CONF_FILE_NAME = "config.json";
 
-    private final String joalConfFolder;
+    private final Path joalConfPath;
     private final ObjectMapper objectMapper;
     private boolean isDirty = true;
     private AppConfiguration config = null;
 
     @Inject
-    public JoalConfigProvider(final ObjectMapper objectMapper, @Value("${joal-conf}") final String confFolder) {
+    public JoalConfigProvider(final ObjectMapper objectMapper, @Value("${joal-conf}") final String confFolder) throws FileNotFoundException {
         this.objectMapper = objectMapper;
-        this.joalConfFolder = confFolder;
+
+        if (StringUtils.isBlank(confFolder)) {
+            throw new IllegalArgumentException("A config path is required.");
+        }
+        this.joalConfPath = Paths.get(confFolder).resolve(CONF_FILE_NAME);
+        if (!Files.exists(joalConfPath)) {
+            throw new FileNotFoundException(String.format("Configuration file '%s' not found.", joalConfPath));
+        }
     }
 
     @Override
@@ -49,17 +57,6 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
 
 
     AppConfiguration loadConfiguration() {
-        if (StringUtils.isBlank(joalConfFolder)) {
-            throw new IllegalArgumentException("A config path is required.");
-        }
-        final Path joalConfPath = Paths.get(joalConfFolder).resolve(CONF_FILE_NAME);
-        if (!Files.exists(joalConfPath)) {
-            throw new IllegalStateException(
-                    String.format("Configuration file '%s' not found.", joalConfPath),
-                    new FileNotFoundException(String.format("Configuration file '%s' not found.", joalConfPath))
-            );
-        }
-
         final AppConfiguration configuration;
         try {
             configuration = objectMapper.readValue(joalConfPath.toFile(), AppConfiguration.class);

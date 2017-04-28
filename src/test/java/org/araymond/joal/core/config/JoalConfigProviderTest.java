@@ -4,9 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.FileNotFoundException;
 import java.nio.file.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.fail;
 
 /**
@@ -25,35 +27,28 @@ public class JoalConfigProviderTest {
 
     @Test
     public void shouldFailIWithEmptyConfigPath() {
-        try {
-            final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), " ");
-            provider.loadConfiguration();
-            fail();
-        } catch (final Exception e) {
-            assertThat(e.getMessage()).isEqualTo("A config path is required.");
-        }
+        assertThatThrownBy(() ->new JoalConfigProvider(new ObjectMapper(), " "))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("A config path is required.");
     }
 
     @Test
     public void shouldFailIfJsonFileIsNotPresent() {
-        try {
-            final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.resolve("dd").toString());
-            provider.loadConfiguration();
-            fail();
-        } catch (final Exception e) {
-            assertThat(e.getMessage()).isEqualTo("Configuration file 'src\\test\\resources\\configtest\\dd\\config.json' not found.");
-        }
+        final String fakePath = resourcePath.resolve("nop").toString();
+        assertThatThrownBy(() ->new JoalConfigProvider(new ObjectMapper(), fakePath))
+                .isInstanceOf(FileNotFoundException.class)
+                .hasMessageContaining("Configuration file '" + fakePath + "\\config.json' not found.");
     }
 
     @Test
-    public void shouldLoadConf() {
+    public void shouldLoadConf() throws FileNotFoundException {
         final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString());
 
         assertThat(provider.get()).isEqualToComparingFieldByField(defaultConfig);
     }
 
     @Test
-    public void shouldLoadConfOnlyOneTimeIfNoDirtyState() {
+    public void shouldLoadConfOnlyOneTimeIfNoDirtyState() throws FileNotFoundException {
         final JoalConfigProvider provider = Mockito.spy(new JoalConfigProvider(new ObjectMapper(), resourcePath.toString()));
 
         provider.get();
@@ -63,7 +58,7 @@ public class JoalConfigProviderTest {
     }
 
     @Test
-    public void shouldReLoadConfOnlyOneTimeIfSetToDirtyState() {
+    public void shouldReLoadConfOnlyOneTimeIfSetToDirtyState() throws FileNotFoundException {
         final JoalConfigProvider provider = Mockito.spy(new JoalConfigProvider(new ObjectMapper(), resourcePath.toString()));
 
         provider.get();
