@@ -75,6 +75,7 @@ public class SeedManager {
     }
 
     private int getRandomizedSeedForInMinutes() {
+        // TODO : ensure min won't go below 0
         final int minSeedFor = ConfigProvider.get().getSeedFor() - 15;
         final int maxSeedFor = ConfigProvider.get().getSeedFor() + 15;
 

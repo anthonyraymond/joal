@@ -4,12 +4,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 import static java.nio.file.Files.exists;
-import static org.araymond.joal.core.torrent.watcher.TorrentFileProvider.ARCHIVE_FOLDER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class TorrentFileProviderTest {
 
-    private static final Path resourcePath = Paths.get("src/test/resources");
+    private static final Path resourcePath = Paths.get("src/test/resources/configtest");
     private static final Path torrentFolderPath = resourcePath.resolve("torrents");
 
     @Before
@@ -49,37 +49,46 @@ public class TorrentFileProviderTest {
     }
 
     @Test
-    public void shouldFailIfFolderDoesNotExists() {
-        try {
-            new TorrentFileProvider(resourcePath.resolve("noExistingFolder"));
-        } catch (final IllegalStateException e) {
-            assertThat(e.getMessage()).startsWith("Folder").endsWith("does not exists.");
-        }
+    public void shouldNotBuildIfFolderDoesNotExists() throws FileNotFoundException {
+        assertThatThrownBy(() -> new TorrentFileProvider(resourcePath.resolve("torrents").toString()))
+                .isInstanceOf(FileNotFoundException.class)
+                .hasMessageStartingWith("Torrent folder '")
+                .hasMessageEndingWith("' not found.");
     }
 
     @Test
-    public void shouldCreateArchiveFolderIfNotCreatedAlready() {
-        new TorrentFileProvider(torrentFolderPath);
-        assertThat(exists(torrentFolderPath.resolve(ARCHIVE_FOLDER))).isTrue();
+    public void shouldCreateArchiveFolderIfNotCreatedAlready() throws FileNotFoundException {
+        new TorrentFileProvider(resourcePath.toString());
+        assertThat(exists(torrentFolderPath.resolve("archived"))).isTrue();
     }
 
     @Test
     public void shouldFailIfFolderDoesNotContainsTorrentFiles() throws IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(torrentFolderPath);
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+
+        assertThatThrownBy(provider::getRandomTorrentFile)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("No more torrent file available.");
+    }
+
+    @Test
+    public void shouldMoveTorrentFilesToArchivedFolder() throws IOException {
         final Path file = addTorrentFile("dd.torrent");
         final Path file2 = addTorrentFile("jj.torrent");
 
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
         provider.moveToArchiveFolder(file.toFile());
 
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
         assertThat(exists(file)).isFalse();
-        assertThat(exists(torrentFolderPath.resolve(ARCHIVE_FOLDER).resolve("dd.torrent"))).isTrue();
+        assertThat(exists(torrentFolderPath.resolve("archived").resolve("dd.torrent"))).isTrue();
         assertThat(exists(file2)).isTrue();
-        assertThat(exists(torrentFolderPath.resolve(ARCHIVE_FOLDER).resolve("jj.torrent"))).isFalse();
+        assertThat(exists(torrentFolderPath.resolve("archived").resolve("jj.torrent"))).isFalse();
     }
 
     @Test
     public void shouldDetectFileAdditionAndDeletion() throws InterruptedException, IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(torrentFolderPath, 10);
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), 10);
 
         provider.start();
 
@@ -102,7 +111,7 @@ public class TorrentFileProviderTest {
         addTorrentFile("That one day torrent file would be loaded on startup.torrent");
         addTorrentFile("I have a dream today.torrent");
 
-        final TorrentFileProvider provider = new TorrentFileProvider(torrentFolderPath, 10);
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), 10);
 
         provider.start();
         assertThat(provider.getTorrentCount()).isEqualTo(3);
@@ -110,8 +119,8 @@ public class TorrentFileProviderTest {
     }
 
     @Test
-    public void shouldNotDetectFileInArchivedFolderOnStartup() throws InterruptedException, IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(torrentFolderPath, 10);
+    public void shouldNotDetectFileInArchivedFolder() throws InterruptedException, IOException {
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), 10);
 
         provider.start();
 

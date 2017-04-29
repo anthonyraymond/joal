@@ -38,11 +38,10 @@ public class JackOfAllTrades {
                 .resolve("clients")
                 .resolve(ConfigProvider.get().getClientFileName());
 
-        final Path torrentFilesPath = getConfigDirPath(cmd)
-                .resolve("torrents");
+        final Path torrentFilesPath = getConfigDirPath(cmd);
 
         final SeedManager seedManager = new SeedManager(
-                new TorrentFileProvider(torrentFilesPath),
+                new TorrentFileProvider(torrentFilesPath.toString()),
                 EmulatedClientFactory.createFactory(emulatedClientFilePath)
         );
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {

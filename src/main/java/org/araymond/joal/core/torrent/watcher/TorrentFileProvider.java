@@ -6,13 +6,19 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+import javax.inject.Inject;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,9 +27,9 @@ import java.util.Random;
 /**
  * Created by raymo on 28/01/2017.
  */
+@Component
 public class TorrentFileProvider {
     private static final Logger logger = LoggerFactory.getLogger(TorrentFileProvider.class);
-    public static final String ARCHIVE_FOLDER = "archived";
     private static final IOFileFilter torrentFileFilter = FileFilterUtils.suffixFileFilter(".torrent");
 
     private final FileAlterationObserver observer;
@@ -33,20 +39,22 @@ public class TorrentFileProvider {
     private final Path archiveFolder;
     private final Random rand;
 
-    public TorrentFileProvider(final Path torrentFolder) {
-        this(torrentFolder, 30 * 1000);
+    @Inject
+    public TorrentFileProvider(@Value("${joal-conf}") final String confFolder) throws FileNotFoundException {
+        this(confFolder, 30 * 1000);
     }
 
-    public TorrentFileProvider(final Path torrentFolder, final int scanInterval) {
-        this.archiveFolder = torrentFolder.resolve(ARCHIVE_FOLDER);
-        this.torrentFiles = Collections.synchronizedList(new ArrayList<>());
-        this.rand = new Random();
-
+    TorrentFileProvider(@Value("${joal-conf}") final String confFolder, final int scanInterval) throws FileNotFoundException {
+        if (StringUtils.isBlank(confFolder)) {
+            throw new IllegalArgumentException("A config path is required.");
+        }
+        final Path torrentFolder = Paths.get(confFolder).resolve("torrents");
         if (!Files.exists(torrentFolder)) {
             logger.error("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
-            throw new IllegalStateException("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
+            throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
         }
 
+        this.archiveFolder = torrentFolder.resolve("archived");
         if (!Files.exists(archiveFolder)) {
             try {
                 Files.createDirectory(archiveFolder);
@@ -55,6 +63,9 @@ public class TorrentFileProvider {
                 throw new IllegalStateException("Failed to create archive folder.", e);
             }
         }
+
+        this.torrentFiles = Collections.synchronizedList(new ArrayList<>());
+        this.rand = new Random();
 
         FileUtils.listFiles(torrentFolder.toFile(), torrentFileFilter, null)
                 .forEach(torrentFiles::add);
@@ -138,4 +149,6 @@ public class TorrentFileProvider {
         this.monitor.removeObserver(observer);
         logger.trace("TorrentFileProvider stopped.");
     }
+
+
 }
