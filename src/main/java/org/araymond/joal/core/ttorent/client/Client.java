@@ -6,7 +6,7 @@ import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
-import org.araymond.joal.core.config.ConfigProvider;
+import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +21,12 @@ import java.util.*;
  * Created by raymo on 23/01/2017.
  */
 public class Client implements Runnable, AnnounceResponseListener {
-
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
+    // Delay between each upload stat update (this is not announce delay)
     private static final int UPDATE_DELAY = 10;
 
+    private final JoalConfigProvider configProvider;
     private final MockedTorrent torrent;
     private ClientState state;
     private final Peer self;
@@ -41,7 +42,8 @@ public class Client implements Runnable, AnnounceResponseListener {
     private Timer seedShutdownTimer;
     private final Random random;
 
-    public Client(final InetAddress address, final MockedTorrent torrent, final BitTorrentClient bitTorrentClient) throws UnknownHostException, IOException {
+    public Client(final JoalConfigProvider configProvider, final InetAddress address, final MockedTorrent torrent, final BitTorrentClient bitTorrentClient) throws IOException {
+        this.configProvider = configProvider;
         this.torrent = torrent;
         this.eventBus = new EventBus();
         this.state = ClientState.WAITING;
@@ -125,8 +127,8 @@ public class Client implements Runnable, AnnounceResponseListener {
 
                 if (peerCount > 0) {
                     final int randomUploadValueInKb = random.nextInt(
-                            ConfigProvider.get().getMaxUploadRate() - ConfigProvider.get().getMinUploadRate()
-                    ) + ConfigProvider.get().getMinUploadRate();
+                            configProvider.get().getMaxUploadRate() - configProvider.get().getMinUploadRate()
+                    ) + configProvider.get().getMinUploadRate();
                     // Translate to bytes and add some mor randomness
                     float randomUploadValueInBytes = (randomUploadValueInKb + random.nextFloat()) * 1024;
                     // then multiply by the time the thread was paused
@@ -247,7 +249,6 @@ public class Client implements Runnable, AnnounceResponseListener {
         seedShutdownTimer = new Timer();
         seedShutdownTimer.schedule(new ClientShutdown(this), this.seed * 1000);
     }
-
 
     /**
      * Download and share this client's torrent.

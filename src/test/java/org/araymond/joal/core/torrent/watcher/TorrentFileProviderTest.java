@@ -1,17 +1,21 @@
 package org.araymond.joal.core.torrent.watcher;
 
+import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Comparator;
 
 import static java.nio.file.Files.exists;
+import static org.assertj.core.api.Assertions.anyOf;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Matchers.any;
 
 /**
  * Created by raymo on 13/03/2017.
@@ -19,47 +23,39 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TorrentFileProviderTest {
 
     private static final Path resourcePath = Paths.get("src/test/resources/configtest");
-    private static final Path torrentFolderPath = resourcePath.resolve("torrents");
+    private static final Path torrentsPath = resourcePath.resolve("torrents");
+    private static final Path archivedTorrentPath = torrentsPath.resolve("archived");
 
-    @Before
-    public void setUp() throws IOException {
-        Files.createDirectories(torrentFolderPath);
+    private void resetDirectories() throws IOException {
+        if (Files.exists(torrentsPath)) {
+            Files.walk(torrentsPath, FileVisitOption.FOLLOW_LINKS)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+        Files.createDirectory(torrentsPath);
     }
 
     @After
-    @SuppressWarnings("AnonymousInnerClassMayBeStatic")
-    public void tearDown() throws IOException {
-        Files.walkFileTree(torrentFolderPath, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
-    }
-
-    private Path addTorrentFile(final String name) throws IOException {
-        return Files.createFile(torrentFolderPath.resolve(name));
+    @Before
+    public void setUpAndTearDown() throws IOException {
+        resetDirectories();
     }
 
     @Test
     public void shouldNotBuildIfFolderDoesNotExists() throws FileNotFoundException {
-        assertThatThrownBy(() -> new TorrentFileProvider(resourcePath.resolve("torrents").toString()))
+        assertThatThrownBy(() -> new TorrentFileProvider(resourcePath.resolve("nop").toString()))
                 .isInstanceOf(FileNotFoundException.class)
                 .hasMessageStartingWith("Torrent folder '")
                 .hasMessageEndingWith("' not found.");
     }
 
     @Test
-    public void shouldCreateArchiveFolderIfNotCreatedAlready() throws FileNotFoundException {
+    public void shouldCreateArchiveFolderIfNotCreatedAlready() throws IOException {
+        Files.deleteIfExists(archivedTorrentPath);
+        assertThat(exists(archivedTorrentPath)).isFalse();
         new TorrentFileProvider(resourcePath.toString());
-        assertThat(exists(torrentFolderPath.resolve("archived"))).isTrue();
+        assertThat(exists(archivedTorrentPath)).isTrue();
     }
 
     @Test
@@ -72,64 +68,69 @@ public class TorrentFileProviderTest {
     }
 
     @Test
-    public void shouldMoveTorrentFilesToArchivedFolder() throws IOException {
-        final Path file = addTorrentFile("dd.torrent");
-        final Path file2 = addTorrentFile("jj.torrent");
-
+    public void shouldAddFileToListOnCreation() throws IOException {
+        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
-        provider.moveToArchiveFolder(file.toFile());
-
-        assertThat(provider.getTorrentCount()).isEqualTo(1);
-        assertThat(exists(file)).isFalse();
-        assertThat(exists(torrentFolderPath.resolve("archived").resolve("dd.torrent"))).isTrue();
-        assertThat(exists(file2)).isTrue();
-        assertThat(exists(torrentFolderPath.resolve("archived").resolve("jj.torrent"))).isFalse();
-    }
-
-    @Test
-    public void shouldDetectFileAdditionAndDeletion() throws InterruptedException, IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), 10);
-
-        provider.start();
-
-        final Path filePath = addTorrentFile("qq.torrent");
-        Thread.sleep(15);
-        assertThat(provider.getRandomTorrentFile().toPath()).isEqualTo(filePath);
-
-        Files.delete(filePath);
-        Thread.sleep(15);
-        assertThatThrownBy(provider::getRandomTorrentFile)
-                .isInstanceOf(IllegalStateException.class)
-                .hasMessage("No more torrent file available.");
-
-        provider.stop();
-    }
-
-    @Test
-    public void shouldDetectFileAlreadyCreatedOnStartup() throws InterruptedException, IOException {
-        addTorrentFile("I have a dream.torrent");
-        addTorrentFile("That one day torrent file would be loaded on startup.torrent");
-        addTorrentFile("I have a dream today.torrent");
-
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), 10);
-
-        provider.start();
-        assertThat(provider.getTorrentCount()).isEqualTo(3);
-        provider.stop();
-    }
-
-    @Test
-    public void shouldNotDetectFileInArchivedFolder() throws InterruptedException, IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), 10);
-
-        provider.start();
-
-        final Path filePath = addTorrentFile("w.torrent");
-        provider.moveToArchiveFolder(filePath.toFile());
-        Thread.sleep(15);
         assertThat(provider.getTorrentCount()).isEqualTo(0);
 
-        provider.stop();
+        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
     }
+
+    @Test
+    public void shouldRemoveFileFromListOnDeletion() throws IOException {
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        TorrentFileCreator.create(torrentsPath.resolve("ninja.torrent"), TorrentFileCreator.TorrentType.NINJA_HEAT);
+
+        assertThat(provider.getTorrentCount()).isEqualTo(0);
+        provider.onFileCreate(torrentsPath.resolve("ninja.torrent").toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
+
+        provider.onFileDelete(torrentsPath.resolve("ninja.torrent").toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldRemoveThenAddFileToListOnUpdate() throws IOException {
+        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+
+        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
+
+        provider.onFileChange(torrentsPath.resolve("ubuntu.torrent").toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldMoveTorrentFileToArchivedFolderFromMockedTorrent() throws IOException {
+        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
+
+        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).doesNotExist();
+        provider.moveToArchiveFolder(provider.getRandomTorrentFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(0);
+
+        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
+    }
+
+    @Test
+    public void shouldMoveTorrentFileToArchivedFolder() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        provider.onFileCreate(torrentFile.toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
+
+        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).doesNotExist();
+        provider.moveToArchiveFolder(torrentFile.toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(0);
+
+        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
+    }
+
 
 }

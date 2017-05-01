@@ -1,5 +1,6 @@
 package org.araymond.joal.core.torrent.watcher;
 
+import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
@@ -8,9 +9,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.inject.Inject;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -26,29 +28,30 @@ public class TorrentFileProviderDITest {
 
 
     private static final Path resourcePath = Paths.get("src/test/resources/configtest");
-    private static final Path torrentFolderPath = resourcePath.resolve("torrents");
+    private static final Path torrentsPath = resourcePath.resolve("torrents");
 
     @BeforeClass
     public static void setUp() throws IOException {
-        Files.createDirectories(torrentFolderPath);
+        if (Files.exists(torrentsPath)) {
+            Files.walk(torrentsPath, FileVisitOption.FOLLOW_LINKS)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+        Files.createDirectory(torrentsPath);
+        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
     }
 
     @AfterClass
     @SuppressWarnings("AnonymousInnerClassMayBeStatic")
     public static void tearDown() throws IOException {
-        Files.walkFileTree(torrentFolderPath, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult visitFile(final Path file, final BasicFileAttributes attrs) throws IOException {
-                Files.delete(file);
-                return FileVisitResult.CONTINUE;
-            }
-
-            @Override
-            public FileVisitResult postVisitDirectory(final Path dir, final IOException exc) throws IOException {
-                Files.delete(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+        if (Files.exists(torrentsPath)) {
+            Files.walk(torrentsPath, FileVisitOption.FOLLOW_LINKS)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+        }
+        Files.createDirectory(torrentsPath);
     }
 
     @Inject
@@ -56,7 +59,8 @@ public class TorrentFileProviderDITest {
 
     @Test
     public void shouldInjectConfigProvider() {
-        assertThat(torrentFileProvider.getTorrentCount()).isEqualTo(0);
+        assertThat(torrentFileProvider.getTorrentCount()).isEqualTo(1);
+        assertThat(torrentFileProvider.getRandomTorrentFile().getName()).isEqualTo("ubuntu-17.04-desktop-amd64.iso");
     }
 
 }
