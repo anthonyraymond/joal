@@ -1,12 +1,7 @@
 package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.collect.Iterators;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.io.monitor.FileAlterationMonitor;
-import org.apache.commons.io.monitor.FileAlterationObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
@@ -24,7 +19,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
 
 /**
  * Created by raymo on 28/01/2017.
@@ -139,7 +137,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     public int getTorrentCount() {
         return this.torrentFiles.size();
     }
-
 
 
 }

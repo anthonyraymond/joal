@@ -1,12 +1,11 @@
 package org.araymond.joal.core.client.emulated;
 
-import com.google.common.base.*;
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;

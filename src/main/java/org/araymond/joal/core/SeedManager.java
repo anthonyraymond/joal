@@ -1,6 +1,5 @@
 package org.araymond.joal.core;
 
-import com.google.common.eventbus.Subscribe;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
@@ -11,17 +10,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.security.NoSuchAlgorithmException;
 import java.util.Random;
 
 /**
  * Created by raymo on 27/01/2017.
  */
 @Component
-public class SeedManager {
+public class SeedManager implements LeecherAware {
 
     private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
 
@@ -35,6 +32,7 @@ public class SeedManager {
     private ActionOnStopSeeding actionOnStopSeeding;
     private boolean stop = false;
 
+
     @Inject
     public SeedManager(final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final BitTorrentClientProvider bitTorrentClientProvider) {
         this.configProvider = configProvider;
@@ -43,7 +41,7 @@ public class SeedManager {
         this.rand = new Random();
     }
 
-    public void startSeeding() throws IOException, NoSuchAlgorithmException, InterruptedException {
+    public void startSeeding() throws IOException, InterruptedException {
         while (!this.stop) {
             this.actionOnStopSeeding = ActionOnStopSeeding.WAIT;
 
@@ -53,18 +51,15 @@ public class SeedManager {
                     configProvider,
                     InetAddress.getLocalHost(),
                     this.currentTorrent,
-                    bitTorrentClientProvider.generateNewClient()
+                    bitTorrentClientProvider.generateNewClient(),
+                    this
             );
-            this.currentClient.addEventBusListener(this);
 
             final int seedTimeInSeconds = getRandomizedSeedForInMinutes();
             logger.info("Start seeding for {} minutes.", seedTimeInSeconds);
             this.currentClient.share(seedTimeInSeconds * 60);
             this.currentClient.waitForCompletion();
 
-            this.currentClient.removeEventBusListener(this);
-
-            // TODO : investigate if stop is required or not.
             this.currentClient.stop();
             this.currentClient = null;
             if (!this.stop) {
@@ -73,11 +68,19 @@ public class SeedManager {
                     logger.info("Waiting {} minutes before seeding again.", waitBetweenSeedInMinutes);
                     Thread.sleep(getRandomizedWaitBetweenSeedInMinutes() * 60L * 1000L);
                 } else {
-                    // Wait 10 second in any cases
-                    Thread.sleep(5000);
+                    // Wait 8 second in any cases
+                    Thread.sleep(8000);
                 }
             }
         }
+    }
+
+    @Override
+    public void onNoLeechersAvailable() {
+        logger.warn("0 peers are currently leeching, moving torrent to archived and restarting seed.");
+        this.actionOnStopSeeding = ActionOnStopSeeding.RESTART_IMMEDIATLY;
+        this.torrentFileProvider.moveToArchiveFolder(this.currentTorrent);
+        this.currentClient.stop(false);
     }
 
     private int getRandomizedSeedForInMinutes() {
@@ -89,6 +92,7 @@ public class SeedManager {
     }
 
     private int getRandomizedWaitBetweenSeedInMinutes() {
+        // TODO : ensure won't go below 0
         final int minWaitBetweenSeed = configProvider.get().getWaitBetweenSeed() - 15;
         final int maxWaitBetweenSeed = configProvider.get().getWaitBetweenSeed() + 15;
 
@@ -96,18 +100,13 @@ public class SeedManager {
     }
 
     public void stop() {
+        logger.info("Gracefully shutting down SeedManager.");
         this.stop = true;
         if (this.currentClient != null) {
             this.currentClient.stop();
         }
-    }
 
-    @Subscribe
-    private void handleEvent(final Client.Event event) {
-        if (event == Client.Event.ENCOUNTER_ZERO_PEER) {
-            this.actionOnStopSeeding = ActionOnStopSeeding.RESTART_IMMEDIATLY;
-            this.torrentFileProvider.moveToArchiveFolder(this.currentTorrent);
-        }
+        logger.info("SeedManager gracefully shut down.");
     }
 
     private enum ActionOnStopSeeding {

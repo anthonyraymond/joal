@@ -19,7 +19,8 @@ import java.nio.file.Path;
  */
 class TorrentFileWatcher {
     private static final Logger logger = LoggerFactory.getLogger(TorrentFileWatcher.class);
-    private static final Integer DEFAULT_SCAN_INTERVAL = 30 * 1000;
+    // TODO : get back to a bigger value as soon as https://issues.apache.org/jira/browse/IO-535 is fixed
+    private static final Integer DEFAULT_SCAN_INTERVAL = 2 * 1000;
     private static final IOFileFilter TORRENT_FILE_FILTER = FileFilterUtils.suffixFileFilter(".torrent");
 
     private final FileAlterationObserver observer;
@@ -64,6 +65,7 @@ class TorrentFileWatcher {
         try {
             this.monitor.stop(10);
         } catch (final Exception ignored) {
+            int i = 1;
         }
         this.monitor.removeObserver(observer);
         logger.trace("TorrentFileProvider stopped.");

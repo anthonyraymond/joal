@@ -1,10 +1,10 @@
 package org.araymond.joal.core.ttorent.client;
 
-import com.google.common.eventbus.EventBus;
 import com.turn.ttorrent.client.Client.ClientState;
 import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
+import org.araymond.joal.core.LeecherAware;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announce;
@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.List;
+import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by raymo on 23/01/2017.
@@ -38,14 +40,14 @@ public class Client implements Runnable, AnnounceResponseListener {
     private final ConnectionHandler service;
     private final Announce announce;
 
-    private final EventBus eventBus;
     private Timer seedShutdownTimer;
     private final Random random;
+    private LeecherAware leecherAware;
 
-    public Client(final JoalConfigProvider configProvider, final InetAddress address, final MockedTorrent torrent, final BitTorrentClient bitTorrentClient) throws IOException {
+    public Client(final JoalConfigProvider configProvider, final InetAddress address, final MockedTorrent torrent, final BitTorrentClient bitTorrentClient, final LeecherAware leecherAware) throws IOException {
         this.configProvider = configProvider;
         this.torrent = torrent;
-        this.eventBus = new EventBus();
+        this.leecherAware = leecherAware;
         this.state = ClientState.WAITING;
 
         final String id = bitTorrentClient.getPeerId();
@@ -63,14 +65,6 @@ public class Client implements Runnable, AnnounceResponseListener {
 
         this.peerCount = 0;
         this.random = new Random();
-    }
-
-    public void addEventBusListener(final Object object) {
-        this.eventBus.register(object);
-    }
-
-    public void removeEventBusListener(final Object object) {
-        this.eventBus.unregister(object);
     }
 
     /**
@@ -103,10 +97,9 @@ public class Client implements Runnable, AnnounceResponseListener {
     @Override
     public void handleDiscoveredPeers(final List<Peer> discoveredPeers) {
         if (discoveredPeers == null || discoveredPeers.isEmpty()) {
-            logger.warn("0 peers found for this torrent, stop seeding this torrent.");
-            this.eventBus.post(Event.ENCOUNTER_ZERO_PEER);
+            logger.info("{} peers are currently leeching.", 0);
+            this.leecherAware.onNoLeechersAvailable();
             this.peerCount = 0;
-            this.stop(false);
             return;
         }
 
@@ -296,10 +289,6 @@ public class Client implements Runnable, AnnounceResponseListener {
             client.setState(ClientState.DONE);
             this.client.stop();
         }
-    }
-
-    public enum Event {
-        ENCOUNTER_ZERO_PEER
     }
 
 }
