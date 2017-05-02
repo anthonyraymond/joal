@@ -76,6 +76,7 @@ public class HTTPTrackerClient extends TrackerClient {
         try {
             final HTTPAnnounceRequestMessage request = this.buildAnnounceRequest(event);
             target = request.buildAnnounceURL(this.tracker.toURL(), this.bitTorrentClient);
+            logger.debug("Announce url: " + target.toString());
         } catch (final MalformedURLException mue) {
             throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
         } catch (final MessageValidationException mve) {
