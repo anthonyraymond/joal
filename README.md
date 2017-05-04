@@ -1,6 +1,6 @@
 Un guide en francais est disponible [ici](http://h5ckfun.info/joal-le-nouveau-ratiomaster/)
 
-# Prepare confguration folder
+# Prepare configuration folder
 You first need to get the cofiguration folder. Replace `<MY_CONFIG_FOLDER_PATH>` by whatever path you want.
 ```
 git clone git@github.com:anthonyraymond/joal.git
@@ -12,9 +12,16 @@ Now add some of your private tracker's `.torrent` file to `<MY_CONFIG_FOLDER_PAT
 
 # Install and run
 ### With Docker
-At the moment only an ARM based docker file is available.
+
+**For ARM distribution only (raspberry)**
 ```
 docker build -f Dockerfile.arm -t araymond/joal .
+docker run -d -v <PATH_TO_CONFIG_DIR>:/data -p 49152-65534:49152 --name="joal" araymond/joal
+```
+
+**For any other distribution**
+```
+docker build -t araymond/joal .
 docker run -d -v <PATH_TO_CONFIG_DIR>:/data -p 49152-65534:49152 --name="joal" araymond/joal
 ```
 
