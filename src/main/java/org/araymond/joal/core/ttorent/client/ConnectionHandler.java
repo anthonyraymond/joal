@@ -18,8 +18,6 @@ public class ConnectionHandler {
     public static final int PORT_RANGE_START = 49152;
     public static final int PORT_RANGE_END = 65534;
 
-    private final MockedTorrent torrent;
-    private final String id;
     private ServerSocketChannel channel;
     private InetSocketAddress address;
 
@@ -32,16 +30,11 @@ public class ConnectionHandler {
      * PORT_RANGE_START to PORT_RANGE_END.
      * </p>
      *
-     * @param torrent The torrent shared by this client.
-     * @param id      This client's peer ID.
      * @param address The address to bind to.
      * @throws IOException When the service can't be started because no port in
      *                     the defined range is available or usable.
      */
-    ConnectionHandler(final MockedTorrent torrent, final String id, final InetAddress address) throws IOException {
-        this.torrent = torrent;
-        this.id = id;
-
+    public ConnectionHandler(final InetAddress address) throws IOException {
         // Bind to the first available port in the range
         // [PORT_RANGE_START; PORT_RANGE_END].
         for (int port = ConnectionHandler.PORT_RANGE_START; port <= ConnectionHandler.PORT_RANGE_END; port++) {
@@ -63,7 +56,7 @@ public class ConnectionHandler {
             throw new IOException("No available port for the BitTorrent client!");
         }
 
-        logger.info("Listening for incoming connections on {}.", this.address);
+        logger.info("Listening for incoming peer connections on port {}.", this.address.getPort());
     }
 
     /**
@@ -74,12 +67,12 @@ public class ConnectionHandler {
     }
 
     public void close() throws IOException {
-        logger.trace("Call to close ConnectionHandler.");
+        logger.debug("Call to close ConnectionHandler.");
         if (this.channel != null) {
             this.channel.close();
             this.channel = null;
         }
-        logger.trace("ConnectionHandler closed.");
+        logger.debug("ConnectionHandler closed.");
     }
 
 }

@@ -2,6 +2,8 @@ package org.araymond.joal.core.client.emulated;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.araymond.joal.core.config.JoalConfigProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -18,6 +20,7 @@ import java.nio.file.Paths;
  */
 @Component
 public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
+    private static final Logger logger = LoggerFactory.getLogger(BitTorrentClientProvider.class);
 
     private BitTorrentClient bitTorrentClient;
     private final JoalConfigProvider configProvider;
@@ -34,12 +37,17 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     @Override
     public BitTorrentClient get() {
         if (bitTorrentClient == null) {
-            throw new IllegalStateException("Attempt to get a client before it was generated.");
+            try {
+                generateNewClient();
+            } catch (final FileNotFoundException e) {
+                throw new IllegalStateException(e);
+            }
         }
         return bitTorrentClient;
     }
 
-    public BitTorrentClient generateNewClient() throws FileNotFoundException {
+    public void generateNewClient() throws FileNotFoundException {
+        logger.debug("Generating new client.");
         final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClientFileName());
         if (!Files.exists(clientConfigPath)) {
             throw new FileNotFoundException(String.format("BitTorrent client configuration file '%s' not found.", clientConfigPath.toAbsolutePath()));
@@ -52,7 +60,6 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
             throw new IllegalStateException(e);
         }
         this.bitTorrentClient = config.createClient();
-
-        return this.bitTorrentClient;
+        logger.debug("New client successfully generated.");
     }
 }

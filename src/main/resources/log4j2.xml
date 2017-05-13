@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration shutdownHook="disable">
+
+    <Loggers>
+        <Root level="INFO" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+        </Root>
+        <Logger name="org.araymond.joal" level="DEBUG" additivity="false">
+            <Appender-ref ref="CONSOLE" />
+        </Logger>
+    </Loggers>
+
     <Appenders>
-        <Console name="STDOUT" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%highlight{[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} %c{1.}: %msg%n%throwable}{FATAL=Bright red, ERROR=red, WARN=Normal yellow, INFO=Normal, DEBUG=Normal, TRACE=Normal}"
+            />
         </Console>
     </Appenders>
-    <loggers>
-        <Logger name="org.apache.log4j.xml" level="all"/>
-        <root level="INFO">
-            <appender-ref ref="STDOUT"/>
-        </root>
-    </loggers>
+
 </Configuration>

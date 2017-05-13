@@ -4,20 +4,20 @@ import com.turn.ttorrent.client.Client.ClientState;
 import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
-import org.araymond.joal.core.LeecherAware;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
+import org.araymond.joal.core.events.NoMoreLeechers;
+import org.araymond.joal.core.events.SomethingHasFuckedUp;
 import org.araymond.joal.core.ttorent.client.announce.Announce;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by raymo on 23/01/2017.
@@ -30,29 +30,27 @@ public class Client implements Runnable, AnnounceResponseListener {
 
     private final JoalConfigProvider configProvider;
     private final MockedTorrent torrent;
+    private final ApplicationEventPublisher publisher;
     private ClientState state;
     private final Peer self;
     private int peerCount;
     private Thread thread;
     private boolean stop;
-    private long seed;
 
     private final ConnectionHandler service;
     private final Announce announce;
 
-    private Timer seedShutdownTimer;
     private final Random random;
-    private LeecherAware leecherAware;
 
-    public Client(final JoalConfigProvider configProvider, final InetAddress address, final MockedTorrent torrent, final BitTorrentClient bitTorrentClient, final LeecherAware leecherAware) throws IOException {
+    public Client(final JoalConfigProvider configProvider, final InetAddress address, final MockedTorrent torrent, final BitTorrentClient bitTorrentClient, final ApplicationEventPublisher publisher) throws IOException {
         this.configProvider = configProvider;
         this.torrent = torrent;
-        this.leecherAware = leecherAware;
+        this.publisher = publisher;
         this.state = ClientState.WAITING;
 
-        final String id = bitTorrentClient.getPeerId();
-        this.service = new ConnectionHandler(this.torrent, id, address);
+        this.service = new ConnectionHandler(address);
 
+        final String id = bitTorrentClient.getPeerId();
         this.self = new Peer(
                 this.service.getSocketAddress().getAddress().getHostAddress(),
                 this.service.getSocketAddress().getPort(),
@@ -96,9 +94,10 @@ public class Client implements Runnable, AnnounceResponseListener {
 
     @Override
     public void handleDiscoveredPeers(final List<Peer> discoveredPeers) {
+        // TODO : remove discoveredPeers.clear();, this is for test purpose
         if (discoveredPeers == null || discoveredPeers.isEmpty()) {
             logger.info("{} peers are currently leeching.", 0);
-            this.leecherAware.onNoLeechersAvailable();
+            publisher.publishEvent(new NoMoreLeechers(torrent));
             this.peerCount = 0;
             return;
         }
@@ -118,22 +117,20 @@ public class Client implements Runnable, AnnounceResponseListener {
             try {
                 Thread.sleep(Client.UPDATE_DELAY * 1000);
 
-                if (peerCount > 0) {
-                    final int randomUploadValueInKb = random.nextInt(
-                            configProvider.get().getMaxUploadRate() - configProvider.get().getMinUploadRate()
-                    ) + configProvider.get().getMinUploadRate();
-                    // Translate to bytes and add some mor randomness
-                    float randomUploadValueInBytes = (randomUploadValueInKb + random.nextFloat()) * 1024;
-                    // then multiply by the time the thread was paused
-                    randomUploadValueInBytes *= Client.UPDATE_DELAY;
+                final int randomUploadValueInKb = random.nextInt(
+                        configProvider.get().getMaxUploadRate() - configProvider.get().getMinUploadRate()
+                ) + configProvider.get().getMinUploadRate();
+                // Translate to bytes and add some mor randomness
+                float randomUploadValueInBytes = (randomUploadValueInKb + random.nextFloat()) * 1024;
+                // then multiply by the time the thread was paused
+                randomUploadValueInBytes *= Client.UPDATE_DELAY;
 
-                    this.torrent.addUploaded((long) randomUploadValueInBytes);
-                }
+                this.torrent.addUploaded((long) randomUploadValueInBytes);
             } catch (final InterruptedException ie) {
-                logger.debug("BitTorrent main loop interrupted.");
+                logger.debug("BitTorrent main loop interrupted.", ie);
             }
         }
-        logger.trace("Client has exited loop, going to stop.");
+        logger.debug("Client has exited loop.");
 
         try {
             this.service.close();
@@ -160,16 +157,13 @@ public class Client implements Runnable, AnnounceResponseListener {
     public void stop(final boolean wait) {
         logger.trace("Call to stop Client");
         this.stop = true;
+        this.setState(ClientState.WAITING);
 
         if (this.thread != null && this.thread.isAlive()) {
             this.thread.interrupt();
             if (wait) {
                 this.waitForCompletion();
             }
-        }
-
-        if (seedShutdownTimer != null) {
-            seedShutdownTimer.cancel();
         }
 
         this.thread = null;
@@ -233,62 +227,30 @@ public class Client implements Runnable, AnnounceResponseListener {
         }
 
         this.setState(ClientState.SEEDING);
-        if (this.seed < 0) {
-            logger.info("Seeding indefinetely...");
-            return;
-        }
-
-        // In case seeding for 0 seconds we still need to schedule the task in order to call stop() from different thread to avoid deadlock
-        seedShutdownTimer = new Timer();
-        seedShutdownTimer.schedule(new ClientShutdown(this), this.seed * 1000);
+        logger.info("Seeding...");
     }
 
     /**
      * Download and share this client's torrent.
-     *
-     * @param seed Seed time in seconds after the download is complete. Pass
-     *             <code>0</code> to immediately stop after downloading.
      */
-    public synchronized void share(final int seed) {
-        this.seed = seed;
+    public synchronized void share() {
         this.stop = false;
 
-        if (this.thread == null || !this.thread.isAlive()) {
-            this.thread = new Thread(this);
-            this.thread.setName("bt-client(" + this.self.getShortHexPeerId() + ")");
-            this.thread.start();
+        if (this.thread != null && this.thread.isAlive()) {
+            logger.warn("Client is already sharing, won't start share twice on the same client.");
         }
-    }
-
-    /**
-     * Timer task to stop seeding.
-     * <p>
-     * <p>
-     * This TimerTask will be called by a timer set after the download is
-     * complete to stop seeding from this client after a certain amount of
-     * requested seed time (might be 0 for immediate termination).
-     * </p>
-     * <p>
-     * <p>
-     * This task simply contains a reference to this client instance and calls
-     * its <code>stop()</code> method to interrupt the client's main loop.
-     * </p>
-     *
-     * @author mpetazzoni
-     */
-    public static class ClientShutdown extends TimerTask {
-
-        private final Client client;
-
-        public ClientShutdown(final Client client) {
-            this.client = client;
-        }
-
-        @Override
-        public void run() {
-            client.setState(ClientState.DONE);
-            this.client.stop();
-        }
+        this.thread = new Thread(this);
+        this.thread.setName("bt-client(" + this.self.getShortHexPeerId() + ")");
+        this.thread.setUncaughtExceptionHandler((thread, ex) -> {
+            this.setState(ClientState.ERROR);
+            try {
+                this.service.close();
+            } catch (final IOException ignore) {
+            }
+            this.announce.stop();
+            this.publisher.publishEvent(new SomethingHasFuckedUp(ex));
+        });
+        this.thread.start();
     }
 
 }

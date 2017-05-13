@@ -3,10 +3,13 @@ package org.araymond.joal.core.torrent.watcher;
 import com.google.common.collect.Iterators;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
+import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
+import org.araymond.joal.core.events.TorrentFileAddedForSeed;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -33,13 +36,16 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles;
-    private final Path torrentFolder;
     private final Path archiveFolder;
     private final Random rand;
+    private final ApplicationEventPublisher publisher;
+
+    private boolean isInitOver = false;
 
     @PostConstruct
     void postConstruct() {
         this.watcher.start();
+        this.isInitOver = true;
     }
 
     @PreDestroy
@@ -48,11 +54,12 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     }
 
     @Inject
-    TorrentFileProvider(@Value("${joal-conf}") final String confFolder) throws FileNotFoundException {
+    TorrentFileProvider(@Value("${joal-conf}") final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
+        this.publisher = publisher;
         if (StringUtils.isBlank(confFolder)) {
             throw new IllegalArgumentException("A config path is required.");
         }
-        torrentFolder = Paths.get(confFolder).resolve("torrents");
+        final Path torrentFolder = Paths.get(confFolder).resolve("torrents");
         if (!Files.exists(torrentFolder)) {
             logger.error("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
             throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
@@ -69,6 +76,10 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         }
 
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
+        if (this.torrentFiles.isEmpty()) {
+            this.publisher.publishEvent(new NoMoreTorrentsFileAvailable());
+        }
+
         this.rand = new Random();
 
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
@@ -78,15 +89,22 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     public void onFileDelete(final File file) {
         logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
         this.torrentFiles.remove(file);
+        if (this.torrentFiles.isEmpty()) {
+            this.publisher.publishEvent(new NoMoreTorrentsFileAvailable());
+        }
     }
 
     @Override
     public void onFileCreate(final File file) {
         logger.info("Torrent file addition detected, hot creating file: {}", file.getAbsolutePath());
         try {
-            this.torrentFiles.put(file, MockedTorrent.fromFile(file));
+            final MockedTorrent torrent = MockedTorrent.fromFile(file);
+            this.torrentFiles.put(file, torrent);
+            if (this.isInitOver) {
+                this.publisher.publishEvent(new TorrentFileAddedForSeed(torrent));
+            }
         } catch (final IOException | NoSuchAlgorithmException e) {
-            logger.warn("Failed to read file '" + file.getAbsolutePath() + "'.", e);
+            logger.warn("File '{}' not added to torrent list, because failed to read file '", file.getAbsolutePath(), e);
         }
     }
 
@@ -107,13 +125,12 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     }
 
     public void moveToArchiveFolder(final File torrentFile) {
-        this.onFileDelete(torrentFile);
-
         if (!torrentFile.exists()) {
             return;
         }
 
         try {
+            Files.deleteIfExists(archiveFolder.resolve(torrentFile.getName()));
             Files.move(torrentFile.toPath(), archiveFolder.resolve(torrentFile.getName()));
             logger.info("Successfully moved file: {} to archive folder", torrentFile.getAbsolutePath());
         } catch (final IOException e) {

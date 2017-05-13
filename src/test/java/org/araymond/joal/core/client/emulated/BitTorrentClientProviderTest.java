@@ -27,13 +27,6 @@ public class BitTorrentClientProviderTest {
     }
 
     @Test
-    public void shouldFailIfClientWasNotGeneratedFirst() {
-        final BitTorrentClientProvider provider = createProvider();
-
-        assertThatThrownBy(provider::get).isInstanceOf(IllegalStateException.class);
-    }
-
-    @Test
     public void shouldFailIfClientFileDoesNotExists() {
         final JoalConfigProvider configProvider = Mockito.mock(JoalConfigProvider.class);
         Mockito.when(configProvider.get()).thenReturn(JoalConfigProviderTest.defaultConfig);
@@ -45,9 +38,19 @@ public class BitTorrentClientProviderTest {
     }
 
     @Test
-    public void shouldReturnSameProviderEveryTimes() throws FileNotFoundException {
+    public void shouldReturnSameClientEveryTimes() throws FileNotFoundException {
         final BitTorrentClientProvider provider = createProvider();
-        provider.generateNewClient();
+
+        assertThat(provider.get())
+                .isEqualToComparingFieldByField(provider.get())
+                .isEqualToComparingFieldByField(provider.get())
+                .isEqualToComparingFieldByField(provider.get())
+                .isEqualToComparingFieldByField(provider.get());
+    }
+
+    @Test
+    public void shouldChangeClientEveryTimesGenerateIsCalled() throws FileNotFoundException {
+        final BitTorrentClientProvider provider = createProvider();
 
         assertThat(provider.get())
                 .isEqualToComparingFieldByField(provider.get())
@@ -59,7 +62,6 @@ public class BitTorrentClientProviderTest {
     @Test
     public void shouldGetClient() throws FileNotFoundException {
         final BitTorrentClientProvider provider = createProvider();
-        provider.generateNewClient();
 
         assertThat(provider.get()).isNotNull();
     }

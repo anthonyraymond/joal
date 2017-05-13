@@ -11,7 +11,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.event.ContextClosedEvent;
+import org.springframework.scheduling.annotation.EnableAsync;
 
+@EnableAsync
 @SpringBootApplication
 public class JackOfAllTradesApplication {
     private static final Logger logger = LoggerFactory.getLogger(JackOfAllTradesApplication.class);
@@ -25,7 +27,9 @@ public class JackOfAllTradesApplication {
         context.addApplicationListener(new ApplicationListener<ContextClosedEvent>() {
             @Override
             public void onApplicationEvent(final ContextClosedEvent event) {
+                logger.info("Gracefully shutting down application.");
                 manager.stop();
+                logger.info("Application gracefully shut down.");
 
                 // Since we disabled log4j2 shutdown hook, we need to handle it manually.
                 final LifeCycle loggerContext = (LoggerContext) LogManager.getContext(false);

@@ -66,7 +66,7 @@ public class Announce implements Runnable {
             final List<TrackerClient> tierClients = new ArrayList<>();
             for (final URI tracker : tier) {
                 try {
-                    final TrackerClient client = this.createTrackerClient(torrent, peer, tracker, bitTorrentClient);
+                    final TrackerClient client = this.createTrackerClient(torrent, this.peer, tracker, bitTorrentClient);
 
                     tierClients.add(client);
                     this.allClients.add(client);
@@ -197,7 +197,7 @@ public class Announce implements Runnable {
                 this.promoteCurrentTrackerClient();
                 event = AnnounceRequestMessage.RequestEvent.NONE;
             } catch (final AnnounceException ae) {
-                logger.warn(ae.getMessage());
+                logger.warn("Exception in announce", ae.getMessage());
 
                 try {
                     this.moveToNextTrackerClient();
