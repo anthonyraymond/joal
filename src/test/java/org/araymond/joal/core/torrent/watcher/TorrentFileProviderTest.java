@@ -1,5 +1,6 @@
 package org.araymond.joal.core.torrent.watcher;
 
+import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.After;
 import org.junit.Before;
@@ -65,7 +66,7 @@ public class TorrentFileProviderTest {
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
 
         assertThatThrownBy(provider::getRandomTorrentFile)
-                .isInstanceOf(IllegalStateException.class)
+                .isInstanceOf(NoMoreTorrentsFileAvailableException.class)
                 .hasMessageContaining("No more torrent file available.");
     }
 
@@ -75,6 +76,17 @@ public class TorrentFileProviderTest {
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         assertThat(provider.getTorrentCount()).isEqualTo(0);
 
+        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        assertThat(provider.getTorrentCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldNotAddDuplicatedFiles() throws IOException {
+        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        assertThat(provider.getTorrentCount()).isEqualTo(0);
+
+        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
         provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
     }
@@ -105,7 +117,7 @@ public class TorrentFileProviderTest {
     }
 
     @Test
-    public void shouldMoveTorrentFileToArchivedFolderFromMockedTorrent() throws IOException {
+    public void shouldMoveTorrentFileToArchivedFolderFromMockedTorrent() throws IOException, NoMoreTorrentsFileAvailableException {
         TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
@@ -114,7 +126,7 @@ public class TorrentFileProviderTest {
 
         assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).doesNotExist();
         provider.moveToArchiveFolder(provider.getRandomTorrentFile());
-        assertThat(provider.getTorrentCount()).isEqualTo(0);
+        assertThat(torrentsPath.resolve("ubuntu.torrent")).doesNotExist();
 
         assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
     }
@@ -129,7 +141,7 @@ public class TorrentFileProviderTest {
 
         assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).doesNotExist();
         provider.moveToArchiveFolder(torrentFile.toFile());
-        assertThat(provider.getTorrentCount()).isEqualTo(0);
+        assertThat(torrentsPath.resolve("ubuntu.torrent")).doesNotExist();
 
         assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
     }

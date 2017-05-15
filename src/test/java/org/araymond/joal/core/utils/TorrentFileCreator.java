@@ -9,8 +9,13 @@ import java.nio.file.Paths;
  * Created by raymo on 01/05/2017.
  */
 public class TorrentFileCreator {
+
     public static Path create(final Path filePath, final TorrentType type) throws IOException {
         return Files.copy(type.getPath(), filePath);
+    }
+
+    public static Path getTorrentPath(final TorrentType type) {
+        return type.getPath();
     }
 
     public enum TorrentType {

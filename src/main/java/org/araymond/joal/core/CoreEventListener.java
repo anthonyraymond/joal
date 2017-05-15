@@ -18,6 +18,11 @@ import java.io.IOException;
 /**
  * Created by raymo on 09/05/2017.
  */
+
+/**
+ * Intercept core event, method can be @Async. Most of all, it must not interact with JOAL state, otherwise this class
+ * will soon turn into a god damn mess and we won't be able to maintain the code because of all the non explicit method calls.
+ */
 @Component
 public class CoreEventListener {
     private static final Logger logger = LoggerFactory.getLogger(CoreEventListener.class);
@@ -37,32 +42,28 @@ public class CoreEventListener {
     @EventListener
     void handleNoMoreTorrents(final NoMoreTorrentsFileAvailable event) {
         logger.debug("Event NoMoreTorrentsFileAvailable caught.");
-        logger.warn("There is no more .torrent file, add some more to resume seed.");
-        this.manager.stop();
+        /*logger.warn("There is no more .torrent file, add some more to resume seed.");
+        this.manager.stop();*/
     }
 
     // It HAVE TO BE async, this method is called from a thread which is started from the main thread.
     // If not async, it result in the subthread trying to stop himself in a synchronous way, and cause an
     // InterruptedException because it is stuck in the stop() method.
-    @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleNoMoreLeechers(final NoMoreLeechers event) throws IOException {
         logger.debug("Event NoMoreLeechers caught.");
-        logger.warn("0 peers are currently leeching, moving torrent to archived and restarting seed.");
-        // TODO : do not stop, just restart with a new torrent
-        this.manager.stop();
-        this.torrentFileProvider.moveToArchiveFolder(event.getTorrent());
+        //logger.warn("0 peers are currently leeching, moving torrent to archived and restarting seed.");
     }
 
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleTorrentFileAddedForSeed(final TorrentFileAddedForSeed event) throws IOException {
         logger.debug("Event TorrentFileAddedForSeed caught.");
-        if (this.torrentFileProvider.getTorrentCount() == 1) {
+        /*if (this.torrentFileProvider.getTorrentCount() == 1) {
             logger.info("Resuming seed.");
         }
-        this.manager.startSeeding();
+        this.manager.startSeeding();*/
     }
 
 

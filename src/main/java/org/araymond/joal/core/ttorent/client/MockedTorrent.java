@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorent.client;
 
+import com.google.common.base.Objects;
 import com.turn.ttorrent.bcodec.InvalidBEncodingException;
 import com.turn.ttorrent.common.Torrent;
 import org.apache.commons.io.FileUtils;
@@ -7,19 +8,17 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 
 /**
  * Created by raymo on 23/01/2017.
  */
-public final class MockedTorrent extends Torrent {
+public class MockedTorrent extends Torrent {
 
     private final int pieceLength;
     private final ByteBuffer piecesHashes;
-
-    private long uploaded;
-    private final long downloaded;
-    private final long left;
+    private final Path path;
 
     /**
      * Create a new torrent from meta-info binary data.
@@ -32,8 +31,9 @@ public final class MockedTorrent extends Torrent {
      * @throws IOException When the info dictionary can't be read or
      *                     encoded and hashed back to create the torrent's SHA-1 hash.
      */
-    private MockedTorrent(final byte[] torrent, final boolean seeder) throws IOException, NoSuchAlgorithmException {
+    private MockedTorrent(final byte[] torrent, final boolean seeder, final Path path) throws IOException, NoSuchAlgorithmException {
         super(torrent, seeder);
+        this.path = path;
 
         try {
             this.pieceLength = this.decoded_info.get("piece length").getInt();
@@ -48,45 +48,24 @@ public final class MockedTorrent extends Torrent {
             throw new IllegalArgumentException("Error reading torrent meta-info fields!");
         }
 
-        this.uploaded = 0;
-        this.downloaded = 0;
-        // Left is fixed mocked value, since torrent is supposed to be completely downloaded already.
-        this.left = 0;
     }
 
     public static MockedTorrent fromFile(final File torrent) throws IOException, NoSuchAlgorithmException {
         final byte[] data = FileUtils.readFileToByteArray(torrent);
-        return new MockedTorrent(data, true);
+        return new MockedTorrent(data, true, torrent.toPath());
     }
 
-    /**
-     * Get the number of bytes uploaded for this torrent.
-     */
-    public long getUploaded() {
-        return this.uploaded;
+    @Override
+    public boolean equals(final Object o) {
+        // TODO : consider a better way to handle equals and hashcode
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final MockedTorrent that = (MockedTorrent) o;
+        return Objects.equal(path, that.path);
     }
 
-    public void addUploaded(final long bytes) {
-        this.uploaded += bytes;
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(path);
     }
-
-    /**
-     * Get the number of bytes downloaded for this torrent.
-     *
-     * <p>
-     * <b>Note:</b> this could be more than the torrent's length, and should
-     * not be used to determine a completion percentage.
-     * </p>
-     */
-    public long getDownloaded() {
-        return this.downloaded;
-    }
-
-    /**
-     * Get the number of bytes left to download for this torrent.
-     */
-    public long getLeft() {
-        return this.left;
-    }
-
 }

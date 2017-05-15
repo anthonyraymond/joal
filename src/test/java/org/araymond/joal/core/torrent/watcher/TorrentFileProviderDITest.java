@@ -1,5 +1,6 @@
 package org.araymond.joal.core.torrent.watcher;
 
+import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.*;
 import org.junit.runner.RunWith;
@@ -58,7 +59,7 @@ public class TorrentFileProviderDITest {
     private TorrentFileProvider torrentFileProvider;
 
     @Test
-    public void shouldInjectConfigProvider() {
+    public void shouldInjectConfigProvider() throws NoMoreTorrentsFileAvailableException {
         assertThat(torrentFileProvider.getTorrentCount()).isEqualTo(1);
         assertThat(torrentFileProvider.getRandomTorrentFile().getName()).isEqualTo("ubuntu-17.04-desktop-amd64.iso");
     }

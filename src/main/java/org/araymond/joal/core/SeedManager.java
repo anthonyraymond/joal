@@ -1,13 +1,14 @@
 package org.araymond.joal.core;
 
+import com.turn.ttorrent.common.Peer;
+import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.*;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
-import org.araymond.joal.core.ttorent.client.Client;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.tmp.NewClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,6 +19,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 
 /**
  * Created by raymo on 27/01/2017.
@@ -31,20 +33,18 @@ public class SeedManager {
     private final TorrentFileProvider torrentFileProvider;
     private final BitTorrentClientProvider bitTorrentClientProvider;
     private final ApplicationEventPublisher publisher;
-    private ConnectionHandler connectionHandler;
 
-    private Client currentClient;
+    private ConnectionHandler connectionHandler;
+    private NewClient currentClient;
 
     @PostConstruct
     private void init() throws IOException {
-        this.connectionHandler = new ConnectionHandler(InetAddress.getLocalHost());
+        connectionHandler = new ConnectionHandler(InetAddress.getLocalHost());
     }
 
     @PreDestroy
     private void tearDown() throws IOException {
-        if (this.connectionHandler != null) {
-            this.connectionHandler.close();
-        }
+        connectionHandler.close();
     }
 
     @Inject
@@ -63,20 +63,26 @@ public class SeedManager {
 
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
         // TODO : still need to handle exception in this method to prevent crash on startup, particularly NoMoreTorrent
-        final MockedTorrent currentTorrent = torrentFileProvider.getRandomTorrentFile();
 
         publisher.publishEvent(new SeedSessionWillStart());
 
-        this.currentClient = new Client(
+        final String id = bitTorrentClient.getPeerId();
+        final Peer peer = new Peer(
+                this.connectionHandler.getSocketAddress().getAddress().getHostAddress(),
+                this.connectionHandler.getSocketAddress().getPort(),
+                ByteBuffer.wrap(id.getBytes(Torrent.BYTE_ENCODING))
+        );
+        this.currentClient = new NewClient(
+                peer,
                 configProvider,
-                InetAddress.getLocalHost(),
-                currentTorrent,
-                bitTorrentClient,
-                publisher
+                torrentFileProvider,
+                publisher,
+                bitTorrentClient
         );
 
         this.currentClient.share();
-        publisher.publishEvent(new SeedSessionHasStarted(bitTorrentClient, currentTorrent));
+        // TODO : replace null by torrent
+        publisher.publishEvent(new SeedSessionHasStarted(bitTorrentClient, null));
     }
 
     public void stop() {

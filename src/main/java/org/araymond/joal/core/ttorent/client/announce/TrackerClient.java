@@ -1,9 +1,9 @@
 package org.araymond.joal.core.ttorent.client.announce;
 
 import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import org.araymond.joal.core.torrent.TorrentWithStats;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.net.URI;
@@ -21,13 +21,13 @@ public abstract class TrackerClient {
     /**
      * The set of listeners to announce request answers.
      */
-    private final Set<AnnounceResponseListener> listeners;
+    private final Set<NewAnnounceResponseListener> listeners;
 
-    protected final MockedTorrent torrent;
+    protected final TorrentWithStats torrent;
     protected final Peer peer;
     protected final URI tracker;
 
-    public TrackerClient(final MockedTorrent torrent, final Peer peer, final URI tracker) {
+    public TrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker) {
         this.listeners = new HashSet<>();
         this.torrent = torrent;
         this.peer = peer;
@@ -39,7 +39,7 @@ public abstract class TrackerClient {
      *
      * @param listener The listener to register on this announcer events.
      */
-    public void register(final AnnounceResponseListener listener) {
+    public void register(final NewAnnounceResponseListener listener) {
         this.listeners.add(listener);
     }
 
@@ -60,7 +60,7 @@ public abstract class TrackerClient {
      * </p>
      * <p>
      * <p>
-     * All registered {@link AnnounceResponseListener} objects are then fired
+     * All registered {@link NewAnnounceResponseListener} objects are then fired
      * with the decoded payload.
      * </p>
      *
@@ -74,7 +74,7 @@ public abstract class TrackerClient {
      * Close any opened announce connection.
      * <p>
      * <p>
-     * This method is called by {@link Announce#stop()} to make sure all connections
+     * This method is called by {@link Announcer#stop()} to make sure all connections
      * are correctly closed when the announce thread is asked to stop.
      * </p>
      */
@@ -140,8 +140,8 @@ public abstract class TrackerClient {
      * @param interval   The announce interval requested by the tracker.
      */
     protected void fireAnnounceResponseEvent(final int complete, final int incomplete, final int interval) {
-        for (final AnnounceResponseListener listener : this.listeners) {
-            listener.handleAnnounceResponse(interval, complete, incomplete);
+        for (final NewAnnounceResponseListener listener : this.listeners) {
+            listener.handleAnnounceResponse(this.torrent, interval, complete, incomplete);
         }
     }
 
@@ -151,8 +151,8 @@ public abstract class TrackerClient {
      * @param peers The list of peers discovered.
      */
     protected void fireDiscoveredPeersEvent(final List<Peer> peers) {
-        for (final AnnounceResponseListener listener : this.listeners) {
-            listener.handleDiscoveredPeers(peers);
+        for (final NewAnnounceResponseListener listener : this.listeners) {
+            listener.handleDiscoveredPeers(this.torrent, peers);
         }
     }
 

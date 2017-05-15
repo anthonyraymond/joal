@@ -6,7 +6,7 @@ import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.TorrentWithStats;
 import org.araymond.joal.core.ttorent.common.protocol.http.HTTPAnnounceRequestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +38,9 @@ public class HTTPTrackerClient extends TrackerClient {
      * Create a new HTTP announcer for the given torrent.
      *
      * @param torrent The torrent we're announcing about.
-     * @param peer Our own peer specification.
+     * @param peer    Our own peer specification.
      */
-    protected HTTPTrackerClient(final MockedTorrent torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) {
+    protected HTTPTrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) {
         super(torrent, peer, tracker);
 
         this.bitTorrentClient = bitTorrentClient;
@@ -48,20 +48,20 @@ public class HTTPTrackerClient extends TrackerClient {
 
     /**
      * Build, send and process a tracker announce request.
-     *
+     * <p>
      * <p>
      * This function first builds an announce request for the specified event
      * with all the required parameters. Then, the request is made to the
      * tracker and the response analyzed.
      * </p>
-     *
+     * <p>
      * <p>
      * All registered {@link AnnounceResponseListener} objects are then fired
      * with the decoded payload.
      * </p>
      *
-     * @param event The announce event type (can be AnnounceEvent.NONE for
-     * periodic updates).
+     * @param event         The announce event type (can be AnnounceEvent.NONE for
+     *                      periodic updates).
      * @param inhibitEvents Prevent event listeners from being notified.
      */
     @Override
@@ -88,7 +88,7 @@ public class HTTPTrackerClient extends TrackerClient {
         HttpURLConnection conn = null;
         InputStream in = null;
         try {
-            conn = (HttpURLConnection)target.openConnection();
+            conn = (HttpURLConnection) target.openConnection();
             this.addHttpHeaders(conn);
             in = conn.getInputStream();
         } catch (final IOException ioe) {
@@ -166,7 +166,7 @@ public class HTTPTrackerClient extends TrackerClient {
             MessageValidationException {
         // Build announce request message
         return HTTPAnnounceRequestMessage.craft(
-                this.torrent.getInfoHash(),
+                this.torrent.getTorrent().getInfoHash(),
                 this.peer.getPeerId().array(),
                 this.peer.getPort(),
                 this.torrent.getUploaded(),

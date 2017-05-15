@@ -3,8 +3,8 @@ package org.araymond.joal.core.torrent.watcher;
 import com.google.common.collect.Iterators;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
-import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
 import org.araymond.joal.core.events.TorrentFileAddedForSeed;
+import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,9 +76,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         }
 
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
-        if (this.torrentFiles.isEmpty()) {
-            this.publisher.publishEvent(new NoMoreTorrentsFileAvailable());
-        }
 
         this.rand = new Random();
 
@@ -89,15 +86,13 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     public void onFileDelete(final File file) {
         logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
         this.torrentFiles.remove(file);
-        if (this.torrentFiles.isEmpty()) {
-            this.publisher.publishEvent(new NoMoreTorrentsFileAvailable());
-        }
     }
 
     @Override
     public void onFileCreate(final File file) {
         logger.info("Torrent file addition detected, hot creating file: {}", file.getAbsolutePath());
         try {
+            //FIXME : Creating torrent is a shit idea, because the torrent store the downloaded / uploaded value. So... it's never reset to 0
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
             if (this.isInitOver) {
@@ -115,10 +110,10 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         this.onFileCreate(file);
     }
 
-    public MockedTorrent getRandomTorrentFile() {
+    public MockedTorrent getRandomTorrentFile() throws NoMoreTorrentsFileAvailableException {
         if (this.torrentFiles.isEmpty()) {
             logger.error("There is no more .torrent file available.");
-            throw new IllegalStateException("No more torrent file available.");
+            throw new NoMoreTorrentsFileAvailableException("No more torrent file available.");
         }
         final int indexToPick = this.rand.nextInt(this.torrentFiles.size());
         return Iterators.get(this.torrentFiles.values().iterator(), indexToPick);
