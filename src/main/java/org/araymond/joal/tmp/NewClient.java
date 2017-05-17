@@ -8,6 +8,8 @@ import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.NoMoreLeechers;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
+import org.araymond.joal.core.torrent.BandwidthManager;
+import org.araymond.joal.core.torrent.TorrentWithStats;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
@@ -31,6 +33,7 @@ public class NewClient implements AnnouncerEventListener {
     private final BitTorrentClient bitTorrentClient;
     private final List<Announcer> announcers;
     private final Peer self;
+    private final BandwidthManager bandwidthManager;
 
     public NewClient(final Peer peer, final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final ApplicationEventPublisher publisher, final BitTorrentClient bitTorrentClient) {
         this.configProvider = configProvider;
@@ -40,9 +43,11 @@ public class NewClient implements AnnouncerEventListener {
         this.announcers = new ArrayList<>();
 
         this.self = peer;
+        bandwidthManager = new BandwidthManager(configProvider);
     }
 
     public void share() {
+        this.bandwidthManager.start();
         // TODO : number of torrent to seed should be in config
         final int numberOfTorrentToSeed = 1;
         for (int i = 0; i < numberOfTorrentToSeed; ++i) {
@@ -73,6 +78,7 @@ public class NewClient implements AnnouncerEventListener {
     public void stop() {
         // We need to work with a copy of the list, because when stop, an event is launched that remove the announcer from the list.
         // And it result in a concurrent modification exception.
+        this.bandwidthManager.stop();
         Lists.newArrayList(this.announcers).forEach(Announcer::stop);
     }
 
@@ -82,16 +88,22 @@ public class NewClient implements AnnouncerEventListener {
     }
 
     @Override
-    public void onNoMoreLeecherForTorrent(final Announcer announcer, final MockedTorrent torrent) {
-        this.torrentFileProvider.moveToArchiveFolder(torrent);
-        publisher.publishEvent(new NoMoreLeechers(torrent));
+    public void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent) {
+        this.torrentFileProvider.moveToArchiveFolder(torrent.getTorrent());
+        publisher.publishEvent(new NoMoreLeechers(torrent.getTorrent()));
         announcer.stop();
     }
 
     @Override
-    public void onAnnouncerStop(final Announcer announcer, final MockedTorrent torrent) {
-        logger.debug("Removed announcer for Torrent {}", torrent.getName());
+    public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
+        this.bandwidthManager.registerTorrent(torrent);
+    }
+
+    @Override
+    public void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent) {
+        logger.debug("Removed announcer for Torrent {}", torrent.getTorrent().getName());
         this.announcers.remove(announcer);
+        this.bandwidthManager.unRegisterTorrent(torrent);
         // TODO : restart another one
     }
 

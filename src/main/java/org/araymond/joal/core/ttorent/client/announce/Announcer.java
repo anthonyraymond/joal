@@ -123,7 +123,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
     @Override
     public void handleDiscoveredPeers(final TorrentWithStats torrent, final List<Peer> peers) {
         if (peers == null || peers.isEmpty()) {
-            this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent.getTorrent()));
+            this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
         }
     }
 
@@ -218,6 +218,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
         this.interval = 5;
 
         AnnounceRequestMessage.RequestEvent event = AnnounceRequestMessage.RequestEvent.STARTED;
+        eventListeners.forEach(listener -> listener.onAnnouncerStart(this, this.torrent));
 
         while (!this.stop) {
             try {
@@ -261,7 +262,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
                 logger.warn(ae.getMessage());
             }
         }
-        this.eventListeners.forEach(listener -> listener.onAnnouncerStop(this, this.torrent.getTorrent()));
+        this.eventListeners.forEach(listener -> listener.onAnnouncerStop(this, this.torrent));
     }
 
     /**

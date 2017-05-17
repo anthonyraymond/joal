@@ -92,7 +92,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     public void onFileCreate(final File file) {
         logger.info("Torrent file addition detected, hot creating file: {}", file.getAbsolutePath());
         try {
-            //FIXME : Creating torrent is a shit idea, because the torrent store the downloaded / uploaded value. So... it's never reset to 0
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
             if (this.isInitOver) {

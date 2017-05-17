@@ -94,10 +94,13 @@ public class BandwidthManager implements Runnable {
 
                     torrent.addUploaded(uploadRateInBytes * updateInterval / 1000 / torrentCount);
                 }
+                lock.readLock().unlock();
             }
         } catch (final InterruptedException ignored) {
         } finally {
-            lock.readLock().unlock();
+            if (this.lock.getReadLockCount() > 0) {
+                lock.readLock().unlock();
+            }
         }
     }
 

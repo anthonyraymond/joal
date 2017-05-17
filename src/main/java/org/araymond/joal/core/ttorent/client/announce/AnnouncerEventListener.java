@@ -1,6 +1,7 @@
 package org.araymond.joal.core.ttorent.client.announce;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import org.araymond.joal.core.torrent.TorrentWithStats;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 /**
@@ -10,8 +11,10 @@ public interface AnnouncerEventListener {
 
     void onAnnounceRequesting(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final long uploaded, final long downloaded, final long left);
 
-    void onNoMoreLeecherForTorrent(final Announcer announcer, final MockedTorrent torrent);
+    void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent);
 
-    void onAnnouncerStop(final Announcer announcer, final MockedTorrent torrent);
+    void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent);
+
+    void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent);
 
 }
