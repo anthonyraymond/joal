@@ -5,7 +5,7 @@ import com.turn.ttorrent.common.Peer;
 import org.apache.commons.lang3.NotImplementedException;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.events.SomethingHasFuckedUp;
-import org.araymond.joal.core.torrent.TorrentWithStats;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

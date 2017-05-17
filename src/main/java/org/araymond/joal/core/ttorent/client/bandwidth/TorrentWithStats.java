@@ -1,4 +1,4 @@
-package org.araymond.joal.core.torrent;
+package org.araymond.joal.core.ttorent.client.bandwidth;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
@@ -12,8 +12,8 @@ public class TorrentWithStats {
     private final MockedTorrent torrent;
     // TODO : consider switching to BigInteger
     private Long uploaded;
-    private Long downloaded;
-    private Long left;
+    private final Long downloaded;
+    private final Long left;
 
     public TorrentWithStats(final MockedTorrent torrent) {
         Preconditions.checkNotNull(torrent, "MockedTorrent cannot be null.");

@@ -6,7 +6,7 @@ import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
-import org.araymond.joal.core.torrent.TorrentWithStats;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.araymond.joal.core.ttorent.common.protocol.http.HTTPAnnounceRequestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

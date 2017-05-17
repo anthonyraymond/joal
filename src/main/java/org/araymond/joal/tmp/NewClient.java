@@ -8,8 +8,8 @@ import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.NoMoreLeechers;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
-import org.araymond.joal.core.torrent.BandwidthManager;
-import org.araymond.joal.core.torrent.TorrentWithStats;
+import org.araymond.joal.core.ttorent.client.bandwidth.BandwidthManager;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
@@ -52,7 +52,8 @@ public class NewClient implements AnnouncerEventListener {
         final int numberOfTorrentToSeed = 1;
         for (int i = 0; i < numberOfTorrentToSeed; ++i) {
             try {
-                final Announcer announcer = addSeedingTorrent();
+                // TODO : find a way or another to add a countdown to stop announce, because we need to reset the uploaded once in a while (prevent long overflow)
+                addSeedingTorrent();
 
             } catch (final NoMoreTorrentsFileAvailableException e) {
                 if (this.announcers.isEmpty()) {

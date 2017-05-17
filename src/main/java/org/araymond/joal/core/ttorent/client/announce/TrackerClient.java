@@ -3,8 +3,7 @@ package org.araymond.joal.core.ttorent.client.announce;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
-import org.araymond.joal.core.torrent.TorrentWithStats;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 
 import java.net.URI;
 import java.util.HashSet;

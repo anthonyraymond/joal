@@ -1,8 +1,7 @@
 package org.araymond.joal.core.ttorent.client.announce;
 
 import com.turn.ttorrent.common.Peer;
-import org.araymond.joal.core.torrent.TorrentWithStats;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 
 import java.util.EventListener;
 import java.util.List;

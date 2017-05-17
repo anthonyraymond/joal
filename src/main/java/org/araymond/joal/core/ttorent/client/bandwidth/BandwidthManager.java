@@ -1,4 +1,4 @@
-package org.araymond.joal.core.torrent;
+package org.araymond.joal.core.ttorent.client.bandwidth;
 
 import com.google.common.base.Preconditions;
 import org.araymond.joal.core.config.JoalConfigProvider;
@@ -6,7 +6,6 @@ import org.araymond.joal.core.config.JoalConfigProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
