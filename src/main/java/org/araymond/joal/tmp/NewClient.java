@@ -20,6 +20,8 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by raymo on 14/05/2017.
@@ -54,7 +56,6 @@ public class NewClient implements AnnouncerEventListener {
             try {
                 // TODO : find a way or another to add a countdown to stop announce, because we need to reset the uploaded once in a while (prevent long overflow)
                 addSeedingTorrent();
-
             } catch (final NoMoreTorrentsFileAvailableException e) {
                 if (this.announcers.isEmpty()) {
                     this.publisher.publishEvent(new NoMoreTorrentsFileAvailable());
@@ -105,7 +106,12 @@ public class NewClient implements AnnouncerEventListener {
         logger.debug("Removed announcer for Torrent {}", torrent.getTorrent().getName());
         this.announcers.remove(announcer);
         this.bandwidthManager.unRegisterTorrent(torrent);
-        // TODO : restart another one
+        // TODO : restart another one, but this is tricky, because stop event will be dispatched when we stop joal, so we could run in an infinite loop
+        /*
+        if (this.getState() != STOPPED) {
+            restartAnotherOne
+        }
+        */
     }
 
 }
