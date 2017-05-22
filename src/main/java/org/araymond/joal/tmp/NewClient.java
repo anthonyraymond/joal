@@ -59,7 +59,6 @@ public class NewClient implements AnnouncerEventListener {
         final int numberOfTorrentToSeed = 1;
         for (int i = 0; i < numberOfTorrentToSeed; ++i) {
             try {
-                // TODO : find a way or another to add a countdown to stop announce, because we need to reset the uploaded once in a while (prevent long overflow)
                 addSeedingTorrent();
             } catch (final NoMoreTorrentsFileAvailableException e) {
                 handleNoMoreTorrentToSeed(e);
