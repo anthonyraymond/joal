@@ -9,19 +9,13 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 public class SeedSessionHasStarted {
 
     private final BitTorrentClient bitTorrentClient;
-    private final MockedTorrent torrent;
 
-    public SeedSessionHasStarted(final BitTorrentClient bitTorrentClient, final MockedTorrent torrent) {
+    public SeedSessionHasStarted(final BitTorrentClient bitTorrentClient) {
         this.bitTorrentClient = bitTorrentClient;
-        this.torrent = torrent;
     }
 
     public BitTorrentClient getBitTorrentClient() {
         return bitTorrentClient;
-    }
-
-    public MockedTorrent getTorrent() {
-        return torrent;
     }
 
 }

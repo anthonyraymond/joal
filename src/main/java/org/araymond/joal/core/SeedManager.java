@@ -81,8 +81,8 @@ public class SeedManager {
         );
 
         this.currentClient.share();
-        // TODO : replace null by torrent
-        publisher.publishEvent(new SeedSessionHasStarted(bitTorrentClient, null));
+
+        publisher.publishEvent(new SeedSessionHasStarted(bitTorrentClient));
     }
 
     public void stop() {

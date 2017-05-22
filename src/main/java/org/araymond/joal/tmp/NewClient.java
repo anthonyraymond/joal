@@ -7,6 +7,7 @@ import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.NoMoreLeechers;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
+import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.ttorent.client.bandwidth.BandwidthManager;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -20,8 +21,6 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Created by raymo on 14/05/2017.
@@ -36,6 +35,7 @@ public class NewClient implements AnnouncerEventListener {
     private final List<Announcer> announcers;
     private final Peer self;
     private final BandwidthManager bandwidthManager;
+    private ClientState currentState = ClientState.STOPPED;
 
     public NewClient(final Peer peer, final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final ApplicationEventPublisher publisher, final BitTorrentClient bitTorrentClient) {
         this.configProvider = configProvider;
@@ -48,7 +48,12 @@ public class NewClient implements AnnouncerEventListener {
         bandwidthManager = new BandwidthManager(configProvider);
     }
 
+    private void setState(final ClientState state) {
+        this.currentState = state;
+    }
+
     public void share() {
+        this.setState(ClientState.STARTING);
         this.bandwidthManager.start();
         // TODO : number of torrent to seed should be in config
         final int numberOfTorrentToSeed = 1;
@@ -57,12 +62,11 @@ public class NewClient implements AnnouncerEventListener {
                 // TODO : find a way or another to add a countdown to stop announce, because we need to reset the uploaded once in a while (prevent long overflow)
                 addSeedingTorrent();
             } catch (final NoMoreTorrentsFileAvailableException e) {
-                if (this.announcers.isEmpty()) {
-                    this.publisher.publishEvent(new NoMoreTorrentsFileAvailable());
-                }
-                return;
+                handleNoMoreTorrentToSeed(e);
+                break;
             }
         }
+        this.setState(ClientState.STARTED);
     }
 
     private Announcer addSeedingTorrent() throws NoMoreTorrentsFileAvailableException {
@@ -78,15 +82,25 @@ public class NewClient implements AnnouncerEventListener {
     }
 
     public void stop() {
+        this.setState(ClientState.STOPPING);
         // We need to work with a copy of the list, because when stop, an event is launched that remove the announcer from the list.
         // And it result in a concurrent modification exception.
         this.bandwidthManager.stop();
         Lists.newArrayList(this.announcers).forEach(Announcer::stop);
+        this.setState(ClientState.STOPPED);
     }
 
+    private void handleNoMoreTorrentToSeed(final NoMoreTorrentsFileAvailableException exception) {
+        if (this.announcers.isEmpty()) {
+            this.publisher.publishEvent(new NoMoreTorrentsFileAvailable());
+        }
+    }
+
+    //TODO : add event handler to catch TorrentFileAdded / TorrentFileRemoved, to be able to stop when removed, and add if new torrent is available and this.announcers < numberOfTorrentToSeed
+
     @Override
-    public void onAnnounceRequesting(final RequestEvent event, final long uploaded, final long downloaded, final long left) {
-        // TODO : log announce
+    public void onAnnounceRequesting(final RequestEvent event, final TorrentWithStats torrent) {
+        publisher.publishEvent(new AnnounceRequestingEvent(event, torrent));
     }
 
     @Override
@@ -106,12 +120,21 @@ public class NewClient implements AnnouncerEventListener {
         logger.debug("Removed announcer for Torrent {}", torrent.getTorrent().getName());
         this.announcers.remove(announcer);
         this.bandwidthManager.unRegisterTorrent(torrent);
-        // TODO : restart another one, but this is tricky, because stop event will be dispatched when we stop joal, so we could run in an infinite loop
-        /*
-        if (this.getState() != STOPPED) {
-            restartAnotherOne
+
+        if (this.currentState!= ClientState.STOPPING && this.currentState != ClientState.STOPPED) {
+            try {
+                addSeedingTorrent();
+            } catch (final NoMoreTorrentsFileAvailableException e) {
+                handleNoMoreTorrentToSeed(e);
+            }
         }
-        */
+    }
+
+    private enum ClientState {
+        STARTING,
+        STARTED,
+        STOPPING,
+        STOPPED;
     }
 
 }

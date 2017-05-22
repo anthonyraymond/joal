@@ -8,7 +8,7 @@ import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
  */
 public interface AnnouncerEventListener {
 
-    void onAnnounceRequesting(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final long uploaded, final long downloaded, final long left);
+    void onAnnounceRequesting(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent);
 
     void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent);
 

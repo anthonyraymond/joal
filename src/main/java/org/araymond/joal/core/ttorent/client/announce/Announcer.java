@@ -224,7 +224,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
             try {
                 this.getCurrentTrackerClient().announce(event, false);
                 for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnounceRequesting(event, this.torrent.getUploaded(), this.torrent.getDownloaded(), this.torrent.getLeft());
+                    listener.onAnnounceRequesting(event, this.torrent);
                 }
                 this.promoteCurrentTrackerClient();
                 event = AnnounceRequestMessage.RequestEvent.NONE;
@@ -258,6 +258,9 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
 
             try {
                 this.getCurrentTrackerClient().announce(event, true);
+                for (final AnnouncerEventListener listener : this.eventListeners) {
+                    listener.onAnnounceRequesting(event, this.torrent);
+                }
             } catch (final AnnounceException ae) {
                 logger.warn(ae.getMessage());
             }

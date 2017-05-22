@@ -54,7 +54,6 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         return this.config;
     }
 
-    // TODO: implement a watcher to check if config is updated (and then set isDirty)
     void setDirtyState() {
         logger.debug("App configuration has been set to dirty state.");
         this.isDirty = true;

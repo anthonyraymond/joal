@@ -1,7 +1,12 @@
 package org.araymond.joal.core;
 
+import com.turn.ttorrent.common.protocol.TrackerMessage;
+import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.apache.commons.io.FileUtils;
 import org.araymond.joal.core.events.*;
+import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -20,7 +25,7 @@ import java.io.IOException;
  */
 
 /**
- * Intercept core event, method can be @Async. Most of all, it must not interact with JOAL state, otherwise this class
+ * Intercept core event, method can be @Async. THey MUST NOT interact with JOAL state, otherwise this class
  * will soon turn into a god damn mess and we won't be able to maintain the code because of all the non explicit method calls.
  */
 @Component
@@ -28,16 +33,29 @@ public class CoreEventListener {
     private static final Logger logger = LoggerFactory.getLogger(CoreEventListener.class);
 
     private final ApplicationContext appContext;
-    private final SeedManager manager;
-    private final TorrentFileProvider torrentFileProvider;
 
     @Inject
-    public CoreEventListener(final ApplicationContext appContext, final SeedManager manager, final TorrentFileProvider torrentFileProvider) {
+    public CoreEventListener(final ApplicationContext appContext) {
         this.appContext = appContext;
-        this.manager = manager;
-        this.torrentFileProvider = torrentFileProvider;
     }
 
+    @Async
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @EventListener
+    void handleAnnounceRequesting(final AnnounceRequestingEvent event) {
+        final RequestEvent announceEvent = event.getEvent();
+        final TorrentWithStats torrent = event.getTorrent();
+        logger.info(
+                "Announced {} for torrent {} Up={}/Down={}/Left={}",
+                announceEvent == RequestEvent.NONE ? "" : announceEvent,
+                torrent.getTorrent().getName(),
+                FileUtils.byteCountToDisplaySize(torrent.getUploaded()),
+                FileUtils.byteCountToDisplaySize(torrent.getDownloaded()),
+                FileUtils.byteCountToDisplaySize(torrent.getLeft())
+        );
+    }
+
+    @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleNoMoreTorrents(final NoMoreTorrentsFileAvailable event) {
@@ -46,9 +64,7 @@ public class CoreEventListener {
         this.manager.stop();*/
     }
 
-    // It HAVE TO BE async, this method is called from a thread which is started from the main thread.
-    // If not async, it result in the subthread trying to stop himself in a synchronous way, and cause an
-    // InterruptedException because it is stuck in the stop() method.
+    @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleNoMoreLeechers(final NoMoreLeechers event) throws IOException {
@@ -56,31 +72,30 @@ public class CoreEventListener {
         //logger.warn("0 peers are currently leeching, moving torrent to archived and restarting seed.");
     }
 
+    @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleTorrentFileAddedForSeed(final TorrentFileAddedForSeed event) throws IOException {
         logger.debug("Event TorrentFileAddedForSeed caught.");
-        /*if (this.torrentFileProvider.getTorrentCount() == 1) {
-            logger.info("Resuming seed.");
-        }
-        this.manager.startSeeding();*/
     }
 
-
+    @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleSeedSessionWillStart(final SeedSessionWillStart event) {
         logger.debug("Event SeedSessionWillStart caught.");
     }
 
+    @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleSeedSessionHasStarted(final SeedSessionHasStarted event) {
         logger.debug("Event SeedSessionHasStarted caught.");
-        // TODO : add a log to tell which torrent, which BitTorrent client.
+        // TODO : add a log to tell which BitTorrent client.
         // TODO : detailed BitTorrent client log at debug log level
     }
 
+    @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleSeedSessionHasEnded(final SeedSessionHasEnded event) {
