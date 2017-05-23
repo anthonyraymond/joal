@@ -39,13 +39,12 @@ public class MockedTorrent extends Torrent {
             this.pieceLength = this.decoded_info.get("piece length").getInt();
             this.piecesHashes = ByteBuffer.wrap(this.decoded_info.get("pieces").getBytes());
 
-            if (this.piecesHashes.capacity() / Torrent.PIECE_HASH_SIZE *
-                    (long)this.pieceLength < this.getSize()) {
+            if (this.piecesHashes.capacity() / Torrent.PIECE_HASH_SIZE * (long)this.pieceLength < this.getSize()) {
                 throw new IllegalArgumentException("Torrent size does not " +
                         "match the number of pieces and the piece size!");
             }
-        } catch (final InvalidBEncodingException ibee) {
-            throw new IllegalArgumentException("Error reading torrent meta-info fields!");
+        } catch (final InvalidBEncodingException ex) {
+            throw new IllegalArgumentException("Error reading torrent meta-info fields!", ex);
         }
 
     }

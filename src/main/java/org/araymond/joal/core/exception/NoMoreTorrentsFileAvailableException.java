@@ -9,19 +9,19 @@ public class NoMoreTorrentsFileAvailableException extends Exception {
     public NoMoreTorrentsFileAvailableException() {
     }
 
-    public NoMoreTorrentsFileAvailableException(String message) {
+    public NoMoreTorrentsFileAvailableException(final String message) {
         super(message);
     }
 
-    public NoMoreTorrentsFileAvailableException(String message, Throwable cause) {
+    public NoMoreTorrentsFileAvailableException(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public NoMoreTorrentsFileAvailableException(Throwable cause) {
+    public NoMoreTorrentsFileAvailableException(final Throwable cause) {
         super(cause);
     }
 
-    public NoMoreTorrentsFileAvailableException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public NoMoreTorrentsFileAvailableException(final String message, final Throwable cause, final boolean enableSuppression, final boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

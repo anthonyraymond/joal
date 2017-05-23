@@ -21,7 +21,7 @@ import static com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMe
 /**
  * Created by raymo on 23/01/2017.
  */
-public class Announcer implements Runnable, NewAnnounceResponseListener {
+public class Announcer implements Runnable, AnnounceResponseListener {
 
     protected static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
@@ -109,7 +109,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
      *
      * @param listener The listener to register on this announcer events.
      */
-    private void register(final NewAnnounceResponseListener listener) {
+    private void register(final AnnounceResponseListener listener) {
         for (final TrackerClient client : this.allClients) {
             client.register(listener);
         }
@@ -180,7 +180,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
     /**
      * Set the announce interval.
      */
-    public void setInterval(final int interval) {
+    private void setInterval(final int interval) {
         if (interval <= 0) {
             this.stop(true);
             return;
@@ -241,7 +241,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
 
             try {
                 if (!this.stop) {
-                    // If the thread was killed by himslef (in case no more leecher) the stop flag will be set.
+                    // If the thread was killed by himself (in case no more leechers) the stop flag will be set.
                     // But the thread will have been interrupted already.
                     Thread.sleep(this.interval * 1000);
                 }
@@ -269,12 +269,12 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
     }
 
     /**
-     * Create a {@link TrackerClient} annoucing to the given tracker address.
+     * Create a {@link TrackerClient} announcing to the given tracker address.
      *
      * @param torrent          The torrent the tracker client will be announcing for.
      * @param peer             The peer the tracker client will announce on behalf of.
      * @param tracker          The tracker address as a {@link URI}.
-     * @param bitTorrentClient
+     * @param bitTorrentClient the BitTorrent that should announce.
      * @throws UnknownHostException    If the tracker address is invalid.
      * @throws UnknownServiceException If the tracker protocol is not supported.
      */
@@ -284,7 +284,7 @@ public class Announcer implements Runnable, NewAnnounceResponseListener {
         if ("http".equals(scheme) || "https".equals(scheme)) {
             return new HTTPTrackerClient(torrent, peer, tracker, bitTorrentClient);
         } else if ("udp".equals(scheme)) {
-            // FIXME: implement UDPTracketClient
+            // FIXME: implement UDPTrackerClient
             throw new NotImplementedException("UDP Client not implemented yet.");
             //return new UDPTrackerClient(torrent, peer, tracker);
         }

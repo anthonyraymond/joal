@@ -20,7 +20,7 @@ public abstract class TrackerClient {
     /**
      * The set of listeners to announce request answers.
      */
-    private final Set<NewAnnounceResponseListener> listeners;
+    private final Set<AnnounceResponseListener> listeners;
 
     protected final TorrentWithStats torrent;
     protected final Peer peer;
@@ -38,7 +38,7 @@ public abstract class TrackerClient {
      *
      * @param listener The listener to register on this announcer events.
      */
-    public void register(final NewAnnounceResponseListener listener) {
+    public void register(final AnnounceResponseListener listener) {
         this.listeners.add(listener);
     }
 
@@ -59,7 +59,7 @@ public abstract class TrackerClient {
      * </p>
      * <p>
      * <p>
-     * All registered {@link NewAnnounceResponseListener} objects are then fired
+     * All registered {@link AnnounceResponseListener} objects are then fired
      * with the decoded payload.
      * </p>
      *
@@ -139,7 +139,7 @@ public abstract class TrackerClient {
      * @param interval   The announce interval requested by the tracker.
      */
     protected void fireAnnounceResponseEvent(final int complete, final int incomplete, final int interval) {
-        for (final NewAnnounceResponseListener listener : this.listeners) {
+        for (final AnnounceResponseListener listener : this.listeners) {
             listener.handleAnnounceResponse(this.torrent, interval, complete, incomplete);
         }
     }
@@ -150,7 +150,7 @@ public abstract class TrackerClient {
      * @param peers The list of peers discovered.
      */
     protected void fireDiscoveredPeersEvent(final List<Peer> peers) {
-        for (final NewAnnounceResponseListener listener : this.listeners) {
+        for (final AnnounceResponseListener listener : this.listeners) {
             listener.handleDiscoveredPeers(this.torrent, peers);
         }
     }

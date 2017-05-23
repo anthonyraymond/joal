@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Created by raymo on 14/05/2017.
  */
-public interface NewAnnounceResponseListener extends EventListener {
+public interface AnnounceResponseListener extends EventListener {
 
     /**
      * Handle an announce response event.
@@ -18,7 +18,7 @@ public interface NewAnnounceResponseListener extends EventListener {
      * @param complete The number of seeders on this torrent.
      * @param incomplete The number of leechers on this torrent.
      */
-    public void handleAnnounceResponse(final TorrentWithStats torrent, int interval, int complete, int incomplete);
+    void handleAnnounceResponse(final TorrentWithStats torrent, int interval, int complete, int incomplete);
 
     /**
      * Handle the discovery of new peers.
@@ -26,5 +26,5 @@ public interface NewAnnounceResponseListener extends EventListener {
      * @param peers The list of peers discovered (from the announce response or
      * any other means like DHT/PEX, etc.).
      */
-    public void handleDiscoveredPeers(final TorrentWithStats torrent, final List<Peer> peers);
+    void handleDiscoveredPeers(final TorrentWithStats torrent, final List<Peer> peers);
 }

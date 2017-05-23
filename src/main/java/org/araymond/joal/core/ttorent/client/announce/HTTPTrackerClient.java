@@ -106,14 +106,14 @@ public class HTTPTrackerClient extends TrackerClient {
         }
 
         try {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             if (!Objects.equals(conn.getHeaderField("Content-Encoding"), "gzip")) {
-                baos.write(in);
+                outputStream.write(in);
             } else {
-                baos.write(new GZIPInputStream(in));
+                outputStream.write(new GZIPInputStream(in));
             }
             // Parse and handle the response
-            final HTTPTrackerMessage message = HTTPTrackerMessage.parse(ByteBuffer.wrap(baos.toByteArray()));
+            final HTTPTrackerMessage message = HTTPTrackerMessage.parse(ByteBuffer.wrap(outputStream.toByteArray()));
             this.handleTrackerAnnounceResponse(message, inhibitEvents);
         } catch (final IOException ioe) {
             throw new AnnounceException("Error reading tracker response!", ioe);

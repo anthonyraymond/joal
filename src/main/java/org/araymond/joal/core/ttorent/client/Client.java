@@ -132,7 +132,7 @@ public class Client implements AnnouncerEventListener {
         STARTING,
         STARTED,
         STOPPING,
-        STOPPED;
+        STOPPED
     }
 
 }

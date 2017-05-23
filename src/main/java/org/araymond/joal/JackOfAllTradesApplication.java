@@ -39,7 +39,7 @@ public class JackOfAllTradesApplication {
         try {
             manager.startSeeding();
         } catch (final Throwable e) {
-            final IllegalStateException wrapped = new IllegalStateException("Fatal error encoutered", e);
+            final IllegalStateException wrapped = new IllegalStateException("Fatal error encountered", e);
             logger.error("Fatal error encountered", wrapped);
             context.close();
         }

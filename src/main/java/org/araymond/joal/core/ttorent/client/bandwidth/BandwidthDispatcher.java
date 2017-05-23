@@ -15,7 +15,7 @@ public class BandwidthDispatcher implements Runnable {
 
     private final JoalConfigProvider configProvider;
     /**
-     * Update nterval have to be a low value, because when a torrent is added, the Thread.pause may end and split value
+     * Update interval have to be a low value, because when a torrent is added, the Thread.pause may end and split value
      * among all torrent and add a non reasonable value to the freshly added torrent
      */
     // TODO : add a decorator around TorrentWithStat and store the datetime when it was added, so we can know if we should add uploaded or not

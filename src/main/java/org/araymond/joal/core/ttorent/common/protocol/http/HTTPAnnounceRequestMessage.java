@@ -237,9 +237,9 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements An
                     new Peer(ip, port, ByteBuffer.wrap(peerId)),
                     uploaded, downloaded, left, compact, noPeerId,
                     event, numWant);
-        } catch (final InvalidBEncodingException ibee) {
+        } catch (final InvalidBEncodingException ex) {
             throw new MessageValidationException(
-                    "Invalid HTTP tracker request!", ibee);
+                    "Invalid HTTP tracker request!", ex);
         }
     }
 
