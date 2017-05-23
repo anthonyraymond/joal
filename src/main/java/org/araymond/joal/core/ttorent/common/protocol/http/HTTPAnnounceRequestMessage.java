@@ -60,7 +60,7 @@ public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements An
 
     @Override
     public byte[] getInfoHash() {
-        return this.infoHash;
+        return this.infoHash.clone();
     }
 
     @Override

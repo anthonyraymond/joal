@@ -43,14 +43,20 @@ public class BandwidthDispatcher implements Runnable {
 
     public void registerTorrent(final TorrentWithStats torrent) {
         this.lock.writeLock().lock();
-        this.torrents.add(torrent);
-        this.lock.writeLock().unlock();
+        try {
+            this.torrents.add(torrent);
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     public void unRegisterTorrent(final TorrentWithStats torrent) {
         this.lock.writeLock().lock();
-        this.torrents.remove(torrent);
-        this.lock.writeLock().unlock();
+        try {
+            this.torrents.remove(torrent);
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     public void start() {
@@ -74,8 +80,11 @@ public class BandwidthDispatcher implements Runnable {
             this.thread = null;
 
             this.lock.writeLock().lock();
-            this.torrents.clear();
-            this.lock.writeLock().unlock();
+            try {
+                this.torrents.clear();
+            } finally {
+                this.lock.writeLock().unlock();
+            }
         }
     }
 
