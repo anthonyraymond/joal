@@ -31,7 +31,7 @@ public class BandwidthDispatcher implements Runnable {
         this(configProvider, 1000);
     }
 
-    public BandwidthDispatcher(final JoalConfigProvider configProvider, final Integer updateInterval) {
+    BandwidthDispatcher(final JoalConfigProvider configProvider, final Integer updateInterval) {
         Preconditions.checkNotNull(configProvider, "Cannot build without ConfigProvider.");
         this.configProvider = configProvider;
         this.updateInterval = updateInterval;

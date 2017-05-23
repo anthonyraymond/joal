@@ -10,7 +10,6 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 public class TorrentWithStats {
 
     private final MockedTorrent torrent;
-    // TODO : consider switching to BigInteger
     private Long uploaded;
     private final Long downloaded;
     private final Long left;
