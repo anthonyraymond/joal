@@ -2,7 +2,7 @@ package org.araymond.joal.core.client.emulated;
 
 import org.junit.Test;
 
-import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.*;
+import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.KeyInfo;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.ValueType.ALPHABETIC;
 import static org.assertj.core.api.Assertions.assertThat;
 

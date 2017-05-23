@@ -4,11 +4,9 @@ import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * Created by raymo on 15/05/2017.

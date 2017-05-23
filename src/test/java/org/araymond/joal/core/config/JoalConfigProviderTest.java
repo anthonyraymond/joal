@@ -5,11 +5,11 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.FileNotFoundException;
-import java.nio.file.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
 
 /**
  * Created by raymo on 18/04/2017.

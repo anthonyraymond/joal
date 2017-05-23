@@ -1,7 +1,5 @@
 package org.araymond.joal.core.client.emulated;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.ObjectArrays;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.utils.MockedInjections;
 import org.junit.Test;

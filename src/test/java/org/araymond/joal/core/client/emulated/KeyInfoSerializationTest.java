@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.*;
+import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.KeyInfo;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.ValueType.ALPHABETIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

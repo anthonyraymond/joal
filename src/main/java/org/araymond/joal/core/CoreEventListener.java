@@ -1,11 +1,9 @@
 package org.araymond.joal.core;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.io.FileUtils;
 import org.araymond.joal.core.events.*;
 import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
-import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

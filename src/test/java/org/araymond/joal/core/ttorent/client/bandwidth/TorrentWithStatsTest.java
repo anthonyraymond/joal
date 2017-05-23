@@ -1,13 +1,11 @@
 package org.araymond.joal.core.ttorent.client.bandwidth;
 
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Created by raymo on 14/05/2017.
