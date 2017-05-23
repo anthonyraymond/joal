@@ -1,4 +1,4 @@
-package org.araymond.joal.tmp;
+package org.araymond.joal.core.ttorent.client;
 
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.Peer;
@@ -9,10 +9,9 @@ import org.araymond.joal.core.events.NoMoreLeechers;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
 import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
-import org.araymond.joal.core.ttorent.client.bandwidth.BandwidthManager;
+import org.araymond.joal.core.ttorent.client.bandwidth.BandwidthDispatcher;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.announce.AnnouncerEventListener;
 import org.slf4j.Logger;
@@ -25,8 +24,8 @@ import java.util.List;
 /**
  * Created by raymo on 14/05/2017.
  */
-public class NewClient implements AnnouncerEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(NewClient.class);
+public class Client implements AnnouncerEventListener {
+    private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
     private final JoalConfigProvider configProvider;
     private final TorrentFileProvider torrentFileProvider;
@@ -34,10 +33,10 @@ public class NewClient implements AnnouncerEventListener {
     private final BitTorrentClient bitTorrentClient;
     private final List<Announcer> announcers;
     private final Peer self;
-    private final BandwidthManager bandwidthManager;
+    private final BandwidthDispatcher bandwidthDispatcher;
     private ClientState currentState = ClientState.STOPPED;
 
-    public NewClient(final Peer peer, final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final ApplicationEventPublisher publisher, final BitTorrentClient bitTorrentClient) {
+    public Client(final Peer peer, final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final ApplicationEventPublisher publisher, final BitTorrentClient bitTorrentClient) {
         this.configProvider = configProvider;
         this.torrentFileProvider = torrentFileProvider;
         this.publisher = publisher;
@@ -45,7 +44,7 @@ public class NewClient implements AnnouncerEventListener {
         this.announcers = new ArrayList<>();
 
         this.self = peer;
-        bandwidthManager = new BandwidthManager(configProvider);
+        bandwidthDispatcher = new BandwidthDispatcher(configProvider);
     }
 
     private void setState(final ClientState state) {
@@ -54,7 +53,7 @@ public class NewClient implements AnnouncerEventListener {
 
     public void share() {
         this.setState(ClientState.STARTING);
-        this.bandwidthManager.start();
+        this.bandwidthDispatcher.start();
         // TODO : number of torrent to seed should be in config
         final int numberOfTorrentToSeed = 1;
         for (int i = 0; i < numberOfTorrentToSeed; ++i) {
@@ -84,7 +83,7 @@ public class NewClient implements AnnouncerEventListener {
         this.setState(ClientState.STOPPING);
         // We need to work with a copy of the list, because when stop, an event is launched that remove the announcer from the list.
         // And it result in a concurrent modification exception.
-        this.bandwidthManager.stop();
+        this.bandwidthDispatcher.stop();
         Lists.newArrayList(this.announcers).forEach(Announcer::stop);
         this.setState(ClientState.STOPPED);
     }
@@ -111,14 +110,14 @@ public class NewClient implements AnnouncerEventListener {
 
     @Override
     public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
-        this.bandwidthManager.registerTorrent(torrent);
+        this.bandwidthDispatcher.registerTorrent(torrent);
     }
 
     @Override
     public void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent) {
         logger.debug("Removed announcer for Torrent {}", torrent.getTorrent().getName());
         this.announcers.remove(announcer);
-        this.bandwidthManager.unRegisterTorrent(torrent);
+        this.bandwidthDispatcher.unRegisterTorrent(torrent);
 
         if (this.currentState!= ClientState.STOPPING && this.currentState != ClientState.STOPPED) {
             try {

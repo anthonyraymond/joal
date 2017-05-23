@@ -8,7 +8,7 @@ import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.*;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
-import org.araymond.joal.tmp.NewClient;
+import org.araymond.joal.core.ttorent.client.Client;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -35,7 +35,7 @@ public class SeedManager {
     private final ApplicationEventPublisher publisher;
 
     private ConnectionHandler connectionHandler;
-    private NewClient currentClient;
+    private Client currentClient;
 
     @PostConstruct
     private void init() throws IOException {
@@ -72,7 +72,7 @@ public class SeedManager {
                 this.connectionHandler.getSocketAddress().getPort(),
                 ByteBuffer.wrap(id.getBytes(Torrent.BYTE_ENCODING))
         );
-        this.currentClient = new NewClient(
+        this.currentClient = new Client(
                 peer,
                 configProvider,
                 torrentFileProvider,

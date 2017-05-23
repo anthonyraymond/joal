@@ -11,7 +11,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 /**
  * Created by raymo on 14/05/2017.
  */
-public class BandwidthManager implements Runnable {
+public class BandwidthDispatcher implements Runnable {
 
     private final JoalConfigProvider configProvider;
     /**
@@ -27,11 +27,11 @@ public class BandwidthManager implements Runnable {
     private Thread thread;
     private boolean stop;
 
-    public BandwidthManager(final JoalConfigProvider configProvider) {
+    public BandwidthDispatcher(final JoalConfigProvider configProvider) {
         this(configProvider, 1000);
     }
 
-    public BandwidthManager(final JoalConfigProvider configProvider, final Integer updateInterval) {
+    public BandwidthDispatcher(final JoalConfigProvider configProvider, final Integer updateInterval) {
         Preconditions.checkNotNull(configProvider, "Cannot build without ConfigProvider.");
         this.configProvider = configProvider;
         this.updateInterval = updateInterval;

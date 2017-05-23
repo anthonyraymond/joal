@@ -3,8 +3,6 @@ package org.araymond.joal.core.ttorent.client.bandwidth;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
-import org.araymond.joal.core.ttorent.client.bandwidth.BandwidthManager;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -15,11 +13,11 @@ import static org.assertj.core.api.Assertions.fail;
 /**
  * Created by raymo on 14/05/2017.
  */
-public class BandwidthManagerTest {
+public class BandwidthDispatcherTest {
 
     @Test
     public void shouldNotBuildWithoutConfigProvider() {
-        assertThatThrownBy(() -> new BandwidthManager(null))
+        assertThatThrownBy(() -> new BandwidthDispatcher(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("Cannot build without ConfigProvider.");
     }
@@ -29,7 +27,7 @@ public class BandwidthManagerTest {
         final JoalConfigProvider configProvider = Mockito.mock(JoalConfigProvider.class);
 
         try {
-            final BandwidthManager bandwidthManager = new BandwidthManager(configProvider);
+            final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider);
         } catch (final Throwable ignored) {
             fail("should build");
         }
@@ -43,10 +41,10 @@ public class BandwidthManagerTest {
         Mockito.when(conf.getMinUploadRate()).thenReturn(180);
         Mockito.when(conf.getMaxUploadRate()).thenReturn(190);
 
-        final BandwidthManager bandwidthManager = new BandwidthManager(configProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider);
 
         for (int i = 0; i < 20; ++i) {
-            assertThat(bandwidthManager.generateRandomizedSpeedInBytes())
+            assertThat(bandwidthDispatcher.generateRandomizedSpeedInBytes())
                     .isBetween(
                             (long) conf.getMinUploadRate() * 1024,
                             (long) conf.getMaxUploadRate() * 1024
@@ -62,10 +60,10 @@ public class BandwidthManagerTest {
         Mockito.when(conf.getMinUploadRate()).thenReturn(0);
         Mockito.when(conf.getMaxUploadRate()).thenReturn(1);
 
-        final BandwidthManager bandwidthManager = new BandwidthManager(configProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider);
 
         for (int i = 0; i < 500; ++i) {
-            assertThat(bandwidthManager.generateRandomizedSpeedInBytes())
+            assertThat(bandwidthDispatcher.generateRandomizedSpeedInBytes())
                     .isBetween(
                             (long) conf.getMinUploadRate() * 1024,
                             (long) conf.getMaxUploadRate() * 1024
@@ -81,10 +79,10 @@ public class BandwidthManagerTest {
         Mockito.when(conf.getMinUploadRate()).thenReturn(0);
         Mockito.when(conf.getMaxUploadRate()).thenReturn(0);
 
-        final BandwidthManager bandwidthManager = new BandwidthManager(configProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider);
 
         for (int i = 0; i < 20; ++i) {
-            assertThat(bandwidthManager.generateRandomizedSpeedInBytes()).isEqualTo(0);
+            assertThat(bandwidthDispatcher.generateRandomizedSpeedInBytes()).isEqualTo(0);
         }
     }
 
@@ -97,13 +95,13 @@ public class BandwidthManagerTest {
         Mockito.when(conf.getMaxUploadRate()).thenReturn(190);
 
         final int updateInterval = 4;
-        final BandwidthManager bandwidthManager = new BandwidthManager(configProvider, updateInterval);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
         final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
-        bandwidthManager.registerTorrent(torrent);
+        bandwidthDispatcher.registerTorrent(torrent);
 
-        bandwidthManager.start();
+        bandwidthDispatcher.start();
         Thread.sleep(5);
-        bandwidthManager.stop();
+        bandwidthDispatcher.stop();
 
         assertThat(torrent.getUploaded())
                 .isBetween(
@@ -122,19 +120,19 @@ public class BandwidthManagerTest {
         Mockito.when(conf.getMaxUploadRate()).thenReturn(180);
 
         final int updateInterval = 4;
-        final BandwidthManager bandwidthManager = new BandwidthManager(configProvider, updateInterval);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
         final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
         final TorrentWithStats torrent2 = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
         final TorrentWithStats torrent3 = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
         final TorrentWithStats torrent4 = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
-        bandwidthManager.registerTorrent(torrent);
-        bandwidthManager.registerTorrent(torrent2);
-        bandwidthManager.registerTorrent(torrent3);
-        bandwidthManager.registerTorrent(torrent4);
+        bandwidthDispatcher.registerTorrent(torrent);
+        bandwidthDispatcher.registerTorrent(torrent2);
+        bandwidthDispatcher.registerTorrent(torrent3);
+        bandwidthDispatcher.registerTorrent(torrent4);
 
-        bandwidthManager.start();
+        bandwidthDispatcher.start();
         Thread.sleep(5);
-        bandwidthManager.stop();
+        bandwidthDispatcher.stop();
 
         assertThat(torrent.getUploaded())
                 .isBetween(
