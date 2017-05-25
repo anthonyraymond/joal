@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,6 +37,32 @@ public class BitTorrentClientConfigTest {
             assertThat(client1.getKey().get()).isNotEqualTo(client2.getKey().get());
             assertThat(client1.getPeerId()).isNotEqualTo(client2.getPeerId());
         }
+    }
+
+    @Test
+    public void shouldCreateClientWithKeyUpperCased() {
+        final BitTorrentClientConfig config = new BitTorrentClientConfig(
+                new PeerIdInfo("-AZ5750-", ValueType.ALPHANUMERIC, false, false),
+                "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3",
+                new KeyInfo(8, ValueType.ALPHABETIC, true, false),
+                Arrays.asList(new HttpHeader("User-Agent", "Azureus 5.7.5.0;{os};1.8.0_66")),
+                100
+        );
+
+        assertThat(config.createClient().getKey().get()).matches(Pattern.compile("[A-Z]+"));
+    }
+
+    @Test
+    public void shouldCreateClientWithKeyLowerCased() {
+        final BitTorrentClientConfig config = new BitTorrentClientConfig(
+                new PeerIdInfo("-AZ5750-", ValueType.ALPHANUMERIC, false, false),
+                "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3",
+                new KeyInfo(8, ValueType.ALPHABETIC, false, true),
+                Arrays.asList(new HttpHeader("User-Agent", "Azureus 5.7.5.0;{os};1.8.0_66")),
+                100
+        );
+
+        assertThat(config.createClient().getKey().get()).matches(Pattern.compile("[a-z]+"));
     }
 
     @Test
