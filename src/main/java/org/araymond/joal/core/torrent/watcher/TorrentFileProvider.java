@@ -1,6 +1,6 @@
 package org.araymond.joal.core.torrent.watcher;
 
-import com.google.common.collect.Iterators;
+import com.google.common.base.Preconditions;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.events.TorrentFileAddedForSeed;
@@ -22,10 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by raymo on 28/01/2017.
@@ -37,8 +34,8 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles;
     private final Path archiveFolder;
-    private final Random rand;
     private final ApplicationEventPublisher publisher;
+    private final Set<TorrentFileChangeAware> torrentFileChangeListener;
 
     private boolean isInitOver = false;
 
@@ -77,15 +74,24 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
 
-        this.rand = new Random();
-
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
+        torrentFileChangeListener = new HashSet<>();
     }
 
     @Override
     public void onFileDelete(final File file) {
+        if (!this.torrentFiles.containsKey(file)) {
+            return;
+        }
+
+        final MockedTorrent torrent = this.torrentFiles.get(file);
+        if (torrent == null) {
+            return;
+        }
+
         logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
         this.torrentFiles.remove(file);
+        this.torrentFileChangeListener.forEach(listener -> listener.onTorrentRemoved(torrent));
     }
 
     @Override
@@ -96,6 +102,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
             this.torrentFiles.put(file, torrent);
             if (this.isInitOver) {
                 this.publisher.publishEvent(new TorrentFileAddedForSeed(torrent));
+                this.torrentFileChangeListener.forEach(listener -> listener.onTorrentAdded(torrent));
             }
         } catch (final IOException | NoSuchAlgorithmException e) {
             logger.warn("File '{}' not added to torrent list, because failed to read file '", file.getAbsolutePath(), e);
@@ -109,19 +116,27 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         this.onFileCreate(file);
     }
 
-    public MockedTorrent getRandomTorrentFile() throws NoMoreTorrentsFileAvailableException {
-        if (this.torrentFiles.isEmpty()) {
-            logger.error("There is no more .torrent file available.");
-            throw new NoMoreTorrentsFileAvailableException("No more torrent file available.");
-        }
-        final int indexToPick = this.rand.nextInt(this.torrentFiles.size());
-        return Iterators.get(this.torrentFiles.values().iterator(), indexToPick);
+    public void registerListener(final TorrentFileChangeAware listener) {
+        this.torrentFileChangeListener.add(listener);
     }
 
-    public void moveToArchiveFolder(final File torrentFile) {
+    public void unRegisterListener(final TorrentFileChangeAware listener) {
+        this.torrentFileChangeListener.remove(listener);
+    }
+
+    public MockedTorrent getTorrentNotIn(final List<MockedTorrent> unwantedTorrents) throws NoMoreTorrentsFileAvailableException {
+        Preconditions.checkNotNull(unwantedTorrents, "List of unwantedTorrents cannot be null.");
+        return this.torrentFiles.values().stream()
+                .filter(torrent -> !unwantedTorrents.contains(torrent))
+                .findAny()
+                .orElseThrow(() -> new NoMoreTorrentsFileAvailableException("No more torrent file available."));
+    }
+
+    void moveToArchiveFolder(final File torrentFile) {
         if (!torrentFile.exists()) {
             return;
         }
+        this.onFileDelete(torrentFile);
 
         try {
             Files.deleteIfExists(archiveFolder.resolve(torrentFile.getName()));
@@ -132,17 +147,8 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         }
     }
 
-    public void moveToArchiveFolder(final MockedTorrent torrentFile) {
-        final File fileToArchive = this.torrentFiles.entrySet().stream()
-                .filter(entry -> entry.getValue().getHexInfoHash().equalsIgnoreCase(torrentFile.getHexInfoHash()))
-                .findFirst()
-                .orElseThrow(() -> {
-                    final IllegalStateException e = new IllegalStateException("Failed to find which torrent file to archive.");
-                    logger.warn("Failed to find which torrent file to archive.", e);
-                    return e;
-                })
-                .getKey();
-        this.moveToArchiveFolder(fileToArchive);
+    public void moveToArchiveFolder(final MockedTorrent torrent) {
+        this.moveToArchiveFolder(torrent.getPath().toFile());
     }
 
     public int getTorrentCount() {

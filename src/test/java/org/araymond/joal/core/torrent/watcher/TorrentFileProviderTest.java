@@ -1,11 +1,14 @@
 package org.araymond.joal.core.torrent.watcher;
 
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
+import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.File;
@@ -15,11 +18,14 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.concurrent.CountDownLatch;
 
 import static java.nio.file.Files.exists;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Created by raymo on 13/03/2017.
@@ -66,7 +72,7 @@ public class TorrentFileProviderTest {
     public void shouldFailIfFolderDoesNotContainsTorrentFiles() throws IOException {
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
 
-        assertThatThrownBy(provider::getRandomTorrentFile)
+        assertThatThrownBy(() -> provider.getTorrentNotIn(new ArrayList<>()))
                 .isInstanceOf(NoMoreTorrentsFileAvailableException.class)
                 .hasMessageContaining("No more torrent file available.");
     }
@@ -126,7 +132,7 @@ public class TorrentFileProviderTest {
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
         assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).doesNotExist();
-        provider.moveToArchiveFolder(provider.getRandomTorrentFile());
+        provider.moveToArchiveFolder(provider.getTorrentNotIn(new ArrayList<>()));
         assertThat(torrentsPath.resolve("ubuntu.torrent")).doesNotExist();
 
         assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
@@ -147,5 +153,122 @@ public class TorrentFileProviderTest {
         assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
     }
 
+    @Test
+    public void shouldNotFailIfFileIsNotPresentWhenArchiving() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+
+        try {
+            provider.moveToArchiveFolder(torrentFile.resolve("dd.torrent").toFile());
+        } catch (final Throwable throwable) {
+            fail("should not fail if file were not present.");
+        }
+    }
+
+    @Test
+    public void shouldCallOnFileDeleteBeforeDeletingFileWhenArchiving() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = Mockito.spy(new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class)));
+        Mockito.doAnswer(invocation -> {
+            assertThat(torrentFile.toFile()).exists();
+            return null;
+        }).when(provider).onFileDelete(torrentFile.toFile());
+
+        provider.onFileCreate(torrentFile.toFile());
+        provider.moveToArchiveFolder(torrentFile.toFile());
+        Mockito.verify(provider, Mockito.times(1)).moveToArchiveFolder(torrentFile.toFile());
+        assertThat(torrentFile.toFile()).doesNotExist();
+    }
+
+    @Test
+    public void shouldNotifyListenerOnFileAdded() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final CountDownLatch createLock = new CountDownLatch(1);
+        final CountDownLatch deleteLock = new CountDownLatch(1);
+        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+
+        provider.postConstruct();
+        provider.onFileCreate(torrentFile.toFile());
+
+        assertThat(createLock.getCount()).isEqualTo(0);
+        assertThat(deleteLock.getCount()).isEqualTo(1);
+        provider.preDestroy();
+    }
+
+    @Test
+    public void shouldNotNotifyFileAddedBeforeInitIsOver() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final CountDownLatch createLock = new CountDownLatch(1);
+        final CountDownLatch deleteLock = new CountDownLatch(1);
+        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+
+        provider.onFileCreate(torrentFile.toFile());
+
+        assertThat(createLock.getCount()).isEqualTo(1);
+        assertThat(deleteLock.getCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void shouldNotifyListenerOnFileRemoved() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        provider.onFileCreate(torrentFile.toFile());
+
+        final CountDownLatch createLock = new CountDownLatch(1);
+        final CountDownLatch deleteLock = new CountDownLatch(1);
+        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+
+        provider.onFileDelete(torrentFile.toFile());
+
+        assertThat(createLock.getCount()).isEqualTo(1);
+        assertThat(deleteLock.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldNotifyListenerOnFileChanged() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final CountDownLatch createLock = new CountDownLatch(1);
+        final CountDownLatch deleteLock = new CountDownLatch(1);
+        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+
+        provider.postConstruct();
+        provider.onFileChange(torrentFile.toFile());
+
+        assertThat(createLock.getCount()).isEqualTo(0);
+        assertThat(deleteLock.getCount()).isEqualTo(0);
+        provider.preDestroy();
+    }
+
+
+
+    private static final class CountDownLatchListener implements TorrentFileChangeAware {
+
+        private final CountDownLatch createLock;
+        private final CountDownLatch deleteLock;
+
+        private CountDownLatchListener(final CountDownLatch createLock, final CountDownLatch deleteLock) {
+            this.createLock = createLock;
+            this.deleteLock = deleteLock;
+        }
+
+        @Override
+        public void onTorrentAdded(final MockedTorrent torrent) {
+            createLock.countDown();
+        }
+
+        @Override
+        public void onTorrentRemoved(final MockedTorrent torrent) {
+            deleteLock.countDown();
+        }
+    }
 
 }

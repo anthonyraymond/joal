@@ -122,6 +122,11 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
     @Override
     public void handleDiscoveredPeers(final TorrentWithStats torrent, final List<Peer> peers) {
+        logger.info(
+                "Peers discovery for torrent {}: {} leechers",
+                torrent.getTorrent().getName(),
+                peers == null ? 0 : peers.size()
+        );
         if (peers == null || peers.isEmpty()) {
             this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
         }
@@ -222,10 +227,11 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
         while (!this.stop) {
             try {
-                this.getCurrentTrackerClient().announce(event, false);
                 for (final AnnouncerEventListener listener : this.eventListeners) {
                     listener.onAnnounceRequesting(event, this.torrent);
                 }
+                this.getCurrentTrackerClient().announce(event, false);
+
                 this.promoteCurrentTrackerClient();
                 event = AnnounceRequestMessage.RequestEvent.NONE;
             } catch (final AnnounceException ae) {
@@ -257,10 +263,10 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             event = AnnounceRequestMessage.RequestEvent.STOPPED;
 
             try {
-                this.getCurrentTrackerClient().announce(event, true);
                 for (final AnnouncerEventListener listener : this.eventListeners) {
                     listener.onAnnounceRequesting(event, this.torrent);
                 }
+                this.getCurrentTrackerClient().announce(event, true);
             } catch (final AnnounceException ae) {
                 logger.warn(ae.getMessage());
             }
@@ -306,6 +312,14 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         return this.clients
                 .get(this.currentTier)
                 .get(this.currentClient);
+    }
+
+    public MockedTorrent getSeedingTorrent() {
+        return this.torrent.getTorrent();
+    }
+
+    public boolean isForTorrent(final MockedTorrent torrent) {
+        return this.torrent.getTorrent().equals(torrent);
     }
 
     /**

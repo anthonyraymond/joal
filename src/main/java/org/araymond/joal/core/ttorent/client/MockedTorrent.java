@@ -54,6 +54,10 @@ public class MockedTorrent extends Torrent {
         return new MockedTorrent(data, true, torrent.toPath());
     }
 
+    public Path getPath() {
+        return path;
+    }
+
     @Override
     public boolean equals(final Object o) {
         // TODO : consider a better way to handle equals and hashcode

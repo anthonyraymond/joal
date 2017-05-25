@@ -12,22 +12,19 @@ public class AppConfiguration {
 
     private final int minUploadRate;
     private final int maxUploadRate;
-    private final int seedFor;
-    private final int waitBetweenSeed;
+    private final int simultaneousSeed;
     private final String client;
 
     @JsonCreator
     AppConfiguration(
             @JsonProperty(value = "minUploadRate", required = true) final int minUploadRate,
             @JsonProperty(value = "maxUploadRate", required = true) final int maxUploadRate,
-            @JsonProperty(value = "seedFor", required = true) final int seedFor,
-            @JsonProperty(value = "waitBetweenSeed", required = true) final int waitBetweenSeed,
+            @JsonProperty(value = "simultaneousSeed", required = true) final int simultaneousSeed,
             @JsonProperty(value = "client", required = true) final String client
     ) {
         this.minUploadRate = minUploadRate;
         this.maxUploadRate = maxUploadRate;
-        this.seedFor = seedFor;
-        this.waitBetweenSeed = waitBetweenSeed;
+        this.simultaneousSeed = simultaneousSeed;
         this.client = client;
 
         validate();
@@ -41,12 +38,8 @@ public class AppConfiguration {
         return minUploadRate;
     }
 
-    public int getSeedFor() {
-        return seedFor;
-    }
-
-    public int getWaitBetweenSeed() {
-        return waitBetweenSeed;
+    public int getSimultaneousSeed() {
+        return simultaneousSeed;
     }
 
     @JsonProperty("client")
@@ -64,11 +57,8 @@ public class AppConfiguration {
         if (maxUploadRate <= minUploadRate) {
             throw new AppConfigurationIntegrityException("maxUploadRate must be strictly greater than minUploadRate.");
         }
-        if (seedFor < 1) {
-            throw new AppConfigurationIntegrityException("seedFor must be greater than 1.");
-        }
-        if (waitBetweenSeed < 1) {
-            throw new AppConfigurationIntegrityException("waitBetweenSeed must be greater than 1.");
+        if (simultaneousSeed < 1) {
+            throw new AppConfigurationIntegrityException("simultaneousSeed must be greater than 0.");
         }
         if (StringUtils.isBlank(client)) {
             throw new AppConfigurationIntegrityException("client is required, no file name given.");
@@ -82,13 +72,12 @@ public class AppConfiguration {
         final AppConfiguration that = (AppConfiguration) o;
         return minUploadRate == that.minUploadRate &&
                 maxUploadRate == that.maxUploadRate &&
-                seedFor == that.seedFor &&
-                waitBetweenSeed == that.waitBetweenSeed &&
+                simultaneousSeed == that.simultaneousSeed &&
                 Objects.equal(client, that.client);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(minUploadRate, maxUploadRate, seedFor, waitBetweenSeed, client);
+        return Objects.hashCode(minUploadRate, maxUploadRate, simultaneousSeed, client);
     }
 }

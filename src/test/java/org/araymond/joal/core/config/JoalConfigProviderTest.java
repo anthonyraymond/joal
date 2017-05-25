@@ -20,8 +20,7 @@ public class JoalConfigProviderTest {
     public static final AppConfiguration defaultConfig = new AppConfiguration(
         180,
         190,
-        840,
-        600,
+        2,
         "azureus-5.7.5.0.client"
     );
 

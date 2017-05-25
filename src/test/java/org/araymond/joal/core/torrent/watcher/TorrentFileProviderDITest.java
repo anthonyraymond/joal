@@ -17,6 +17,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +66,7 @@ public class TorrentFileProviderDITest {
     @Test
     public void shouldInjectConfigProvider() throws NoMoreTorrentsFileAvailableException {
         assertThat(torrentFileProvider.getTorrentCount()).isEqualTo(1);
-        assertThat(torrentFileProvider.getRandomTorrentFile().getName()).isEqualTo("ubuntu-17.04-desktop-amd64.iso");
+        assertThat(torrentFileProvider.getTorrentNotIn(new ArrayList<>()).getName()).isEqualTo("ubuntu-17.04-desktop-amd64.iso");
     }
 
 }

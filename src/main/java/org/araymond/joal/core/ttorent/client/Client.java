@@ -9,6 +9,7 @@ import org.araymond.joal.core.events.NoMoreLeechers;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
 import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
+import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.announce.AnnouncerEventListener;
@@ -20,11 +21,12 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by raymo on 14/05/2017.
  */
-public class Client implements AnnouncerEventListener {
+public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
     private final JoalConfigProvider configProvider;
@@ -52,10 +54,11 @@ public class Client implements AnnouncerEventListener {
     }
 
     public void share() {
+        this.torrentFileProvider.registerListener(this);
         this.setState(ClientState.STARTING);
         this.bandwidthDispatcher.start();
-        // TODO : number of torrent to seed should be in config
-        final int numberOfTorrentToSeed = 1;
+
+        final int numberOfTorrentToSeed = configProvider.get().getSimultaneousSeed();
         for (int i = 0; i < numberOfTorrentToSeed; ++i) {
             try {
                 addSeedingTorrent();
@@ -67,23 +70,32 @@ public class Client implements AnnouncerEventListener {
         this.setState(ClientState.STARTED);
     }
 
-    private Announcer addSeedingTorrent() throws NoMoreTorrentsFileAvailableException {
-        //TODO : replace getRandom by something else to ensure we are not seeding the same torrent twice
-        final MockedTorrent torrent = torrentFileProvider.getRandomTorrentFile();
+    private void addSeedingTorrent() throws NoMoreTorrentsFileAvailableException {
+        final List<MockedTorrent> unwantedTorrent = this.announcers.stream()
+                .map(Announcer::getSeedingTorrent)
+                .collect(Collectors.toList());
 
+        final MockedTorrent torrent = torrentFileProvider.getTorrentNotIn(unwantedTorrent);
+
+        this.addSeedingTorrent(torrent);
+    }
+
+    private void addSeedingTorrent(final MockedTorrent torrent) {
         final Announcer announcer = new Announcer(torrent, this.self, this.bitTorrentClient, publisher);
         announcer.registerEventListener(this);
-        logger.debug("Added announcer for Torrent {}", torrent.getName());
         this.announcers.add(announcer);
+
+        logger.debug("Added announcer for Torrent {}", torrent.getName());
         announcer.start();
-        return announcer;
     }
 
     public void stop() {
         this.setState(ClientState.STOPPING);
+        this.torrentFileProvider.unRegisterListener(this);
+        this.bandwidthDispatcher.stop();
+
         // We need to work with a copy of the list, because when stop, an event is launched that remove the announcer from the list.
         // And it result in a concurrent modification exception.
-        this.bandwidthDispatcher.stop();
         Lists.newArrayList(this.announcers).forEach(Announcer::stop);
         this.setState(ClientState.STOPPED);
     }
@@ -94,7 +106,25 @@ public class Client implements AnnouncerEventListener {
         }
     }
 
-    //TODO : add event handler to catch TorrentFileAdded / TorrentFileRemoved, to be able to stop when removed, and add if new torrent is available and this.announcers < numberOfTorrentToSeed
+    @Override
+    public void onTorrentAdded(final MockedTorrent torrent) {
+        if (this.currentState != ClientState.STARTED) {
+            return;
+        }
+        if (this.announcers.size() >= configProvider.get().getSimultaneousSeed()) {
+            return;
+        }
+        addSeedingTorrent(torrent);
+    }
+
+    @Override
+    public void onTorrentRemoved(final MockedTorrent torrent) {
+        for (final Announcer announcer : this.announcers) {
+            if (announcer.isForTorrent(torrent)) {
+                announcer.stop();
+            }
+        }
+    }
 
     @Override
     public void onAnnounceRequesting(final RequestEvent event, final TorrentWithStats torrent) {
