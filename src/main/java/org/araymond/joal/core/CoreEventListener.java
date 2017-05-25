@@ -4,10 +4,10 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.apache.commons.io.FileUtils;
 import org.araymond.joal.core.events.*;
 import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileAddedForSeed;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasEnded;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasStarted;
-import org.araymond.joal.core.events.seedsession.SeedSessionWillStart;
+import org.araymond.joal.core.events.filechange.TorrentFileAddedForSeedEvent;
+import org.araymond.joal.core.events.seedsession.SeedSessionHasEndedEvent;
+import org.araymond.joal.core.events.seedsession.SeedSessionHasStartedEvent;
+import org.araymond.joal.core.events.seedsession.SeedSessionWillStartEvent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +60,8 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleNoMoreTorrents(final NoMoreTorrentsFileAvailable event) {
-        logger.debug("Event NoMoreTorrentsFileAvailable caught.");
+    void handleNoMoreTorrents(final NoMoreTorrentsFileAvailableEvent event) {
+        logger.debug("Event NoMoreTorrentsFileAvailableEvent caught.");
         /*logger.warn("There is no more .torrent file, add some more to resume seed.");
         this.manager.stop();*/
     }
@@ -69,30 +69,30 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleNoMoreLeechers(final NoMoreLeechers event) throws IOException {
-        logger.debug("Event NoMoreLeechers caught.");
+    void handleNoMoreLeechers(final NoMoreLeechersEvent event) throws IOException {
+        logger.debug("Event NoMoreLeechersEvent caught.");
         //logger.warn("0 peers are currently leeching, moving torrent to archived and restarting seed.");
     }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleTorrentFileAddedForSeed(final TorrentFileAddedForSeed event) throws IOException {
-        logger.debug("Event TorrentFileAddedForSeed caught.");
+    void handleTorrentFileAddedForSeed(final TorrentFileAddedForSeedEvent event) throws IOException {
+        logger.debug("Event TorrentFileAddedForSeedEvent caught.");
     }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionWillStart(final SeedSessionWillStart event) {
-        logger.debug("Event SeedSessionWillStart caught.");
+    void handleSeedSessionWillStart(final SeedSessionWillStartEvent event) {
+        logger.debug("Event SeedSessionWillStartEvent caught.");
     }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasStarted(final SeedSessionHasStarted event) {
-        logger.debug("Event SeedSessionHasStarted caught.");
+    void handleSeedSessionHasStarted(final SeedSessionHasStartedEvent event) {
+        logger.debug("Event SeedSessionHasStartedEvent caught.");
         // TODO : add a log to tell which BitTorrent client.
         // TODO : detailed BitTorrent client log at debug log level
     }
@@ -100,16 +100,16 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasEnded(final SeedSessionHasEnded event) {
-        logger.debug("Event SeedSessionHasEnded caught.");
+    void handleSeedSessionHasEnded(final SeedSessionHasEndedEvent event) {
+        logger.debug("Event SeedSessionHasEndedEvent caught.");
         // TODO : log that the seed session is over
     }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleSomethingHasFuckedUp(final SomethingHasFuckedUp event) {
-        logger.error("Event SomethingHasFuckedUp caught.", event.getException());
+    void handleSomethingHasFuckedUp(final SomethingHasFuckedUpEvent event) {
+        logger.error("Event SomethingHasFuckedUpEvent caught.", event.getException());
         // Stop the application
         SpringApplication.exit(appContext, () -> 42);
     }

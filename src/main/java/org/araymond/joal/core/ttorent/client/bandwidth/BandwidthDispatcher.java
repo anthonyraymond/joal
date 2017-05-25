@@ -35,8 +35,7 @@ public class BandwidthDispatcher implements Runnable {
         Preconditions.checkNotNull(configProvider, "Cannot build without ConfigProvider.");
         this.configProvider = configProvider;
         this.updateInterval = updateInterval;
-        // TODO : list size = configProvider.getMaxTorrentToSeedSimultaneously
-        this.torrents = new ArrayList<>();
+        this.torrents = new ArrayList<>(configProvider.get().getSimultaneousSeed());
         lock = new ReentrantReadWriteLock();
         rand = new Random();
     }

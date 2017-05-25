@@ -49,6 +49,7 @@ public class TorrentWithStatsTest {
         final TorrentWithStats torrentWithStats = new TorrentWithStats(torrent);
         final TorrentWithStats torrentWithStats2 = new TorrentWithStats(torrent);
         assertThat(torrentWithStats).isEqualTo(torrentWithStats2);
+        assertThat(torrentWithStats.hashCode()).isEqualTo(torrentWithStats2.hashCode());
     }
 
     @Test
@@ -59,6 +60,8 @@ public class TorrentWithStatsTest {
         final TorrentWithStats torrentWithStats = new TorrentWithStats(torrent);
         final TorrentWithStats torrentWithStats2 = new TorrentWithStats(torrent2);
         assertThat(torrentWithStats).isNotEqualTo(torrentWithStats2);
+        assertThat(torrentWithStats.hashCode()).isNotEqualTo(torrentWithStats2.hashCode());
     }
+
 
 }

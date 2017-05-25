@@ -4,7 +4,7 @@ import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import org.apache.commons.lang3.NotImplementedException;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
-import org.araymond.joal.core.events.SomethingHasFuckedUp;
+import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
@@ -148,7 +148,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             this.thread.setName("bt-announce(" + this.peer.getShortHexPeerId() + ")");
             this.thread.start();
             this.thread.setUncaughtExceptionHandler((thread, ex) ->
-                    publisher.publishEvent(new SomethingHasFuckedUp(ex))
+                    publisher.publishEvent(new SomethingHasFuckedUpEvent(ex))
             );
         }
     }

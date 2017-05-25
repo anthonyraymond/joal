@@ -19,6 +19,7 @@ public class MockedTorrentTest {
         final MockedTorrent torrent2 = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.UBUNTU).toFile());
 
         assertThat(torrent).isEqualTo(torrent2);
+        assertThat(torrent.hashCode()).isEqualTo(torrent2.hashCode());
     }
 
     @Test
@@ -27,6 +28,7 @@ public class MockedTorrentTest {
         final MockedTorrent torrent2 = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.AUDIO).toFile());
 
         assertThat(torrent).isNotEqualTo(torrent2);
+        assertThat(torrent.hashCode()).isNotEqualTo(torrent2.hashCode());
     }
 
 }

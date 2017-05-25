@@ -5,9 +5,9 @@ import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.JoalConfigProvider;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasEnded;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasStarted;
-import org.araymond.joal.core.events.seedsession.SeedSessionWillStart;
+import org.araymond.joal.core.events.seedsession.SeedSessionHasEndedEvent;
+import org.araymond.joal.core.events.seedsession.SeedSessionHasStartedEvent;
+import org.araymond.joal.core.events.seedsession.SeedSessionWillStartEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.Client;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
@@ -66,7 +66,7 @@ public class SeedManager {
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
         // TODO : still need to handle exception in this method to prevent crash on startup, particularly NoMoreTorrent
 
-        publisher.publishEvent(new SeedSessionWillStart());
+        publisher.publishEvent(new SeedSessionWillStartEvent());
 
         final String id = bitTorrentClient.getPeerId();
         final Peer peer = new Peer(
@@ -84,13 +84,13 @@ public class SeedManager {
 
         this.currentClient.share();
 
-        publisher.publishEvent(new SeedSessionHasStarted(bitTorrentClient));
+        publisher.publishEvent(new SeedSessionHasStartedEvent(bitTorrentClient));
     }
 
     public void stop() {
         if (currentClient != null) {
             this.currentClient.stop();
-            this.publisher.publishEvent(new SeedSessionHasEnded());
+            this.publisher.publishEvent(new SeedSessionHasEndedEvent());
         }
     }
 

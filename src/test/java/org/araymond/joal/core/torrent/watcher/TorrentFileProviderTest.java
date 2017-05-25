@@ -184,7 +184,8 @@ public class TorrentFileProviderTest {
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
         final CountDownLatch createLock = new CountDownLatch(1);
         final CountDownLatch deleteLock = new CountDownLatch(1);
-        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+        final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
+        provider.registerListener(listener);
 
         provider.postConstruct();
         provider.onFileCreate(torrentFile.toFile());
@@ -192,6 +193,7 @@ public class TorrentFileProviderTest {
         assertThat(createLock.getCount()).isEqualTo(0);
         assertThat(deleteLock.getCount()).isEqualTo(1);
         provider.preDestroy();
+        provider.unRegisterListener(listener);
     }
 
     @Test
@@ -201,9 +203,11 @@ public class TorrentFileProviderTest {
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
         final CountDownLatch createLock = new CountDownLatch(1);
         final CountDownLatch deleteLock = new CountDownLatch(1);
-        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+        final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
+        provider.registerListener(listener);
 
         provider.onFileCreate(torrentFile.toFile());
+        provider.unRegisterListener(listener);
 
         assertThat(createLock.getCount()).isEqualTo(1);
         assertThat(deleteLock.getCount()).isEqualTo(1);
@@ -218,9 +222,11 @@ public class TorrentFileProviderTest {
 
         final CountDownLatch createLock = new CountDownLatch(1);
         final CountDownLatch deleteLock = new CountDownLatch(1);
-        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+        final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
+        provider.registerListener(listener);
 
         provider.onFileDelete(torrentFile.toFile());
+        provider.unRegisterListener(listener);
 
         assertThat(createLock.getCount()).isEqualTo(1);
         assertThat(deleteLock.getCount()).isEqualTo(0);
@@ -233,7 +239,8 @@ public class TorrentFileProviderTest {
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
         final CountDownLatch createLock = new CountDownLatch(1);
         final CountDownLatch deleteLock = new CountDownLatch(1);
-        provider.registerListener(new CountDownLatchListener(createLock, deleteLock));
+        final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
+        provider.registerListener(listener);
 
         provider.postConstruct();
         provider.onFileChange(torrentFile.toFile());
@@ -241,6 +248,29 @@ public class TorrentFileProviderTest {
         assertThat(createLock.getCount()).isEqualTo(0);
         assertThat(deleteLock.getCount()).isEqualTo(0);
         provider.preDestroy();
+        provider.unRegisterListener(listener);
+    }
+
+    @Test
+    public void shouldUnRegisterListener() throws IOException {
+        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile2 = TorrentFileCreator.create(torrentsPath.resolve("audio.torrent"), TorrentFileCreator.TorrentType.AUDIO);
+
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final CountDownLatch createLock = new CountDownLatch(2);
+        final CountDownLatch deleteLock = new CountDownLatch(2);
+        final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
+        provider.registerListener(listener);
+
+        provider.postConstruct();
+        provider.onFileCreate(torrentFile.toFile());
+        provider.unRegisterListener(listener);
+        provider.onFileCreate(torrentFile2.toFile());
+
+        assertThat(createLock.getCount()).isEqualTo(1);
+        assertThat(deleteLock.getCount()).isEqualTo(2);
+        provider.preDestroy();
+        provider.unRegisterListener(listener);
     }
 
 
