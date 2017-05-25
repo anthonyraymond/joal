@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorent.common.protocol.http;
 
+import com.google.common.base.Charsets;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.junit.Test;
@@ -30,8 +31,8 @@ public class HTTPAnnounceRequestMessageTest {
 
     private HTTPAnnounceRequestMessage createDefaultAnnounceMessageMock() {
         final HTTPAnnounceRequestMessage announceMsg = Mockito.mock(HTTPAnnounceRequestMessage.class);
-        Mockito.when(announceMsg.getInfoHash()).thenReturn("thisIsInfoHash".getBytes());
-        Mockito.when(announceMsg.getPeerId()).thenReturn("thisIsPeerID".getBytes());
+        Mockito.when(announceMsg.getInfoHash()).thenReturn("thisIsInfoHash".getBytes(Charsets.ISO_8859_1));
+        Mockito.when(announceMsg.getPeerId()).thenReturn("thisIsPeerID".getBytes(Charsets.ISO_8859_1));
         Mockito.when(announceMsg.getPort()).thenReturn(3000);
         Mockito.when(announceMsg.getUploaded()).thenReturn(546498465L);
         Mockito.when(announceMsg.getDownloaded()).thenReturn(0L);
@@ -55,8 +56,8 @@ public class HTTPAnnounceRequestMessageTest {
 
         assertThat(announceMsg.buildAnnounceURL(baseUrl, client).toString())
                 .startsWith(baseUrl.toString())
-                .contains("info_hash=" + new String(announceMsg.getInfoHash()))
-                .contains("peer_id=" + new String(announceMsg.getPeerId()))
+                .contains("info_hash=" + new String(announceMsg.getInfoHash(), Charsets.ISO_8859_1))
+                .contains("peer_id=" + new String(announceMsg.getPeerId(), Charsets.ISO_8859_1))
                 .contains("port=" + announceMsg.getPort())
                 .contains("uploaded=" + 546498465L)
                 .contains("downloaded=" + 0L)
@@ -80,7 +81,7 @@ public class HTTPAnnounceRequestMessageTest {
         try {
             assertThat(announceMsg.buildAnnounceURL(baseUrl, client).toString())
                     .isEqualTo(
-                            baseUrl.toString() + "&info_hash=" + new String(announceMsg.getInfoHash())
+                            baseUrl.toString() + "&info_hash=" + new String(announceMsg.getInfoHash(), Charsets.ISO_8859_1)
                     );
         } catch (final MalformedURLException ignored) {
             fail("Failed to build announce request if base url already contains '?'");
@@ -100,8 +101,8 @@ public class HTTPAnnounceRequestMessageTest {
         assertThat(announceMsg.buildAnnounceURL(baseUrl, client).toString())
                 .isEqualTo(
                         baseUrl.toString()
-                        + "?" + "info_hash=" + new String(announceMsg.getInfoHash())
-                        + "&" + "peer_id=" + new String(announceMsg.getPeerId())
+                        + "?" + "info_hash=" + new String(announceMsg.getInfoHash(), Charsets.ISO_8859_1)
+                        + "&" + "peer_id=" + new String(announceMsg.getPeerId(), Charsets.ISO_8859_1)
                         + "&" + "port=" + announceMsg.getPort()
                         + "&" + "uploaded=" + 546498465L
                         + "&" + "downloaded=" + 0L

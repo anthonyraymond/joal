@@ -28,7 +28,7 @@ public class BandwidthDispatcherTest {
         Mockito.when(conf.getSimultaneousSeed()).thenReturn(3);
 
         try {
-            final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider);
+            new BandwidthDispatcher(configProvider);
         } catch (final Throwable throwable) {
             fail("should build", throwable);
         }

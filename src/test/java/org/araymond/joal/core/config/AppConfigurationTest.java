@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class AppConfigurationTest {
 
     @Test
-    public void ShouldNotBuildIfMinUploadRateIsLessThanZero() {
+    public void shouldNotBuildIfMinUploadRateIsLessThanZero() {
         assertThatThrownBy(() -> new AppConfiguration(-1, 190, 2, "azureus.client"))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
                 .hasMessageContaining("minUploadRate must be at least 0.");
@@ -25,7 +25,7 @@ public class AppConfigurationTest {
     }
 
     @Test
-    public void ShouldNotBuildIfMaxUploadRateIsLessThanOne() {
+    public void shouldNotBuildIfMaxUploadRateIsLessThanOne() {
         assertThatThrownBy(() -> new AppConfiguration(180, -1, 2, "azureus.client"))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
                 .hasMessageContaining("maxUploadRate must greater than 0.");
@@ -39,21 +39,21 @@ public class AppConfigurationTest {
     }
 
     @Test
-    public void ShouldNotBuildIfMaxRateIsLesserThanMinRate() {
+    public void shouldNotBuildIfMaxRateIsLesserThanMinRate() {
         assertThatThrownBy(() -> new AppConfiguration(180, 150, 2, "azureus.client"))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
                 .hasMessageContaining("maxUploadRate must be strictly greater than minUploadRate.");
     }
 
     @Test
-    public void ShouldNotBuildIfMaxRateEqualsThanMinRate() {
+    public void shouldNotBuildIfMaxRateEqualsThanMinRate() {
         assertThatThrownBy(() -> new AppConfiguration(180, 180, 2, "azureus.client"))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
                 .hasMessageContaining("maxUploadRate must be strictly greater than minUploadRate.");
     }
 
     @Test
-    public void ShouldNotBuildIfSimultaneousSeedIsLessThanOne() {
+    public void shouldNotBuildIfSimultaneousSeedIsLessThanOne() {
         assertThatThrownBy(() -> new AppConfiguration(180, 190, 0, "azureus.client"))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
                 .hasMessageContaining("simultaneousSeed must be greater than 0.");
@@ -67,14 +67,14 @@ public class AppConfigurationTest {
     }
 
     @Test
-    public void ShouldNotBuildIfClientIsNull() {
+    public void shouldNotBuildIfClientIsNull() {
         assertThatThrownBy(() -> new AppConfiguration(180, 190, 2, null))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
                 .hasMessageContaining("client is required, no file name given.");
     }
 
     @Test
-    public void ShouldNotBuildIfClientIsEmpty() {
+    public void shouldNotBuildIfClientIsEmpty() {
         assertThatThrownBy(() -> new AppConfiguration(180, 190, 2, "     "))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
                 .hasMessageContaining("client is required, no file name given.");

@@ -66,7 +66,7 @@ public class BitTorrentClientConfigTest {
     }
 
     @Test
-    public void ShouldBuildEvenIfKeyInfoIsNotDefined() {
+    public void shouldBuildEvenIfKeyInfoIsNotDefined() {
         final PeerIdInfo peerIdInfo = new PeerIdInfo("-AZ5750-", ValueType.ALPHANUMERIC, false, false);
         final String query = "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&azver=3";
         final List<BitTorrentClientConfig.HttpHeader> requestHeaders = Arrays.asList(
@@ -82,7 +82,7 @@ public class BitTorrentClientConfigTest {
     }
 
     @Test
-    public void ShouldNotBuildIfKeyInfoIsNotDefinedButKeyIsInQueryUrl() {
+    public void shouldNotBuildIfKeyInfoIsNotDefinedButKeyIsInQueryUrl() {
         final PeerIdInfo peerIdInfo = new PeerIdInfo("-AZ5750-", ValueType.ALPHANUMERIC, false, false);
         final String query = "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3";
         final List<BitTorrentClientConfig.HttpHeader> requestHeaders = Arrays.asList(
