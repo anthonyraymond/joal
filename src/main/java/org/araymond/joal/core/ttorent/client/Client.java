@@ -7,6 +7,7 @@ import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.NoMoreLeechers;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailable;
+import org.araymond.joal.core.events.TorrentFileAddedForSeed;
 import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
@@ -108,6 +109,7 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onTorrentAdded(final MockedTorrent torrent) {
+        this.publisher.publishEvent(new TorrentFileAddedForSeed(torrent));
         if (this.currentState != ClientState.STARTED) {
             return;
         }

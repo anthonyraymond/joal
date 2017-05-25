@@ -3,13 +3,11 @@ package org.araymond.joal.core.torrent.watcher;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
-import org.araymond.joal.core.events.TorrentFileAddedForSeed;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +32,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles;
     private final Path archiveFolder;
-    private final ApplicationEventPublisher publisher;
     private final Set<TorrentFileChangeAware> torrentFileChangeListener;
 
     private boolean isInitOver = false;
@@ -51,8 +48,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     }
 
     @Inject
-    TorrentFileProvider(@Value("${joal-conf}") final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
-        this.publisher = publisher;
+    TorrentFileProvider(@Value("${joal-conf}") final String confFolder) throws FileNotFoundException {
         if (StringUtils.isBlank(confFolder)) {
             throw new IllegalArgumentException("A config path is required.");
         }
@@ -101,7 +97,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
             if (this.isInitOver) {
-                this.publisher.publishEvent(new TorrentFileAddedForSeed(torrent));
                 this.torrentFileChangeListener.forEach(listener -> listener.onTorrentAdded(torrent));
             }
         } catch (final IOException | NoSuchAlgorithmException e) {
