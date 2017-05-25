@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events;
+package org.araymond.joal.core.events.filechange;
 
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
