@@ -84,6 +84,7 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     private void addSeedingTorrent(final MockedTorrent torrent) {
         final Announcer announcer = new Announcer(torrent, this.self, this.bitTorrentClient, publisher);
         announcer.registerEventListener(this);
+        announcer.registerEventListener(bandwidthDispatcher);
         this.announcers.add(announcer);
 
         logger.debug("Added announcer for Torrent {}", torrent.getName());
@@ -142,14 +143,13 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
-        this.bandwidthDispatcher.registerTorrent(torrent);
+
     }
 
     @Override
     public void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent) {
         logger.debug("Removed announcer for Torrent {}", torrent.getTorrent().getName());
         this.announcers.remove(announcer);
-        this.bandwidthDispatcher.unRegisterTorrent(torrent);
 
         if (this.currentState!= ClientState.STOPPING && this.currentState != ClientState.STOPPED) {
             try {

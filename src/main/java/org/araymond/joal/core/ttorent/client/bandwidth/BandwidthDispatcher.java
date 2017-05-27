@@ -1,17 +1,18 @@
 package org.araymond.joal.core.ttorent.client.bandwidth;
 
 import com.google.common.base.Preconditions;
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.config.JoalConfigProvider;
+import org.araymond.joal.core.ttorent.client.announce.Announcer;
+import org.araymond.joal.core.ttorent.client.announce.AnnouncerEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Created by raymo on 14/05/2017.
  */
-public class BandwidthDispatcher implements Runnable {
+public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
     private final JoalConfigProvider configProvider;
     /**
@@ -20,9 +21,8 @@ public class BandwidthDispatcher implements Runnable {
      */
     // TODO : add a decorator around TorrentWithStat and store the datetime when it was added, so we can know if we should add uploaded or not
     private final Integer updateInterval;
-    private final List<TorrentWithStats> torrents;
+    private final Map<TorrentWithStats, TorrentWithStatsWrapper> torrents;
     private final ReentrantReadWriteLock lock;
-    private final Random rand;
 
     private Thread thread;
     private boolean stop;
@@ -35,21 +35,35 @@ public class BandwidthDispatcher implements Runnable {
         Preconditions.checkNotNull(configProvider, "Cannot build without ConfigProvider.");
         this.configProvider = configProvider;
         this.updateInterval = updateInterval;
-        this.torrents = new ArrayList<>(configProvider.get().getSimultaneousSeed());
+        this.torrents = new HashMap<>(configProvider.get().getSimultaneousSeed());
         lock = new ReentrantReadWriteLock();
-        rand = new Random();
     }
 
-    public void registerTorrent(final TorrentWithStats torrent) {
+
+    @Override
+    public void onAnnounceRequesting(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent) {
+        if (event == TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE) {
+            this.torrents.get(torrent).refreshRandomSpeed();
+        }
+    }
+
+    @Override
+    public void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent) {
+
+    }
+
+    @Override
+    public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
         this.lock.writeLock().lock();
         try {
-            this.torrents.add(torrent);
+            this.torrents.put(torrent, new TorrentWithStatsWrapper(torrent, configProvider));
         } finally {
             this.lock.writeLock().unlock();
         }
     }
 
-    public void unRegisterTorrent(final TorrentWithStats torrent) {
+    @Override
+    public void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent) {
         this.lock.writeLock().lock();
         try {
             this.torrents.remove(torrent);
@@ -96,10 +110,11 @@ public class BandwidthDispatcher implements Runnable {
                 lock.readLock().lock();
 
                 final int torrentCount = this.torrents.size();
-                for (final TorrentWithStats torrent : this.torrents) {
-                    final long uploadRateInBytes = generateRandomizedSpeedInBytes();
+                for (final TorrentWithStatsWrapper torrentWrapper: this.torrents.values()) {
+                    final long uploadRateInBytesForTorrent = torrentWrapper.getRandomSpeedInBytes() / torrentCount;
+                    final long uploadRateInKiloBytesForTorrent = uploadRateInBytesForTorrent / 1024;
 
-                    torrent.addUploaded(uploadRateInBytes * updateInterval / 1000 / torrentCount);
+                    torrentWrapper.getTorrent().addUploaded(uploadRateInKiloBytesForTorrent * updateInterval);
                 }
                 lock.readLock().unlock();
             }
@@ -111,11 +126,36 @@ public class BandwidthDispatcher implements Runnable {
         }
     }
 
-    long generateRandomizedSpeedInBytes() {
-        // TODO : implement config with Long instead of INT (and ensure it does not add 'L' when serialized
-        final long minUploadRate = (long) configProvider.get().getMinUploadRate() * 1024;
-        final long maxUploadRate = (long) configProvider.get().getMaxUploadRate() * 1024;
-        return minUploadRate + (long) (this.rand.nextDouble() * (maxUploadRate - minUploadRate));
+
+    static class TorrentWithStatsWrapper {
+        private final TorrentWithStats torrent;
+        private final JoalConfigProvider configProvider;
+        private Long randomSpeedInBytes;
+        private final Random rand;
+
+        TorrentWithStatsWrapper(final TorrentWithStats torrent, final JoalConfigProvider configProvider) {
+            this.torrent = torrent;
+            this.configProvider = configProvider;
+            rand = new Random();
+            this.refreshRandomSpeed();
+        }
+
+        TorrentWithStats getTorrent() {
+            return torrent;
+        }
+
+        Long getRandomSpeedInBytes() {
+            return randomSpeedInBytes;
+        }
+
+        void refreshRandomSpeed() {
+            // TODO : implement config with Long instead of INT (and ensure it does not add 'L' when serialized
+            final long minUploadRateInBytes = (long) configProvider.get().getMinUploadRate() * 1024;
+            final long maxUploadRateInBytes = (long) configProvider.get().getMaxUploadRate() * 1024;
+            // TODO : add some randomness to ensure values wont be 250000 or 450000
+            this.randomSpeedInBytes = minUploadRateInBytes + (long) (this.rand.nextDouble() * (maxUploadRateInBytes - minUploadRateInBytes));
+        }
+
     }
 
 }
