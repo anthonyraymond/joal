@@ -1,6 +1,6 @@
 {
-  "minUploadRate": 180,
-  "maxUploadRate": 190,
+  "minUploadRate": 60,
+  "maxUploadRate": 160,
   "seedFor": 1200,
   "waitBetweenSeed": 240,
   "client": "azureus-5.7.5.0.client"
