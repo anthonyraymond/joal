@@ -5,6 +5,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.announce.AnnouncerEventListener;
+import org.araymond.joal.core.utils.RandomGenerator;
 
 import java.util.*;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -15,6 +16,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
     private final JoalConfigProvider configProvider;
+    private final RandomGenerator randomGenerator;
     /**
      * Update interval have to be a low value, because when a torrent is added, the Thread.pause may end and split value
      * among all torrent and add a non reasonable value to the freshly added torrent
@@ -37,12 +39,13 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
         this.updateInterval = updateInterval;
         this.torrents = new HashMap<>(configProvider.get().getSimultaneousSeed());
         lock = new ReentrantReadWriteLock();
+        this.randomGenerator = new RandomGenerator();
     }
 
 
     @Override
     public void onAnnounceRequesting(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent) {
-        if (event == TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE) {
+        if (event != TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED) {
             this.torrents.get(torrent).refreshRandomSpeed();
         }
     }
@@ -56,7 +59,7 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
         this.lock.writeLock().lock();
         try {
-            this.torrents.put(torrent, new TorrentWithStatsWrapper(torrent, configProvider));
+            this.torrents.put(torrent, new TorrentWithStatsWrapper(torrent, randomGenerator, configProvider));
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -112,9 +115,8 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
                 final int torrentCount = this.torrents.size();
                 for (final TorrentWithStatsWrapper torrentWrapper: this.torrents.values()) {
                     final long uploadRateInBytesForTorrent = torrentWrapper.getRandomSpeedInBytes() / torrentCount;
-                    final long uploadRateInKiloBytesForTorrent = uploadRateInBytesForTorrent / 1024;
 
-                    torrentWrapper.getTorrent().addUploaded(uploadRateInKiloBytesForTorrent * updateInterval);
+                    torrentWrapper.getTorrent().addUploaded(uploadRateInBytesForTorrent * updateInterval / 1000);
                 }
                 lock.readLock().unlock();
             }
@@ -131,12 +133,13 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
         private final TorrentWithStats torrent;
         private final JoalConfigProvider configProvider;
         private Long randomSpeedInBytes;
-        private final Random rand;
+        private final RandomGenerator randomGenerator;
 
-        TorrentWithStatsWrapper(final TorrentWithStats torrent, final JoalConfigProvider configProvider) {
+        TorrentWithStatsWrapper(final TorrentWithStats torrent, final RandomGenerator randomGenerator, final JoalConfigProvider configProvider) {
             this.torrent = torrent;
             this.configProvider = configProvider;
-            rand = new Random();
+            this.randomGenerator = randomGenerator;
+
             this.refreshRandomSpeed();
         }
 
@@ -150,12 +153,11 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
         void refreshRandomSpeed() {
             // TODO : implement config with Long instead of INT (and ensure it does not add 'L' when serialized
-            final long minUploadRateInBytes = (long) configProvider.get().getMinUploadRate() * 1024;
-            final long maxUploadRateInBytes = (long) configProvider.get().getMaxUploadRate() * 1024;
-            // TODO : add some randomness to ensure values wont be 250000 or 450000
-            this.randomSpeedInBytes = minUploadRateInBytes + (long) (this.rand.nextDouble() * (maxUploadRateInBytes - minUploadRateInBytes));
-        }
+            final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1024L;
+            final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1024L;
 
+            this.randomSpeedInBytes = randomGenerator.nextLong(minUploadRateInBytes, maxUploadRateInBytes);
+        }
     }
 
 }
