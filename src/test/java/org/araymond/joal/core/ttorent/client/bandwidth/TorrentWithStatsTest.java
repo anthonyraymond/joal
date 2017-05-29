@@ -28,6 +28,7 @@ public class TorrentWithStatsTest {
         assertThat(torrentWithStats.getUploaded()).isEqualTo(0);
         assertThat(torrentWithStats.getDownloaded()).isEqualTo(0);
         assertThat(torrentWithStats.getLeft()).isEqualTo(0);
+        assertThat(torrentWithStats.getCurrentRandomSpeedInBytes()).isEqualTo(0L);
     }
 
     @Test
@@ -40,6 +41,18 @@ public class TorrentWithStatsTest {
         assertThat(torrentWithStats.getUploaded()).isEqualTo(4256879L);
         torrentWithStats.addUploaded(21L);
         assertThat(torrentWithStats.getUploaded()).isEqualTo(4256900L);
+    }
+
+    @Test
+    public void shouldSetCurrentRandomSpeed() {
+        final MockedTorrent torrent = Mockito.mock(MockedTorrent.class);
+        final TorrentWithStats torrentWithStats = new TorrentWithStats(torrent);
+
+        assertThat(torrentWithStats.getCurrentRandomSpeedInBytes()).isEqualTo(0L);
+        torrentWithStats.refreshRandomSpeedInBytes(50L);
+        assertThat(torrentWithStats.getCurrentRandomSpeedInBytes()).isEqualTo(50L);
+        torrentWithStats.refreshRandomSpeedInBytes(70L);
+        assertThat(torrentWithStats.getCurrentRandomSpeedInBytes()).isEqualTo(70L);
     }
 
     @Test
@@ -62,6 +75,5 @@ public class TorrentWithStatsTest {
         assertThat(torrentWithStats).isNotEqualTo(torrentWithStats2);
         assertThat(torrentWithStats.hashCode()).isNotEqualTo(torrentWithStats2.hashCode());
     }
-
 
 }

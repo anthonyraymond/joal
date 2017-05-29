@@ -13,6 +13,7 @@ public class TorrentWithStats {
     private Long uploaded;
     private final Long downloaded;
     private final Long left;
+    private Long currentRandomSpeedInBytes;
 
     public TorrentWithStats(final MockedTorrent torrent) {
         Preconditions.checkNotNull(torrent, "MockedTorrent cannot be null.");
@@ -20,10 +21,15 @@ public class TorrentWithStats {
         this.uploaded = 0L;
         this.downloaded = 0L;
         this.left = 0L;
+        this.currentRandomSpeedInBytes = 0L;
     }
 
     void addUploaded(final Long uploaded) {
         this.uploaded += uploaded;
+    }
+
+    void refreshRandomSpeedInBytes(final Long speedInBytes) {
+        this.currentRandomSpeedInBytes = speedInBytes;
     }
 
     public MockedTorrent getTorrent() {
@@ -49,6 +55,11 @@ public class TorrentWithStats {
      */
     public Long getLeft() {
         return left;
+    }
+
+
+    public Long getCurrentRandomSpeedInBytes() {
+        return currentRandomSpeedInBytes;
     }
 
     @Override
