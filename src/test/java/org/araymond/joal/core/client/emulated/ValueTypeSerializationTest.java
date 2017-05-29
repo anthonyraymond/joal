@@ -75,7 +75,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldFailToDeserializeWithNonExistingValue() {
-        assertThatThrownBy(() -> mapper.readValue("\"woops\"", BitTorrentClientConfig.ValueType.class))
+        assertThatThrownBy(() -> mapper.readValue("\"oops\"", BitTorrentClientConfig.ValueType.class))
                 .isInstanceOf(InvalidFormatException.class)
                 .hasMessageContaining("value not one of declared Enum instance names: [random, alphabetic, alphanumeric, numeric, printable]");
 

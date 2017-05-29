@@ -1,7 +1,7 @@
-Un guide en francais est disponible [ici](http://h5ckfun.info/joal-le-nouveau-ratiomaster/)
+Un guide en français est disponible [ici](http://h5ckfun.info/joal-le-nouveau-ratiomaster/)
 
 # Prepare configuration folder
-You first need to get the cofiguration folder. Replace `<MY_CONFIG_FOLDER_PATH>` by whatever path you want.
+You first need to get the configuration folder. Replace `<MY_CONFIG_FOLDER_PATH>` by whatever path you want.
 ```
 git clone git@github.com:anthonyraymond/joal.git
 cd joal
@@ -28,7 +28,7 @@ docker run -d -v <PATH_TO_CONFIG_DIR>:/data -p 49152-65534:49152 --name="joal" a
 ### Without Docker
 You need to have **Java 8** installed.
 
-We first need to download the latest version of the .jar. Once again replace  `<MY_CONFIG_FOLDER_PATH>` by your choosen path and execute this script
+We first need to download the latest version of the .jar. Once again replace  `<MY_CONFIG_FOLDER_PATH>` by your chosen path and execute this script
 ```
 cd <MY_CONFIG_FOLDER_PATH> \
 && GITHUB_REPO="https://github.com/anthonyraymond/joal" \
@@ -44,7 +44,7 @@ java -jar jack-of-all-trades-X.X.X.jar <MY_CONFIG_FOLDER_PATH>
 # Understanding configuration (optional)
 ### Torrent files
 - All torrent file in `<MY_CONFIG_FOLDER_PATH>/torrents/` will be available for sharing.
-- One random torrent file from `<MY_CONFIG_FOLDER_PATH>/torrents/` is choosed randmfly for each seed session.
+- One random torrent file from `<MY_CONFIG_FOLDER_PATH>/torrents/` is chosen randomly for each seed session.
 - All torrent file added/removed/modified in `<MY_CONFIG_FOLDER_PATH>/torrents/` while the client is running will be automatically hot loaded, there is no need to restart.
 - **If the torrent currently seeding reach 0 peers, the file will be moved to `<MY_CONFIG_FOLDER_PATH>/torrents/archived` folder.**
 
