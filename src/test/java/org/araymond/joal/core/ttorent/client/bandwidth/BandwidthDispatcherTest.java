@@ -1,6 +1,5 @@
 package org.araymond.joal.core.ttorent.client.bandwidth;
 
-import com.google.common.base.Objects;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
