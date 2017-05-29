@@ -2,7 +2,7 @@ package org.araymond.joal.core.events;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 /**
  * Created by raymo on 25/05/2017.
@@ -11,7 +11,11 @@ public class NoMoreTorrentsFileAvailableEventTest {
 
     @Test
     public void shouldBuild() {
-        new NoMoreTorrentsFileAvailableEvent();
+        try {
+            new NoMoreTorrentsFileAvailableEvent();
+        } catch (final Throwable t) {
+            fail("Failed to build", t);
+        }
     }
 
 }

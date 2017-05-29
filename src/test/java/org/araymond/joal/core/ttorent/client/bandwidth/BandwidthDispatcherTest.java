@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorent.client.bandwidth;
 
+import com.google.common.base.Objects;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
@@ -10,7 +11,6 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -207,7 +207,7 @@ public class BandwidthDispatcherTest {
                     }
                 });
 
-        final double expectedAverage = (configProvider.get().getMinUploadRate() + configProvider.get().getMaxUploadRate()) / 2;
+        final double expectedAverage = (configProvider.get().getMinUploadRate() + configProvider.get().getMaxUploadRate()) / 2.0;
         final double realAverage = torrents.stream()
                 .mapToDouble(TorrentWithStatsCountdown::getAverage)
                 .average()
@@ -216,7 +216,7 @@ public class BandwidthDispatcherTest {
                 .as("Average speed should be close median between min and max speed.")
                 .isCloseTo(expectedAverage, Percentage.withPercentage(10));
 
-        final double expectedMinimumStandardDeviation = (configProvider.get().getMaxUploadRate() - configProvider.get().getMinUploadRate()) / 2 / 2;
+        final double expectedMinimumStandardDeviation = (configProvider.get().getMaxUploadRate() - configProvider.get().getMinUploadRate()) / 2.0 / 2.0;
         final double realStandardDeviation = torrents.stream()
                 .mapToDouble(TorrentWithStatsCountdown::getStandardDeviation)
                 .average()
@@ -265,6 +265,16 @@ public class BandwidthDispatcherTest {
                     .mapToDouble(Long::doubleValue)
                     .map((a) -> Math.pow(a - average, 2))
                     .sum() / values.size());
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            return super.equals(o);
+        }
+
+        @Override
+        public int hashCode() {
+            return super.hashCode();
         }
     }
 
