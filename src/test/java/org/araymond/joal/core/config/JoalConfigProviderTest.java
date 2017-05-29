@@ -18,8 +18,8 @@ public class JoalConfigProviderTest {
 
     private static final Path resourcePath = Paths.get("src/test/resources/configtest");
     public static final AppConfiguration defaultConfig = new AppConfiguration(
-        180,
-        190,
+        180L,
+        190L,
         2,
         "azureus-5.7.5.0.client"
     );

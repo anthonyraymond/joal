@@ -23,13 +23,13 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class BandwidthDispatcherTest {
 
-    private JoalConfigProvider prepareMockedConfProvider(final Integer minRate, final Integer maxRate) {
+    private JoalConfigProvider prepareMockedConfProvider(final Long minRate, final Long maxRate) {
         final JoalConfigProvider configProvider = Mockito.mock(JoalConfigProvider.class);
         final AppConfiguration conf = Mockito.mock(AppConfiguration.class);
         Mockito.when(configProvider.get()).thenReturn(conf);
         Mockito.when(conf.getSimultaneousSeed()).thenReturn(3);
-        Mockito.when(conf.getMinUploadRate()).thenReturn(180);
-        Mockito.when(conf.getMaxUploadRate()).thenReturn(190);
+        Mockito.when(conf.getMinUploadRate()).thenReturn(minRate);
+        Mockito.when(conf.getMaxUploadRate()).thenReturn(maxRate);
 
         return configProvider;
     }
@@ -43,7 +43,7 @@ public class BandwidthDispatcherTest {
 
     @Test
     public void shouldBuild() {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
 
         try {
             new BandwidthDispatcher(configProvider);
@@ -54,7 +54,7 @@ public class BandwidthDispatcherTest {
 
     @Test
     public void shouldRefreshTorrentCurrentSpeedWhenOnAnnounceRequestingIsCalled() {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
 
         final BandwidthDispatcher bandwidthDispatcher = Mockito.spy(new BandwidthDispatcher(configProvider, 1));
         final TorrentWithStats torrentWithStats = Mockito.mock(TorrentWithStats.class);
@@ -69,7 +69,7 @@ public class BandwidthDispatcherTest {
 
     @Test
     public void shouldNotRefreshTorrentCurrentSpeedWhenOnAnnounceRequestingIsCalledIfEventIsStopped() {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
 
         final BandwidthDispatcher bandwidthDispatcher = Mockito.spy(new BandwidthDispatcher(configProvider, 1));
         final TorrentWithStats torrentWithStats = Mockito.mock(TorrentWithStats.class);
@@ -80,7 +80,7 @@ public class BandwidthDispatcherTest {
 
     @Test
     public void shouldAddTorrentToListOnAnnounceStarts() {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, 1);
 
         assertThat(bandwidthDispatcher.getTorrentCount()).isEqualTo(0);
@@ -90,7 +90,7 @@ public class BandwidthDispatcherTest {
 
     @Test
     public void shouldRemoveTorrentToListOnAnnounceStarts() {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, 1);
 
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
@@ -101,7 +101,7 @@ public class BandwidthDispatcherTest {
 
     @Test
     public void shouldIncrementTorrentStat() throws InterruptedException {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
 
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
@@ -116,18 +116,18 @@ public class BandwidthDispatcherTest {
 
         assertThat(torrent.getUploaded())
                 .isBetween(
-                        (long) configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
-                        (long) configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
+                        configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
+                        configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
                 );
     }
 
     @Test
     public void shouldIncrementTorrentStatAndSplitSpeed() throws InterruptedException {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
 
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final List<TorrentWithStats> torrents = new ArrayList<>();
+        final Collection<TorrentWithStats> torrents = new ArrayList<>();
         for (int i = 0; i < 4; ++i) {
             final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
             torrents.add(torrent);
@@ -143,15 +143,15 @@ public class BandwidthDispatcherTest {
         for (final TorrentWithStats t: torrents) {
             assertThat(t.getUploaded())
                     .isBetween(
-                            (long) conf.getMinUploadRate() * 1024 / (1000 / updateInterval) / 4,
-                            (long) conf.getMaxUploadRate() * 1024 / (1000 / updateInterval) / 4
+                            conf.getMinUploadRate() * 1024 / (1000 / updateInterval) / 4,
+                            conf.getMaxUploadRate() * 1024 / (1000 / updateInterval) / 4
                     );
         }
     }
 
     @Test
     public void shouldNotIncrementUnregisteredTorrent() throws InterruptedException {
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(130, 180);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(130L, 180L);
 
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
@@ -164,8 +164,8 @@ public class BandwidthDispatcherTest {
 
         assertThat(torrent.getUploaded())
                 .isBetween(
-                        (long) configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
-                        (long) configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
+                        configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
+                        configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
                 );
 
         bandwidthDispatcher.onAnnouncerStop(null, torrent);
@@ -174,8 +174,8 @@ public class BandwidthDispatcherTest {
 
         assertThat(torrent.getUploaded())
                 .isBetween(
-                        (long) configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
-                        (long) configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
+                        configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
+                        configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
                 );
     }
 
@@ -184,7 +184,7 @@ public class BandwidthDispatcherTest {
         // If all values are provided by a simple rand, after a short time the average value converge to a average value
         //  and it result in upload graph being a straight line
 
-        final JoalConfigProvider configProvider = prepareMockedConfProvider(50, 130);
+        final JoalConfigProvider configProvider = prepareMockedConfProvider(50L, 130L);
 
         final int updateInterval = 1;
         final int numberOfTorrents = 50;

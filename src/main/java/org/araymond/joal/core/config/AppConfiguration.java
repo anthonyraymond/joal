@@ -10,16 +10,16 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class AppConfiguration {
 
-    private final int minUploadRate;
-    private final int maxUploadRate;
-    private final int simultaneousSeed;
+    private final Long minUploadRate;
+    private final Long maxUploadRate;
+    private final Integer simultaneousSeed;
     private final String client;
 
     @JsonCreator
     AppConfiguration(
-            @JsonProperty(value = "minUploadRate", required = true) final int minUploadRate,
-            @JsonProperty(value = "maxUploadRate", required = true) final int maxUploadRate,
-            @JsonProperty(value = "simultaneousSeed", required = true) final int simultaneousSeed,
+            @JsonProperty(value = "minUploadRate", required = true) final Long minUploadRate,
+            @JsonProperty(value = "maxUploadRate", required = true) final Long maxUploadRate,
+            @JsonProperty(value = "simultaneousSeed", required = true) final Integer simultaneousSeed,
             @JsonProperty(value = "client", required = true) final String client
     ) {
         this.minUploadRate = minUploadRate;
@@ -30,15 +30,15 @@ public class AppConfiguration {
         validate();
     }
 
-    public int getMaxUploadRate() {
+    public Long getMaxUploadRate() {
         return maxUploadRate;
     }
 
-    public int getMinUploadRate() {
+    public Long getMinUploadRate() {
         return minUploadRate;
     }
 
-    public int getSimultaneousSeed() {
+    public Integer getSimultaneousSeed() {
         return simultaneousSeed;
     }
 
@@ -48,10 +48,10 @@ public class AppConfiguration {
     }
 
     private void validate() {
-        if (minUploadRate < 0) {
+        if (minUploadRate < 0L) {
             throw new AppConfigurationIntegrityException("minUploadRate must be at least 0.");
         }
-        if (maxUploadRate < 0) {
+        if (maxUploadRate < 0L) {
             throw new AppConfigurationIntegrityException("maxUploadRate must greater than 0.");
         }
         if (maxUploadRate <= minUploadRate) {
@@ -70,9 +70,9 @@ public class AppConfiguration {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final AppConfiguration that = (AppConfiguration) o;
-        return minUploadRate == that.minUploadRate &&
-                maxUploadRate == that.maxUploadRate &&
-                simultaneousSeed == that.simultaneousSeed &&
+        return Objects.equal(minUploadRate, that.minUploadRate) &&
+                Objects.equal(maxUploadRate, that.maxUploadRate) &&
+                Objects.equal(simultaneousSeed, that.simultaneousSeed) &&
                 Objects.equal(client, that.client);
     }
 

@@ -47,7 +47,7 @@ public class AppConfigurationSerializationTest {
 
     @Test
     public void shouldSerialize() throws JsonProcessingException {
-        final AppConfiguration config = new AppConfiguration(180, 190, 2, "azureus.client");
+        final AppConfiguration config = new AppConfiguration(180L, 190L, 2, "azureus.client");
         assertThat(mapper.writeValueAsString(config)).isEqualTo("{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\"}");
     }
 

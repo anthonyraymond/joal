@@ -45,7 +45,6 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     @Override
     public void onAnnounceRequesting(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent) {
         if (event != TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED) {
-            // TODO : implement config with Long instead of INT (and ensure it does not add 'L' when serialized
             final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1024L;
             final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1024L;
 
