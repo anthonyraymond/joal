@@ -14,10 +14,9 @@ import java.security.NoSuchAlgorithmException;
 /**
  * Created by raymo on 23/01/2017.
  */
+@SuppressWarnings("ClassWithOnlyPrivateConstructors")
 public class MockedTorrent extends Torrent {
 
-    private final int pieceLength;
-    private final ByteBuffer piecesHashes;
     private final Path path;
 
     /**
@@ -36,12 +35,12 @@ public class MockedTorrent extends Torrent {
         this.path = path;
 
         try {
-            this.pieceLength = this.decoded_info.get("piece length").getInt();
-            this.piecesHashes = ByteBuffer.wrap(this.decoded_info.get("pieces").getBytes());
+            // Torrent validity tests
+            final int pieceLength = this.decoded_info.get("piece length").getInt();
+            final ByteBuffer piecesHashes = ByteBuffer.wrap(this.decoded_info.get("pieces").getBytes());
 
-            if (this.piecesHashes.capacity() / Torrent.PIECE_HASH_SIZE * (long)this.pieceLength < this.getSize()) {
-                throw new IllegalArgumentException("Torrent size does not " +
-                        "match the number of pieces and the piece size!");
+            if (piecesHashes.capacity() / Torrent.PIECE_HASH_SIZE * (long) pieceLength < this.getSize()) {
+                throw new IllegalArgumentException("Torrent size does not match the number of pieces and the piece size!");
             }
         } catch (final InvalidBEncodingException ex) {
             throw new IllegalArgumentException("Error reading torrent meta-info fields!", ex);
@@ -60,7 +59,6 @@ public class MockedTorrent extends Torrent {
 
     @Override
     public boolean equals(final Object o) {
-        // TODO : consider a better way to handle equals and hashcode
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final MockedTorrent that = (MockedTorrent) o;

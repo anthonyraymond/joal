@@ -122,12 +122,14 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
     @Override
     public void handleDiscoveredPeers(final TorrentWithStats torrent, final List<Peer> peers) {
-        // TODO : ensure peers are leechers only, and not leechers + seeders
-        logger.info(
-                "Peers discovery for torrent {}: {} leechers",
-                torrent.getTorrent().getName(),
-                peers == null ? 0 : peers.size()
-        );
+        // FIXME : ensure peers are leechers only, and not leechers + seeders
+        if (logger.isInfoEnabled()) {
+            logger.info(
+                    "Peers discovery for torrent {}: {} leechers",
+                    torrent.getTorrent().getName(),
+                    peers == null ? 0 : peers.size()
+            );
+        }
         if (peers == null || peers.isEmpty()) {
             this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
         }
