@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import javax.inject.Provider;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +42,7 @@ public class JoalConfigProviderTest {
 
     @Test
     public void shouldLoadConf() throws FileNotFoundException {
-        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString());
+        final Provider<AppConfiguration> provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString());
 
         assertThat(provider.get()).isEqualToComparingFieldByField(defaultConfig);
     }

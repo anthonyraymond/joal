@@ -19,9 +19,7 @@ public class RandomGeneratorTest {
         final Long max = 150L;
         IntStream.range(0, 100)
                 .parallel()
-                .forEach(i -> {
-                    assertThat(gen.nextLong(min, max)).isBetween(min, max);
-                });
+                .forEach(i -> assertThat(gen.nextLong(min, max)).isBetween(min, max));
     }
 
     @Test
@@ -32,10 +30,7 @@ public class RandomGeneratorTest {
         final Long max = 131L;
         IntStream.range(0, 100)
                 .parallel()
-                .forEach(i -> {
-                    assertThat(gen.nextLong(min, max))
-                            .isBetween(min, max);
-                });
+                .forEach(i -> assertThat(gen.nextLong(min, max)).isBetween(min, max));
     }
 
     @Test
@@ -46,9 +41,7 @@ public class RandomGeneratorTest {
         final Long max = 0L;
         IntStream.range(0, 100)
                 .parallel()
-                .forEach(i -> {
-                    assertThat(gen.nextLong(min, max)).isEqualTo(0);
-                });
+                .forEach(i -> assertThat(gen.nextLong(min, max)).isEqualTo(0));
     }
 
     @Test
@@ -59,11 +52,8 @@ public class RandomGeneratorTest {
         final Long max = 130L;
         IntStream.range(0, 100)
                 .parallel()
-                .forEach(i -> {
-                    assertThat(gen.nextLong(min, max))
-                            .isEqualTo(min)
-                            .isEqualTo(max);
-                });
+                .forEach(i -> assertThat(gen.nextLong(min, max)).isEqualTo(min).isEqualTo(max)
+                );
     }
 
 }

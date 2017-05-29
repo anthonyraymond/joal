@@ -3,6 +3,7 @@ package org.araymond.joal.core.client.emulated;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -45,7 +46,7 @@ public class BitTorrentClientConfigTest {
                 new PeerIdInfo("-AZ5750-", ValueType.ALPHANUMERIC, false, false),
                 "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3",
                 new KeyInfo(8, ValueType.ALPHABETIC, true, false),
-                Arrays.asList(new HttpHeader("User-Agent", "Azureus 5.7.5.0;{os};1.8.0_66")),
+                Collections.singletonList(new HttpHeader("User-Agent", "Azureus 5.7.5.0;{os};1.8.0_66")),
                 100
         );
 
@@ -58,7 +59,7 @@ public class BitTorrentClientConfigTest {
                 new PeerIdInfo("-AZ5750-", ValueType.ALPHANUMERIC, false, false),
                 "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3",
                 new KeyInfo(8, ValueType.ALPHABETIC, false, true),
-                Arrays.asList(new HttpHeader("User-Agent", "Azureus 5.7.5.0;{os};1.8.0_66")),
+                Collections.singletonList(new HttpHeader("User-Agent", "Azureus 5.7.5.0;{os};1.8.0_66")),
                 100
         );
 

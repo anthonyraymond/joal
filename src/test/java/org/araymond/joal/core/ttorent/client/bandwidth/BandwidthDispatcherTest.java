@@ -160,6 +160,7 @@ public class BandwidthDispatcherTest {
 
         bandwidthDispatcher.start();
         Thread.sleep(5);
+        bandwidthDispatcher.onAnnouncerStop(null, torrent);
 
         assertThat(torrent.getUploaded())
                 .isBetween(
@@ -167,7 +168,6 @@ public class BandwidthDispatcherTest {
                         configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
                 );
 
-        bandwidthDispatcher.onAnnouncerStop(null, torrent);
         Thread.sleep(5);
         bandwidthDispatcher.stop();
 

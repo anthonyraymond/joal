@@ -30,7 +30,6 @@ public class BitTorrentClientConfigSerializationTest {
         )
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'peerIdInfo'");
-        ;
     }
 
     @Test
@@ -43,7 +42,6 @@ public class BitTorrentClientConfigSerializationTest {
         )
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'query'");
-        ;
     }
 
     @Test
@@ -65,7 +63,6 @@ public class BitTorrentClientConfigSerializationTest {
         )
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'requestHeaders'");
-        ;
     }
 
     @Test
@@ -87,7 +84,6 @@ public class BitTorrentClientConfigSerializationTest {
         )
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'numwant'");
-        ;
     }
 
     @Test

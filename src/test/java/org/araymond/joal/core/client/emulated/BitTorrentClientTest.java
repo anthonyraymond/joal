@@ -15,28 +15,28 @@ public class BitTorrentClientTest {
 
     @Test
     public void shouldNotBuildIfPeerIdIsNull() {
-        assertThatThrownBy(() -> new BitTorrentClient(null, "qs5d4qs5d6", "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200))
+        assertThatThrownBy(() -> new BitTorrentClient(null, "qs5d4qs5d6", "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("peerId cannot be null or empty");
     }
 
     @Test
     public void shouldNotBuildIfPeerIdIsEmpty() {
-        assertThatThrownBy(() -> new BitTorrentClient("   ", "qs5d4qs5d6", "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200))
+        assertThatThrownBy(() -> new BitTorrentClient("   ", "qs5d4qs5d6", "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("peerId cannot be null or empty");
     }
 
     @Test
     public void shouldBuildAndReturnOptionalEmptyIfKeyIsNull() {
-        final BitTorrentClient client = new BitTorrentClient("-azqsd-332153", null, "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
+        final BitTorrentClient client = new BitTorrentClient("-azqsd-332153", null, "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
 
         assertThat(client.getKey()).isEmpty();
     }
 
     @Test
     public void shouldNotBuildIfKeyIsEmpty() {
-        assertThatThrownBy(() -> new BitTorrentClient("-azqsd-332153", "   ", "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200))
+        assertThatThrownBy(() -> new BitTorrentClient("-azqsd-332153", "   ", "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("key can be null but must not be empty");
     }
@@ -102,15 +102,15 @@ public class BitTorrentClientTest {
 
     @Test
     public void shouldBeEqualsByProperties() {
-        final BitTorrentClient client = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
-        final BitTorrentClient client2 = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
+        final BitTorrentClient client = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
+        final BitTorrentClient client2 = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
         assertThat(client).isEqualTo(client2);
     }
 
     @Test
     public void shouldHaveSameHashCodeWithSameProperties() {
-        final BitTorrentClient client = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
-        final BitTorrentClient client2 = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Arrays.asList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
+        final BitTorrentClient client = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
+        final BitTorrentClient client2 = new BitTorrentClient("-azqsd-332153", "qs5d4qs5d6", "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), 200);
         assertThat(client.hashCode()).isEqualTo(client2.hashCode());
     }
 

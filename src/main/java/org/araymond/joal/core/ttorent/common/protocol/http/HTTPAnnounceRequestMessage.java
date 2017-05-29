@@ -33,6 +33,7 @@ import java.util.Map;
  *
  * @author mpetazzoni
  */
+@SuppressWarnings("ClassWithOnlyPrivateConstructors")
 public class HTTPAnnounceRequestMessage extends HTTPTrackerMessage implements AnnounceRequestMessage {
 
     private final byte[] infoHash;
