@@ -174,7 +174,7 @@ public class HTTPTrackerClient extends TrackerClient {
                 this.torrent.getLeft(),
                 true, false, event,
                 this.peer.getIp(),
-                bitTorrentClient.getNumwant()
+                this.bitTorrentClient
         );
     }
 

@@ -37,7 +37,7 @@ public class BitTorrentClientProviderDITest {
         assertThat(result.getQuery()).isEqualTo(almostExpected.getQuery());
         assertThat(result.getNumwant()).isEqualTo(almostExpected.getNumwant());
         assertThat(result.getHeaders()).containsExactlyInAnyOrder(almostExpected.getHeaders().toArray(new Map.Entry[almostExpected.getHeaders().size()]));
-        assertThat(result.getKey().get()).isNotEmpty();
+        assertThat(result.getKey().orElseThrow(() -> new AssertionError("should not be absent"))).isNotEmpty();
         assertThat(result.getPeerId()).isNotEmpty();
     }
 
