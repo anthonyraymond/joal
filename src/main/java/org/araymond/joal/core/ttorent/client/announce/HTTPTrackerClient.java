@@ -62,11 +62,10 @@ public class HTTPTrackerClient extends TrackerClient {
      *
      * @param event         The announce event type (can be AnnounceEvent.NONE for
      *                      periodic updates).
-     * @param inhibitEvents Prevent event listeners from being notified.
      */
     @Override
-    public void announce(final AnnounceRequestMessage.RequestEvent event, final boolean inhibitEvents) throws AnnounceException {
-        logger.info("Announcing{} to tracker with {}U/{}D/{}L bytes...",
+    public void announce(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
+        logger.info("Announcing {} to tracker with {}U/{}D/{}L bytes...",
                 this.formatAnnounceEvent(event),
                 this.torrent.getUploaded(),
                 this.torrent.getDownloaded(),
@@ -114,7 +113,7 @@ public class HTTPTrackerClient extends TrackerClient {
             }
             // Parse and handle the response
             final HTTPTrackerMessage message = HTTPTrackerMessage.parse(ByteBuffer.wrap(outputStream.toByteArray()));
-            this.handleTrackerAnnounceResponse(message, inhibitEvents);
+            this.handleTrackerAnnounceResponse(message);
         } catch (final IOException ioe) {
             throw new AnnounceException("Error reading tracker response!", ioe);
         } catch (final MessageValidationException mve) {

@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorent.client.announce;
 
+import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
@@ -27,6 +28,10 @@ public abstract class TrackerClient {
     protected final URI tracker;
 
     public TrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker) {
+        Preconditions.checkNotNull(torrent, "Torrent must not be null.");
+        Preconditions.checkNotNull(peer, "Peer must not be null.");
+        Preconditions.checkNotNull(tracker, "URI must not be null.");
+
         this.listeners = new HashSet<>();
         this.torrent = torrent;
         this.peer = peer;
@@ -65,9 +70,8 @@ public abstract class TrackerClient {
      *
      * @param event        The announce event type (can be AnnounceEvent.NONE for
      *                     periodic updates).
-     * @param inhibitEvent Prevent event listeners from being notified.
      */
-    public abstract void announce(AnnounceRequestMessage.RequestEvent event, boolean inhibitEvent) throws AnnounceException;
+    public abstract void announce(AnnounceRequestMessage.RequestEvent event) throws AnnounceException;
 
     /**
      * Close any opened announce connection.
@@ -88,7 +92,7 @@ public abstract class TrackerClient {
         if (AnnounceRequestMessage.RequestEvent.NONE == event) {
             return "";
         }
-        return String.format(" %s", event.name());
+        return String.format("%s", event.name());
     }
 
     /**
@@ -102,22 +106,15 @@ public abstract class TrackerClient {
      * </p>
      *
      * @param message       The incoming {@link TrackerMessage}.
-     * @param inhibitEvents Whether or not to prevent events from being fired.
      */
-    protected void handleTrackerAnnounceResponse(final TrackerMessage message,
-                                                 final boolean inhibitEvents) throws AnnounceException {
+    protected void handleTrackerAnnounceResponse(final TrackerMessage message) throws AnnounceException {
         if (message instanceof ErrorMessage) {
             final ErrorMessage error = (ErrorMessage) message;
             throw new AnnounceException(error.getReason());
         }
 
         if (!(message instanceof AnnounceResponseMessage)) {
-            throw new AnnounceException("Unexpected tracker message type " +
-                    message.getType().name() + "!");
-        }
-
-        if (inhibitEvents) {
-            return;
+            throw new AnnounceException("Unexpected tracker message type " + message.getType().name() + "!");
         }
 
         final AnnounceResponseMessage response = (AnnounceResponseMessage) message;
@@ -138,7 +135,7 @@ public abstract class TrackerClient {
      * @param incomplete The number of leechers on this torrent.
      * @param interval   The announce interval requested by the tracker.
      */
-    protected void fireAnnounceResponseEvent(final int complete, final int incomplete, final int interval) {
+    private void fireAnnounceResponseEvent(final int complete, final int incomplete, final int interval) {
         for (final AnnounceResponseListener listener : this.listeners) {
             listener.handleAnnounceResponse(this.torrent, interval, complete, incomplete);
         }
@@ -149,7 +146,7 @@ public abstract class TrackerClient {
      *
      * @param peers The list of peers discovered.
      */
-    protected void fireDiscoveredPeersEvent(final List<Peer> peers) {
+    private void fireDiscoveredPeersEvent(final List<Peer> peers) {
         for (final AnnounceResponseListener listener : this.listeners) {
             listener.handleDiscoveredPeers(this.torrent, peers);
         }
