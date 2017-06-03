@@ -117,7 +117,7 @@ public class HTTPTrackerClient extends TrackerClient {
         } catch (final IOException ioe) {
             throw new AnnounceException("Error reading tracker response!", ioe);
         } catch (final MessageValidationException mve) {
-            throw new AnnounceException("Tracker message violates expected " + "protocol (" + mve.getMessage() + ")", mve);
+            throw new AnnounceException("Tracker message violates expected protocol (" + mve.getMessage() + ")", mve);
         } finally {
             // Make sure we close everything down at the end to avoid resource
             // leaks.
