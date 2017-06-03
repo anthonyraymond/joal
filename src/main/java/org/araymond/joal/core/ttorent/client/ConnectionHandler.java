@@ -49,6 +49,10 @@ public class ConnectionHandler {
             } catch (final IOException ioe) {
                 // Ignore, try next port
                 logger.warn("Could not bind to {}, trying next port...", tryAddress);
+                try {
+                    this.channel.close();
+                } catch (final IOException ignored) {
+                }
             }
         }
 
