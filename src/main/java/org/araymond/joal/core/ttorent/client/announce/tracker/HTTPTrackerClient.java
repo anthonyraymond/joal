@@ -1,7 +1,7 @@
-package org.araymond.joal.core.ttorent.client.announce;
+package org.araymond.joal.core.ttorent.client.announce.tracker;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.client.announce.AnnounceResponseListener;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -40,37 +40,37 @@ public class HTTPTrackerClient extends TrackerClient {
      * @param torrent The torrent we're announcing about.
      * @param peer    Our own peer specification.
      */
-    protected HTTPTrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) {
+    public HTTPTrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) {
         super(torrent, peer, tracker);
 
         this.bitTorrentClient = bitTorrentClient;
     }
 
-    /**
-     * Build, send and process a tracker announce request.
-     * <p>
-     * <p>
-     * This function first builds an announce request for the specified event
-     * with all the required parameters. Then, the request is made to the
-     * tracker and the response analyzed.
-     * </p>
-     * <p>
-     * <p>
-     * All registered {@link AnnounceResponseListener} objects are then fired
-     * with the decoded payload.
-     * </p>
-     *
-     * @param event         The announce event type (can be AnnounceEvent.NONE for
-     *                      periodic updates).
-     */
-    @Override
-    public void announce(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
-        logger.info("Announcing {} to tracker with {}U/{}D/{}L bytes...",
-                this.formatAnnounceEvent(event),
-                this.torrent.getUploaded(),
-                this.torrent.getDownloaded(),
-                this.torrent.getLeft());
+    @VisibleForTesting
+    void addHttpHeaders(final HttpURLConnection conn) {
+        for (final Map.Entry<String, String> header : this.bitTorrentClient.getHeaders()) {
+            final String value = header.getValue()
+                    .replaceAll("\\{host}", conn.getURL().getHost())
+                    .replaceAll("\\{java}", "Java " + System.getProperty("java.version"))
+                    .replaceAll("\\{os}", System.getProperty("os.name"));
+            conn.addRequestProperty(header.getKey(), value);
+        }
+    }
 
+    @Override
+    protected HTTPTrackerMessage toTrackerMessage(final ByteBuffer byteBuffer) throws AnnounceException {
+        try {
+            // Parse and handle the response
+            return HTTPTrackerMessage.parse(byteBuffer);
+        } catch (final IOException ioe) {
+            throw new AnnounceException("Error reading tracker response!", ioe);
+        } catch (final MessageValidationException mve) {
+            throw new AnnounceException("Tracker message violates expected protocol (" + mve.getMessage() + ")", mve);
+        }
+    }
+
+    @Override
+    protected ByteBuffer makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
         final URL target;
         try {
             final HTTPAnnounceRequestMessage request = this.buildAnnounceRequest(event);
@@ -94,7 +94,7 @@ public class HTTPTrackerClient extends TrackerClient {
             if (conn != null) {
                 in = conn.getErrorStream();
             }
-            logger.trace("Tracker answer was an error: {}", ioe);
+            logger.debug("Tracker answer was an error: {}", ioe);
         }
 
         // At this point if the input stream is null it means we have neither a
@@ -104,20 +104,16 @@ public class HTTPTrackerClient extends TrackerClient {
             throw new AnnounceException("No response or unreachable tracker!");
         }
 
+        final ByteArrayOutputStream outputStream;
         try {
-            final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            outputStream = new ByteArrayOutputStream();
             if (!Objects.equals(conn.getHeaderField("Content-Encoding"), "gzip")) {
                 outputStream.write(in);
             } else {
                 outputStream.write(new GZIPInputStream(in));
             }
-            // Parse and handle the response
-            final HTTPTrackerMessage message = HTTPTrackerMessage.parse(ByteBuffer.wrap(outputStream.toByteArray()));
-            this.handleTrackerAnnounceResponse(message);
         } catch (final IOException ioe) {
             throw new AnnounceException("Error reading tracker response!", ioe);
-        } catch (final MessageValidationException mve) {
-            throw new AnnounceException("Tracker message violates expected protocol (" + mve.getMessage() + ")", mve);
         } finally {
             // Make sure we close everything down at the end to avoid resource
             // leaks.
@@ -138,16 +134,9 @@ public class HTTPTrackerClient extends TrackerClient {
             }
             conn.disconnect();
         }
-    }
 
-    private void addHttpHeaders(final HttpURLConnection conn) {
-        for (final Map.Entry<String, String> header : this.bitTorrentClient.getHeaders()) {
-            final String value = header.getValue()
-                    .replaceAll("\\{host}", conn.getURL().getHost())
-                    .replaceAll("\\{java}", "Java " + System.getProperty("java.version"))
-                    .replaceAll("\\{os}", System.getProperty("os.name"));
-            conn.addRequestProperty(header.getKey(), value);
-        }
+        // TODO : ensure outputStream.close() is not required.
+        return ByteBuffer.wrap(outputStream.toByteArray());
     }
 
     /**

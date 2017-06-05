@@ -6,6 +6,8 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.ttorent.client.announce.tracker.HTTPTrackerClient;
+import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClient;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

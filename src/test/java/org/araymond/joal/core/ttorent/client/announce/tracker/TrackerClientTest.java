@@ -1,4 +1,4 @@
-package org.araymond.joal.core.ttorent.client.announce;
+package org.araymond.joal.core.ttorent.client.announce.tracker;
 
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
@@ -8,6 +8,8 @@ import com.turn.ttorrent.common.protocol.http.HTTPAnnounceRequestMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
+import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClient;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
@@ -18,6 +20,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
@@ -140,6 +143,38 @@ public class TrackerClientTest {
     }
 
     @Test
+    public void shouldAnnounce() throws URISyntaxException, AnnounceException {
+        final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
+        final Peer peer = new Peer(new InetSocketAddress("127.0.0.1", ConnectionHandler.PORT_RANGE_START));
+        final URI uri = new URI("http://example.tracker.com/announce");
+
+        final HTTPAnnounceResponseMessage message = Mockito.mock(HTTPAnnounceResponseMessage.class);
+        Mockito.when(message.getComplete()).thenReturn(1560);
+        Mockito.when(message.getIncomplete()).thenReturn(54676865);
+        Mockito.when(message.getInterval()).thenReturn(1800);
+        Mockito.when(message.getPeers()).thenReturn(Lists.emptyList());
+
+        final DefaultTrackerClient trackerClient = Mockito.spy(new DefaultTrackerClient(torrent, peer, uri));
+        Mockito.when(trackerClient.makeCallAndGetResponseAsByteBuffer(Mockito.any(RequestEvent.class))).thenReturn(null);
+        Mockito.when(trackerClient.toTrackerMessage(Mockito.any(ByteBuffer.class))).thenReturn(message);
+
+        final DefaultResponseListener listener = Mockito.spy(new DefaultResponseListener(new CountDownLatch(1), new CountDownLatch(1)));
+        trackerClient.register(listener);
+
+        trackerClient.announce(RequestEvent.NONE);
+        Mockito.verify(listener, Mockito.times(1)).handleAnnounceResponse(
+                torrent,
+                message.getInterval(),
+                message.getComplete(),
+                message.getIncomplete()
+        );
+        Mockito.verify(listener, Mockito.times(1)).handleDiscoveredPeers(
+                Matchers.eq(torrent),
+                Matchers.anyListOf(Peer.class)
+        );
+    }
+
+    @Test
     public void shouldFormatAnnounce() {
         final DefaultTrackerClient trackerClient = Mockito.mock(DefaultTrackerClient.class);
         Mockito.when(trackerClient.formatAnnounceEvent(Matchers.any())).thenCallRealMethod();
@@ -168,7 +203,13 @@ public class TrackerClientTest {
         }
 
         @Override
-        public void announce(final RequestEvent event) throws AnnounceException {
+        protected ByteBuffer makeCallAndGetResponseAsByteBuffer(final RequestEvent event) throws AnnounceException {
+            return null;
+        }
+
+        @Override
+        protected TrackerMessage toTrackerMessage(final ByteBuffer byteBuffer) throws AnnounceException {
+            return null;
         }
 
         TorrentWithStats getTorrentWithStats() {

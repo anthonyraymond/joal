@@ -1,12 +1,17 @@
-package org.araymond.joal.core.ttorent.client.announce;
+package org.araymond.joal.core.ttorent.client.announce.tracker;
 
 import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
+import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +22,7 @@ import static com.turn.ttorrent.common.protocol.TrackerMessage.*;
  * Created by raymo on 23/01/2017.
  */
 public abstract class TrackerClient {
+    protected static final Logger logger = LoggerFactory.getLogger(TrackerClient.class);
 
     /**
      * The set of listeners to announce request answers.
@@ -54,6 +60,10 @@ public abstract class TrackerClient {
         return this.tracker;
     }
 
+    protected abstract ByteBuffer makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException;
+
+    protected abstract TrackerMessage toTrackerMessage(final ByteBuffer byteBuffer) throws AnnounceException;
+
     /**
      * Build, send and process a tracker announce request.
      * <p>
@@ -71,7 +81,17 @@ public abstract class TrackerClient {
      * @param event        The announce event type (can be AnnounceEvent.NONE for
      *                     periodic updates).
      */
-    public abstract void announce(AnnounceRequestMessage.RequestEvent event) throws AnnounceException;
+    public final void announce(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
+        logger.info("Announcing {} to tracker with {}U/{}D/{}L bytes...",
+                this.formatAnnounceEvent(event),
+                this.torrent.getUploaded(),
+                this.torrent.getDownloaded(),
+                this.torrent.getLeft());
+
+        final ByteBuffer responseByteBuffer = makeCallAndGetResponseAsByteBuffer(event);
+        final TrackerMessage responseMessage = toTrackerMessage(responseByteBuffer);
+        this.handleTrackerAnnounceResponse(responseMessage);
+    }
 
     /**
      * Close any opened announce connection.
@@ -81,7 +101,7 @@ public abstract class TrackerClient {
      * are correctly closed when the announce thread is asked to stop.
      * </p>
      */
-    protected void close() {
+    public void close() {
         // Do nothing by default, but can be overloaded.
     }
 
