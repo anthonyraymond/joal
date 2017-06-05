@@ -1,8 +1,10 @@
 package org.araymond.joal.core.ttorent.client.announce.tracker;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
+import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
@@ -31,7 +33,7 @@ import static com.turn.ttorrent.common.protocol.TrackerMessage.MessageValidation
  */
 public class HTTPTrackerClient extends TrackerClient {
 
-    protected static final Logger logger = LoggerFactory.getLogger(HTTPTrackerClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(HTTPTrackerClient.class);
     private final BitTorrentClient bitTorrentClient;
 
     /**
@@ -42,6 +44,7 @@ public class HTTPTrackerClient extends TrackerClient {
      */
     public HTTPTrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) {
         super(torrent, peer, tracker);
+        Preconditions.checkNotNull(bitTorrentClient, "BitTorrentClient must not be null.");
 
         this.bitTorrentClient = bitTorrentClient;
     }
@@ -50,8 +53,7 @@ public class HTTPTrackerClient extends TrackerClient {
     void addHttpHeaders(final HttpURLConnection conn) {
         for (final Map.Entry<String, String> header : this.bitTorrentClient.getHeaders()) {
             final String value = header.getValue()
-                    .replaceAll("\\{host}", conn.getURL().getHost())
-                    .replaceAll("\\{java}", "Java " + System.getProperty("java.version"))
+                    .replaceAll("\\{java}", System.getProperty("java.version"))
                     .replaceAll("\\{os}", System.getProperty("os.name"));
             conn.addRequestProperty(header.getKey(), value);
         }
@@ -142,7 +144,7 @@ public class HTTPTrackerClient extends TrackerClient {
     /**
      * Build the announce request tracker message.
      *
-     * @param event The announce event (can be <tt>NONE</tt> or <em>null</em>)
+     * @param event The announce event
      * @return Returns an instance of a {@link HTTPAnnounceRequestMessage}
      * that can be used to generate the fully qualified announce URL, with
      * parameters, to make the announce request.
@@ -150,8 +152,8 @@ public class HTTPTrackerClient extends TrackerClient {
      * @throws IOException
      * @throws MessageValidationException
      */
-    private HTTPAnnounceRequestMessage buildAnnounceRequest(final AnnounceRequestMessage.RequestEvent event) throws IOException,
-            MessageValidationException {
+    @VisibleForTesting
+    HTTPAnnounceRequestMessage buildAnnounceRequest(final AnnounceRequestMessage.RequestEvent event) throws IOException, MessageValidationException {
         // Build announce request message
         return HTTPAnnounceRequestMessage.craft(
                 this.torrent.getTorrent().getInfoHash(),

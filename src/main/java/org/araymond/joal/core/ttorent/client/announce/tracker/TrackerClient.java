@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -22,7 +23,7 @@ import static com.turn.ttorrent.common.protocol.TrackerMessage.*;
  * Created by raymo on 23/01/2017.
  */
 public abstract class TrackerClient {
-    protected static final Logger logger = LoggerFactory.getLogger(TrackerClient.class);
+    private static final Logger logger = LoggerFactory.getLogger(TrackerClient.class);
 
     /**
      * The set of listeners to announce request answers.
