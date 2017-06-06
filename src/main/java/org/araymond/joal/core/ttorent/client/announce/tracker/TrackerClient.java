@@ -83,7 +83,7 @@ public abstract class TrackerClient {
      *                     periodic updates).
      */
     public final void announce(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
-        logger.info("Announcing {} to tracker with {}U/{}D/{}L bytes...",
+        logger.debug("Announcing {} to tracker with {}U/{}D/{}L bytes...",
                 this.formatAnnounceEvent(event),
                 this.torrent.getUploaded(),
                 this.torrent.getDownloaded(),
