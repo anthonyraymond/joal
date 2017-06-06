@@ -1,6 +1,7 @@
 package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
@@ -21,6 +22,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by raymo on 28/01/2017.
@@ -121,9 +123,14 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     public MockedTorrent getTorrentNotIn(final List<MockedTorrent> unwantedTorrents) throws NoMoreTorrentsFileAvailableException {
         Preconditions.checkNotNull(unwantedTorrents, "List of unwantedTorrents cannot be null.");
+
         return this.torrentFiles.values().stream()
                 .filter(torrent -> !unwantedTorrents.contains(torrent))
-                .findAny()
+                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                    Collections.shuffle(collected);
+                    return collected.stream();
+                }))
+                .findFirst()
                 .orElseThrow(() -> new NoMoreTorrentsFileAvailableException("No more torrent file available."));
     }
 

@@ -122,7 +122,8 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onTorrentRemoved(final MockedTorrent torrent) {
-        for (final Announcer announcer : this.announcers) {
+        // Work on a copy of the list for concurrency purpose (otherwise manually removing a torrent cause the app to crash)
+        for (final Announcer announcer : Lists.newArrayList(this.announcers)) {
             if (announcer.isForTorrent(torrent)) {
                 announcer.stop();
             }

@@ -120,26 +120,32 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     @Override
     public void handleAnnounceResponse(final TorrentWithStats torrent, final int interval, final int complete, final int incomplete) {
         this.setInterval(interval);
+
+        if (this.stop) {
+            return;
+        }
+        if (logger.isInfoEnabled()) {
+            logger.info(
+                    "Peers discovery for torrent {}: {} leechers & {} seeders",
+                    torrent.getTorrent().getName(),
+                    incomplete,
+                    complete
+            );
+        }
+        if (incomplete == 0) {
+            this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
+        }
     }
 
     @Override
     public void handleDiscoveredPeers(final TorrentWithStats torrent, final List<Peer> peers) {
-        // FIXME : ensure peers are leechers only, and not leechers + seeders
-        if (logger.isInfoEnabled()) {
-            logger.info(
-                    "Peers discovery for torrent {}: {} leechers",
-                    torrent.getTorrent().getName(),
-                    peers == null ? 0 : peers.size()
-            );
-        }
-        if (peers == null || peers.isEmpty()) {
-            this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
-        }
+        // list of all peers, containing both seeders, leechers and yourself
     }
 
     public void registerEventListener(final AnnouncerEventListener client) {
         this.eventListeners.add(client);
     }
+
 
     /**
      * Start the announce request thread.
