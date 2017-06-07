@@ -1,0 +1,12 @@
+FROM hypriot/rpi-java:1.8.0
+
+WORKDIR /jack-of-all-trades/
+
+# the compiled jack of all trades is required
+ADD jack-of-all-trades-2.0.0-SNAPSHOT.jar /jack-of-all-trades/jack-of-all-trades-2.0.0-SNAPSHOT.jar
+
+WORKDIR /jack-of-all-trades
+
+VOLUME /data
+
+CMD ["java","-jar","/jack-of-all-trades/jack-of-all-trades-2.0.0-SNAPSHOT.jar","--joal-conf=/data"]
