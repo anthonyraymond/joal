@@ -81,8 +81,9 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                     tierClients.add(client);
                     this.allClients.add(client);
                 } catch (final Exception e) {
-                    logger.warn("Will not announce on {}: {}!",
+                    logger.warn("Will not announce on {} for torrent {}: {}!",
                             tracker,
+                            torrent.getName(),
                             e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()
                     );
                 }
@@ -102,8 +103,9 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
         this.register(this);
 
-        logger.debug("Initialized announce sub-system with {} trackers on {}.",
-                new Object[]{this.torrent.getTorrent().getTrackerCount(), torrent});
+        if (logger.isDebugEnabled()) {
+            logger.debug("Initialized announce sub-system with {} trackers on {}.", new Object[]{this.torrent.getTorrent().getTrackerCount(), torrent});
+        }
     }
 
     /**
@@ -124,14 +126,13 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         if (this.stop) {
             return;
         }
-        if (logger.isInfoEnabled()) {
-            logger.info(
-                    "Peers discovery for torrent {}: {} leechers & {} seeders",
-                    torrent.getTorrent().getName(),
-                    incomplete,
-                    complete
-            );
-        }
+
+        logger.info(
+                "Peers discovery for torrent {}: {} leechers & {} seeders",
+                torrent.getTorrent().getName(),
+                incomplete,
+                complete
+        );
         if (incomplete == 0) {
             this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
         }
@@ -173,7 +174,9 @@ public class Announcer implements Runnable, AnnounceResponseListener {
      * </p>
      */
     public void stop() {
-        logger.debug("Call to stop Announcer");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Call to stop Announcer for torrent {}", torrent.getTorrent().getName());
+        }
         this.stop = true;
 
         if (this.thread != null && this.thread.isAlive()) {
@@ -190,7 +193,9 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         }
 
         this.thread = null;
-        logger.debug("Announcer stopped");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Announcer stopped for torrent {}", torrent.getTorrent().getName());
+        }
     }
 
     /**
@@ -206,7 +211,9 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             return;
         }
 
-        logger.debug("Setting announce interval to {}s per tracker request.", interval);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Setting announce interval to {}s per tracker request for torrent {}.", interval, torrent.getTorrent().getName());
+        }
         this.interval = interval;
     }
 
@@ -227,7 +234,9 @@ public class Announcer implements Runnable, AnnounceResponseListener {
      */
     @Override
     public void run() {
-        logger.debug("Starting announce loop...");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Starting announce loop for torrent {}.", torrent.getTorrent().getName());
+        }
 
         // Set an initial announce interval to 5 seconds. This will be updated
         // in real-time by the tracker's responses to our announce requests.
@@ -246,13 +255,13 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 this.promoteCurrentTrackerClient();
                 event = AnnounceRequestMessage.RequestEvent.NONE;
             } catch (final AnnounceException ae) {
-                logger.warn("Exception in announce", ae);
+                logger.warn("Exception in announce for torrent {}", torrent.getTorrent().getName(), ae);
 
                 try {
                     // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"
                     this.moveToNextTrackerClient();
                 } catch (final AnnounceException e) {
-                    logger.error("Unable to move to the next tracker client: {}", e.getMessage());
+                    logger.warn("Unable to move to the next tracker client for torrent: {}", torrent.getTorrent().getName(), e);
                 }
             }
 
@@ -267,7 +276,9 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             }
         }
 
-        logger.debug("Exited announce loop.");
+        if (logger.isDebugEnabled()) {
+            logger.debug("Exited announce loop for torrent {}.", torrent.getTorrent().getName());
+        }
 
         if (!this.forceStop) {
             // Send the final 'stopped' event to the tracker after a little while.
@@ -279,7 +290,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 }
                 this.getCurrentTrackerClient().announce(event);
             } catch (final AnnounceException ae) {
-                logger.warn(ae.getMessage());
+                logger.warn("Error while announcing stop for torrent {}.", torrent.getTorrent().getName(), ae);
             }
         }
         this.eventListeners.forEach(listener -> listener.onAnnouncerStop(this, this.torrent));
@@ -306,7 +317,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             //return new UDPTrackerClient(torrent, peer, tracker);
         }
 
-        throw new UnknownServiceException("Unsupported announce scheme: " + scheme + "!");
+        throw new UnknownServiceException("Unsupported announce scheme for torrent " + torrent.getTorrent().getName() + ": " + scheme + "!");
     }
 
     /**
@@ -317,7 +328,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
      */
     public TrackerClient getCurrentTrackerClient() throws AnnounceException {
         if ((this.currentTier >= this.clients.size()) || (this.currentClient >= this.clients.get(this.currentTier).size())) {
-            throw new AnnounceException("Current tier or client isn't available");
+            throw new AnnounceException("Current tier or client isn't available for torrent " + torrent.getTorrent().getName());
         }
 
         return this.clients
@@ -349,11 +360,13 @@ public class Announcer implements Runnable, AnnounceResponseListener {
      * @throws AnnounceException
      */
     private void promoteCurrentTrackerClient() throws AnnounceException {
-        logger.trace("Promoting current tracker client for {} " + "(tier {}, position {} -> 0).",
-                this.getCurrentTrackerClient().getTrackerURI(),
-                this.currentTier,
-                this.currentClient
-        );
+        if (logger.isTraceEnabled()) {
+            logger.trace("Promoting current tracker client for {} " + "(tier {}, position {} -> 0).",
+                    this.getCurrentTrackerClient().getTrackerURI(),
+                    this.currentTier,
+                    this.currentClient
+            );
+        }
 
         Collections.swap(this.clients.get(this.currentTier), this.currentClient, 0);
         this.currentClient = 0;
@@ -392,11 +405,13 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             this.currentTier = tier;
             this.currentClient = client;
 
-            logger.debug("Switched to tracker client for {} " + "(tier {}, position {}).",
-                    this.getCurrentTrackerClient().getTrackerURI(),
-                    this.currentTier,
-                    this.currentClient
-            );
+            if (logger.isDebugEnabled()) {
+                logger.debug("Switched to tracker client for {} " + "(tier {}, position {}).",
+                        this.getCurrentTrackerClient().getTrackerURI(),
+                        this.currentTier,
+                        this.currentClient
+                );
+            }
         }
     }
 
