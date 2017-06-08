@@ -256,7 +256,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 event = AnnounceRequestMessage.RequestEvent.NONE;
             } catch (final AnnounceException ae) {
                 logger.warn("Exception in announce for torrent {}", torrent.getTorrent().getName(), ae);
-
+                // FIXME : In rare cases, the FIRST announce won't pass, and it will result in the torrent trying to announce each 5 seconds (because default interval is 5). Maybe we should add an error counter, and after 5 successive errors, move this shit to archived.
                 try {
                     // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"
                     this.moveToNextTrackerClient();
