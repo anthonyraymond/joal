@@ -246,7 +246,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 this.promoteCurrentTrackerClient();
                 event = AnnounceRequestMessage.RequestEvent.NONE;
             } catch (final AnnounceException ae) {
-                logger.warn("Exception in announce", ae.getMessage());
+                logger.warn("Exception in announce", ae);
 
                 try {
                     // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"

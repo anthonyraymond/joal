@@ -96,7 +96,7 @@ public class HTTPTrackerClient extends TrackerClient {
             if (conn != null) {
                 in = conn.getErrorStream();
             }
-            logger.debug("Tracker answer was an error: {}", ioe);
+            logger.warn("Tracker answer was an error.", ioe);
         }
 
         // At this point if the input stream is null it means we have neither a
