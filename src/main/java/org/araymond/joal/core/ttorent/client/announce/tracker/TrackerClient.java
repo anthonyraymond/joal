@@ -140,9 +140,9 @@ public abstract class TrackerClient {
 
         final AnnounceResponseMessage response = (AnnounceResponseMessage) message;
         this.fireAnnounceResponseEvent(
+                response.getInterval(),
                 response.getComplete(),
-                response.getIncomplete(),
-                response.getInterval()
+                response.getIncomplete()
         );
         this.fireDiscoveredPeersEvent(
                 response.getPeers()
@@ -152,13 +152,13 @@ public abstract class TrackerClient {
     /**
      * Fire the announce response event to all listeners.
      *
-     * @param complete   The number of seeders on this torrent.
-     * @param incomplete The number of leechers on this torrent.
+     * @param seeders   The number of seeders on this torrent.
+     * @param leechers The number of leechers on this torrent.
      * @param interval   The announce interval requested by the tracker.
      */
-    private void fireAnnounceResponseEvent(final int complete, final int incomplete, final int interval) {
+    private void fireAnnounceResponseEvent( final int interval, final int seeders, final int leechers) {
         for (final AnnounceResponseListener listener : this.listeners) {
-            listener.handleAnnounceResponse(this.torrent, interval, complete, incomplete);
+            listener.handleAnnounceResponse(this.torrent, interval, seeders, leechers);
         }
     }
 

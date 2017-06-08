@@ -15,10 +15,10 @@ public interface AnnounceResponseListener extends EventListener {
      * Handle an announce response event.
      *
      * @param interval The announce interval requested by the tracker.
-     * @param complete The number of seeders on this torrent.
-     * @param incomplete The number of leechers on this torrent.
+     * @param seeders The number of seeders on this torrent.
+     * @param leechers The number of leechers on this torrent.
      */
-    void handleAnnounceResponse(final TorrentWithStats torrent, int interval, int complete, int incomplete);
+    void handleAnnounceResponse(final TorrentWithStats torrent, int interval, int seeders, int leechers);
 
     /**
      * Handle the discovery of new peers.

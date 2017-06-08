@@ -120,7 +120,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     }
 
     @Override
-    public void handleAnnounceResponse(final TorrentWithStats torrent, final int interval, final int complete, final int incomplete) {
+    public void handleAnnounceResponse(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
         this.setInterval(interval);
 
         if (this.stop) {
@@ -130,10 +130,10 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         logger.info(
                 "Peers discovery for torrent {}: {} leechers & {} seeders",
                 torrent.getTorrent().getName(),
-                incomplete,
-                complete
+                leechers,
+                seeders
         );
-        if (incomplete == 0) {
+        if (leechers == 0) {
             this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
         }
     }

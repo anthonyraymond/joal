@@ -239,7 +239,7 @@ public class TrackerClientTest {
         }
 
         @Override
-        public void handleAnnounceResponse(final TorrentWithStats torrent, final int interval, final int complete, final int incomplete) {
+        public void handleAnnounceResponse(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
             announceResponseCountDown.countDown();
         }
 
