@@ -64,8 +64,7 @@ public class CoreEventListener {
     @EventListener
     void handleNoMoreTorrents(final NoMoreTorrentsFileAvailableEvent event) {
         logger.debug("Event NoMoreTorrentsFileAvailableEvent caught.");
-        /*logger.warn("There is no more .torrent file, add some more to resume seed.");
-        this.manager.stop();*/
+        // logger.warn("There is no more .torrent file, add some more to resume seed.");
     }
 
     @Async
@@ -111,6 +110,7 @@ public class CoreEventListener {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleSomethingHasFuckedUp(final SomethingHasFuckedUpEvent event) {
+        // We caught an unrecoverable exception in a thread, we better stop right now.
         logger.error("Event SomethingHasFuckedUpEvent caught.", event.getException());
         // Stop the application
         SpringApplication.exit(appContext, () -> 42);
