@@ -64,7 +64,6 @@ public class SeedManager {
         this.bitTorrentClientProvider.generateNewClient();
 
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
-        // TODO : still need to handle exception in this method to prevent crash on startup, particularly NoMoreTorrent
 
         publisher.publishEvent(new SeedSessionWillStartEvent());
 

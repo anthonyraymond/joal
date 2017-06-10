@@ -245,20 +245,35 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         AnnounceRequestMessage.RequestEvent event = AnnounceRequestMessage.RequestEvent.STARTED;
         eventListeners.forEach(listener -> listener.onAnnouncerStart(this, this.torrent));
 
+        int successiveAnnounceErrors = 0;
         while (!this.stop) {
             try {
                 for (final AnnouncerEventListener listener : this.eventListeners) {
                     listener.onAnnounceRequesting(event, this.torrent);
                 }
+                // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"
                 this.getCurrentTrackerClient().announce(event);
 
                 this.promoteCurrentTrackerClient();
                 event = AnnounceRequestMessage.RequestEvent.NONE;
+
+                successiveAnnounceErrors = 0;
             } catch (final AnnounceException ae) {
                 logger.warn("Exception in announce for torrent {}", torrent.getTorrent().getName(), ae);
-                // FIXME : In rare cases, the FIRST announce won't pass, and it will result in the torrent trying to announce each 5 seconds (because default interval is 5). Maybe we should add an error counter, and after 5 successive errors, move this shit to archived.
+
+                ++successiveAnnounceErrors;
+                if (successiveAnnounceErrors >= this.clients.size() && successiveAnnounceErrors > 5) {
+                    logger.warn(
+                            "Announcing for torrent {} has failed {} consecutive times, this torrent will be deleted.",
+                            torrent.getTorrent().getName(),
+                            successiveAnnounceErrors
+                    );
+                    // If announce failed at least 5 times. And at least as much as the number of tracker clients
+                    // it is likely that the torrent is not registered or the tracker is dead.
+                    this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
+                }
+
                 try {
-                    // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"
                     this.moveToNextTrackerClient();
                 } catch (final AnnounceException e) {
                     logger.warn("Unable to move to the next tracker client for torrent: {}", torrent.getTorrent().getName(), e);
