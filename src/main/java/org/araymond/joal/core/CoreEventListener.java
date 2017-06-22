@@ -103,7 +103,7 @@ public class CoreEventListener {
     }
 
     @Async
-    @Order(Ordered.HIGHEST_PRECEDENCE)
+    @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     void handleSomethingHasFuckedUp(final SomethingHasFuckedUpEvent event) {
         // We caught an unrecoverable exception in a thread, we better stop right now.
