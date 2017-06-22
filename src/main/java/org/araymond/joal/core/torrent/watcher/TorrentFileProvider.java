@@ -102,7 +102,10 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
                 this.torrentFileChangeListener.forEach(listener -> listener.onTorrentAdded(torrent));
             }
         } catch (final IOException | NoSuchAlgorithmException e) {
-            logger.warn("File '{}' not added to torrent list, failed to read file.'", file.getAbsolutePath(), e);
+            logger.warn("File '{}' not added to torrent list, failed to read file.", file.getAbsolutePath(), e);
+        } catch (final Exception e) {
+            // This thread MUST NOT crash. we need handle any other exception
+            logger.warn("File '{}' not added to torrent list, unexpected exception was caught.", e);
         }
     }
 
