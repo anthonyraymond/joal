@@ -25,10 +25,6 @@ import javax.inject.Inject;
 import java.io.IOException;
 
 /**
- * Created by raymo on 09/05/2017.
- */
-
-/**
  * Intercept core event, method can be @Async. THey MUST NOT interact with JOAL state, otherwise this class
  * will soon turn into a god damn mess and we won't be able to maintain the code because of all the non explicit method calls.
  */
