@@ -22,7 +22,8 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        registry.addEndpoint("/joal-sock").withSockJS();
+        registry.addEndpoint("/ws")
+                .setAllowedOrigins("*");
     }
 
 }
