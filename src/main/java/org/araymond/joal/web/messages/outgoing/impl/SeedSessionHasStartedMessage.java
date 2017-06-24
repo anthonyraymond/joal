@@ -8,12 +8,12 @@ import org.araymond.joal.web.messages.outgoing.OutgoingMessageTypes;
 /**
  * Created by raymo on 22/06/2017.
  */
-public class ClientHasStartedMessage extends OutgoingMessage {
+public class SeedSessionHasStartedMessage extends OutgoingMessage {
 
     private final String client;
 
-    public ClientHasStartedMessage(final String client) {
-        super(OutgoingMessageTypes.CLIENT_HAS_STARTED);
+    public SeedSessionHasStartedMessage(final String client) {
+        super(OutgoingMessageTypes.SEED_SESSION_HAS_STARTED);
         Preconditions.checkArgument(!StringUtils.isBlank(client), "Client must not be null or empty.");
 
         this.client = client;

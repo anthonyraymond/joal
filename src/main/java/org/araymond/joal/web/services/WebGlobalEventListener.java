@@ -1,8 +1,9 @@
 package org.araymond.joal.web.services;
 
-import org.araymond.joal.core.client.emulated.BitTorrentClient;
+import org.araymond.joal.core.events.seedsession.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.seedsession.SeedSessionHasStartedEvent;
-import org.araymond.joal.web.messages.outgoing.impl.ClientHasStartedMessage;
+import org.araymond.joal.web.messages.outgoing.impl.SeedSessionHasEndedMessage;
+import org.araymond.joal.web.messages.outgoing.impl.SeedSessionHasStartedMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -29,7 +30,7 @@ public class WebGlobalEventListener {
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     void handleSeedSessionHasStarted(final SeedSessionHasStartedEvent event) {
-        logger.debug("Send ClientHasStartedMessage to client.");
+        logger.debug("Send SeedSessionHasStartedMessage to clients.");
 
         final String client = event.getBitTorrentClient().getHeaders().stream()
                 .map(Map.Entry::getKey)
@@ -37,7 +38,15 @@ public class WebGlobalEventListener {
                 .findFirst()
                 .orElse("Unknown");
 
-        messagingTemplate.convertAndSend("/global", new ClientHasStartedMessage(client));
+        this.messagingTemplate.convertAndSend("/global", new SeedSessionHasStartedMessage(client));
+    }
+
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    @EventListener
+    void handleSeedSessionHasEnded(final SeedSessionHasEndedEvent event) {
+        logger.debug("Send SeedSessionHasEndedMessage to clients.");
+
+        this.messagingTemplate.convertAndSend("/global", new SeedSessionHasEndedMessage());
     }
 
 }

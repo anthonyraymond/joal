@@ -9,28 +9,28 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * Created by raymo on 22/06/2017.
  */
-public class ClientHasStartedMessageTest {
+public class SeedSessionHasStartedMessageTest {
 
     @Test
     public void shouldNotBuildWithNullClient() {
-        assertThatThrownBy(() -> new ClientHasStartedMessage(null))
+        assertThatThrownBy(() -> new SeedSessionHasStartedMessage(null))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Client must not be null or empty.");
     }
 
     @Test
     public void shouldNotBuildWithBlankClient() {
-        assertThatThrownBy(() -> new ClientHasStartedMessage(" "))
+        assertThatThrownBy(() -> new SeedSessionHasStartedMessage(" "))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Client must not be null or empty.");
     }
 
     @Test
     public void shouldBuild() {
-        final ClientHasStartedMessage message = new ClientHasStartedMessage("BitTorrent/799(255043872)(43296)");
+        final SeedSessionHasStartedMessage message = new SeedSessionHasStartedMessage("BitTorrent/799(255043872)(43296)");
 
         assertThat(message.getClient()).isEqualTo("BitTorrent/799(255043872)(43296)");
-        assertThat(message.getType()).isEqualTo(OutgoingMessageTypes.CLIENT_HAS_STARTED);
+        assertThat(message.getType()).isEqualTo(OutgoingMessageTypes.SEED_SESSION_HAS_STARTED);
     }
 
 }

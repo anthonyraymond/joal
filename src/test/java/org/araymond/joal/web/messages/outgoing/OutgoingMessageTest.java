@@ -20,9 +20,9 @@ public class OutgoingMessageTest {
 
     @Test
     public void shouldBuild() {
-        final OutgoingMessage message = new DefaultOutgoingMessage(OutgoingMessageTypes.CLIENT_HAS_STARTED);
+        final OutgoingMessage message = new DefaultOutgoingMessage(OutgoingMessageTypes.SEED_SESSION_HAS_STARTED);
 
-        assertThat(message.getType()).isEqualTo(OutgoingMessageTypes.CLIENT_HAS_STARTED);
+        assertThat(message.getType()).isEqualTo(OutgoingMessageTypes.SEED_SESSION_HAS_STARTED);
     }
 
     private static final class DefaultOutgoingMessage extends OutgoingMessage {
