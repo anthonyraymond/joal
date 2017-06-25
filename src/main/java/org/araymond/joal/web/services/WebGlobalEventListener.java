@@ -33,8 +33,8 @@ public class WebGlobalEventListener {
         logger.debug("Send SeedSessionHasStartedMessage to clients.");
 
         final String client = event.getBitTorrentClient().getHeaders().stream()
-                .map(Map.Entry::getKey)
-                .filter("User-Agent"::equalsIgnoreCase)
+                .filter(entry -> "User-Agent".equalsIgnoreCase(entry.getKey()))
+                .map(Map.Entry::getValue)
                 .findFirst()
                 .orElse("Unknown");
 
