@@ -1,4 +1,4 @@
-package org.araymond.joal.web.messages.outgoing.impl;
+package org.araymond.joal.web.messages.outgoing.impl.global;
 
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.StringUtils;

@@ -1,4 +1,4 @@
-package org.araymond.joal.web.messages.outgoing.impl;
+package org.araymond.joal.web.messages.outgoing.impl.global;
 
 import org.araymond.joal.web.messages.outgoing.OutgoingMessage;
 import org.araymond.joal.web.messages.outgoing.OutgoingMessageTypes;

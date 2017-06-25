@@ -7,9 +7,8 @@ import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedForSeedEvent;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasStartedEvent;
-import org.araymond.joal.core.events.seedsession.SeedSessionWillStartEvent;
+import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
+import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,13 +75,6 @@ public class CoreEventListener {
     @EventListener
     void handleTorrentFileAddedForSeed(final TorrentFileAddedForSeedEvent event) throws IOException {
         logger.debug("Event TorrentFileAddedForSeedEvent caught.");
-    }
-
-    @Async
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    @EventListener
-    void handleSeedSessionWillStart(final SeedSessionWillStartEvent event) {
-        logger.debug("Event SeedSessionWillStartEvent caught.");
     }
 
     @Async

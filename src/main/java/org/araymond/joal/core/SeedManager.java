@@ -5,9 +5,8 @@ import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.JoalConfigProvider;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasStartedEvent;
-import org.araymond.joal.core.events.seedsession.SeedSessionWillStartEvent;
+import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
+import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.Client;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
@@ -64,8 +63,6 @@ public class SeedManager {
         this.bitTorrentClientProvider.generateNewClient();
 
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
-
-        publisher.publishEvent(new SeedSessionWillStartEvent());
 
         final String id = bitTorrentClient.getPeerId();
         final Peer peer = new Peer(

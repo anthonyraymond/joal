@@ -1,9 +1,9 @@
 package org.araymond.joal.web.services;
 
-import org.araymond.joal.core.events.seedsession.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.seedsession.SeedSessionHasStartedEvent;
-import org.araymond.joal.web.messages.outgoing.impl.SeedSessionHasEndedMessage;
-import org.araymond.joal.web.messages.outgoing.impl.SeedSessionHasStartedMessage;
+import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
+import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
+import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasEndedMessage;
+import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;

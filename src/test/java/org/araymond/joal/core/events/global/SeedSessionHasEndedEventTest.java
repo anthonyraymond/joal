@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events.seedsession;
+package org.araymond.joal.core.events.global;
 
 import org.junit.Test;
 

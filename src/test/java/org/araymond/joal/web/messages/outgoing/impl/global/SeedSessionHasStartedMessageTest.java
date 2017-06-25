@@ -1,6 +1,7 @@
-package org.araymond.joal.web.messages.outgoing.impl;
+package org.araymond.joal.web.messages.outgoing.impl.global;
 
 import org.araymond.joal.web.messages.outgoing.OutgoingMessageTypes;
+import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedMessage;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
