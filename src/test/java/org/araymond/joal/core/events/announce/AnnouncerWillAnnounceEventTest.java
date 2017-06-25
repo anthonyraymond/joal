@@ -11,18 +11,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * Created by raymo on 25/05/2017.
  */
-public class AnnounceRequestingEventTest {
+public class AnnouncerWillAnnounceEventTest {
 
     @Test
     public void shouldNotBuildWithoutRequestEvent() {
-        assertThatThrownBy(() -> new AnnounceRequestingEvent(null, Mockito.mock(TorrentWithStats.class)))
+        assertThatThrownBy(() -> new AnnouncerWillAnnounceEvent(null, Mockito.mock(TorrentWithStats.class)))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("RequestEvent cannot be null");
     }
 
     @Test
     public void shouldNotBuildWithoutTorrent() {
-        assertThatThrownBy(() -> new AnnounceRequestingEvent(RequestEvent.COMPLETED, null))
+        assertThatThrownBy(() -> new AnnouncerWillAnnounceEvent(RequestEvent.COMPLETED, null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("TorrentWithStats cannot be null");
     }
@@ -30,7 +30,7 @@ public class AnnounceRequestingEventTest {
     @Test
     public void shouldBuild() {
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final AnnounceRequestingEvent event = new AnnounceRequestingEvent(RequestEvent.COMPLETED, torrent);
+        final AnnouncerWillAnnounceEvent event = new AnnouncerWillAnnounceEvent(RequestEvent.COMPLETED, torrent);
 
         assertThat(event.getEvent()).isEqualTo(RequestEvent.COMPLETED);
         assertThat(event.getTorrent()).isEqualTo(torrent);

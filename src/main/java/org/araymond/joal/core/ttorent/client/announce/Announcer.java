@@ -133,6 +133,11 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 leechers,
                 seeders
         );
+
+        for (final AnnouncerEventListener listener : this.eventListeners) {
+            listener.onAnnounceSuccess(torrent, interval, seeders, leechers);
+        }
+
         if (leechers == 0) {
             this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
         }
@@ -249,7 +254,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         while (!this.stop) {
             try {
                 for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnounceRequesting(event, this.torrent);
+                    listener.onAnnouncerWillAnnounce(event, this.torrent);
                 }
                 // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"
                 this.getCurrentTrackerClient().announce(event);
@@ -260,6 +265,10 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 successiveAnnounceErrors = 0;
             } catch (final AnnounceException ae) {
                 logger.warn("Exception in announce for torrent {}", torrent.getTorrent().getName(), ae);
+
+                for (final AnnouncerEventListener listener : this.eventListeners) {
+                    listener.onAnnounceFail(event, this.torrent, ae.getMessage());
+                }
 
                 ++successiveAnnounceErrors;
                 if (successiveAnnounceErrors >= this.clients.size() && successiveAnnounceErrors > 5) {
@@ -301,11 +310,16 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
             try {
                 for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnounceRequesting(event, this.torrent);
+                    listener.onAnnouncerWillAnnounce(event, this.torrent);
                 }
+
                 this.getCurrentTrackerClient().announce(event);
             } catch (final AnnounceException ae) {
                 logger.warn("Error while announcing stop for torrent {}.", torrent.getTorrent().getName(), ae);
+
+                for (final AnnouncerEventListener listener : this.eventListeners) {
+                    listener.onAnnounceFail(event, this.torrent, ae.getMessage());
+                }
             }
         }
         this.eventListeners.forEach(listener -> listener.onAnnouncerStop(this, this.torrent));

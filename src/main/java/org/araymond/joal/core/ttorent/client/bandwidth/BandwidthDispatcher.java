@@ -44,7 +44,7 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     }
 
     @Override
-    public void onAnnounceRequesting(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent) {
+    public void onAnnouncerWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent) {
         if (event != TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED) {
             final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1024L;
             final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1024L;
@@ -56,8 +56,15 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     }
 
     @Override
-    public void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent) {
+    public void onAnnounceSuccess(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
+    }
 
+    @Override
+    public void onAnnounceFail(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent, final String error) {
+    }
+
+    @Override
+    public void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent) {
     }
 
     @Override

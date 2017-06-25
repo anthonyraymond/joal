@@ -5,7 +5,7 @@ import org.apache.commons.io.FileUtils;
 import org.araymond.joal.core.events.NoMoreLeechersEvent;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
-import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
+import org.araymond.joal.core.events.announce.AnnouncerWillAnnounceEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedForSeedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
@@ -41,7 +41,7 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleAnnounceRequesting(final AnnounceRequestingEvent event) {
+    void handleAnnounceRequesting(final AnnouncerWillAnnounceEvent event) {
         final RequestEvent announceEvent = event.getEvent();
         final TorrentWithStats torrent = event.getTorrent();
         logger.info(

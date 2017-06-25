@@ -7,7 +7,7 @@ import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.NoMoreLeechersEvent;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
-import org.araymond.joal.core.events.announce.AnnounceRequestingEvent;
+import org.araymond.joal.core.events.announce.*;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedForSeedEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
@@ -131,8 +131,18 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     }
 
     @Override
-    public void onAnnounceRequesting(final RequestEvent event, final TorrentWithStats torrent) {
-        publisher.publishEvent(new AnnounceRequestingEvent(event, torrent));
+    public void onAnnouncerWillAnnounce(final RequestEvent event, final TorrentWithStats torrent) {
+        publisher.publishEvent(new AnnouncerWillAnnounceEvent(event, torrent));
+    }
+
+    @Override
+    public void onAnnounceSuccess(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
+        publisher.publishEvent(new AnnouncerHasAnnouncedEvent(torrent, interval, seeders, leechers));
+    }
+
+    @Override
+    public void onAnnounceFail(final RequestEvent event, final TorrentWithStats torrent, final String error) {
+        publisher.publishEvent(new AnnouncerHasFailedToAnnounceEvent(event, torrent, error));
     }
 
     @Override
@@ -144,13 +154,15 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
-
+        publisher.publishEvent(new AnnouncerHasStartedEvent(torrent));
     }
 
     @Override
     public void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent) {
         logger.debug("Removed announcer for Torrent {}", torrent.getTorrent().getName());
         this.announcers.remove(announcer);
+
+        publisher.publishEvent(new AnnouncerHasStoppedEvent(torrent));
 
         if (this.currentState!= ClientState.STOPPING && this.currentState != ClientState.STOPPED) {
             try {
