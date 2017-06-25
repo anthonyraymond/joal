@@ -1,6 +1,7 @@
 package org.araymond.joal.web.messages.outgoing.impl.announce;
 
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.araymond.joal.web.messages.outgoing.OutgoingMessageTypes;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -22,18 +23,18 @@ public class AnnouncerHasFailedToAnnounceMessageTest {
 
     @Test
     public void shouldNotBuildWithoutMessage() {
-        assertThatThrownBy(() -> new AnnouncerHasFailedToAnnounceMessage(Mockito.mock(MockedTorrent.class), " "))
+        final TorrentWithStats torrent = AnnounceMessageTest.mockTorrentWithStat();
+        assertThatThrownBy(() -> new AnnouncerHasFailedToAnnounceMessage(torrent, " "))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Error message must not be null or empty.");
     }
 
     @Test
     public void shouldBuild() {
-        final MockedTorrent torrent = Mockito.mock(MockedTorrent.class);
+        final TorrentWithStats torrent = AnnounceMessageTest.mockTorrentWithStat();
         final AnnouncerHasFailedToAnnounceMessage message = new AnnouncerHasFailedToAnnounceMessage(torrent, "this is an error");
 
         assertThat(message.getType()).isEqualTo(OutgoingMessageTypes.ANNOUNCER_HAS_FAILED_TO_ANNOUNCE);
-        assertThat(message.getTorrent()).isEqualTo(torrent);
         assertThat(message.getError()).isEqualTo("this is an error");
     }
 

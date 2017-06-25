@@ -16,9 +16,11 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     @Override
     public void configureMessageBroker(final MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/global");
-        config.enableSimpleBroker("/torrents");
-        config.enableSimpleBroker("/announce");
+        config.enableSimpleBroker(
+                "/global",
+                "/announce",
+                "torrents"
+        );
         config.setApplicationDestinationPrefixes("/joal");
     }
 

@@ -57,9 +57,6 @@ public class SeedManager {
     }
 
     public void startSeeding() throws IOException {
-        // Ensure current client is killed in case it was already started
-        this.stop();
-
         this.bitTorrentClientProvider.generateNewClient();
 
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
