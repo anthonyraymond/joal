@@ -56,15 +56,13 @@ The application configuration belongs in `<MY_CONFIG_FOLDER_PATH>/config.json`.
 {
   "minUploadRate": 180,
   "maxUploadRate": 190,
-  "seedFor": 840,
-  "waitBetweenSeed": 600,
+  "simultaneousSeed": 2,
   "client": "azureus-5.7.4.0.client"
 }
 ```
 - `minUploadRate` : The minimum uploadRate you want to fake (in kB/s) (**required**)
 - `maxUploadRate` : The maximum uploadRate you want to fake (in kB/s) (**required**)
-- `seedFor` : How long the client should seed for in a row (seeding session in minutes) (**required**)
-- `waitBetweenSeed` : How long the client should wait before two seeding session (in minutes) (**required**)
+- `simultaneousSeed` : How many torrents should be seeding at the same time (**required**)
 - `client` : The name of the .client file to use in `<MY_CONFIG_FOLDER_PATH>/clients/` (**required**)
 
 ### Create your own torrent clients

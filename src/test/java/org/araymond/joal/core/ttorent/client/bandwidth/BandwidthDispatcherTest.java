@@ -118,8 +118,8 @@ public class BandwidthDispatcherTest {
 
         assertThat(torrent.getUploaded())
                 .isBetween(
-                        configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
-                        configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
+                        configProvider.get().getMinUploadRate() * 1000 / (1000 / updateInterval),
+                        configProvider.get().getMaxUploadRate() * 1000 / (1000 / updateInterval)
                 );
     }
 
@@ -145,8 +145,8 @@ public class BandwidthDispatcherTest {
         for (final TorrentWithStats t: torrents) {
             assertThat(t.getUploaded())
                     .isBetween(
-                            conf.getMinUploadRate() * 1024 / (1000 / updateInterval) / 4,
-                            conf.getMaxUploadRate() * 1024 / (1000 / updateInterval) / 4
+                            conf.getMinUploadRate() * 1000 / (1000 / updateInterval) / 4,
+                            conf.getMaxUploadRate() * 1000 / (1000 / updateInterval) / 4
                     );
         }
     }
@@ -168,8 +168,8 @@ public class BandwidthDispatcherTest {
 
         assertThat(torrent.getUploaded())
                 .isBetween(
-                        configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
-                        configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
+                        configProvider.get().getMinUploadRate() * 1000 / (1000 / updateInterval),
+                        configProvider.get().getMaxUploadRate() * 1000 / (1000 / updateInterval)
                 );
 
         Thread.sleep(6);
@@ -177,8 +177,8 @@ public class BandwidthDispatcherTest {
 
         assertThat(torrent.getUploaded())
                 .isBetween(
-                        configProvider.get().getMinUploadRate() * 1024 / (1000 / updateInterval),
-                        configProvider.get().getMaxUploadRate() * 1024 / (1000 / updateInterval)
+                        configProvider.get().getMinUploadRate() * 1000 / (1000 / updateInterval),
+                        configProvider.get().getMaxUploadRate() * 1000 / (1000 / updateInterval)
                 );
     }
 

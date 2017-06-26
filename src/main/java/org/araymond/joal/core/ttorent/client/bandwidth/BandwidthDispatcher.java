@@ -6,6 +6,8 @@ import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.announce.AnnouncerEventListener;
 import org.araymond.joal.core.utils.RandomGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,8 +48,8 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     @Override
     public void onAnnouncerWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent) {
         if (event != TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED) {
-            final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1024L;
-            final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1024L;
+            final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1000L;
+            final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1000L;
 
             final Long randomSpeedInBytes = randomGenerator.nextLong(minUploadRateInBytes, maxUploadRateInBytes);
 
