@@ -1,6 +1,5 @@
 package org.araymond.joal.core.events.announce;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
 import org.mockito.Mockito;

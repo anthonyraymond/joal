@@ -9,7 +9,6 @@ import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
-import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClient;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
@@ -24,9 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.Assertions.fail;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by raymo on 02/06/2017.

@@ -8,8 +8,6 @@ import org.assertj.core.data.Percentage;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,7 +16,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Matchers.any;
 
 /**
  * Created by raymo on 14/05/2017.

@@ -1,7 +1,6 @@
 package org.araymond.joal.core.events.announce;
 
 import com.google.common.base.Preconditions;
-import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 
 /**

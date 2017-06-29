@@ -1,7 +1,6 @@
 package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
