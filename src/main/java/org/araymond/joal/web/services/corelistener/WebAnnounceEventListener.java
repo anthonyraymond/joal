@@ -1,7 +1,8 @@
-package org.araymond.joal.web.services;
+package org.araymond.joal.web.services.corelistener;
 
 import org.araymond.joal.core.events.announce.*;
 import org.araymond.joal.web.messages.outgoing.impl.announce.*;
+import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -10,17 +11,18 @@ import org.springframework.core.annotation.Order;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
+import javax.inject.Inject;
+
 /**
  * Created by raymo on 25/06/2017.
  */
 @Service
-public class WebAnnounceEventListener {
+public class WebAnnounceEventListener extends WebEventListener {
     private static final Logger logger = LoggerFactory.getLogger(WebAnnounceEventListener.class);
 
-    private final SimpMessageSendingOperations messagingTemplate;
-
-    public WebAnnounceEventListener(final SimpMessageSendingOperations messagingTemplate) {
-        this.messagingTemplate = messagingTemplate;
+    @Inject
+    public WebAnnounceEventListener(final JoalMessageSendingTemplate messagingTemplate) {
+        super(messagingTemplate);
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -28,7 +30,7 @@ public class WebAnnounceEventListener {
     void handleAnnouncerHasStarted(final AnnouncerHasStartedEvent event) {
         logger.debug("Send AnnouncerHasStartedEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStartedMessage(event.getTorrent()));
+        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStartedPayload(event.getTorrent()));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -36,7 +38,7 @@ public class WebAnnounceEventListener {
     void handleAnnounceHasStopped(final AnnouncerHasStoppedEvent event) {
         logger.debug("Send AnnouncerHasStoppedEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStoppedMessage(event.getTorrent()));
+        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStoppedPayload(event.getTorrent()));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -44,7 +46,7 @@ public class WebAnnounceEventListener {
     void handleAnnouncerWillAnnounce(final AnnouncerWillAnnounceEvent event) {
         logger.debug("Send AnnouncerWillAnnounceEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerWillAnnounceMessage(event.getTorrent()));
+        this.messagingTemplate.convertAndSend("/announce", new AnnouncerWillAnnouncePayload(event.getTorrent()));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -54,7 +56,7 @@ public class WebAnnounceEventListener {
 
         this.messagingTemplate.convertAndSend(
                 "/announce",
-                new AnnouncerHasAnnouncedMessage(
+                new AnnouncerHasAnnouncedPayload(
                         event.getTorrent(),
                         event.getInterval(),
                         event.getSeeders(),
@@ -70,7 +72,7 @@ public class WebAnnounceEventListener {
 
         this.messagingTemplate.convertAndSend(
                 "/announce",
-                new AnnouncerHasFailedToAnnounceMessage(event.getTorrent(), event.getError())
+                new AnnouncerHasFailedToAnnouncePayload(event.getTorrent(), event.getError())
         );
     }
 
