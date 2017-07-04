@@ -1,6 +1,7 @@
 package org.araymond.joal.core.events.announce;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,22 +16,24 @@ public class AnnouncerWillAnnounceEventTest {
 
     @Test
     public void shouldNotBuildWithoutRequestEvent() {
-        assertThatThrownBy(() -> new AnnouncerWillAnnounceEvent(null, Mockito.mock(TorrentWithStats.class)))
+        assertThatThrownBy(() -> new AnnouncerWillAnnounceEvent(Mockito.mock(Announcer.class), null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("RequestEvent cannot be null");
+                .hasMessageContaining("RequestEvent must not be null");
     }
 
     @Test
-    public void shouldNotBuildWithoutTorrent() {
-        assertThatThrownBy(() -> new AnnouncerWillAnnounceEvent(RequestEvent.COMPLETED, null))
+    public void shouldNotBuildWithoutAnnouncer() {
+        assertThatThrownBy(() -> new AnnouncerWillAnnounceEvent(null, RequestEvent.COMPLETED))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("TorrentWithStats cannot be null");
+                .hasMessageContaining("Announcer must not be null");
     }
 
     @Test
     public void shouldBuild() {
+        final Announcer announcer = Mockito.mock(Announcer.class);
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final AnnouncerWillAnnounceEvent event = new AnnouncerWillAnnounceEvent(RequestEvent.COMPLETED, torrent);
+        Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrent);
+        final AnnouncerWillAnnounceEvent event = new AnnouncerWillAnnounceEvent(announcer, RequestEvent.COMPLETED);
 
         assertThat(event.getEvent()).isEqualTo(RequestEvent.COMPLETED);
         assertThat(event.getTorrent()).isEqualTo(torrent);

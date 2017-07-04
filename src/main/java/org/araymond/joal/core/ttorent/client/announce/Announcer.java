@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorent.client.announce;
 
+import com.google.common.collect.EvictingQueue;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import org.apache.commons.lang3.NotImplementedException;
@@ -19,6 +20,7 @@ import java.net.UnknownServiceException;
 import java.util.*;
 
 import static com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage;
+import static org.araymond.joal.core.ttorent.client.announce.AnnounceResult.*;
 
 /**
  * Created by raymo on 23/01/2017.
@@ -30,6 +32,10 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     private final TorrentWithStats torrent;
     private final Peer peer;
     private final ApplicationEventPublisher publisher;
+
+
+    private final EvictingQueue<AnnounceResult> announceHistory;
+    private final List<AnnouncerEventListener> eventListeners;
 
     /**
      * The tiers of tracker clients matching the tracker URIs defined in the
@@ -45,14 +51,8 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     private boolean stop;
     private boolean forceStop;
 
-    /**
-     * Announce interval.
-     */
-    private int interval;
-
     private int currentTier;
     private int currentClient;
-    private final List<AnnouncerEventListener> eventListeners;
 
     /**
      * Initialize the base announce class members for the announcer.
@@ -61,6 +61,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
      * @param peer    Our peer specification.
      */
     public Announcer(final MockedTorrent torrent, final Peer peer, final BitTorrentClient bitTorrentClient, final ApplicationEventPublisher publisher) {
+        this.announceHistory = EvictingQueue.create(3);
         this.torrent = new TorrentWithStats(torrent);
         this.peer = peer;
         this.publisher = publisher;
@@ -108,6 +109,10 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         }
     }
 
+    public Collection<AnnounceResult> getAnnounceHistory() {
+        return Collections.unmodifiableCollection(announceHistory);
+    }
+
     /**
      * Register a new announce response listener.
      *
@@ -120,9 +125,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     }
 
     @Override
-    public void handleAnnounceResponse(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
-        this.setInterval(interval);
-
+    public void handleAnnounceResponse(final TorrentWithStats torrent) {
         if (this.stop) {
             return;
         }
@@ -130,15 +133,17 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         logger.info(
                 "Peers discovery for torrent {}: {} leechers & {} seeders",
                 torrent.getTorrent().getName(),
-                leechers,
-                seeders
+                torrent.getLeechers(),
+                torrent.getSeeders()
         );
 
+        final AnnounceResult announceResult = new SuccessAnnounceResult();
+        this.announceHistory.add(announceResult);
         for (final AnnouncerEventListener listener : this.eventListeners) {
-            listener.onAnnounceSuccess(torrent, interval, seeders, leechers);
+            listener.onAnnounceSuccess(this);
         }
 
-        if (leechers == 0) {
+        if (this.torrent.getLeechers() == 0) {
             this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
         }
     }
@@ -204,25 +209,6 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     }
 
     /**
-     * Set the announce interval.
-     */
-    private void setInterval(final int interval) {
-        if (interval <= 0) {
-            this.stop(true);
-            return;
-        }
-
-        if (this.interval == interval) {
-            return;
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.debug("Setting announce interval to {}s per tracker request for torrent {}.", interval, torrent.getTorrent().getName());
-        }
-        this.interval = interval;
-    }
-
-    /**
      * Main announce loop.
      * <p>
      * <p>
@@ -243,18 +229,14 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             logger.debug("Starting announce loop for torrent {}.", torrent.getTorrent().getName());
         }
 
-        // Set an initial announce interval to 5 seconds. This will be updated
-        // in real-time by the tracker's responses to our announce requests.
-        this.interval = 5;
-
         AnnounceRequestMessage.RequestEvent event = AnnounceRequestMessage.RequestEvent.STARTED;
-        eventListeners.forEach(listener -> listener.onAnnouncerStart(this, this.torrent));
+        eventListeners.forEach(listener -> listener.onAnnouncerStart(this));
 
         int successiveAnnounceErrors = 0;
         while (!this.stop) {
             try {
                 for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnouncerWillAnnounce(event, this.torrent);
+                    listener.onAnnouncerWillAnnounce(event, this);
                 }
                 // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"
                 this.getCurrentTrackerClient().announce(event);
@@ -266,8 +248,10 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             } catch (final AnnounceException ae) {
                 logger.warn("Exception in announce for torrent {}", torrent.getTorrent().getName(), ae);
 
+                final AnnounceResult announceResult = new ErrorAnnounceResult(ae.getMessage());
+                announceHistory.add(announceResult);
                 for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnounceFail(event, this.torrent, ae.getMessage());
+                    listener.onAnnounceFail(this, ae.getMessage());
                 }
 
                 ++successiveAnnounceErrors;
@@ -293,7 +277,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 if (!this.stop) {
                     // If the thread was killed by himself (in case no more leechers) the stop flag will be set.
                     // But the thread will have been interrupted already.
-                    Thread.sleep(this.interval * 1000);
+                    Thread.sleep(this.torrent.getInterval() * 1000);
                 }
             } catch (final InterruptedException ie) {
                 // Ignore
@@ -310,19 +294,21 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
             try {
                 for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnouncerWillAnnounce(event, this.torrent);
+                    listener.onAnnouncerWillAnnounce(event, this);
                 }
 
                 this.getCurrentTrackerClient().announce(event);
             } catch (final AnnounceException ae) {
                 logger.warn("Error while announcing stop for torrent {}.", torrent.getTorrent().getName(), ae);
 
+                final AnnounceResult announceResult = new ErrorAnnounceResult(ae.getMessage());
+                this.announceHistory.add(announceResult);
                 for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnounceFail(event, this.torrent, ae.getMessage());
+                    listener.onAnnounceFail(this, ae.getMessage());
                 }
             }
         }
-        this.eventListeners.forEach(listener -> listener.onAnnouncerStop(this, this.torrent));
+        this.eventListeners.forEach(listener -> listener.onAnnouncerStop(this));
     }
 
     /**
@@ -365,8 +351,8 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 .get(this.currentClient);
     }
 
-    public MockedTorrent getSeedingTorrent() {
-        return this.torrent.getTorrent();
+    public TorrentWithStats getSeedingTorrent() {
+        return this.torrent;
     }
 
     public boolean isForTorrent(final MockedTorrent torrent) {
@@ -454,4 +440,5 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         this.forceStop = hard;
         this.stop();
     }
+
 }

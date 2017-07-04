@@ -44,23 +44,23 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     }
 
     @Override
-    public void onAnnouncerWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent) {
+    public void onAnnouncerWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer) {
         if (event != TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED) {
             final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1000L;
             final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1000L;
 
             final Long randomSpeedInBytes = randomGenerator.nextLong(minUploadRateInBytes, maxUploadRateInBytes);
 
-            torrent.refreshRandomSpeedInBytes(randomSpeedInBytes);
+            announcer.getSeedingTorrent().refreshRandomSpeedInBytes(randomSpeedInBytes);
         }
     }
 
     @Override
-    public void onAnnounceSuccess(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
+    public void onAnnounceSuccess(final Announcer announcer) {
     }
 
     @Override
-    public void onAnnounceFail(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent, final String error) {
+    public void onAnnounceFail(final Announcer announcer, final String errMessage) {
     }
 
     @Override
@@ -68,20 +68,20 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     }
 
     @Override
-    public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
+    public void onAnnouncerStart(final Announcer announcer) {
         this.lock.writeLock().lock();
         try {
-            this.torrents.add(torrent);
+            this.torrents.add(announcer.getSeedingTorrent());
         } finally {
             this.lock.writeLock().unlock();
         }
     }
 
     @Override
-    public void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent) {
+    public void onAnnouncerStop(final Announcer announcer) {
         this.lock.writeLock().lock();
         try {
-            this.torrents.remove(torrent);
+            this.torrents.remove(announcer.getSeedingTorrent());
         } finally {
             this.lock.writeLock().unlock();
         }

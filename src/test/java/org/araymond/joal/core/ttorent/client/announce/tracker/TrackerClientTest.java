@@ -9,6 +9,7 @@ import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
+import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
@@ -127,12 +128,7 @@ public class TrackerClientTest {
 
         assertThat(listener.getAnnounceResponseCountDown().getCount()).isEqualTo(0);
         assertThat(listener.getDiscoverPeerCountDown().getCount()).isEqualTo(0);
-        Mockito.verify(listener, Mockito.times(1)).handleAnnounceResponse(
-                torrent,
-                message.getInterval(),
-                message.getComplete(),
-                message.getIncomplete()
-        );
+        Mockito.verify(listener, Mockito.times(1)).handleAnnounceResponse(torrent);
         Mockito.verify(listener, Mockito.times(1)).handleDiscoveredPeers(
                 Matchers.eq(torrent),
                 Matchers.anyListOf(Peer.class)
@@ -159,12 +155,7 @@ public class TrackerClientTest {
         trackerClient.register(listener);
 
         trackerClient.announce(RequestEvent.NONE);
-        Mockito.verify(listener, Mockito.times(1)).handleAnnounceResponse(
-                torrent,
-                message.getInterval(),
-                message.getComplete(),
-                message.getIncomplete()
-        );
+        Mockito.verify(listener, Mockito.times(1)).handleAnnounceResponse(torrent);
         Mockito.verify(listener, Mockito.times(1)).handleDiscoveredPeers(
                 Matchers.eq(torrent),
                 Matchers.anyListOf(Peer.class)
@@ -236,7 +227,7 @@ public class TrackerClientTest {
         }
 
         @Override
-        public void handleAnnounceResponse(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
+        public void handleAnnounceResponse(final TorrentWithStats torrent) {
             announceResponseCountDown.countDown();
         }
 

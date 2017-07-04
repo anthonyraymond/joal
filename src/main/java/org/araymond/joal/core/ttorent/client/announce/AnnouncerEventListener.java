@@ -8,16 +8,16 @@ import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
  */
 public interface AnnouncerEventListener {
 
-    void onAnnouncerWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent);
+    void onAnnouncerWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer);
 
-    void onAnnounceSuccess(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers);
+    void onAnnounceSuccess(final Announcer announcer);
 
-    void onAnnounceFail(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final TorrentWithStats torrent, final String error);
+    void onAnnounceFail(final Announcer announcer, final String error);
 
     void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent);
 
-    void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent);
+    void onAnnouncerStart(final Announcer announcer);
 
-    void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent);
+    void onAnnouncerStop(final Announcer announcer);
 
 }

@@ -1,6 +1,8 @@
 package org.araymond.joal.web.messages.outgoing.impl.announce;
 
+import org.araymond.joal.core.events.announce.AnnouncerEvent;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -11,32 +13,37 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * Created by raymo on 26/06/2017.
  */
-public class AnnounceMessageTest {
+public class AnnouncePayloadTest {
 
-    static TorrentWithStats mockTorrentWithStat() {
+    public static TorrentWithStats mockTorrentWithStat() {
         final MockedTorrent mt = Mockito.mock(MockedTorrent.class);
-        Mockito.doReturn("hash").when(mt).getHexInfoHash();
-        Mockito.doReturn("name").when(mt).getName();
-        Mockito.doReturn(19246846L).when(mt).getSize();
+        Mockito.when(mt.getHexInfoHash()).thenReturn("hash");
+        Mockito.when(mt.getName()).thenReturn("name");
+        Mockito.when(mt.getSize()).thenReturn(19246846L);
 
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        Mockito.doReturn(mt).when(torrent).getTorrent();
-        Mockito.doReturn(12030L).when(torrent).getCurrentRandomSpeedInBytes();
+        Mockito.when(torrent.getTorrent()).thenReturn(mt);
+        Mockito.when(torrent.getCurrentRandomSpeedInBytes()).thenReturn(12030L);
+        Mockito.when(torrent.getInterval()).thenReturn(1800);
+        Mockito.when(torrent.getLeechers()).thenReturn(53);
+        Mockito.when(torrent.getSeeders()).thenReturn(645);
 
         return torrent;
     }
 
     @Test
-    public void shouldNotBuildWithoutTorrent() {
+    public void shouldNotBuildWithoutAnnouncer() {
         assertThatThrownBy(() -> new DefaultAnnouncePayload(null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessage("Torrent must not be null.");
+                .hasMessage("AnnouncerEvent must not be null.");
     }
 
     @Test
     public void shouldBuild() {
         final TorrentWithStats torrent = mockTorrentWithStat();
-        final DefaultAnnouncePayload message = new DefaultAnnouncePayload(torrent);
+        final AnnouncerEvent event = Mockito.mock(AnnouncerEvent.class);
+        Mockito.when(event.getTorrent()).thenReturn(torrent);
+        final DefaultAnnouncePayload message = new DefaultAnnouncePayload(event);
 
         assertThat(message.getId()).isEqualTo(torrent.getTorrent().getHexInfoHash());
         assertThat(message.getName()).isEqualTo(torrent.getTorrent().getName());
@@ -46,8 +53,8 @@ public class AnnounceMessageTest {
 
     private static class DefaultAnnouncePayload extends AnnouncePayload {
 
-        protected DefaultAnnouncePayload(final TorrentWithStats torrent) {
-            super(torrent);
+        protected DefaultAnnouncePayload(final AnnouncerEvent event) {
+            super(event);
         }
     }
 

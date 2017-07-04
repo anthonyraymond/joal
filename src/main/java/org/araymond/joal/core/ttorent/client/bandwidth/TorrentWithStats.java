@@ -13,6 +13,9 @@ public class TorrentWithStats {
     private Long uploaded;
     private final Long downloaded;
     private final Long left;
+    private int leechers;
+    private int seeders;
+    private int interval = 5;
     private Long currentRandomSpeedInBytes;
 
     public TorrentWithStats(final MockedTorrent torrent) {
@@ -57,6 +60,29 @@ public class TorrentWithStats {
         return left;
     }
 
+    public int getLeechers() {
+        return leechers;
+    }
+
+    public void setLeechers(final int leechers) {
+        this.leechers = leechers;
+    }
+
+    public int getSeeders() {
+        return seeders;
+    }
+
+    public void setSeeders(final int seeders) {
+        this.seeders = seeders;
+    }
+
+    public int getInterval() {
+        return interval;
+    }
+
+    public void setInterval(final int interval) {
+        this.interval = interval;
+    }
 
     public Long getCurrentRandomSpeedInBytes() {
         return currentRandomSpeedInBytes;

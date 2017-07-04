@@ -21,43 +21,8 @@ public class JoalMessageSendingTemplate {
         this.messageSendingOperations = messageSendingOperations;
     }
 
-    public void convertAndSendToUser(final String s, final String s1, final MessagePayload payload) throws MessagingException {
-        messageSendingOperations.convertAndSendToUser(s, s1, StompMessage.wrap(payload));
-    }
-
-    public void convertAndSendToUser(final String s, final String s1, final MessagePayload payload, final Map<String, Object> map) throws MessagingException {
-        messageSendingOperations.convertAndSendToUser(s, s1, StompMessage.wrap(payload), map);
-    }
-
-    public void convertAndSendToUser(final String s, final String s1, final MessagePayload payload, final MessagePostProcessor messagePostProcessor) throws MessagingException {
-        messageSendingOperations.convertAndSendToUser(s, s1, StompMessage.wrap(payload), messagePostProcessor);
-    }
-
-    public void convertAndSendToUser(final String s, final String s1, final MessagePayload payload, final Map<String, Object> map, final MessagePostProcessor messagePostProcessor) throws MessagingException {
-        messageSendingOperations.convertAndSendToUser(s, s1, StompMessage.wrap(payload), map, messagePostProcessor);
-    }
-
-    public void convertAndSend(final MessagePayload payload) throws MessagingException {
-        messageSendingOperations.convertAndSend(StompMessage.wrap(payload));
-    }
-
     public void convertAndSend(final String s, final MessagePayload payload) throws MessagingException {
         messageSendingOperations.convertAndSend(s, StompMessage.wrap(payload));
     }
 
-    public void convertAndSend(final String s, final MessagePayload payload, final Map<String, Object> map) throws MessagingException {
-        messageSendingOperations.convertAndSend(s, StompMessage.wrap(payload), map);
-    }
-
-    public void convertAndSend(final MessagePayload payload, final MessagePostProcessor messagePostProcessor) throws MessagingException {
-        messageSendingOperations.convertAndSend(payload, messagePostProcessor);
-    }
-
-    public void convertAndSend(final String s, final MessagePayload payload, final MessagePostProcessor messagePostProcessor) throws MessagingException {
-        messageSendingOperations.convertAndSend(s, StompMessage.wrap(payload), messagePostProcessor);
-    }
-
-    public void convertAndSend(final String s, final MessagePayload payload, final Map<String, Object> map, final MessagePostProcessor messagePostProcessor) throws MessagingException {
-        messageSendingOperations.convertAndSend(s, StompMessage.wrap(payload), map, messagePostProcessor);
-    }
 }

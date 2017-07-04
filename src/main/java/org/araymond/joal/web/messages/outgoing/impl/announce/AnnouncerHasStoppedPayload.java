@@ -1,5 +1,6 @@
 package org.araymond.joal.web.messages.outgoing.impl.announce;
 
+import org.araymond.joal.core.events.announce.AnnouncerHasStoppedEvent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 
 /**
@@ -7,7 +8,7 @@ import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
  */
 public class AnnouncerHasStoppedPayload extends AnnouncePayload {
 
-    public AnnouncerHasStoppedPayload(final TorrentWithStats torrent) {
-        super(torrent);
+    public AnnouncerHasStoppedPayload(final AnnouncerHasStoppedEvent event) {
+        super(event);
     }
 }

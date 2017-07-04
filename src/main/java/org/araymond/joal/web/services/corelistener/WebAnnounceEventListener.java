@@ -29,7 +29,7 @@ public class WebAnnounceEventListener extends WebEventListener {
     void handleAnnouncerHasStarted(final AnnouncerHasStartedEvent event) {
         logger.debug("Send AnnouncerHasStartedEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStartedPayload(event.getTorrent()));
+        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStartedPayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -37,7 +37,7 @@ public class WebAnnounceEventListener extends WebEventListener {
     void handleAnnounceHasStopped(final AnnouncerHasStoppedEvent event) {
         logger.debug("Send AnnouncerHasStoppedEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStoppedPayload(event.getTorrent()));
+        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStoppedPayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -45,7 +45,7 @@ public class WebAnnounceEventListener extends WebEventListener {
     void handleAnnouncerWillAnnounce(final AnnouncerWillAnnounceEvent event) {
         logger.debug("Send AnnouncerWillAnnounceEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerWillAnnouncePayload(event.getTorrent()));
+        this.messagingTemplate.convertAndSend("/announce", new AnnouncerWillAnnouncePayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -55,12 +55,7 @@ public class WebAnnounceEventListener extends WebEventListener {
 
         this.messagingTemplate.convertAndSend(
                 "/announce",
-                new AnnouncerHasAnnouncedPayload(
-                        event.getTorrent(),
-                        event.getInterval(),
-                        event.getSeeders(),
-                        event.getLeechers()
-                )
+                new AnnouncerHasAnnouncedPayload(event)
         );
     }
 
@@ -71,7 +66,7 @@ public class WebAnnounceEventListener extends WebEventListener {
 
         this.messagingTemplate.convertAndSend(
                 "/announce",
-                new AnnouncerHasFailedToAnnouncePayload(event.getTorrent(), event.getError())
+                new AnnouncerHasFailedToAnnouncePayload(event)
         );
     }
 

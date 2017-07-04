@@ -29,6 +29,9 @@ public class TorrentWithStatsTest {
         assertThat(torrentWithStats.getDownloaded()).isEqualTo(0);
         assertThat(torrentWithStats.getLeft()).isEqualTo(0);
         assertThat(torrentWithStats.getCurrentRandomSpeedInBytes()).isEqualTo(0L);
+        assertThat(torrentWithStats.getLeechers()).isEqualTo(0);
+        assertThat(torrentWithStats.getSeeders()).isEqualTo(0);
+        assertThat(torrentWithStats.getInterval()).isEqualTo(5);
     }
 
     @Test
@@ -74,6 +77,33 @@ public class TorrentWithStatsTest {
         final TorrentWithStats torrentWithStats2 = new TorrentWithStats(torrent2);
         assertThat(torrentWithStats).isNotEqualTo(torrentWithStats2);
         assertThat(torrentWithStats.hashCode()).isNotEqualTo(torrentWithStats2.hashCode());
+    }
+
+    @Test
+    public void shouldModifyLeechers() {
+        final MockedTorrent torrent = Mockito.mock(MockedTorrent.class);
+
+        final TorrentWithStats torrentWithStats = new TorrentWithStats(torrent);
+        torrentWithStats.setLeechers(50);
+        assertThat(torrentWithStats.getLeechers()).isEqualTo(50);
+    }
+
+    @Test
+    public void shouldModifySeechers() {
+        final MockedTorrent torrent = Mockito.mock(MockedTorrent.class);
+
+        final TorrentWithStats torrentWithStats = new TorrentWithStats(torrent);
+        torrentWithStats.setSeeders(500);
+        assertThat(torrentWithStats.getSeeders()).isEqualTo(500);
+    }
+
+    @Test
+    public void shouldModifyInterval() {
+        final MockedTorrent torrent = Mockito.mock(MockedTorrent.class);
+
+        final TorrentWithStats torrentWithStats = new TorrentWithStats(torrent);
+        torrentWithStats.setInterval(1800);
+        assertThat(torrentWithStats.getInterval()).isEqualTo(1800);
     }
 
 }

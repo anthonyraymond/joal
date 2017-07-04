@@ -11,14 +11,7 @@ import java.util.List;
  */
 public interface AnnounceResponseListener extends EventListener {
 
-    /**
-     * Handle an announce response event.
-     *
-     * @param interval The announce interval requested by the tracker.
-     * @param seeders The number of seeders on this torrent.
-     * @param leechers The number of leechers on this torrent.
-     */
-    void handleAnnounceResponse(final TorrentWithStats torrent, int interval, int seeders, int leechers);
+    void handleAnnounceResponse(final TorrentWithStats torrent);
 
     /**
      * Handle the discovery of new peers.

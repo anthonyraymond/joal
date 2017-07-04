@@ -73,7 +73,7 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     private void addSeedingTorrent() throws NoMoreTorrentsFileAvailableException {
         final List<MockedTorrent> unwantedTorrent = this.announcers.stream()
-                .map(Announcer::getSeedingTorrent)
+                .map(announcer -> announcer.getSeedingTorrent().getTorrent())
                 .collect(Collectors.toList());
 
         final MockedTorrent torrent = torrentFileProvider.getTorrentNotIn(unwantedTorrent);
@@ -131,18 +131,18 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     }
 
     @Override
-    public void onAnnouncerWillAnnounce(final RequestEvent event, final TorrentWithStats torrent) {
-        publisher.publishEvent(new AnnouncerWillAnnounceEvent(event, torrent));
+    public void onAnnouncerWillAnnounce(final RequestEvent event, final Announcer announcer) {
+        publisher.publishEvent(new AnnouncerWillAnnounceEvent(announcer, event));
     }
 
     @Override
-    public void onAnnounceSuccess(final TorrentWithStats torrent, final int interval, final int seeders, final int leechers) {
-        publisher.publishEvent(new AnnouncerHasAnnouncedEvent(torrent, interval, seeders, leechers));
+    public void onAnnounceSuccess(final Announcer announcer) {
+        publisher.publishEvent(new AnnouncerHasAnnouncedEvent(announcer));
     }
 
     @Override
-    public void onAnnounceFail(final RequestEvent event, final TorrentWithStats torrent, final String error) {
-        publisher.publishEvent(new AnnouncerHasFailedToAnnounceEvent(event, torrent, error));
+    public void onAnnounceFail(final Announcer announcer, final String error) {
+        publisher.publishEvent(new AnnouncerHasFailedToAnnounceEvent(announcer, error));
     }
 
     @Override
@@ -153,16 +153,16 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     }
 
     @Override
-    public void onAnnouncerStart(final Announcer announcer, final TorrentWithStats torrent) {
-        publisher.publishEvent(new AnnouncerHasStartedEvent(torrent));
+    public void onAnnouncerStart(final Announcer announcer) {
+        publisher.publishEvent(new AnnouncerHasStartedEvent(announcer));
     }
 
     @Override
-    public void onAnnouncerStop(final Announcer announcer, final TorrentWithStats torrent) {
-        logger.debug("Removed announcer for Torrent {}", torrent.getTorrent().getName());
+    public void onAnnouncerStop(final Announcer announcer) {
+        logger.debug("Removed announcer for Torrent {}", announcer.getSeedingTorrent().getTorrent().getName());
         this.announcers.remove(announcer);
 
-        publisher.publishEvent(new AnnouncerHasStoppedEvent(torrent));
+        publisher.publishEvent(new AnnouncerHasStoppedEvent(announcer));
 
         if (this.currentState!= ClientState.STOPPING && this.currentState != ClientState.STOPPED) {
             try {

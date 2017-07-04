@@ -4,6 +4,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.assertj.core.data.Percentage;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -57,12 +58,14 @@ public class BandwidthDispatcherTest {
 
         final BandwidthDispatcher bandwidthDispatcher = Mockito.spy(new BandwidthDispatcher(configProvider, 1));
         final TorrentWithStats torrentWithStats = Mockito.mock(TorrentWithStats.class);
+        final Announcer announcer = Mockito.mock(Announcer.class);
+        Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrentWithStats);
 
-        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.COMPLETED, torrentWithStats);
+        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.COMPLETED, announcer);
         Mockito.verify(torrentWithStats, Mockito.times(1)).refreshRandomSpeedInBytes(Matchers.anyLong());
-        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, torrentWithStats);
+        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, announcer);
         Mockito.verify(torrentWithStats, Mockito.times(2)).refreshRandomSpeedInBytes(Matchers.anyLong());
-        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.STARTED, torrentWithStats);
+        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.STARTED, announcer);
         Mockito.verify(torrentWithStats, Mockito.times(3)).refreshRandomSpeedInBytes(Matchers.anyLong());
     }
 
@@ -72,8 +75,10 @@ public class BandwidthDispatcherTest {
 
         final BandwidthDispatcher bandwidthDispatcher = Mockito.spy(new BandwidthDispatcher(configProvider, 1));
         final TorrentWithStats torrentWithStats = Mockito.mock(TorrentWithStats.class);
+        final Announcer announcer = Mockito.mock(Announcer.class);
+        Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrentWithStats);
 
-        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.STOPPED, torrentWithStats);
+        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.STOPPED, announcer);
         Mockito.verify(torrentWithStats, Mockito.never()).refreshRandomSpeedInBytes(Matchers.anyLong());
     }
 
@@ -83,7 +88,7 @@ public class BandwidthDispatcherTest {
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, 1);
 
         assertThat(bandwidthDispatcher.getTorrentCount()).isEqualTo(0);
-        bandwidthDispatcher.onAnnouncerStart(null, Mockito.mock(TorrentWithStats.class));
+        bandwidthDispatcher.onAnnouncerStart(Mockito.mock(Announcer.class));
         assertThat(bandwidthDispatcher.getTorrentCount()).isEqualTo(1);
     }
 
@@ -93,8 +98,10 @@ public class BandwidthDispatcherTest {
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, 1);
 
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        bandwidthDispatcher.onAnnouncerStart(null, torrent);
-        bandwidthDispatcher.onAnnouncerStop(null, torrent);
+        final Announcer announcer = Mockito.mock(Announcer.class);
+        Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrent);
+        bandwidthDispatcher.onAnnouncerStart(announcer);
+        bandwidthDispatcher.onAnnouncerStop(announcer);
         assertThat(bandwidthDispatcher.getTorrentCount()).isEqualTo(0);
     }
 
@@ -105,9 +112,11 @@ public class BandwidthDispatcherTest {
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
         final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final Announcer announcer = Mockito.mock(Announcer.class);
+        Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrent);
 
-        bandwidthDispatcher.onAnnouncerStart(null, torrent);
-        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, torrent);
+        bandwidthDispatcher.onAnnouncerStart(announcer);
+        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, announcer);
 
         bandwidthDispatcher.start();
         Thread.sleep(6);
@@ -129,9 +138,11 @@ public class BandwidthDispatcherTest {
         final Collection<TorrentWithStats> torrents = new ArrayList<>();
         for (int i = 0; i < 4; ++i) {
             final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+            final Announcer announcer = Mockito.mock(Announcer.class);
+            Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrent);
             torrents.add(torrent);
-            bandwidthDispatcher.onAnnouncerStart(null, torrent);
-            bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, torrent);
+            bandwidthDispatcher.onAnnouncerStart(announcer);
+            bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, announcer);
         }
 
         bandwidthDispatcher.start();
@@ -155,13 +166,15 @@ public class BandwidthDispatcherTest {
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
         final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final Announcer announcer = Mockito.mock(Announcer.class);
+        Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrent);
 
-        bandwidthDispatcher.onAnnouncerStart(null, torrent);
-        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, torrent);
+        bandwidthDispatcher.onAnnouncerStart(announcer);
+        bandwidthDispatcher.onAnnouncerWillAnnounce(RequestEvent.NONE, announcer);
 
         bandwidthDispatcher.start();
         Thread.sleep(6);
-        bandwidthDispatcher.onAnnouncerStop(null, torrent);
+        bandwidthDispatcher.onAnnouncerStop(announcer);
 
         assertThat(torrent.getUploaded())
                 .isBetween(
@@ -194,7 +207,9 @@ public class BandwidthDispatcherTest {
                 .mapToObj(i -> {
                     final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
                     final TorrentWithStatsCountdown torrent = new TorrentWithStatsCountdown(bandwidthDispatcher);
-                    bandwidthDispatcher.onAnnouncerStart(null, torrent);
+                    final Announcer announcer = Mockito.mock(Announcer.class);
+                    Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrent);
+                    bandwidthDispatcher.onAnnouncerStart(announcer);
                     torrents.add(torrent);
                     bandwidthDispatcher.start();
                     return torrent;
@@ -242,7 +257,9 @@ public class BandwidthDispatcherTest {
             super.addUploaded(uploaded);
             this.values.add(uploaded);
             this.countDown.countDown();
-            dispatcher.onAnnouncerWillAnnounce(null, this);
+            final Announcer announcer = Mockito.mock(Announcer.class);
+            Mockito.when(announcer.getSeedingTorrent()).thenReturn(this);
+            dispatcher.onAnnouncerWillAnnounce(null, announcer);
             if (this.countDown.getCount() == 0) {
                 this.dispatcher.stop();
             }
