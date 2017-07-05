@@ -1,28 +1,35 @@
 package org.araymond.joal.web.resources;
 
-import org.araymond.joal.core.SeedManager;
-import org.araymond.joal.core.config.JoalConfigProvider;
+import org.araymond.joal.web.messages.outgoing.StompMessage;
+import org.araymond.joal.web.services.JoalMessageSendingTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by raymo on 04/07/2017.
  */
-@Controller
-@MessageMapping("/summary")
+@RestController
+@RequestMapping("/replayable")
 public class SummaryController {
 
-    private final JoalConfigProvider configProvider;
-    private final SeedManager seedManager;
+    private final JoalMessageSendingTemplate messageSendingTemplate;
 
     @Inject
-    public SummaryController(final JoalConfigProvider configProvider, final SeedManager seedManager) {
-        this.configProvider = configProvider;
-        this.seedManager = seedManager;
+    public SummaryController(final JoalMessageSendingTemplate messageSendingTemplate) {
+        this.messageSendingTemplate = messageSendingTemplate;
     }
 
+    @RequestMapping(value = "/list", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public List<StompMessage> replayableState() {
+        return this.messageSendingTemplate.getReplayablePayloads();
+    }
 
 
 }

@@ -2,12 +2,15 @@ package org.araymond.joal.web.services;
 
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
+import org.araymond.joal.web.messages.outgoing.impl.announce.AnnouncePayload;
 import org.springframework.messaging.MessagingException;
-import org.springframework.messaging.core.MessagePostProcessor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.araymond.joal.web.messages.outgoing.StompMessageTypes.*;
 
 /**
  * Created by raymo on 29/06/2017.
@@ -16,13 +19,87 @@ import java.util.Map;
 public class JoalMessageSendingTemplate {
 
     private final SimpMessageSendingOperations messageSendingOperations;
+    private final List<StompMessage> replayablePayloads;
 
     public JoalMessageSendingTemplate(final SimpMessageSendingOperations messageSendingOperations) {
         this.messageSendingOperations = messageSendingOperations;
+        this.replayablePayloads = new ArrayList<>(30);
+    }
+
+    public List<StompMessage> getReplayablePayloads() {
+        return replayablePayloads;
     }
 
     public void convertAndSend(final String s, final MessagePayload payload) throws MessagingException {
-        messageSendingOperations.convertAndSend(s, StompMessage.wrap(payload));
+        final StompMessage stompMessage = StompMessage.wrap(payload);
+        addToReplayable(stompMessage);
+        messageSendingOperations.convertAndSend(s, stompMessage);
+    }
+
+
+    private void addToReplayable(final StompMessage stompMessage) {
+        switch (stompMessage.getType()) {
+            case SEED_SESSION_HAS_STARTED: {
+                replayablePayloads.removeIf(message -> message.getType() == SEED_SESSION_HAS_STARTED || message.getType() == SEED_SESSION_HAS_ENDED);
+                replayablePayloads.add(stompMessage);
+                break;
+            }
+            case SEED_SESSION_HAS_ENDED: {
+                replayablePayloads.removeIf(message -> message.getType() == SEED_SESSION_HAS_STARTED || message.getType() == SEED_SESSION_HAS_ENDED);
+                replayablePayloads.add(stompMessage);
+                break;
+            }
+            case ANNOUNCER_HAS_STARTED: {
+                replayablePayloads.add(stompMessage);
+                break;
+            }
+            case ANNOUNCER_HAS_STOPPED: {
+                final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
+                replayablePayloads.removeIf(message -> {
+                    if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
+                        return false;
+                    }
+                    return ((AnnouncePayload) message.getPayload()).getId().equals(id);
+                });
+                break;
+            }
+            case ANNOUNCER_WILL_ANNOUNCE: {
+                final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
+                replayablePayloads.removeIf(message -> {
+                    if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
+                        return false;
+                    }
+                    return ((AnnouncePayload) message.getPayload()).getId().equals(id)
+                            && (message.getType() == ANNOUNCER_HAS_FAILED_TO_ANNOUNCE || message.getType() == ANNOUNCER_HAS_ANNOUNCED || message.getType() == ANNOUNCER_WILL_ANNOUNCE);
+                });
+                replayablePayloads.add(stompMessage);
+                break;
+            }
+            case ANNOUNCER_HAS_ANNOUNCED: {
+                final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
+                replayablePayloads.removeIf(message -> {
+                    if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
+                        return false;
+                    }
+                    return ((AnnouncePayload) message.getPayload()).getId().equals(id)
+                            && (message.getType() == ANNOUNCER_HAS_FAILED_TO_ANNOUNCE || message.getType() == ANNOUNCER_HAS_ANNOUNCED || message.getType() == ANNOUNCER_WILL_ANNOUNCE);
+                });
+                replayablePayloads.add(stompMessage);
+                break;
+            }
+            case ANNOUNCER_HAS_FAILED_TO_ANNOUNCE: {
+                final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
+                replayablePayloads.removeIf(message -> {
+                    if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
+                        return false;
+                    }
+                    return ((AnnouncePayload) message.getPayload()).getId().equals(id)
+                            && (message.getType() == ANNOUNCER_HAS_FAILED_TO_ANNOUNCE || message.getType() == ANNOUNCER_HAS_ANNOUNCED || message.getType() == ANNOUNCER_WILL_ANNOUNCE);
+                });
+                replayablePayloads.add(stompMessage);
+                break;
+            }
+        }
     }
 
 }
