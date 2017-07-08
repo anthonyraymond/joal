@@ -187,12 +187,12 @@ public class TorrentFileProviderTest {
         final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
         provider.registerListener(listener);
 
-        provider.postConstruct();
+        provider.start();
         provider.onFileCreate(torrentFile.toFile());
 
         assertThat(createLock.getCount()).isEqualTo(0);
         assertThat(deleteLock.getCount()).isEqualTo(1);
-        provider.preDestroy();
+        provider.stop();
         provider.unRegisterListener(listener);
     }
 
@@ -242,12 +242,12 @@ public class TorrentFileProviderTest {
         final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
         provider.registerListener(listener);
 
-        provider.postConstruct();
+        provider.start();
         provider.onFileChange(torrentFile.toFile());
 
         assertThat(createLock.getCount()).isEqualTo(0);
         assertThat(deleteLock.getCount()).isEqualTo(0);
-        provider.preDestroy();
+        provider.stop();
         provider.unRegisterListener(listener);
     }
 
@@ -262,14 +262,14 @@ public class TorrentFileProviderTest {
         final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
         provider.registerListener(listener);
 
-        provider.postConstruct();
+        provider.start();
         provider.onFileCreate(torrentFile.toFile());
         provider.unRegisterListener(listener);
         provider.onFileCreate(torrentFile2.toFile());
 
         assertThat(createLock.getCount()).isEqualTo(1);
         assertThat(deleteLock.getCount()).isEqualTo(2);
-        provider.preDestroy();
+        provider.stop();
         provider.unRegisterListener(listener);
     }
 

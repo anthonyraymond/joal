@@ -12,6 +12,7 @@ import org.araymond.joal.core.ttorent.client.Client;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -49,14 +50,15 @@ public class SeedManager {
     }
 
     @Inject
-    public SeedManager(final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final BitTorrentClientProvider bitTorrentClientProvider, final ApplicationEventPublisher publisher) throws IOException {
+    public SeedManager(@Value("${joal-conf}") final String joalCongFolder, final JoalConfigProvider configProvider, final BitTorrentClientProvider bitTorrentClientProvider, final ApplicationEventPublisher publisher) throws IOException {
         this.configProvider = configProvider;
-        this.torrentFileProvider = torrentFileProvider;
+        this.torrentFileProvider = new TorrentFileProvider(joalCongFolder);
         this.bitTorrentClientProvider = bitTorrentClientProvider;
         this.publisher = publisher;
     }
 
     public void startSeeding() throws IOException {
+        torrentFileProvider.start();
         this.bitTorrentClientProvider.generateNewClient();
 
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
@@ -81,6 +83,7 @@ public class SeedManager {
     }
 
     public void stop() {
+        torrentFileProvider.stop();
         if (currentClient != null) {
             this.currentClient.stop();
             this.publisher.publishEvent(new SeedSessionHasEndedEvent());

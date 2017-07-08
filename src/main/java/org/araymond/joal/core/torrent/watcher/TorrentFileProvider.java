@@ -8,6 +8,7 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.Lifecycle;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -26,30 +27,34 @@ import java.util.stream.Collectors;
 /**
  * Created by raymo on 28/01/2017.
  */
-@Component
-public class TorrentFileProvider extends FileAlterationListenerAdaptor {
+public class TorrentFileProvider extends FileAlterationListenerAdaptor implements Lifecycle {
     private static final Logger logger = LoggerFactory.getLogger(TorrentFileProvider.class);
 
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles;
-    private final Path archiveFolder;
     private final Set<TorrentFileChangeAware> torrentFileChangeListener;
+    private final Path archiveFolder;
 
     private boolean isInitOver = false;
+    private boolean isRunning;
 
-    @PostConstruct
-    void postConstruct() {
+    public void start() {
         this.watcher.start();
         this.isInitOver = true;
+        this.isRunning = true;
     }
 
-    @PreDestroy
-    void preDestroy() {
+    public void stop() {
         this.watcher.stop();
+        this.torrentFiles.clear();
+        this.isRunning = false;
     }
 
-    @Inject
-    TorrentFileProvider(@Value("${joal-conf}") final String confFolder) throws FileNotFoundException {
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public TorrentFileProvider(final String confFolder) throws FileNotFoundException {
         if (StringUtils.isBlank(confFolder)) {
             throw new IllegalArgumentException("A config path is required.");
         }
