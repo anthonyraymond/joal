@@ -2,9 +2,11 @@ package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
@@ -27,10 +29,12 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     private final ObjectMapper objectMapper;
     private boolean isDirty = true;
     private AppConfiguration config = null;
+    private final ApplicationEventPublisher publisher;
 
     @Inject
-    public JoalConfigProvider(final ObjectMapper objectMapper, @Value("${joal-conf}") final String confFolder) throws FileNotFoundException {
+    public JoalConfigProvider(final ObjectMapper objectMapper, @Value("${joal-conf}") final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
         this.objectMapper = objectMapper;
+        this.publisher = publisher;
 
         if (StringUtils.isBlank(confFolder)) {
             throw new IllegalArgumentException("A config path is required.");
@@ -49,7 +53,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     public AppConfiguration get() {
         if (this.isDirty || this.config == null) {
             logger.info("App configuration is dirty or has not been loaded yet.");
-            this.config = loadConfiguration();
+            this.config = this.loadConfiguration();
         }
         return this.config;
     }
@@ -74,6 +78,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         }
         this.isDirty = false;
         logger.info("App configuration has been successfully loaded.");
+        this.publisher.publishEvent(new ConfigHasBeenLoadedEvent(configuration));
         return configuration;
     }
 

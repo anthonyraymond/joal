@@ -19,7 +19,8 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
         config.enableSimpleBroker(
                 "/global",
                 "/announce",
-                "torrents"
+                "/config",
+                "/torrents"
         );
         config.setApplicationDestinationPrefixes("/joal");
     }

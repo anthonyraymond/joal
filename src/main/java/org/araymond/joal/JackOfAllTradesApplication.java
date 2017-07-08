@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LifeCycle;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.araymond.joal.core.SeedManager;
+import org.araymond.joal.web.services.corelistener.WebConfigEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -20,8 +21,7 @@ public class JackOfAllTradesApplication {
 
     public static void main(final String[] args) {
         final ConfigurableApplicationContext context = SpringApplication.run(JackOfAllTradesApplication.class, args);
-
-        final SeedManager manager = context.getBean(SeedManager.class);
+        /*final SeedManager manager = context.getBean(SeedManager.class);
 
         //noinspection Convert2Lambda
         context.addApplicationListener(new ApplicationListener<ContextClosedEvent>() {
@@ -42,7 +42,7 @@ public class JackOfAllTradesApplication {
             final IllegalStateException wrapped = new IllegalStateException("Fatal error encountered", e);
             logger.error("Fatal error encountered", wrapped);
             context.close();
-        }
+        }*/
     }
 
 

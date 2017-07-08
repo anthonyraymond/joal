@@ -22,7 +22,7 @@ public class AnnounceResultTest {
 
     @Test
     public void shouldBuild() {
-        final LocalDateTime current = LocalDateTime.now();
+        final LocalDateTime current = LocalDateTime.now().minusNanos(1);
         final DefaultAnnounceResult announceResult = new DefaultAnnounceResult(SUCCESS);
 
         assertThat(announceResult.getType()).isEqualTo(SUCCESS);
