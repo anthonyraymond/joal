@@ -3,10 +3,10 @@
 
     <Loggers>
         <Root level="INFO" additivity="false">
-            <AppenderRef ref="CONSOLE" />
+            <AppenderRef ref="CONSOLE"/>
         </Root>
         <Logger name="org.araymond.joal" level="DEBUG" additivity="false">
-            <Appender-ref ref="CONSOLE" />
+            <Appender-ref ref="CONSOLE"/>
         </Logger>
     </Loggers>
 

@@ -9,7 +9,6 @@ import org.mockito.Mockito;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Created by raymo on 25/06/2017.

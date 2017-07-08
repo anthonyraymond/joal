@@ -17,7 +17,7 @@ public interface AnnounceResponseListener extends EventListener {
      * Handle the discovery of new peers.
      *
      * @param peers The list of peers discovered (from the announce response or
-     * any other means like DHT/PEX, etc.).
+     *              any other means like DHT/PEX, etc.).
      */
     void handleDiscoveredPeers(final TorrentWithStats torrent, final List<Peer> peers);
 }

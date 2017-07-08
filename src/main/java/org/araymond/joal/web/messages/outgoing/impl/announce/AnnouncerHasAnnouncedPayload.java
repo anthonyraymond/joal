@@ -1,10 +1,6 @@
 package org.araymond.joal.web.messages.outgoing.impl.announce;
 
 import org.araymond.joal.core.events.announce.AnnouncerHasAnnouncedEvent;
-import org.araymond.joal.core.ttorent.client.announce.AnnounceResult;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
-
-import java.util.Collection;
 
 /**
  * Created by raymo on 25/06/2017.

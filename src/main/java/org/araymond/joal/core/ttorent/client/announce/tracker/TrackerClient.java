@@ -78,8 +78,8 @@ public abstract class TrackerClient {
      * with the decoded payload.
      * </p>
      *
-     * @param event        The announce event type (can be AnnounceEvent.NONE for
-     *                     periodic updates).
+     * @param event The announce event type (can be AnnounceEvent.NONE for
+     *              periodic updates).
      */
     public final void announce(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
         logger.debug("Announcing {} to tracker with {}U/{}D/{}L bytes...",
@@ -125,7 +125,7 @@ public abstract class TrackerClient {
      * listeners.
      * </p>
      *
-     * @param message       The incoming {@link TrackerMessage}.
+     * @param message The incoming {@link TrackerMessage}.
      */
     protected void handleTrackerAnnounceResponse(final TrackerMessage message) throws AnnounceException {
         if (message instanceof ErrorMessage) {

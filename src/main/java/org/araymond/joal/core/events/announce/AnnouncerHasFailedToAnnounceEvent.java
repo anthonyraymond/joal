@@ -1,13 +1,8 @@
 package org.araymond.joal.core.events.announce;
 
 import com.google.common.base.Preconditions;
-import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.araymond.joal.core.ttorent.client.announce.AnnounceResult;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
-
-import java.util.Collection;
 
 /**
  * Created by raymo on 22/05/2017.

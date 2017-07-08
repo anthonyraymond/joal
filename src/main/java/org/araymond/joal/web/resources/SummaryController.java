@@ -3,8 +3,6 @@ package org.araymond.joal.web.resources;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.springframework.http.MediaType;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;

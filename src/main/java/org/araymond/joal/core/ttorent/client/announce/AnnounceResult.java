@@ -1,7 +1,6 @@
 package org.araymond.joal.core.ttorent.client.announce;
 
 import com.google.common.base.Preconditions;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 
 import java.time.LocalDateTime;
 

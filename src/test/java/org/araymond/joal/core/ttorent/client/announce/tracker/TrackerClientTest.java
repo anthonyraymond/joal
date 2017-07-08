@@ -9,7 +9,6 @@ import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
-import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
@@ -203,6 +202,7 @@ public class TrackerClientTest {
         TorrentWithStats getTorrentWithStats() {
             return this.torrent;
         }
+
         Peer getPeer() {
             return this.peer;
         }

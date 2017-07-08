@@ -13,7 +13,7 @@ public class JacksonConfig {
 
     @Bean
     public Jackson2ObjectMapperBuilder objectMapperBuilder() {
-        return  new Jackson2ObjectMapperBuilder()
+        return new Jackson2ObjectMapperBuilder()
                 .featuresToDisable(
                         SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
                 )

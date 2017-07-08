@@ -150,7 +150,7 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.stop();
 
         final AppConfiguration conf = configProvider.get();
-        for (final TorrentWithStats t: torrents) {
+        for (final TorrentWithStats t : torrents) {
             assertThat(t.getUploaded())
                     .isBetween(
                             conf.getMinUploadRate() * 1000 / (1000 / updateInterval) / 4,

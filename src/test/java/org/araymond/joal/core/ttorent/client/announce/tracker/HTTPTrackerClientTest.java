@@ -136,7 +136,7 @@ public class HTTPTrackerClientTest {
         final BitTorrentClient bitTorrentClient = Mockito.mock(BitTorrentClient.class);
 
         final ByteBuffer buffer = createValidHttpAnnounceResponseAsByteBuffer().put(0, (byte) 50);
-        assertThatThrownBy(() ->new HTTPTrackerClient(torrent, peer, uri, bitTorrentClient).toTrackerMessage(buffer))
+        assertThatThrownBy(() -> new HTTPTrackerClient(torrent, peer, uri, bitTorrentClient).toTrackerMessage(buffer))
                 .isInstanceOf(AnnounceException.class)
                 .hasMessage("Error reading tracker response!");
     }
@@ -147,7 +147,7 @@ public class HTTPTrackerClientTest {
         map.put("incomplete", new BEValue(100));
         map.put("interval", new BEValue(1800));
         map.put("complete", new BEValue(2945));
-        map.put("peers", new BEValue(new byte[] { 8, 8, 8, 8, 8, 0}));
+        map.put("peers", new BEValue(new byte[]{8, 8, 8, 8, 8, 0}));
 
         return BEncoder.bencode(map);
     }

@@ -16,8 +16,8 @@ public class PeerIdInfoTest {
         final PeerIdInfo peerIdInfo = new PeerIdInfo("-my.pre-", ALPHABETIC, false, false);
 
         assertThat(peerIdInfo.generateNewPeerId())
-            .startsWith("-my.pre-")
-            .hasSize(PeerIdInfo.PEER_ID_LENGTH);
+                .startsWith("-my.pre-")
+                .hasSize(PeerIdInfo.PEER_ID_LENGTH);
     }
 
     @Test

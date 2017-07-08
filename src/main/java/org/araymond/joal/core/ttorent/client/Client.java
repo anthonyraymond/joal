@@ -164,7 +164,7 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
         publisher.publishEvent(new AnnouncerHasStoppedEvent(announcer));
 
-        if (this.currentState!= ClientState.STOPPING && this.currentState != ClientState.STOPPED) {
+        if (this.currentState != ClientState.STOPPING && this.currentState != ClientState.STOPPED) {
             try {
                 addSeedingTorrent();
             } catch (final NoMoreTorrentsFileAvailableException e) {

@@ -19,15 +19,15 @@ public class JoalConfigProviderTest {
 
     private static final Path resourcePath = Paths.get("src/test/resources/configtest");
     public static final AppConfiguration defaultConfig = new AppConfiguration(
-        180L,
-        190L,
-        2,
-        "azureus-5.7.5.0.client"
+            180L,
+            190L,
+            2,
+            "azureus-5.7.5.0.client"
     );
 
     @Test
     public void shouldFailIWithEmptyConfigPath() {
-        assertThatThrownBy(() ->new JoalConfigProvider(new ObjectMapper(), " "))
+        assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), " "))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("A config path is required.");
     }
@@ -35,7 +35,7 @@ public class JoalConfigProviderTest {
     @Test
     public void shouldFailIfJsonFileIsNotPresent() {
         final String fakePath = resourcePath.resolve("nop").toString();
-        assertThatThrownBy(() ->new JoalConfigProvider(new ObjectMapper(), fakePath))
+        assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), fakePath))
                 .isInstanceOf(FileNotFoundException.class)
                 .hasMessageContaining("App configuration file '" + fakePath + "\\config.json' not found.");
     }

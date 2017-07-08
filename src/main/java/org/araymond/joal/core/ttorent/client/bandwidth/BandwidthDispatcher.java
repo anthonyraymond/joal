@@ -129,7 +129,7 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
                 lock.readLock().lock();
 
                 final int torrentCount = this.torrents.size();
-                for (final TorrentWithStats torrent: this.torrents) {
+                for (final TorrentWithStats torrent : this.torrents) {
                     final long uploadRateInBytesForTorrent = torrent.getCurrentRandomSpeedInBytes() / torrentCount;
 
                     torrent.addUploaded(uploadRateInBytesForTorrent * updateInterval / 1000);

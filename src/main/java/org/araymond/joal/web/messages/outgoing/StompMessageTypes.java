@@ -35,6 +35,7 @@ public enum StompMessageTypes {
     static StompMessageTypes typeFor(final MessagePayload payload) {
         return typeFor(payload.getClass());
     }
+
     static StompMessageTypes typeFor(final Class<? extends MessagePayload> clazz) {
         final StompMessageTypes type = classToType.get(clazz);
         if (type == null) {

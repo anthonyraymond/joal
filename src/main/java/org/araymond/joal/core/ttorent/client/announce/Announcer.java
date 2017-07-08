@@ -20,7 +20,8 @@ import java.net.UnknownServiceException;
 import java.util.*;
 
 import static com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage;
-import static org.araymond.joal.core.ttorent.client.announce.AnnounceResult.*;
+import static org.araymond.joal.core.ttorent.client.announce.AnnounceResult.ErrorAnnounceResult;
+import static org.araymond.joal.core.ttorent.client.announce.AnnounceResult.SuccessAnnounceResult;
 
 /**
  * Created by raymo on 23/01/2017.

@@ -1,12 +1,10 @@
 package org.araymond.joal.core.events.announce;
 
-import org.araymond.joal.core.ttorent.client.announce.AnnounceResult;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;

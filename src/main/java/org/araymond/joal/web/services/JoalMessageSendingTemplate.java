@@ -67,6 +67,7 @@ public class JoalMessageSendingTemplate {
                 case ANNOUNCER_HAS_STOPPED: {
                     final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
                     replayablePayloads.removeIf(message -> {
+                        //noinspection SimplifiableIfStatement
                         if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
                             return false;
                         }
@@ -77,6 +78,7 @@ public class JoalMessageSendingTemplate {
                 case ANNOUNCER_WILL_ANNOUNCE: {
                     final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
                     replayablePayloads.removeIf(message -> {
+                        //noinspection SimplifiableIfStatement
                         if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
                             return false;
                         }
@@ -89,6 +91,7 @@ public class JoalMessageSendingTemplate {
                 case ANNOUNCER_HAS_ANNOUNCED: {
                     final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
                     replayablePayloads.removeIf(message -> {
+                        //noinspection SimplifiableIfStatement
                         if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
                             return false;
                         }
@@ -101,6 +104,7 @@ public class JoalMessageSendingTemplate {
                 case ANNOUNCER_HAS_FAILED_TO_ANNOUNCE: {
                     final String id = ((AnnouncePayload) stompMessage.getPayload()).getId();
                     replayablePayloads.removeIf(message -> {
+                        //noinspection SimplifiableIfStatement
                         if (!AnnouncePayload.class.isAssignableFrom(message.getPayload().getClass())) {
                             return false;
                         }
