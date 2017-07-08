@@ -24,7 +24,6 @@ import java.util.stream.Stream;
 /**
  * Created by raymo on 23/04/2017.
  */
-@Component
 public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     private static final Logger logger = LoggerFactory.getLogger(BitTorrentClientProvider.class);
 
@@ -34,16 +33,14 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     private final Path clientsFolderPath;
     private final ApplicationEventPublisher publisher;
 
-    @Inject
-    public BitTorrentClientProvider(final JoalConfigProvider configProvider, final ObjectMapper objectMapper, @Value("${joal-conf}") final String confFolder, final ApplicationEventPublisher publisher) {
+    public BitTorrentClientProvider(final JoalConfigProvider configProvider, final ObjectMapper objectMapper, final String confFolder, final ApplicationEventPublisher publisher) {
         this.configProvider = configProvider;
         this.objectMapper = objectMapper;
         this.clientsFolderPath = Paths.get(confFolder).resolve("clients");
         this.publisher = publisher;
     }
 
-    @PostConstruct
-    public void discoverClientsFiles() {
+    public void init() {
         try (Stream<Path> paths = Files.walk(this.clientsFolderPath)) {
             final List<String> clients = paths.filter(p -> p.toString().endsWith(".client"))
                     .map(p -> p.getFileName().toString())

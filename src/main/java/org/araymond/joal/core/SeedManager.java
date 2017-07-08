@@ -51,17 +51,18 @@ public class SeedManager {
     }
 
     @Inject
-    public SeedManager(@Value("${joal-conf}") final String joalConfFolder, final ObjectMapper mapper, final BitTorrentClientProvider bitTorrentClientProvider, final ApplicationEventPublisher publisher) throws IOException {
+    public SeedManager(@Value("${joal-conf}") final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
         this.torrentFileProvider = new TorrentFileProvider(joalConfFolder);
         this.configProvider = new JoalConfigProvider(mapper, joalConfFolder, publisher);
-        this.bitTorrentClientProvider = bitTorrentClientProvider;
+        this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalConfFolder, publisher);
         this.publisher = publisher;
     }
 
     public void startSeeding() throws IOException {
         torrentFileProvider.start();
-        this.bitTorrentClientProvider.generateNewClient();
+        bitTorrentClientProvider.init();
 
+        this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
         final String id = bitTorrentClient.getPeerId();
