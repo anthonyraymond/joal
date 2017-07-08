@@ -1,5 +1,6 @@
 package org.araymond.joal.core;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
@@ -50,9 +51,9 @@ public class SeedManager {
     }
 
     @Inject
-    public SeedManager(@Value("${joal-conf}") final String joalCongFolder, final JoalConfigProvider configProvider, final BitTorrentClientProvider bitTorrentClientProvider, final ApplicationEventPublisher publisher) throws IOException {
-        this.configProvider = configProvider;
-        this.torrentFileProvider = new TorrentFileProvider(joalCongFolder);
+    public SeedManager(@Value("${joal-conf}") final String joalConfFolder, final ObjectMapper mapper, final BitTorrentClientProvider bitTorrentClientProvider, final ApplicationEventPublisher publisher) throws IOException {
+        this.torrentFileProvider = new TorrentFileProvider(joalConfFolder);
+        this.configProvider = new JoalConfigProvider(mapper, joalConfFolder, publisher);
         this.bitTorrentClientProvider = bitTorrentClientProvider;
         this.publisher = publisher;
     }

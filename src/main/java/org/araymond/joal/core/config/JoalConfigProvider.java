@@ -20,7 +20,6 @@ import java.nio.file.Paths;
 /**
  * Created by raymo on 18/04/2017.
  */
-@Component
 public class JoalConfigProvider implements Provider<AppConfiguration> {
     private static final Logger logger = LoggerFactory.getLogger(JoalConfigProvider.class);
     private static final String CONF_FILE_NAME = "config.json";
@@ -31,8 +30,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     private AppConfiguration config = null;
     private final ApplicationEventPublisher publisher;
 
-    @Inject
-    public JoalConfigProvider(final ObjectMapper objectMapper, @Value("${joal-conf}") final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
+    public JoalConfigProvider(final ObjectMapper objectMapper, final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
         this.objectMapper = objectMapper;
         this.publisher = publisher;
 
