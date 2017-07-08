@@ -5,6 +5,7 @@ import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
+import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
@@ -82,6 +83,10 @@ public class SeedManager {
         this.currentClient.share();
 
         publisher.publishEvent(new SeedSessionHasStartedEvent(bitTorrentClient));
+    }
+
+    public void saveNewConfiguration(final AppConfiguration config) {
+        this.configProvider.saveNewConf(config);
     }
 
     public void stop() {

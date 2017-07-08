@@ -1,6 +1,7 @@
 package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.slf4j.Logger;
@@ -56,9 +57,15 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         return this.config;
     }
 
+    @VisibleForTesting
     void setDirtyState() {
         logger.debug("App configuration has been set to dirty state.");
         this.isDirty = true;
+    }
+
+    @VisibleForTesting
+    boolean isDirty() {
+        return this.isDirty;
     }
 
 
@@ -78,6 +85,15 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         logger.info("App configuration has been successfully loaded.");
         this.publisher.publishEvent(new ConfigHasBeenLoadedEvent(configuration));
         return configuration;
+    }
+
+    public void saveNewConf(final AppConfiguration conf) {
+        try {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(joalConfPath.toFile(), conf);
+        } catch (final IOException e) {
+            logger.error("Failed to write new configuration file", e);
+            throw new IllegalStateException(e);
+        }
     }
 
 }
