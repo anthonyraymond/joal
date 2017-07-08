@@ -1,5 +1,6 @@
 package org.araymond.joal.core.torrent.watcher;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
@@ -38,7 +39,20 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     private boolean isInitOver = false;
     private boolean isRunning;
 
+    @VisibleForTesting
+    void init() {
+        if (!Files.exists(archiveFolder)) {
+            try {
+                Files.createDirectory(archiveFolder);
+            } catch (final IOException e) {
+                logger.error("Failed to create archive folder.", e);
+                throw new IllegalStateException("Failed to create archive folder.", e);
+            }
+        }
+    }
+
     public void start() {
+        this.init();
         this.watcher.start();
         this.isInitOver = true;
         this.isRunning = true;
@@ -65,14 +79,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         }
 
         this.archiveFolder = torrentFolder.resolve("archived");
-        if (!Files.exists(archiveFolder)) {
-            try {
-                Files.createDirectory(archiveFolder);
-            } catch (final IOException e) {
-                logger.error("Failed to create archive folder.", e);
-                throw new IllegalStateException("Failed to create archive folder.", e);
-            }
-        }
 
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
 

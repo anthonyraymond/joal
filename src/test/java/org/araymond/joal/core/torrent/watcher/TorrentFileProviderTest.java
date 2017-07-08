@@ -59,7 +59,7 @@ public class TorrentFileProviderTest {
     public void shouldCreateArchiveFolderIfNotCreatedAlready() throws IOException {
         Files.deleteIfExists(archivedTorrentPath);
         assertThat(exists(archivedTorrentPath)).isFalse();
-        new TorrentFileProvider(resourcePath.toString());
+        new TorrentFileProvider(resourcePath.toString()).init();
         assertThat(exists(archivedTorrentPath)).isTrue();
     }
 
@@ -123,6 +123,7 @@ public class TorrentFileProviderTest {
         TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        provider.init();
         provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
@@ -138,6 +139,7 @@ public class TorrentFileProviderTest {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
         final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        provider.init();
         provider.onFileCreate(torrentFile.toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
@@ -166,6 +168,7 @@ public class TorrentFileProviderTest {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
         final TorrentFileProvider provider = Mockito.spy(new TorrentFileProvider(resourcePath.toString()));
+        provider.init();
         Mockito.doAnswer(invocation -> {
             assertThat(torrentFile.toFile()).exists();
             return null;
