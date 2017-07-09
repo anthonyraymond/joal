@@ -5,6 +5,7 @@ import org.araymond.joal.web.messages.outgoing.StompMessage;
 import org.araymond.joal.web.messages.outgoing.impl.announce.AnnouncePayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
@@ -116,14 +117,26 @@ public class JoalMessageSendingTemplate {
                     replayablePayloads.add(stompMessage);
                     break;
                 }
-                case CLIENT_FILES_DISCOVERED:
+                case CLIENT_FILES_DISCOVERED: {
                     replayablePayloads.removeIf(message -> ClientFilesDiscoveredPayload.class.isAssignableFrom(message.getPayload().getClass()));
                     replayablePayloads.add(stompMessage);
                     break;
-                case CONFIG_HAS_BEEN_LOADED:
-                    replayablePayloads.removeIf(message -> ConfigHasBeenLoadedPayload.class.isAssignableFrom(message.getPayload().getClass()));
+                }
+                case CONFIG_HAS_CHANGED: {
+                    replayablePayloads.removeIf(message -> ConfigHasChangedPayload.class.isAssignableFrom(message.getPayload().getClass()));
                     replayablePayloads.add(stompMessage);
                     break;
+                }
+                case INVALID_CONFIG: {
+                    break;
+                }
+                case CONFIG_HAS_BEEN_LOADED: {
+                    replayablePayloads.removeIf(message -> ConfigHasBeenLoadedPayload.class.isAssignableFrom(message.getPayload().getClass())
+                                || ConfigHasChangedPayload.class.isAssignableFrom(message.getPayload().getClass())
+                    );
+                    replayablePayloads.add(stompMessage);
+                    break;
+                }
             }
         } finally {
             lock.writeLock().unlock();

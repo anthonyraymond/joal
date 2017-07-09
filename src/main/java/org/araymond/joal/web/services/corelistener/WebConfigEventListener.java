@@ -2,8 +2,10 @@ package org.araymond.joal.web.services.corelistener;
 
 import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
+import org.araymond.joal.core.events.config.ConfigHasChangedEvent;
 import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,14 @@ public class WebConfigEventListener extends WebEventListener {
     @Inject
     public WebConfigEventListener(final JoalMessageSendingTemplate messagingTemplate) {
         super(messagingTemplate);
+    }
+
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    @EventListener
+    void handleClientFilesDiscovered(final ConfigHasChangedEvent event) {
+        logger.debug("Send ConfigHasChangedEvent to clients.");
+
+        this.messagingTemplate.convertAndSend("/config", new ConfigHasChangedPayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)

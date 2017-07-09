@@ -16,7 +16,7 @@ public class AppConfiguration {
     private final String client;
 
     @JsonCreator
-    AppConfiguration(
+    public AppConfiguration(
             @JsonProperty(value = "minUploadRate", required = true) final Long minUploadRate,
             @JsonProperty(value = "maxUploadRate", required = true) final Long maxUploadRate,
             @JsonProperty(value = "simultaneousSeed", required = true) final Integer simultaneousSeed,

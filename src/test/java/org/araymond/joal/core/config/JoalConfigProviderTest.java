@@ -86,7 +86,6 @@ public class JoalConfigProviderTest {
 
         provider.saveNewConf(newConf);
 
-        assertThat(provider.isDirty()).isTrue();
         assertThat(provider.loadConfiguration()).isEqualTo(newConf);
     }
 

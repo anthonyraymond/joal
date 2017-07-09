@@ -60,8 +60,9 @@ public class SeedManager {
     }
 
     public void startSeeding() throws IOException {
-        torrentFileProvider.start();
-        bitTorrentClientProvider.init();
+        this.configProvider.init();
+        this.torrentFileProvider.start();
+        this.bitTorrentClientProvider.init();
 
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();

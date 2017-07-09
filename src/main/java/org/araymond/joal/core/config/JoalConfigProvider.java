@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
+import org.araymond.joal.core.events.config.ConfigHasChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
-import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -27,7 +25,6 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
 
     private final Path joalConfPath;
     private final ObjectMapper objectMapper;
-    private boolean isDirty = true;
     private AppConfiguration config = null;
     private final ApplicationEventPublisher publisher;
 
@@ -48,11 +45,15 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         }
     }
 
+    public void init() {
+        this.config = this.loadConfiguration();
+    }
+
     @Override
     public AppConfiguration get() {
-        if (this.isDirty || this.config == null) {
-            logger.info("App configuration is dirty or has not been loaded yet.");
-            this.config = this.loadConfiguration();
+        if (this.config == null) {
+            logger.error("App configuration has not been loaded yet.");
+            throw new IllegalStateException("Attempted to get configuration before init.");
         }
         return this.config;
     }
@@ -60,14 +61,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     @VisibleForTesting
     void setDirtyState() {
         logger.debug("App configuration has been set to dirty state.");
-        this.isDirty = true;
     }
-
-    @VisibleForTesting
-    boolean isDirty() {
-        return this.isDirty;
-    }
-
 
     AppConfiguration loadConfiguration() {
         final AppConfiguration configuration;
@@ -81,7 +75,6 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
             logger.error("Failed to read configuration file", e);
             throw new IllegalStateException(e);
         }
-        this.isDirty = false;
         logger.info("App configuration has been successfully loaded.");
         this.publisher.publishEvent(new ConfigHasBeenLoadedEvent(configuration));
         return configuration;
@@ -90,6 +83,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     public void saveNewConf(final AppConfiguration conf) {
         try {
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(joalConfPath.toFile(), conf);
+            publisher.publishEvent(new ConfigHasChangedEvent(conf));
         } catch (final IOException e) {
             logger.error("Failed to write new configuration file", e);
             throw new IllegalStateException(e);
