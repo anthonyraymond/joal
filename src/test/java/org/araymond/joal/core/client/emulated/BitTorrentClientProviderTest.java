@@ -3,7 +3,9 @@ package org.araymond.joal.core.client.emulated;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.config.JoalConfigProviderTest;
+import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -65,6 +67,21 @@ public class BitTorrentClientProviderTest {
         final BitTorrentClientProvider provider = createProvider();
 
         assertThat(provider.get()).isNotNull();
+    }
+
+    @Test
+    public void shouldPublishClientFilesDiscoveredOnInit() {
+        final ApplicationEventPublisher publisher = Mockito.mock(ApplicationEventPublisher.class);
+        final BitTorrentClientProvider provider = new BitTorrentClientProvider(Mockito.mock(JoalConfigProvider.class), new ObjectMapper(), resourcePath.toString(), publisher);
+
+        provider.init();
+
+        final ArgumentCaptor<ClientFilesDiscoveredEvent> captor = ArgumentCaptor.forClass(ClientFilesDiscoveredEvent.class);
+        Mockito.verify(publisher, Mockito.times(1)).publishEvent(captor.capture());
+
+        final ClientFilesDiscoveredEvent event = captor.getValue();
+        assertThat(event.getClients()).hasSize(1);
+        assertThat(event.getClients().get(0)).isEqualTo("azureus-5.7.5.0.client");
     }
 
 
