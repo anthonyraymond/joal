@@ -59,10 +59,6 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     }
 
     @VisibleForTesting
-    void setDirtyState() {
-        logger.debug("App configuration has been set to dirty state.");
-    }
-
     AppConfiguration loadConfiguration() {
         final AppConfiguration configuration;
         try {

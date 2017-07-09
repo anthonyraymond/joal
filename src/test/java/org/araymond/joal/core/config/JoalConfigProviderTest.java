@@ -2,7 +2,9 @@ package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 
@@ -11,6 +13,7 @@ import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
+import java.util.Comparator;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,31 +49,54 @@ public class JoalConfigProviderTest {
     }
 
     @Test
-    public void shouldLoadConf() throws FileNotFoundException {
+    public void shouldFailToGetConfIfNotInitialized() throws FileNotFoundException {
         final Provider<AppConfiguration> provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
 
-        assertThat(provider.get()).isEqualToComparingFieldByField(defaultConfig);
+        assertThatThrownBy(provider::get)
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("Attempted to get configuration before init.");
     }
 
     @Test
-    public void shouldLoadConfOnlyOneTimeIfNoDirtyState() throws FileNotFoundException {
-        final JoalConfigProvider provider = Mockito.spy(new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class)));
+    public void shouldLoadCong() throws FileNotFoundException {
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
 
-        provider.get();
-        provider.get();
-
-        Mockito.verify(provider, Mockito.times(1)).loadConfiguration();
+        assertThat(provider.loadConfiguration()).isEqualToComparingFieldByField(defaultConfig);
     }
 
     @Test
-    public void shouldReLoadConfOnlyOneTimeIfSetToDirtyState() throws FileNotFoundException {
-        final JoalConfigProvider provider = Mockito.spy(new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class)));
+    public void shouldGetConf() throws FileNotFoundException {
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        provider.init();
 
-        provider.get();
-        provider.setDirtyState();
-        provider.get();
+        assertThat(provider.get()).isEqualTo(defaultConfig);
+    }
 
-        Mockito.verify(provider, Mockito.times(2)).loadConfiguration();
+    @Test
+    public void shouldAlwaysReturnsSameConf() throws FileNotFoundException {
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        provider.init();
+
+        assertThat(provider.get()).usingComparator((Comparator<AppConfiguration>) (o1, o2) -> {
+            if (o1 == o2) return 0;
+            return -1;
+        })
+                .isEqualTo(provider.get())
+                .isEqualTo(provider.get());
+    }
+
+    @Test
+    public void shouldPublishConfigHasBeenLoadedEventOnConfigLoad() throws FileNotFoundException {
+        final ApplicationEventPublisher publisher = Mockito.mock(ApplicationEventPublisher.class);
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), publisher);
+
+        final AppConfiguration loadedConf = provider.loadConfiguration();
+
+        final ArgumentCaptor<ConfigHasBeenLoadedEvent> captor = ArgumentCaptor.forClass(ConfigHasBeenLoadedEvent.class);
+        Mockito.verify(publisher, Mockito.times(1)).publishEvent(captor.capture());
+
+        final ConfigHasBeenLoadedEvent event = captor.getValue();
+        assertThat(event.getConfiguration()).isEqualTo(loadedConf);
     }
 
     @Test
