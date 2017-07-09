@@ -1,5 +1,6 @@
 package org.araymond.joal.core.events.config;
 
+import com.google.common.base.Preconditions;
 import org.araymond.joal.core.config.AppConfiguration;
 
 /**
@@ -9,6 +10,7 @@ public class ConfigHasChangedEvent {
     private final AppConfiguration configuration;
 
     public ConfigHasChangedEvent(final AppConfiguration configuration) {
+        Preconditions.checkNotNull(configuration, "Configuration must not be null.");
         this.configuration = configuration;
     }
 

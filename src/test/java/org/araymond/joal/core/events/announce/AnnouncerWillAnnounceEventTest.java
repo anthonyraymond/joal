@@ -22,13 +22,6 @@ public class AnnouncerWillAnnounceEventTest {
     }
 
     @Test
-    public void shouldNotBuildWithoutAnnouncer() {
-        assertThatThrownBy(() -> new AnnouncerWillAnnounceEvent(null, RequestEvent.COMPLETED))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("Announcer must not be null");
-    }
-
-    @Test
     public void shouldBuild() {
         final Announcer announcer = Mockito.mock(Announcer.class);
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
