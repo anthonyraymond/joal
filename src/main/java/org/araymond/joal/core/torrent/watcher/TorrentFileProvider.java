@@ -61,6 +61,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     public void stop() {
         this.watcher.stop();
         this.torrentFiles.clear();
+        this.isInitOver = false;
         this.isRunning = false;
     }
 
