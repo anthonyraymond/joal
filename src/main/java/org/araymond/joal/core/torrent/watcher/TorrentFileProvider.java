@@ -4,6 +4,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
+import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
+import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
+import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
@@ -96,6 +99,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
         this.torrentFiles.remove(file);
         this.torrentFileChangeListener.forEach(listener -> listener.onTorrentRemoved(torrent));
+        this.publisher.publishEvent(new TorrentFileDeletedEvent(torrent));
     }
 
     @Override
@@ -107,9 +111,12 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             if (this.isInitOver) {
                 this.torrentFileChangeListener.forEach(listener -> listener.onTorrentAdded(torrent));
             }
+            this.publisher.publishEvent(new TorrentFileAddedEvent(torrent));
         } catch (final IOException | NoSuchAlgorithmException e) {
+            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(file, e.getMessage()));
             logger.warn("File '{}' not added to torrent list, failed to read file.", file.getAbsolutePath(), e);
         } catch (final Exception e) {
+            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(file, e.getMessage()));
             // This thread MUST NOT crash. we need handle any other exception
             logger.warn("File '{}' not added to torrent list, unexpected exception was caught.", e);
         }
