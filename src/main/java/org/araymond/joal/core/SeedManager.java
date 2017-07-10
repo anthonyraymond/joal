@@ -53,7 +53,7 @@ public class SeedManager {
 
     @Inject
     public SeedManager(@Value("${joal-conf}") final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
-        this.torrentFileProvider = new TorrentFileProvider(joalConfFolder);
+        this.torrentFileProvider = new TorrentFileProvider(joalConfFolder, publisher);
         this.configProvider = new JoalConfigProvider(mapper, joalConfFolder, publisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalConfFolder, publisher);
         this.publisher = publisher;

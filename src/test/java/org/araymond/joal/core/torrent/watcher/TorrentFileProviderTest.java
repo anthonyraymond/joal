@@ -7,6 +7,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,7 +50,7 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldNotBuildIfFolderDoesNotExists() throws FileNotFoundException {
-        assertThatThrownBy(() -> new TorrentFileProvider(resourcePath.resolve("nop").toString()))
+        assertThatThrownBy(() -> new TorrentFileProvider(resourcePath.resolve("nop").toString(), Mockito.mock(ApplicationEventPublisher.class)))
                 .isInstanceOf(FileNotFoundException.class)
                 .hasMessageStartingWith("Torrent folder '")
                 .hasMessageEndingWith("' not found.");
@@ -59,13 +60,13 @@ public class TorrentFileProviderTest {
     public void shouldCreateArchiveFolderIfNotCreatedAlready() throws IOException {
         Files.deleteIfExists(archivedTorrentPath);
         assertThat(exists(archivedTorrentPath)).isFalse();
-        new TorrentFileProvider(resourcePath.toString()).init();
+        new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class)).init();
         assertThat(exists(archivedTorrentPath)).isTrue();
     }
 
     @Test
     public void shouldFailIfFolderDoesNotContainsTorrentFiles() throws IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
 
         assertThatThrownBy(() -> provider.getTorrentNotIn(new ArrayList<>()))
                 .isInstanceOf(NoMoreTorrentsFileAvailableException.class)
@@ -75,7 +76,7 @@ public class TorrentFileProviderTest {
     @Test
     public void shouldAddFileToListOnCreation() throws IOException {
         TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         assertThat(provider.getTorrentCount()).isEqualTo(0);
 
         provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
@@ -85,7 +86,7 @@ public class TorrentFileProviderTest {
     @Test
     public void shouldNotAddDuplicatedFiles() throws IOException {
         TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         assertThat(provider.getTorrentCount()).isEqualTo(0);
 
         provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
@@ -95,7 +96,7 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldRemoveFileFromListOnDeletion() throws IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         TorrentFileCreator.create(torrentsPath.resolve("ninja.torrent"), TorrentFileCreator.TorrentType.NINJA_HEAT);
 
         assertThat(provider.getTorrentCount()).isEqualTo(0);
@@ -109,7 +110,7 @@ public class TorrentFileProviderTest {
     @Test
     public void shouldRemoveThenAddFileToListOnUpdate() throws IOException {
         TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
 
         provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
@@ -122,7 +123,7 @@ public class TorrentFileProviderTest {
     public void shouldMoveTorrentFileToArchivedFolderFromMockedTorrent() throws IOException, NoMoreTorrentsFileAvailableException {
         TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         provider.init();
         provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
@@ -138,7 +139,7 @@ public class TorrentFileProviderTest {
     public void shouldMoveTorrentFileToArchivedFolder() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         provider.init();
         provider.onFileCreate(torrentFile.toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
@@ -154,7 +155,7 @@ public class TorrentFileProviderTest {
     public void shouldNotFailIfFileIsNotPresentWhenArchiving() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
 
         try {
             provider.moveToArchiveFolder(torrentFile.resolve("dd.torrent").toFile());
@@ -167,7 +168,7 @@ public class TorrentFileProviderTest {
     public void shouldCallOnFileDeleteBeforeDeletingFileWhenArchiving() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = Mockito.spy(new TorrentFileProvider(resourcePath.toString()));
+        final TorrentFileProvider provider = Mockito.spy(new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class)));
         provider.init();
         Mockito.doAnswer(invocation -> {
             assertThat(torrentFile.toFile()).exists();
@@ -184,7 +185,7 @@ public class TorrentFileProviderTest {
     public void shouldNotifyListenerOnFileAdded() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         final CountDownLatch createLock = new CountDownLatch(1);
         final CountDownLatch deleteLock = new CountDownLatch(1);
         final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
@@ -203,7 +204,7 @@ public class TorrentFileProviderTest {
     public void shouldNotNotifyFileAddedBeforeInitIsOver() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         final CountDownLatch createLock = new CountDownLatch(1);
         final CountDownLatch deleteLock = new CountDownLatch(1);
         final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
@@ -220,7 +221,7 @@ public class TorrentFileProviderTest {
     public void shouldNotifyListenerOnFileRemoved() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         provider.onFileCreate(torrentFile.toFile());
 
         final CountDownLatch createLock = new CountDownLatch(1);
@@ -239,7 +240,7 @@ public class TorrentFileProviderTest {
     public void shouldNotifyListenerOnFileChanged() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         final CountDownLatch createLock = new CountDownLatch(1);
         final CountDownLatch deleteLock = new CountDownLatch(1);
         final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);
@@ -259,7 +260,7 @@ public class TorrentFileProviderTest {
         final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
         final Path torrentFile2 = TorrentFileCreator.create(torrentsPath.resolve("audio.torrent"), TorrentFileCreator.TorrentType.AUDIO);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
         final CountDownLatch createLock = new CountDownLatch(2);
         final CountDownLatch deleteLock = new CountDownLatch(2);
         final TorrentFileChangeAware listener = new CountDownLatchListener(createLock, deleteLock);

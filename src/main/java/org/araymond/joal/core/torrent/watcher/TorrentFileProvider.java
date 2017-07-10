@@ -8,13 +8,9 @@ import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.Lifecycle;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -35,7 +31,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     private final Map<File, MockedTorrent> torrentFiles;
     private final Set<TorrentFileChangeAware> torrentFileChangeListener;
     private final Path archiveFolder;
-
+    private final ApplicationEventPublisher publisher;
     private boolean isInitOver = false;
     private boolean isRunning;
 
@@ -69,7 +65,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         return isRunning;
     }
 
-    public TorrentFileProvider(final String confFolder) throws FileNotFoundException {
+    public TorrentFileProvider(final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
         if (StringUtils.isBlank(confFolder)) {
             throw new IllegalArgumentException("A config path is required.");
         }
@@ -79,12 +75,11 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
         }
 
+        this.publisher = publisher;
         this.archiveFolder = torrentFolder.resolve("archived");
-
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
-
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
-        torrentFileChangeListener = new HashSet<>();
+        this.torrentFileChangeListener = new HashSet<>();
     }
 
     @Override
