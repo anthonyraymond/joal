@@ -5,6 +5,9 @@ import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscovered
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.InvalidConfigPayload;
+import org.araymond.joal.web.messages.outgoing.impl.files.FailedToAddTorrentFilePayload;
+import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasEndedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedPayload;
 
@@ -25,7 +28,10 @@ public enum StompMessageTypes {
     CLIENT_FILES_DISCOVERED(ClientFilesDiscoveredPayload.class),
     CONFIG_HAS_CHANGED(ConfigHasChangedPayload.class),
     INVALID_CONFIG(InvalidConfigPayload.class),
-    CONFIG_HAS_BEEN_LOADED(ConfigHasBeenLoadedPayload.class);
+    CONFIG_HAS_BEEN_LOADED(ConfigHasBeenLoadedPayload.class),
+    TORRENT_FILE_ADDED(TorrentFileAddedPayload.class),
+    TORRENT_FILE_DELETED(TorrentFileDeletedPayload.class),
+    FAILED_TO_ADD_TORRENT_FILE(FailedToAddTorrentFilePayload.class);
 
     private static final Map<Class<? extends MessagePayload>, StompMessageTypes> classToType = new HashMap<>();
     private final Class<? extends MessagePayload> clazz;
