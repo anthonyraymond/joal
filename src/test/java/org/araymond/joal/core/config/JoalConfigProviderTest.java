@@ -10,6 +10,8 @@ import org.springframework.context.ApplicationEventPublisher;
 
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.MessageFormat;
@@ -100,19 +102,24 @@ public class JoalConfigProviderTest {
     }
 
     @Test
-    public void shouldWriteConfigurationFile() throws FileNotFoundException {
-        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), rewritableResourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
-        final Random rand = new Random();
-        final AppConfiguration newConf = new AppConfiguration(
-                rand.longs(1, 200).findFirst().getAsLong(),
-                rand.longs(201, 400).findFirst().getAsLong(),
-                rand.ints(1, 5).findFirst().getAsInt(),
-                RandomStringUtils.random(60)
-        );
+    public void shouldWriteConfigurationFile() throws IOException {
+        new ObjectMapper().writeValue(rewritableResourcePath.resolve("config.json").toFile(), defaultConfig);
+        try {
+            final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), rewritableResourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+            final Random rand = new Random();
+            final AppConfiguration newConf = new AppConfiguration(
+                    rand.longs(1, 200).findFirst().getAsLong(),
+                    rand.longs(201, 400).findFirst().getAsLong(),
+                    rand.ints(1, 5).findFirst().getAsInt(),
+                    RandomStringUtils.random(60)
+            );
 
-        provider.saveNewConf(newConf);
+            provider.saveNewConf(newConf);
 
-        assertThat(provider.loadConfiguration()).isEqualTo(newConf);
+            assertThat(provider.loadConfiguration()).isEqualTo(newConf);
+        } finally {
+            Files.deleteIfExists(rewritableResourcePath.resolve("config.json"));
+        }
     }
 
 }
