@@ -11,10 +11,10 @@ public class TorrentFileAddedPayload implements MessagePayload {
     private final String name;
     private final Long size;
 
-    public TorrentFileAddedPayload(final String id, final String name, final Long size) {
-        this.id = id;
-        this.name = name;
-        this.size = size;
+    public TorrentFileAddedPayload(final TorrentFileAddedEvent event) {
+        this.id = event.getTorrent().getHexInfoHash();
+        this.name = event.getTorrent().getName();
+        this.size = event.getTorrent().getSize();
     }
 
     public String getId() {
