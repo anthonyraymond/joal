@@ -6,10 +6,10 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 /**
  * Created by raymo on 06/05/2017.
  */
-public class TorrentFileAddedForSeedEvent {
+public class TorrentFileAddedEvent {
     private final MockedTorrent torrent;
 
-    public TorrentFileAddedForSeedEvent(final MockedTorrent torrent) {
+    public TorrentFileAddedEvent(final MockedTorrent torrent) {
         Preconditions.checkNotNull(torrent, "MockedTorrent cannot be null.");
         this.torrent = torrent;
     }

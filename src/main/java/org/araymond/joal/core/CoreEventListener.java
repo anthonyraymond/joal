@@ -6,7 +6,7 @@ import org.araymond.joal.core.events.NoMoreLeechersEvent;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.events.announce.AnnouncerWillAnnounceEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileAddedForSeedEvent;
+import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -73,8 +73,8 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleTorrentFileAddedForSeed(final TorrentFileAddedForSeedEvent event) throws IOException {
-        logger.debug("Event TorrentFileAddedForSeedEvent caught.");
+    void handleTorrentFileAddedForSeed(final TorrentFileAddedEvent event) throws IOException {
+        logger.debug("Event TorrentFileAddedEvent caught.");
     }
 
     @Async

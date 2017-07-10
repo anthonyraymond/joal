@@ -10,11 +10,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 /**
  * Created by raymo on 25/05/2017.
  */
-public class TorrentFileAddedForSeedEventTest {
+public class TorrentFileAddedEventTest {
 
     @Test
     public void shouldNotBuildWithoutTorrent() {
-        assertThatThrownBy(() -> new TorrentFileAddedForSeedEvent(null))
+        assertThatThrownBy(() -> new TorrentFileAddedEvent(null))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessageContaining("MockedTorrent cannot be null");
     }
@@ -22,7 +22,7 @@ public class TorrentFileAddedForSeedEventTest {
     @Test
     public void shouldBuild() {
         final MockedTorrent torrent = Mockito.mock(MockedTorrent.class);
-        final TorrentFileAddedForSeedEvent event = new TorrentFileAddedForSeedEvent(torrent);
+        final TorrentFileAddedEvent event = new TorrentFileAddedEvent(torrent);
 
         assertThat(event.getTorrent()).isEqualTo(torrent);
     }
