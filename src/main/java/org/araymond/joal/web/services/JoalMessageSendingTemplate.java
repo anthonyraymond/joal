@@ -6,6 +6,8 @@ import org.araymond.joal.web.messages.outgoing.impl.announce.AnnouncePayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
@@ -61,6 +63,9 @@ public class JoalMessageSendingTemplate {
                 case SEED_SESSION_HAS_ENDED: {
                     replayablePayloads.removeIf(message -> message.getType() == SEED_SESSION_HAS_STARTED || message.getType() == SEED_SESSION_HAS_ENDED);
                     replayablePayloads.add(stompMessage);
+
+                    // Remove torrents added (because they are dispatched again when starting the TorrentFileProvider
+                    replayablePayloads.removeIf(message -> TorrentFileAddedPayload.class.isAssignableFrom(message.getPayload().getClass()));
                     break;
                 }
                 case ANNOUNCER_HAS_STARTED: {
@@ -137,6 +142,21 @@ public class JoalMessageSendingTemplate {
                     replayablePayloads.add(stompMessage);
                     break;
                 }
+                case TORRENT_FILE_ADDED:
+                    replayablePayloads.add(stompMessage);
+                    break;
+                case TORRENT_FILE_DELETED:
+                    replayablePayloads.removeIf(message -> {
+                        if (!TorrentFileAddedPayload.class.isAssignableFrom(message.getPayload().getClass())) {
+                            return false;
+                        }
+                        final TorrentFileDeletedPayload newMsg = (TorrentFileDeletedPayload) stompMessage.getPayload();
+                        return ((TorrentFileAddedPayload) message.getPayload()).getId().equals(newMsg.getId());
+                    });
+                    break;
+                case FAILED_TO_ADD_TORRENT_FILE:
+                    // No need to save this action
+                    break;
             }
         } finally {
             lock.writeLock().unlock();
