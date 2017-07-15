@@ -8,7 +8,6 @@ import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
-import org.araymond.joal.core.ttorent.common.protocol.http.HTTPAnnounceRequestMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,15 +73,12 @@ public class HTTPTrackerClient extends TrackerClient {
     protected ByteBuffer makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
         final URL target;
         try {
-            final HTTPAnnounceRequestMessage request = this.buildAnnounceRequest(event);
-            target = request.buildAnnounceURL(this.tracker.toURL(), this.bitTorrentClient);
+            target = this.bitTorrentClient.buildAnnounceURL(this.tracker.toURL(), event, this.torrent, this.peer);
             logger.debug("Announce url: " + target.toString());
         } catch (final MalformedURLException mue) {
             throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
-        } catch (final MessageValidationException mve) {
-            throw new AnnounceException("Announce request creation violated " + "expected protocol (" + mve.getMessage() + ")", mve);
-        } catch (final IOException ioe) {
-            throw new AnnounceException("Error building announce request (" + ioe.getMessage() + ")", ioe);
+        } catch (final UnsupportedEncodingException e) {
+            throw new AnnounceException("Error building announce request (" + e.getMessage() + ")", e);
         }
 
         HttpURLConnection conn = null;
@@ -138,33 +134,6 @@ public class HTTPTrackerClient extends TrackerClient {
 
         // TODO : ensure outputStream.close() is not required.
         return ByteBuffer.wrap(outputStream.toByteArray());
-    }
-
-    /**
-     * Build the announce request tracker message.
-     *
-     * @param event The announce event
-     * @return Returns an instance of a {@link HTTPAnnounceRequestMessage}
-     * that can be used to generate the fully qualified announce URL, with
-     * parameters, to make the announce request.
-     * @throws UnsupportedEncodingException
-     * @throws IOException
-     * @throws MessageValidationException
-     */
-    @VisibleForTesting
-    HTTPAnnounceRequestMessage buildAnnounceRequest(final AnnounceRequestMessage.RequestEvent event) throws IOException, MessageValidationException {
-        // Build announce request message
-        return HTTPAnnounceRequestMessage.craft(
-                this.torrent.getTorrent().getInfoHash(),
-                this.peer.getPeerId().array(),
-                this.peer.getPort(),
-                this.torrent.getUploaded(),
-                this.torrent.getDownloaded(),
-                this.torrent.getLeft(),
-                true, false, event,
-                this.peer.getIp(),
-                this.bitTorrentClient
-        );
     }
 
 }
