@@ -3,6 +3,10 @@ package org.araymond.joal.core.client.emulated;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
+import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
+import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
+import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
@@ -22,6 +26,9 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class BitTorrentClientUrlBuilderTest {
 
+    private final KeyGenerator defaultKeyGenerator = KeyGeneratorTest.createDefault();
+    private final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
+
     @Test
     public void shouldBuildReplacePlaceHolders() throws MalformedURLException, UnsupportedEncodingException {
         final Peer peer = Mockito.mock(Peer.class);
@@ -37,11 +44,12 @@ public class BitTorrentClientUrlBuilderTest {
         Mockito.when(torrent.getLeft()).thenReturn(0L);
 
         final BitTorrentClient client = new BitTorrentClient(
-                "myPeerId",
-                "mykey",
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
                 "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1&ip={ip}",
                 Collections.emptyList(),
-                200
+                200,
+                0
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce");
@@ -50,13 +58,13 @@ public class BitTorrentClientUrlBuilderTest {
         assertThat(announceURL.toString()).startsWith(trackerURL.toString());
         assertThat(announceURL.getQuery()).isEqualTo(
                 "info_hash=" + URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING) +
-                        "&peer_id=" + "myPeerId" +
+                        "&peer_id=" + defaultPeerIdGenerator.getPeerId(torrent.getTorrent(), RequestEvent.STARTED) +
                         "&port=" + peer.getPort() +
                         "&uploaded=" + torrent.getUploaded() +
                         "&downloaded=" + torrent.getDownloaded() +
                         "&left=" + torrent.getLeft() +
                         "&corrupt=0" +
-                        "&key=" + "mykey" +
+                        "&key=" + defaultKeyGenerator.getKey(torrent.getTorrent(), RequestEvent.STARTED) +
                         "&event=" + RequestEvent.STARTED.getEventName() +
                         "&numwant=" + 200 +
                         "&compact=1" +
@@ -80,11 +88,12 @@ public class BitTorrentClientUrlBuilderTest {
         Mockito.when(torrent.getLeft()).thenReturn(0L);
 
         final BitTorrentClient client = new BitTorrentClient(
-                "myPeerId",
-                "mykey",
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
                 "event={event}",
                 Collections.emptyList(),
-                200
+                200,
+                0
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce?name=jack");
@@ -111,11 +120,12 @@ public class BitTorrentClientUrlBuilderTest {
         Mockito.when(torrent.getLeft()).thenReturn(0L);
 
         final BitTorrentClient client = new BitTorrentClient(
-                "myPeerId",
-                "mykey",
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
                 "left={left}&event={event}",
                 Collections.emptyList(),
-                200
+                200,
+                0
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce");
@@ -123,6 +133,36 @@ public class BitTorrentClientUrlBuilderTest {
 
         assertThat(announceURL.toString()).startsWith(trackerURL.toString());
         assertThat(announceURL.getQuery()).isEqualTo("left=" + torrent.getLeft());
+    }
+
+    @Test
+    public void shouldUseNumwantOnStopForSTOPPEDEvent() throws UnsupportedEncodingException, MalformedURLException {
+        final Peer peer = Mockito.mock(Peer.class);
+        Mockito.when(peer.getPort()).thenReturn(46582);
+        Mockito.when(peer.getIp()).thenReturn("123.123.123.123");
+
+        final MockedTorrent subTorrent = Mockito.mock(MockedTorrent.class);
+        Mockito.when(subTorrent.getInfoHash()).thenReturn(new byte[]{-1, 25, 36, 15});
+        final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
+        Mockito.when(torrent.getTorrent()).thenReturn(subTorrent);
+        Mockito.when(torrent.getUploaded()).thenReturn(147L);
+        Mockito.when(torrent.getDownloaded()).thenReturn(987654L);
+        Mockito.when(torrent.getLeft()).thenReturn(0L);
+
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "numwant={numwant}",
+                Collections.emptyList(),
+                200,
+                23
+        );
+
+        final URL trackerURL = new URL("http://my.tracker.com/announce");
+        final URL announceURL = client.buildAnnounceURL(trackerURL, RequestEvent.STOPPED, torrent, peer);
+
+        assertThat(announceURL.toString()).startsWith(trackerURL.toString());
+        assertThat(announceURL.getQuery()).isEqualTo("numwant=" + 23);
     }
 
     @Test
@@ -140,11 +180,12 @@ public class BitTorrentClientUrlBuilderTest {
         Mockito.when(torrent.getLeft()).thenReturn(0L);
 
         final BitTorrentClient client = new BitTorrentClient(
-                "myPeerId",
+                defaultPeerIdGenerator,
                 null,
                 "key={key}&event={event}",
                 Collections.emptyList(),
-                200
+                200,
+                0
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce");

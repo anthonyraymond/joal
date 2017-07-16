@@ -2,7 +2,6 @@ package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turn.ttorrent.common.Peer;
-import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
@@ -23,7 +22,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.nio.ByteBuffer;
 
 /**
  * Created by raymo on 27/01/2017.
@@ -67,11 +65,10 @@ public class SeedManager {
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
-        final String id = bitTorrentClient.getPeerId();
         final Peer peer = new Peer(
                 this.connectionHandler.getSocketAddress().getAddress().getHostAddress(),
                 this.connectionHandler.getSocketAddress().getPort(),
-                ByteBuffer.wrap(id.getBytes(Torrent.BYTE_ENCODING))
+                null
         );
         this.currentClient = new Client(
                 peer,

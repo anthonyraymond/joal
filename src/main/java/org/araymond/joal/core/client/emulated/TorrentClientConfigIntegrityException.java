@@ -7,7 +7,7 @@ public class TorrentClientConfigIntegrityException extends RuntimeException {
     private static final long serialVersionUID = -2441989395992766363L;
 
 
-    TorrentClientConfigIntegrityException(final String message) {
+    public TorrentClientConfigIntegrityException(final String message) {
         super(message);
     }
 }

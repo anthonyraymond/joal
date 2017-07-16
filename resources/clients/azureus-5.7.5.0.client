@@ -1,11 +1,12 @@
 {
-    "peerIdInfo": {
+    "peerIdGenerator": {
         "prefix": "-AZ5750-",
         "type": "alphanumeric",
         "upperCase": false,
         "lowerCase": false
     },
     "keyInfo": {
+        "refreshOn": "TORRENT_PERSISTENT",
         "length": 8,
         "type": "alphanumeric",
         "upperCase": false,

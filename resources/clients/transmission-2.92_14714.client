@@ -1,11 +1,12 @@
 {
-    "peerIdInfo": {
+    "peerIdGenerator": {
         "prefix": "-TR284Z-",
         "type": "alphanumeric",
         "upperCase": false,
         "lowerCase": true
     },
     "keyInfo": {
+        "refreshOn": "NEVER",
         "length": 8,
         "type": "alphanumeric",
         "upperCase": false,

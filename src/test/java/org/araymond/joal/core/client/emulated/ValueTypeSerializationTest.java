@@ -3,11 +3,12 @@ package org.araymond.joal.core.client.emulated;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.araymond.joal.core.client.emulated.generator.StringTypes;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.ValueType.*;
+import static org.araymond.joal.core.client.emulated.generator.StringTypes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -25,7 +26,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeAlphabetic() throws IOException {
-        final BitTorrentClientConfig.ValueType type = mapper.readValue("\"alphabetic\"", BitTorrentClientConfig.ValueType.class);
+        final StringTypes type = mapper.readValue("\"alphabetic\"", StringTypes.class);
         assertThat(type).isEqualTo(ALPHABETIC);
     }
 
@@ -36,7 +37,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeNumeric() throws IOException {
-        final BitTorrentClientConfig.ValueType type = mapper.readValue("\"numeric\"", BitTorrentClientConfig.ValueType.class);
+        final StringTypes type = mapper.readValue("\"numeric\"", StringTypes.class);
         assertThat(type).isEqualTo(NUMERIC);
     }
 
@@ -47,7 +48,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeAlphanumeric() throws IOException {
-        final BitTorrentClientConfig.ValueType type = mapper.readValue("\"alphanumeric\"", BitTorrentClientConfig.ValueType.class);
+        final StringTypes type = mapper.readValue("\"alphanumeric\"", StringTypes.class);
         assertThat(type).isEqualTo(ALPHANUMERIC);
     }
 
@@ -58,7 +59,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeRandom() throws IOException {
-        final BitTorrentClientConfig.ValueType type = mapper.readValue("\"random\"", BitTorrentClientConfig.ValueType.class);
+        final StringTypes type = mapper.readValue("\"random\"", StringTypes.class);
         assertThat(type).isEqualTo(RANDOM);
     }
 
@@ -69,13 +70,13 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializePrintable() throws IOException {
-        final BitTorrentClientConfig.ValueType type = mapper.readValue("\"printable\"", BitTorrentClientConfig.ValueType.class);
+        final StringTypes type = mapper.readValue("\"printable\"", StringTypes.class);
         assertThat(type).isEqualTo(PRINTABLE);
     }
 
     @Test
     public void shouldFailToDeserializeWithNonExistingValue() {
-        assertThatThrownBy(() -> mapper.readValue("\"oops\"", BitTorrentClientConfig.ValueType.class))
+        assertThatThrownBy(() -> mapper.readValue("\"oops\"", StringTypes.class))
                 .isInstanceOf(InvalidFormatException.class)
                 .hasMessageContaining("value not one of declared Enum instance names: [random, alphabetic, alphanumeric, numeric, printable]");
 

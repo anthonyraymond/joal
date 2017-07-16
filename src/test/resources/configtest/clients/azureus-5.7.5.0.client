@@ -1,11 +1,13 @@
 {
-    "peerIdInfo": {
+    "peerIdGenerator": {
+        "refreshOn": "TORRENT_VOLATILE",
         "prefix": "-AZ5750-",
         "type": "alphanumeric",
         "upperCase": false,
         "lowerCase": false
     },
-    "keyInfo": {
+    "keyGenerator": {
+        "refreshOn": "NEVER",
         "length": 8,
         "type": "alphanumeric",
         "upperCase": false,
@@ -13,6 +15,7 @@
     },
     "query": "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3",
     "numwant": 100,
+    "numwantOnStop": 0,
     "requestHeaders": [
       { "name": "User-Agent", "value":"Azureus 5.7.5.0;{os};1.8.0_66" },
       { "name": "Connection", "value": "close" },

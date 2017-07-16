@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.ValueType.*;
+import static org.araymond.joal.core.client.emulated.generator.StringTypes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

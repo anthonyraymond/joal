@@ -1,11 +1,13 @@
 {
-    "peerIdInfo": {
+    "peerIdGenerator": {
         "prefix": "-UT3500-",
         "type": "random",
         "upperCase": false,
         "lowerCase": false
     },
     "keyInfo": {
+        "refreshOn": "TIMED",
+        "refreshEvery": 10,
         "length": 8,
         "type": "alphanumeric",
         "upperCase": true,

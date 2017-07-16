@@ -1,11 +1,12 @@
 {
-    "peerIdInfo": {
-        "prefix": "-DE13E0-",
+    "peerIdGenerator": {
+        "prefix": "-DE13F0-",
         "type": "printable",
         "upperCase": false,
         "lowerCase": false
     },
     "keyInfo": {
+        "refreshOn": "TORRENT_PERSISTENT",
         "length": 8,
         "type": "alphanumeric",
         "upperCase": true,
