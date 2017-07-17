@@ -41,7 +41,7 @@ public class SeedManager {
 
     @PostConstruct
     private void init() throws IOException {
-        connectionHandler = new ConnectionHandler(InetAddress.getLocalHost());
+        connectionHandler.init();
     }
 
     @PreDestroy
@@ -55,6 +55,7 @@ public class SeedManager {
         this.configProvider = new JoalConfigProvider(mapper, joalConfFolder, publisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalConfFolder, publisher);
         this.publisher = publisher;
+        this.connectionHandler = new ConnectionHandler();
     }
 
     public void startSeeding() throws IOException {
@@ -65,13 +66,8 @@ public class SeedManager {
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
-        final Peer peer = new Peer(
-                this.connectionHandler.getSocketAddress().getAddress().getHostAddress(),
-                this.connectionHandler.getSocketAddress().getPort(),
-                null
-        );
         this.currentClient = new Client(
-                peer,
+                this.connectionHandler,
                 configProvider,
                 torrentFileProvider,
                 publisher,

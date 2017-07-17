@@ -34,18 +34,18 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     private final ApplicationEventPublisher publisher;
     private final BitTorrentClient bitTorrentClient;
     private final List<Announcer> announcers;
-    private final Peer self;
+    private final ConnectionHandler self;
     private final BandwidthDispatcher bandwidthDispatcher;
     private ClientState currentState = ClientState.STOPPED;
 
-    public Client(final Peer peer, final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final ApplicationEventPublisher publisher, final BitTorrentClient bitTorrentClient) {
+    public Client(final ConnectionHandler connectionHandler, final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final ApplicationEventPublisher publisher, final BitTorrentClient bitTorrentClient) {
         this.configProvider = configProvider;
         this.torrentFileProvider = torrentFileProvider;
         this.publisher = publisher;
         this.bitTorrentClient = bitTorrentClient;
         this.announcers = new ArrayList<>();
 
-        this.self = peer;
+        this.self = connectionHandler;
         bandwidthDispatcher = new BandwidthDispatcher(configProvider);
     }
 

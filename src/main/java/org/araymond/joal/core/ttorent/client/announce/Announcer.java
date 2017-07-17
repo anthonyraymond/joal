@@ -6,6 +6,7 @@ import com.turn.ttorrent.common.Peer;
 import org.apache.commons.lang3.NotImplementedException;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
+import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.announce.tracker.HTTPTrackerClient;
 import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClient;
@@ -31,7 +32,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     protected static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
     private final TorrentWithStats torrent;
-    private final Peer peer;
+    private final ConnectionHandler connectionHandler;
     private final ApplicationEventPublisher publisher;
 
 
@@ -55,16 +56,10 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     private int currentTier;
     private int currentClient;
 
-    /**
-     * Initialize the base announce class members for the announcer.
-     *
-     * @param torrent The torrent we're announcing about.
-     * @param peer    Our peer specification.
-     */
-    public Announcer(final MockedTorrent torrent, final Peer peer, final BitTorrentClient bitTorrentClient, final ApplicationEventPublisher publisher) {
+    public Announcer(final MockedTorrent torrent, final ConnectionHandler connectionHandler, final BitTorrentClient bitTorrentClient, final ApplicationEventPublisher publisher) {
         this.announceHistory = EvictingQueue.create(3);
         this.torrent = new TorrentWithStats(torrent);
-        this.peer = peer;
+        this.connectionHandler = connectionHandler;
         this.publisher = publisher;
         this.clients = new ArrayList<>();
         this.allClients = new HashSet<>();
@@ -78,7 +73,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             final List<TrackerClient> tierClients = new ArrayList<>();
             for (final URI tracker : tier) {
                 try {
-                    final TrackerClient client = this.createTrackerClient(this.torrent, this.peer, tracker, bitTorrentClient);
+                    final TrackerClient client = this.createTrackerClient(this.torrent, this.connectionHandler, tracker, bitTorrentClient);
 
                     tierClients.add(client);
                     this.allClients.add(client);
@@ -168,7 +163,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
         if (this.clients.size() > 0 && (this.thread == null || !this.thread.isAlive())) {
             this.thread = new Thread(this);
-            this.thread.setName("bt-announce(" + this.peer.getShortHexPeerId() + ")");
+            this.thread.setName("bt-announce(" + this.torrent.getTorrent().getHexInfoHash() + ")");
             this.thread.start();
             this.thread.setUncaughtExceptionHandler((thread, ex) ->
                     publisher.publishEvent(new SomethingHasFuckedUpEvent(ex))
@@ -316,17 +311,17 @@ public class Announcer implements Runnable, AnnounceResponseListener {
      * Create a {@link TrackerClient} announcing to the given tracker address.
      *
      * @param torrent          The torrent the tracker client will be announcing for.
-     * @param peer             The peer the tracker client will announce on behalf of.
+     * @param connectionHandler current ConnectionHandler.
      * @param tracker          The tracker address as a {@link URI}.
      * @param bitTorrentClient the BitTorrent that should announce.
      * @throws UnknownHostException    If the tracker address is invalid.
      * @throws UnknownServiceException If the tracker protocol is not supported.
      */
-    private TrackerClient createTrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) throws UnknownHostException, UnknownServiceException {
+    private TrackerClient createTrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker, final BitTorrentClient bitTorrentClient) throws UnknownHostException, UnknownServiceException {
         final String scheme = tracker.getScheme();
 
         if ("http".equals(scheme) || "https".equals(scheme)) {
-            return new HTTPTrackerClient(torrent, peer, tracker, bitTorrentClient);
+            return new HTTPTrackerClient(torrent, connectionHandler, tracker, bitTorrentClient);
         } else if ("udp".equals(scheme)) {
             // FIXME: implement UDPTrackerClient
             throw new NotImplementedException("UDP Client not implemented yet.");

@@ -37,7 +37,7 @@ public class BitTorrentClientConfigTest {
                 new HttpHeader("Accept", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
         );
 
-        final BitTorrentClientConfig config = new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, requestHeaders, 100, 0);
+        final BitTorrentClientConfig config = new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, requestHeaders);
 
         assertThat(config.createClient().getKey(Mockito.mock(MockedTorrent.class), RequestEvent.STARTED)).isEmpty();
     }
@@ -52,7 +52,7 @@ public class BitTorrentClientConfigTest {
                 new HttpHeader("Accept", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
         );
 
-        assertThatThrownBy(() -> new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, requestHeaders, 100, 0))
+        assertThatThrownBy(() -> new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, requestHeaders))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessageContaining("Query string contains {key}, but no keyGenerator was found in .client file.");
     }
@@ -67,8 +67,8 @@ public class BitTorrentClientConfigTest {
                 new HttpHeader("Accept", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
         );
 
-        final BitTorrentClientConfig config = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders, 100, 0);
-        final BitTorrentClientConfig config2 = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders, 100, 0);
+        final BitTorrentClientConfig config = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders);
+        final BitTorrentClientConfig config2 = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders);
 
         assertThat(config).isEqualTo(config2);
     }
@@ -83,8 +83,8 @@ public class BitTorrentClientConfigTest {
                 new HttpHeader("Accept", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
         );
 
-        final BitTorrentClientConfig config = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders, 100, 0);
-        final BitTorrentClientConfig config2 = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders, 100, 0);
+        final BitTorrentClientConfig config = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders);
+        final BitTorrentClientConfig config2 = new BitTorrentClientConfig(PeerIdGeneratorTest.createDefault(), query, KeyGeneratorTest.createDefault(), requestHeaders);
 
         assertThat(config.hashCode()).isEqualTo(config2.hashCode());
     }

@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -30,17 +31,17 @@ public abstract class TrackerClient {
     private final Set<AnnounceResponseListener> listeners;
 
     protected final TorrentWithStats torrent;
-    protected final Peer peer;
+    protected final ConnectionHandler connectionHandler;
     protected final URI tracker;
 
-    public TrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker) {
+    public TrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker) {
         Preconditions.checkNotNull(torrent, "Torrent must not be null.");
-        Preconditions.checkNotNull(peer, "Peer must not be null.");
+        Preconditions.checkNotNull(connectionHandler, "ConnectionHandler must not be null.");
         Preconditions.checkNotNull(tracker, "URI must not be null.");
 
         this.listeners = new HashSet<>();
         this.torrent = torrent;
-        this.peer = peer;
+        this.connectionHandler = connectionHandler;
         this.tracker = tracker;
     }
 

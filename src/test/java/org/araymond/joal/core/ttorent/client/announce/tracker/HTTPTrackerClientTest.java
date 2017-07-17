@@ -34,12 +34,12 @@ public class HTTPTrackerClientTest {
     @Test
     public void shouldBuild() throws URISyntaxException {
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final Peer peer = new Peer(new InetSocketAddress("127.0.0.1", ConnectionHandler.PORT_RANGE_START));
+        final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
         final URI uri = new URI("http://example.tracker.com/announce");
         final BitTorrentClient client = Mockito.mock(BitTorrentClient.class);
 
         try {
-            new HTTPTrackerClient(torrent, peer, uri, client);
+            new HTTPTrackerClient(torrent, connectionHandler, uri, client);
         } catch (final Throwable t) {
             fail("Should have built.", t);
         }
@@ -48,11 +48,11 @@ public class HTTPTrackerClientTest {
     @Test
     public void shouldNotBuildWithoutBitTorrentClient() throws URISyntaxException {
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final Peer peer = new Peer(new InetSocketAddress("127.0.0.1", ConnectionHandler.PORT_RANGE_START));
+        final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
         final URI uri = new URI("http://example.tracker.com/announce");
         final BitTorrentClient client = null;
 
-        assertThatThrownBy(() -> new HTTPTrackerClient(torrent, peer, uri, client))
+        assertThatThrownBy(() -> new HTTPTrackerClient(torrent, connectionHandler, uri, client))
                 .isInstanceOf(NullPointerException.class)
                 .hasMessage("BitTorrentClient must not be null.");
     }
@@ -68,13 +68,13 @@ public class HTTPTrackerClientTest {
 
 
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final Peer peer = new Peer(new InetSocketAddress("127.0.0.1", ConnectionHandler.PORT_RANGE_START));
+        final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
         final URI uri = new URI("http://example.tracker.com/announce");
 
         final HttpURLConnection connection = Mockito.mock(HttpURLConnection.class);
         Mockito.doNothing().when(connection).addRequestProperty(Mockito.anyString(), Mockito.anyString());
 
-        new HTTPTrackerClient(torrent, peer, uri, bitTorrentClient).addHttpHeaders(connection);
+        new HTTPTrackerClient(torrent, connectionHandler, uri, bitTorrentClient).addHttpHeaders(connection);
 
         Mockito.verify(connection, Mockito.times(1)).addRequestProperty("myKey", "myValue");
         Mockito.verify(connection, Mockito.times(1)).addRequestProperty("mySecondKey", "mySecondValue");
@@ -94,13 +94,13 @@ public class HTTPTrackerClientTest {
         Mockito.when(bitTorrentClient.getHeaders()).thenReturn(headers);
 
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final Peer peer = new Peer(new InetSocketAddress("127.0.0.1", ConnectionHandler.PORT_RANGE_START));
+        final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
         final URI uri = new URI("http://example.tracker.com/announce");
 
         final HttpURLConnection connection = Mockito.mock(HttpURLConnection.class);
         Mockito.doNothing().when(connection).addRequestProperty(Mockito.anyString(), Mockito.anyString());
 
-        new HTTPTrackerClient(torrent, peer, uri, bitTorrentClient).addHttpHeaders(connection);
+        new HTTPTrackerClient(torrent, connectionHandler, uri, bitTorrentClient).addHttpHeaders(connection);
 
         Mockito.verify(connection, Mockito.times(1)).addRequestProperty("javaOnly", System.getProperty("java.version"));
         Mockito.verify(connection, Mockito.times(1)).addRequestProperty("osOnly", System.getProperty("os.name"));
@@ -112,11 +112,11 @@ public class HTTPTrackerClientTest {
     @Test
     public void shouldTransformByteBufferToTrackerMessage() throws AnnounceException, URISyntaxException, IOException {
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final Peer peer = new Peer(new InetSocketAddress("127.0.0.1", ConnectionHandler.PORT_RANGE_START));
+        final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
         final URI uri = new URI("http://example.tracker.com/announce");
         final BitTorrentClient bitTorrentClient = Mockito.mock(BitTorrentClient.class);
 
-        final HTTPTrackerMessage msg = new HTTPTrackerClient(torrent, peer, uri, bitTorrentClient).toTrackerMessage(createValidHttpAnnounceResponseAsByteBuffer());
+        final HTTPTrackerMessage msg = new HTTPTrackerClient(torrent, connectionHandler, uri, bitTorrentClient).toTrackerMessage(createValidHttpAnnounceResponseAsByteBuffer());
 
         assertThat(msg.getType()).isEqualTo(TrackerMessage.Type.ANNOUNCE_RESPONSE);
 
@@ -131,12 +131,12 @@ public class HTTPTrackerClientTest {
     @Test
     public void shouldFailTransformByteBufferToTrackerMessageIfResponseIsMissFormatted() throws AnnounceException, URISyntaxException, IOException {
         final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        final Peer peer = new Peer(new InetSocketAddress("127.0.0.1", ConnectionHandler.PORT_RANGE_START));
+        final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
         final URI uri = new URI("http://example.tracker.com/announce");
         final BitTorrentClient bitTorrentClient = Mockito.mock(BitTorrentClient.class);
 
         final ByteBuffer buffer = createValidHttpAnnounceResponseAsByteBuffer().put(0, (byte) 50);
-        assertThatThrownBy(() -> new HTTPTrackerClient(torrent, peer, uri, bitTorrentClient).toTrackerMessage(buffer))
+        assertThatThrownBy(() -> new HTTPTrackerClient(torrent, connectionHandler, uri, bitTorrentClient).toTrackerMessage(buffer))
                 .isInstanceOf(AnnounceException.class)
                 .hasMessage("Error reading tracker response!");
     }

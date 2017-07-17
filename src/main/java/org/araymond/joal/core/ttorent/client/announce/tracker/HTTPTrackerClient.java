@@ -7,6 +7,7 @@ import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
+import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,14 +35,8 @@ public class HTTPTrackerClient extends TrackerClient {
     private static final Logger logger = LoggerFactory.getLogger(HTTPTrackerClient.class);
     private final BitTorrentClient bitTorrentClient;
 
-    /**
-     * Create a new HTTP announcer for the given torrent.
-     *
-     * @param torrent The torrent we're announcing about.
-     * @param peer    Our own peer specification.
-     */
-    public HTTPTrackerClient(final TorrentWithStats torrent, final Peer peer, final URI tracker, final BitTorrentClient bitTorrentClient) {
-        super(torrent, peer, tracker);
+    public HTTPTrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker, final BitTorrentClient bitTorrentClient) {
+        super(torrent, connectionHandler, tracker);
         Preconditions.checkNotNull(bitTorrentClient, "BitTorrentClient must not be null.");
 
         this.bitTorrentClient = bitTorrentClient;
@@ -73,7 +68,7 @@ public class HTTPTrackerClient extends TrackerClient {
     protected ByteBuffer makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
         final URL target;
         try {
-            target = this.bitTorrentClient.buildAnnounceURL(this.tracker.toURL(), event, this.torrent, this.peer);
+            target = this.bitTorrentClient.buildAnnounceURL(this.tracker.toURL(), event, this.torrent, this.connectionHandler);
             logger.debug("Announce url: " + target.toString());
         } catch (final MalformedURLException mue) {
             throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
