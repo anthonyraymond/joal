@@ -176,7 +176,7 @@ public class BitTorrentClientUrlBuilderTest {
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
         assertThat(announceURL.getQuery())
-                .isEqualTo("ipv6=" + connHandler.getIpAddress().getHostAddress());
+                .isEqualTo("ipv6=" + URLEncoder.encode(connHandler.getIpAddress().getHostAddress(), Torrent.BYTE_ENCODING));
     }
 
     @Test

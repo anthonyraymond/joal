@@ -74,7 +74,7 @@ public class BitTorrentClient {
         if (connectionHandler.getIpAddress() instanceof Inet4Address) {
             emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ip}", connectionHandler.getIpAddress().getHostAddress());
         } else if(connectionHandler.getIpAddress() instanceof Inet6Address) {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ipv6}", connectionHandler.getIpAddress().getHostAddress());
+            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ipv6}", URLEncoder.encode(connectionHandler.getIpAddress().getHostAddress(), Torrent.BYTE_ENCODING));
         }
         emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ipv6}", "");
         emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ip}", "");
