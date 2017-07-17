@@ -35,7 +35,7 @@ public class TimedRefreshPeerIdGeneratorTest {
     }
 
     @Test
-    public void keyShouldNotBeRefreshedIfDelayIsNotElapsed() throws InterruptedException {
+    public void peerIdShouldNotBeRefreshedIfDelayIsNotElapsedAndRefreshWhenElapsed() throws InterruptedException {
         final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(1, "-AA-", StringTypes.ALPHANUMERIC, false, false);
 
         final String firstKey = generator.getPeerId(null, RequestEvent.STARTED);
@@ -44,7 +44,10 @@ public class TimedRefreshPeerIdGeneratorTest {
                 .isEqualTo(generator.getPeerId(null, RequestEvent.STARTED))
                 .isEqualTo(generator.getPeerId(null, RequestEvent.STARTED))
                 .isEqualTo(firstKey);
-        Thread.sleep(1100);
+
+        Thread.sleep(500);
+        generator.getPeerId(null, RequestEvent.STARTED);
+        Thread.sleep(510);
 
         assertThat(generator.getPeerId(null, RequestEvent.STARTED)).isNotEqualTo(firstKey);
     }

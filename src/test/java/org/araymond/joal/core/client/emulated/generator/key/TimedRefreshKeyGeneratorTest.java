@@ -35,7 +35,7 @@ public class TimedRefreshKeyGeneratorTest {
     }
 
     @Test
-    public void keyShouldNotBeRefreshedIfDelayIsNotElapsed() throws InterruptedException {
+    public void keyShouldNotBeRefreshedIfDelayIsNotElapsedAndRefreshWhenElapsed() throws InterruptedException {
         final TimedRefreshKeyGenerator generator = new TimedRefreshKeyGenerator(1, 8, StringTypes.ALPHANUMERIC, false, false);
 
         final String firstKey = generator.getKey(null, RequestEvent.STARTED);
@@ -44,7 +44,10 @@ public class TimedRefreshKeyGeneratorTest {
                 .isEqualTo(generator.getKey(null, RequestEvent.STARTED))
                 .isEqualTo(generator.getKey(null, RequestEvent.STARTED))
                 .isEqualTo(firstKey);
-        Thread.sleep(1100);
+
+        Thread.sleep(500);
+        generator.getKey(null, RequestEvent.STARTED);
+        Thread.sleep(510);
 
         assertThat(generator.getKey(null, RequestEvent.STARTED)).isNotEqualTo(firstKey);
     }
