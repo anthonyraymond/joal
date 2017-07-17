@@ -43,14 +43,14 @@ public class ConnectionHandler {
         final int port = this.channel.socket().getLocalPort();
         logger.info("Listening for incoming peer connections on port {}.", port);
 
-        fetchIp();
-        logger.info("Ip reported to tracker will be : ", this.getIpAddress().getHostAddress());
+        this.ipAddress = fetchIp();
+        logger.info("Ip reported to tracker will be: {}", this.getIpAddress().getHostAddress());
 
         this.ipFetcherThread = new Thread(() -> {
             try {
                 // Sleep for one hour and a half.
                 Thread.sleep(1000 * 5400);
-                this.fetchIp();
+                this.ipAddress = this.fetchIp();
             } catch (final UnknownHostException ignored) {
             } catch (final InterruptedException e) {
                 logger.info("Ip fetcher thread has been stopped.");
@@ -72,10 +72,11 @@ public class ConnectionHandler {
         }
     }
 
-    private InetAddress fetchIp() throws UnknownHostException {
+    @VisibleForTesting
+    InetAddress fetchIp() throws UnknownHostException {
         final Optional<InetAddress> ip = this.getWtfIsMyIp();
         if (ip.isPresent()) {
-            logger.warn("Successfully fetch public IP address: {}", ip.get().getHostAddress());
+            logger.info("Successfully fetch public IP address: {}", ip.get().getHostAddress());
             return ip.get();
         }
         if (this.ipAddress != null) {
@@ -129,6 +130,7 @@ public class ConnectionHandler {
         logger.debug("ConnectionHandler closed.");
     }
 
+    @SuppressWarnings("unused")
     private static final class FuckingIpAddressPayload {
 
         private final String yourFuckingIPAddress;
