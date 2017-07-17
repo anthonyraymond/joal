@@ -2,7 +2,6 @@ package org.araymond.joal.core.events.config;
 
 import com.google.common.base.Preconditions;
 import org.araymond.joal.core.config.AppConfiguration;
-import org.springframework.context.ApplicationEvent;
 
 /**
  * Created by raymo on 08/07/2017.

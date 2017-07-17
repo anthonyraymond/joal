@@ -3,7 +3,6 @@ package org.araymond.joal.core.ttorent.client.announce.tracker;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;

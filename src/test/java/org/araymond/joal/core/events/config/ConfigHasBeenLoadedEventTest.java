@@ -1,11 +1,8 @@
 package org.araymond.joal.core.events.config;
 
-import com.google.common.collect.Lists;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

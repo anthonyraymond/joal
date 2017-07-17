@@ -1,7 +1,6 @@
 package org.araymond.joal.core.ttorent.client;
 
 import com.google.common.collect.Lists;
-import com.turn.ttorrent.common.Peer;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;

@@ -1,6 +1,5 @@
 package org.araymond.joal.core.client.emulated.generator.key;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.StringTypes;
@@ -9,7 +8,6 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.Assert.fail;
 
 /**
  * Created by raymo on 16/07/2017.

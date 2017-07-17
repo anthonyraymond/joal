@@ -1,14 +1,10 @@
 package org.araymond.joal.core.client.emulated.generator.key;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.StringTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

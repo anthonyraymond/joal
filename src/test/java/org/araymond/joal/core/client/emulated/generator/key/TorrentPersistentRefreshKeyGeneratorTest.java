@@ -12,7 +12,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.AbstractMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 /**
  * Created by raymo on 16/07/2017.

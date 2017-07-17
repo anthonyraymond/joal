@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.AbstractMap;
 
-import static org.araymond.joal.core.client.emulated.generator.peerid.TorrentPersistentRefreshPeerIdGenerator.*;
+import static org.araymond.joal.core.client.emulated.generator.peerid.TorrentPersistentRefreshPeerIdGenerator.AccessAwarePeerId;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

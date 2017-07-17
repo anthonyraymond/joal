@@ -1,6 +1,5 @@
 package org.araymond.joal.core.client.emulated;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;

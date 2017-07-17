@@ -5,12 +5,8 @@ import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -1,7 +1,6 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.turn.ttorrent.common.Peer;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
@@ -21,7 +20,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import java.io.IOException;
-import java.net.InetAddress;
 
 /**
  * Created by raymo on 27/01/2017.

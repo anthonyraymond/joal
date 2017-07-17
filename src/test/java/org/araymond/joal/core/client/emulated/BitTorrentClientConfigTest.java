@@ -1,11 +1,7 @@
 package org.araymond.joal.core.client.emulated;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
-import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
-import org.araymond.joal.core.client.emulated.generator.key.NeverRefreshKeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
@@ -13,11 +9,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 
-import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.*;
+import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

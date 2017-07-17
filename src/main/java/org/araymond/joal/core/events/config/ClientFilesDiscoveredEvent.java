@@ -1,9 +1,7 @@
 package org.araymond.joal.core.events.config;
 
 import com.google.common.base.Preconditions;
-import org.springframework.context.ApplicationEvent;
 
-import java.nio.file.Path;
 import java.util.List;
 
 /**

@@ -1,17 +1,10 @@
 package org.araymond.joal;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.core.LifeCycle;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.araymond.joal.core.SeedManager;
-import org.araymond.joal.web.services.corelistener.WebConfigEventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @EnableAsync

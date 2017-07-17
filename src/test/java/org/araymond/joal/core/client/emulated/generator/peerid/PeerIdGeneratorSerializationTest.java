@@ -2,7 +2,6 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.araymond.joal.core.client.emulated.generator.StringTypes;
-import org.araymond.joal.core.client.emulated.generator.key.*;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -2,8 +2,6 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.StringTypes;
-import org.araymond.joal.core.client.emulated.generator.key.AlwaysRefreshKeyGenerator;
-import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.junit.Test;
 
 import java.util.HashSet;
