@@ -1,5 +1,6 @@
-#JOAL
-###Which client can JOAL emulate?
+# JOAL
+
+### Which client can JOAL emulate?
 
 | Client        | Support                       | Comment        |
 | ------------- |:-----------------------------:|----------------|
@@ -13,7 +14,7 @@
 | Vuze Leap     | ![Yes][support-yes]           |                |
 
 If your favorite client is not yet supported feel free to ask (except for BitComet).<br/>
-Ask for in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal.contact@gmail.com</a>.
+Ask for it in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal.contact@gmail.com</a>.
 
 
 [support-fuck_no]:readme-assets/warning.png
