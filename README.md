@@ -1,4 +1,24 @@
-Un guide en français est disponible [ici](http://h5ckfun.info/joal-le-nouveau-ratiomaster/)
+#JOAL
+###Which client can JOAL emulate?
+
+| Client        | Support                       | Comment        |
+| ------------- |:-----------------------------:|----------------|
+| BitComet      | ![FUCK NO !][support-fuck_no] | Will never be !|
+| BitTorrent    | ![Yes][support-yes]           |                |
+| Deluge        | ![Yes][support-yes]           |                |
+| qBittorrent   | ![Yes][support-yes]           |                |
+| Transmission  | ![Yes][support-yes]           |                |
+| µTorrent      | ![Yes][support-yes]           |                |
+| Vuze Azureus  | ![Yes][support-no]            | Will soon be   |
+| Vuze Leap     | ![Yes][support-yes]           |                |
+
+If your favorite client is not yet supported feel free to ask (except for BitComet).<br/>
+Ask for in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal.contact@gmail.com</a>.
+
+
+[support-fuck_no]:readme-assets/warning.png
+[support-no]:readme-assets/cross-mark.png
+[support-yes]:readme-assets/check-mark.png
 
 # Prepare configuration folder
 You first need to get the configuration folder. Replace `<MY_CONFIG_FOLDER_PATH>` by whatever path you want.
