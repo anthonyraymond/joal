@@ -2,11 +2,11 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
 
-import static org.araymond.joal.core.client.emulated.generator.StringTypes.ALPHABETIC;
+import static org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes.ALPHABETIC;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class PeerIdGeneratorTest {
 
     public static PeerIdGenerator createDefault() {
-        return new NeverRefreshPeerIdGenerator("-AA-", StringTypes.ALPHABETIC, false, false);
+        return new NeverRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHABETIC, false, false);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class PeerIdGeneratorTest {
     
     private static class DefaultPeerIdGenerator extends PeerIdGenerator {
 
-        protected DefaultPeerIdGenerator(final String prefix, final StringTypes type, final boolean upperCase, final boolean lowerCase) {
+        protected DefaultPeerIdGenerator(final String prefix, final PeerIdTypes type, final boolean upperCase, final boolean lowerCase) {
             super(prefix, type, upperCase, lowerCase);
         }
 

@@ -1,7 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeNeverRefresh() throws IOException {
-        final KeyGenerator generator = new NeverRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, true);
+        final KeyGenerator generator = new NeverRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -63,7 +63,7 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeAlwaysRefresh() throws IOException {
-        final KeyGenerator generator = new AlwaysRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, true);
+        final KeyGenerator generator = new AlwaysRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -95,7 +95,7 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTimedRefresh() throws IOException {
-        final KeyGenerator generator = new TimedRefreshKeyGenerator(60, 8, StringTypes.ALPHANUMERIC, false, true);
+        final KeyGenerator generator = new TimedRefreshKeyGenerator(60, 8, PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -127,7 +127,7 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentVolatileRefresh() throws IOException {
-        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, true);
+        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -158,7 +158,7 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentPersistentRefresh() throws IOException {
-        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, true);
+        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(

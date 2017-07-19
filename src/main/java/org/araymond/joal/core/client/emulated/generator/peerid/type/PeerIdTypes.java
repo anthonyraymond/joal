@@ -1,4 +1,4 @@
-package org.araymond.joal.core.client.emulated.generator;
+package org.araymond.joal.core.client.emulated.generator.peerid.type;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 /**
  * Created by raymo on 16/07/2017.
  */
-public enum StringTypes {
+public enum PeerIdTypes {
     @JsonProperty("alphabetic")
     ALPHABETIC,
     @JsonProperty("numeric")

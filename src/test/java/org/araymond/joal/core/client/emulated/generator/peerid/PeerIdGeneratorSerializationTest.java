@@ -1,7 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeNeverRefresh() throws IOException {
-        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator("-AA-", StringTypes.ALPHANUMERIC, false, true);
+        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -63,7 +63,7 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeAlwaysRefresh() throws IOException {
-        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", StringTypes.ALPHANUMERIC, false, true);
+        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -95,7 +95,7 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTimedRefresh() throws IOException {
-        final PeerIdGenerator generator = new TimedRefreshPeerIdGenerator(60, "-AA-", StringTypes.ALPHANUMERIC, false, true);
+        final PeerIdGenerator generator = new TimedRefreshPeerIdGenerator(60, "-AA-", PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -127,7 +127,7 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentVolatileRefresh() throws IOException {
-        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", StringTypes.ALPHANUMERIC, false, true);
+        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -158,7 +158,7 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentPersistentRefresh() throws IOException {
-        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", StringTypes.ALPHANUMERIC, false, true);
+        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, true);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(

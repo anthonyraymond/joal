@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 /**
@@ -23,11 +23,11 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 public abstract class KeyGenerator {
 
     private final Integer length;
-    private final StringTypes type;
+    private final PeerIdTypes type;
     private final boolean upperCase;
     private final boolean lowerCase;
 
-    protected KeyGenerator(final Integer length, final StringTypes type, final boolean upperCase, final boolean lowerCase) {
+    protected KeyGenerator(final Integer length, final PeerIdTypes type, final boolean upperCase, final boolean lowerCase) {
         if (length <=0) {
             throw new TorrentClientConfigIntegrityException("key length must be greater than 0.");
         }
@@ -46,7 +46,7 @@ public abstract class KeyGenerator {
     }
 
     @JsonProperty("type")
-    StringTypes getType() {
+    PeerIdTypes getType() {
         return type;
     }
 

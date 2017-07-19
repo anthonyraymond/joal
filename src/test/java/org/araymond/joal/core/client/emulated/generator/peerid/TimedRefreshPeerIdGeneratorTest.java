@@ -2,7 +2,7 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,28 +15,28 @@ public class TimedRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldNotBuildWithoutRefreshEvery() {
-        assertThatThrownBy(() -> new TimedRefreshPeerIdGenerator(null, "-AA-", StringTypes.ALPHANUMERIC, false, false))
+        assertThatThrownBy(() -> new TimedRefreshPeerIdGenerator(null, "-AA-", PeerIdTypes.ALPHANUMERIC, false, false))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessage("refreshEvery must be greater than 0.");
     }
 
     @Test
     public void shouldNotBuildWithRefreshEveryLessThanOne() {
-        assertThatThrownBy(() -> new TimedRefreshPeerIdGenerator(0, "-AA-", StringTypes.ALPHANUMERIC, false, false))
+        assertThatThrownBy(() -> new TimedRefreshPeerIdGenerator(0, "-AA-", PeerIdTypes.ALPHANUMERIC, false, false))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessage("refreshEvery must be greater than 0.");
     }
 
     @Test
     public void shouldBuild() {
-        final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(10, "-AA-", StringTypes.ALPHANUMERIC, false, false);
+        final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(10, "-AA-", PeerIdTypes.ALPHANUMERIC, false, false);
 
         assertThat(generator.getRefreshEvery()).isEqualTo(10);
     }
 
     @Test
     public void peerIdShouldNotBeRefreshedIfDelayIsNotElapsedAndRefreshWhenElapsed() throws InterruptedException {
-        final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(1, "-AA-", StringTypes.ALPHANUMERIC, false, false);
+        final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(1, "-AA-", PeerIdTypes.ALPHANUMERIC, false, false);
 
         final String firstKey = generator.getPeerId(null, RequestEvent.STARTED);
         assertThat(generator.getPeerId(null, RequestEvent.STARTED))

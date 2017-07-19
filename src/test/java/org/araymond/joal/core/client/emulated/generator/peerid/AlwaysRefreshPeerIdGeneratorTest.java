@@ -1,7 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -16,7 +16,7 @@ public class AlwaysRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldRefreshKeyEveryTime() {
-        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", StringTypes.ALPHANUMERIC, false, false);
+        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, false);
 
         final Set<String> keys = new HashSet<>();
         for (int i = 0; i < 50; ++i) {

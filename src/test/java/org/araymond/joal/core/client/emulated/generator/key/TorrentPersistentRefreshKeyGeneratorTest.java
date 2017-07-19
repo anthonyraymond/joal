@@ -1,7 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.client.emulated.generator.key.TorrentPersistentRefreshKeyGenerator.AccessAwareKey;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
@@ -20,7 +20,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
 
     @Test
     public void shouldHaveOneKeyPerTorrent() {
-        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, false);
+        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
@@ -40,7 +40,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
 
     @Test
     public void shouldNotRefreshKeyWhenTorrentHasStopped() {
-        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, false);
+        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
@@ -55,7 +55,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
 
     @Test
     public void shouldNotHaveSameKeyForAllTorrent() {
-        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, false);
+        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
@@ -66,7 +66,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
 
     @Test
     public void shouldConsiderEntryEvictableIfOlderThanOneHourAndAHalf() {
-        final TorrentPersistentRefreshKeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, false);
+        final TorrentPersistentRefreshKeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, false);
 
         final AccessAwareKey oldKey = Mockito.mock(AccessAwareKey.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(90, ChronoUnit.MINUTES));
@@ -76,7 +76,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
 
     @Test
     public void shouldNotConsiderEntryEvictableIfYoungerThanOneHourAndAHalf() {
-        final TorrentPersistentRefreshKeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, StringTypes.ALPHANUMERIC, false, false);
+        final TorrentPersistentRefreshKeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, PeerIdTypes.ALPHANUMERIC, false, false);
 
         final AccessAwareKey oldKey = Mockito.mock(AccessAwareKey.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(89, ChronoUnit.MINUTES));

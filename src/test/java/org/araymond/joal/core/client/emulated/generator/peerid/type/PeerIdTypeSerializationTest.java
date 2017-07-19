@@ -1,21 +1,21 @@
-package org.araymond.joal.core.client.emulated;
+package org.araymond.joal.core.client.emulated.generator.peerid.type;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
-import org.araymond.joal.core.client.emulated.generator.StringTypes;
+import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.araymond.joal.core.client.emulated.generator.StringTypes.*;
+import static org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Created by raymo on 24/04/2017.
  */
-public class ValueTypeSerializationTest {
+public class PeerIdTypeSerializationTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -26,7 +26,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeAlphabetic() throws IOException {
-        final StringTypes type = mapper.readValue("\"alphabetic\"", StringTypes.class);
+        final PeerIdTypes type = mapper.readValue("\"alphabetic\"", PeerIdTypes.class);
         assertThat(type).isEqualTo(ALPHABETIC);
     }
 
@@ -37,7 +37,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeNumeric() throws IOException {
-        final StringTypes type = mapper.readValue("\"numeric\"", StringTypes.class);
+        final PeerIdTypes type = mapper.readValue("\"numeric\"", PeerIdTypes.class);
         assertThat(type).isEqualTo(NUMERIC);
     }
 
@@ -48,7 +48,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeAlphanumeric() throws IOException {
-        final StringTypes type = mapper.readValue("\"alphanumeric\"", StringTypes.class);
+        final PeerIdTypes type = mapper.readValue("\"alphanumeric\"", PeerIdTypes.class);
         assertThat(type).isEqualTo(ALPHANUMERIC);
     }
 
@@ -59,7 +59,7 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializeRandom() throws IOException {
-        final StringTypes type = mapper.readValue("\"random\"", StringTypes.class);
+        final PeerIdTypes type = mapper.readValue("\"random\"", PeerIdTypes.class);
         assertThat(type).isEqualTo(RANDOM);
     }
 
@@ -70,13 +70,13 @@ public class ValueTypeSerializationTest {
 
     @Test
     public void shouldDeserializePrintable() throws IOException {
-        final StringTypes type = mapper.readValue("\"printable\"", StringTypes.class);
+        final PeerIdTypes type = mapper.readValue("\"printable\"", PeerIdTypes.class);
         assertThat(type).isEqualTo(PRINTABLE);
     }
 
     @Test
     public void shouldFailToDeserializeWithNonExistingValue() {
-        assertThatThrownBy(() -> mapper.readValue("\"oops\"", StringTypes.class))
+        assertThatThrownBy(() -> mapper.readValue("\"oops\"", PeerIdTypes.class))
                 .isInstanceOf(InvalidFormatException.class)
                 .hasMessageContaining("value not one of declared Enum instance names: [random, alphabetic, alphanumeric, numeric, printable]");
 
