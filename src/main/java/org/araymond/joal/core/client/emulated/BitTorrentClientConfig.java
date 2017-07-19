@@ -21,18 +21,26 @@ class BitTorrentClientConfig {
     private final KeyGenerator keyGenerator;
     @JsonProperty("requestHeaders")
     private final List<HttpHeader> requestHeaders;
+    @JsonProperty("numwant")
+    private final Integer numwant;
+    @JsonProperty("numwantOnStop")
+    private final Integer numwantOnStop;
 
     @JsonCreator
     BitTorrentClientConfig(
             @JsonProperty(value = "peerIdGenerator", required = true) final PeerIdGenerator peerIdGenerator,
             @JsonProperty(value = "query", required = true) final String query,
             @JsonProperty(value = "keyGenerator") final KeyGenerator keyGenerator,
-            @JsonProperty(value = "requestHeaders", required = true) final List<HttpHeader> requestHeaders
+            @JsonProperty(value = "requestHeaders", required = true) final List<HttpHeader> requestHeaders,
+            @JsonProperty(value = "numwant", required = true) final Integer numwant,
+            @JsonProperty(value = "numwantOnStop", required = true) final Integer numwantOnStop
     ) {
         this.peerIdGenerator = peerIdGenerator;
         this.query = query;
         this.keyGenerator = keyGenerator; // May be null
         this.requestHeaders = requestHeaders; // May be empty, but not null
+        this.numwant = numwant;
+        this.numwantOnStop = numwantOnStop;
 
         if (this.query.contains("{key}")) {
             if (this.keyGenerator == null) {
@@ -58,12 +66,14 @@ class BitTorrentClientConfig {
         return com.google.common.base.Objects.equal(peerIdGenerator, that.peerIdGenerator) &&
                 com.google.common.base.Objects.equal(query, that.query) &&
                 com.google.common.base.Objects.equal(keyGenerator, that.keyGenerator) &&
-                com.google.common.base.Objects.equal(requestHeaders, that.requestHeaders);
+                com.google.common.base.Objects.equal(requestHeaders, that.requestHeaders) &&
+                com.google.common.base.Objects.equal(numwant, that.numwant) &&
+                com.google.common.base.Objects.equal(numwantOnStop, that.numwantOnStop);
     }
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(peerIdGenerator, query, keyGenerator, requestHeaders);
+        return com.google.common.base.Objects.hashCode(peerIdGenerator, query, keyGenerator, requestHeaders, numwant, numwantOnStop);
     }
 
 

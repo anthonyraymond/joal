@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class BitTorrentClientConfigSerializationTest {
 
     private static final ObjectMapper mapper = new ObjectMapper();
-    private static final String validJSON = "{\"peerIdGenerator\":{\"refreshOn\":\"NEVER\",\"prefix\":\"-AZ5750-\",\"type\":\"alphanumeric\",\"upperCase\":false,\"lowerCase\":false},\"query\":\"info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3\",\"keyGenerator\":{\"refreshOn\":\"NEVER\",\"length\":8,\"type\":\"alphanumeric\",\"upperCase\":false,\"lowerCase\":false},\"requestHeaders\":[{\"name\":\"User-Agent\",\"value\":\"Azureus 5.7.5.0;{os};1.8.0_66\"},{\"name\":\"Connection\",\"value\":\"close\"},{\"name\":\"Accept-Encoding\",\"value\":\"gzip\"},{\"name\":\"Accept\",\"value\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\"}]}";
+    private static final String validJSON = "{\"peerIdGenerator\":{\"refreshOn\":\"NEVER\",\"prefix\":\"-AZ5750-\",\"type\":\"alphanumeric\",\"upperCase\":false,\"lowerCase\":false},\"numwant\":200,\"numwantOnStop\":0,\"query\":\"info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3\",\"keyGenerator\":{\"refreshOn\":\"NEVER\",\"length\":8,\"type\":\"alphanumeric\",\"upperCase\":false,\"lowerCase\":false},\"requestHeaders\":[{\"name\":\"User-Agent\",\"value\":\"Azureus 5.7.5.0;{os};1.8.0_66\"},{\"name\":\"Connection\",\"value\":\"close\"},{\"name\":\"Accept-Encoding\",\"value\":\"gzip\"},{\"name\":\"Accept\",\"value\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\"}]}";
 
     @Test
     public void shouldFailToDeserializeIfPeerIdInfoIsNotDefined() throws IOException {
@@ -43,6 +43,22 @@ public class BitTorrentClientConfigSerializationTest {
 
         assertThat(bitTorrentClientConfig).isNotNull();
         assertThat(bitTorrentClientConfig.createClient().getKey(null, RequestEvent.STARTED)).isEmpty();
+    }
+
+    @Test
+    public void shouldFailToDeserializeIfNumwantIsNotDefined() throws IOException {
+        final String jsonWithoutNumwant = validJSON.replaceAll("\"numwant\":[ ]*[0-9]+,", "");
+        assertThatThrownBy(() -> mapper.readValue(jsonWithoutNumwant, BitTorrentClientConfig.class))
+                .isInstanceOf(JsonMappingException.class)
+                .hasMessageContaining("Missing required creator property 'numwant'");
+    }
+
+    @Test
+    public void shouldFailToDeserializeIfNumwantOnStopIsNotDefined() throws IOException {
+        final String jsonWithoutNumwantOnStop = validJSON.replaceAll("\"numwantOnStop\":[ ]*[0-9]+,", "");
+        assertThatThrownBy(() -> mapper.readValue(jsonWithoutNumwantOnStop, BitTorrentClientConfig.class))
+                .isInstanceOf(JsonMappingException.class)
+                .hasMessageContaining("Missing required creator property 'numwantOnStop'");
     }
 
     @Test
