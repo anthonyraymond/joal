@@ -1,5 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.numwant;
 
+import com.turn.ttorrent.common.protocol.TrackerMessage;
+import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -28,7 +30,7 @@ public class NumwantProviderTest {
     public void shouldBuildWithNumwantEqualsOne() {
         final NumwantProvider numwantProvider = new NumwantProvider(1, 0);
 
-        assertThat(numwantProvider.getNumwant()).isEqualTo(1);
+        assertThat(numwantProvider.get(RequestEvent.STARTED)).isEqualTo(1);
     }
 
     @Test
@@ -49,15 +51,15 @@ public class NumwantProviderTest {
     public void shouldBuildWithNumwantOnStopEqualsZero() {
         final NumwantProvider numwantProvider = new NumwantProvider(200, 0);
 
-        assertThat(numwantProvider.getNumwantOnStop()).isEqualTo(0);
+        assertThat(numwantProvider.get(RequestEvent.STOPPED)).isEqualTo(0);
     }
 
     @Test
     public void shouldBuild() {
         final NumwantProvider numwantProvider = new NumwantProvider(200, 0);
 
-        assertThat(numwantProvider.getNumwant()).isEqualTo(200);
-        assertThat(numwantProvider.getNumwantOnStop()).isEqualTo(0);
+        assertThat(numwantProvider.get(RequestEvent.STARTED)).isEqualTo(200);
+        assertThat(numwantProvider.get(RequestEvent.STOPPED)).isEqualTo(0);
     }
 
 }

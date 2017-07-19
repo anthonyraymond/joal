@@ -109,6 +109,7 @@ public class BitTorrentClientConfigTest {
         //noinspection OptionalGetWithoutIsPresent
         assertThat(client.getKey(null, RequestEvent.STARTED).get()).isEqualTo(keyGenerator.getKey(null, RequestEvent.STARTED));
         assertThat(client.getPeerId(null, RequestEvent.STARTED)).isEqualTo(peerIdGenerator.getPeerId(null, RequestEvent.STARTED));
+        assertThat(client.getNumwant(RequestEvent.STARTED)).isEqualTo(200);
     }
 
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
+import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 
 import java.util.List;
@@ -54,7 +55,8 @@ class BitTorrentClientConfig {
                 this.peerIdGenerator,
                 this.keyGenerator,
                 query,
-                ImmutableList.copyOf(requestHeaders)
+                ImmutableList.copyOf(requestHeaders),
+                new NumwantProvider(this.numwant, this.numwantOnStop)
         );
     }
 

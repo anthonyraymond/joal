@@ -4,6 +4,7 @@ import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
+import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
@@ -26,6 +27,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class BitTorrentClientUrlBuilderTest {
     private static final KeyGenerator defaultKeyGenerator = KeyGeneratorTest.createDefault();
     private static final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
+    private static final NumwantProvider defaultNumwantProvider = new NumwantProvider(200, 0);
 
     private static InetAddress createMockedINet4Address() {
         try {
@@ -69,7 +71,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "info_hash={infohash}&what_is_that={damnit}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         assertThatThrownBy(() ->
@@ -86,7 +89,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "info_hash={infohash}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -103,7 +107,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "peer_id={peerid}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -120,7 +125,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "uploaded={uploaded}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -137,7 +143,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "downloaded={downloaded}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -154,7 +161,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "left={left}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -171,7 +179,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "port={port}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -188,7 +197,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "ipv6={ipv6}&ip={ip}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -205,7 +215,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "ip={ip}&ipv6={ipv6}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -222,7 +233,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "event={event}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
@@ -239,7 +251,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "event={event}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         assertThat(client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.NONE, torrent, connHandler).getQuery())
@@ -254,13 +267,50 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "key={key}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
         assertThat(announceURL.getQuery())
                 .isEqualTo("key=" + defaultKeyGenerator.getKey(torrent.getTorrent(), RequestEvent.STARTED));
+    }
+
+    @Test
+    public void shouldReplaceNumWant() throws MalformedURLException, UnsupportedEncodingException {
+        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
+        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "numwant={numwant}",
+                Collections.emptyList(),
+                defaultNumwantProvider
+        );
+
+        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(announceURL.getQuery())
+                .isEqualTo("numwant=" + defaultNumwantProvider.get(RequestEvent.STARTED));
+    }
+
+    @Test
+    public void shouldReplaceNumWantWithNumwantOnStopValue() throws MalformedURLException, UnsupportedEncodingException {
+        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
+        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "numwant={numwant}",
+                Collections.emptyList(),
+                defaultNumwantProvider
+        );
+
+        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STOPPED, torrent, connHandler);
+
+        assertThat(announceURL.getQuery())
+                .isEqualTo("numwant=" + defaultNumwantProvider.get(RequestEvent.STOPPED));
     }
 
     @Test
@@ -272,7 +322,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "info_hash={infohash}&downloaded={downloaded}&left={left}&corrupt=0&ip={ip}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce");
@@ -297,7 +348,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
                 "event={event}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce?name=jack");
@@ -328,7 +380,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultPeerIdGenerator,
                 null,
                 "key={key}&event={event}",
-                Collections.emptyList()
+                Collections.emptyList(),
+                defaultNumwantProvider
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce");

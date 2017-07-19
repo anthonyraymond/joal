@@ -8,6 +8,7 @@ import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
+import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
@@ -31,15 +32,18 @@ public class BitTorrentClient {
     private final KeyGenerator keyGenerator;
     private final String query;
     private final List<Map.Entry<String, String>> headers;
+    private final NumwantProvider numwantProvider;
 
-    BitTorrentClient(final PeerIdGenerator peerIdGenerator, final KeyGenerator keyGenerator, final String query, final Collection<HttpHeader> headers) {
+    BitTorrentClient(final PeerIdGenerator peerIdGenerator, final KeyGenerator keyGenerator, final String query, final Collection<HttpHeader> headers, final NumwantProvider numwantProvider) {
         Preconditions.checkNotNull(peerIdGenerator, "peerIdGenerator cannot be null or empty");
         Preconditions.checkArgument(!StringUtils.isBlank(query), "query cannot be null or empty");
         Preconditions.checkNotNull(headers, "headers cannot be null");
+        Preconditions.checkNotNull(numwantProvider, "numwantProvider cannot be null");
         this.peerIdGenerator = peerIdGenerator;
         this.query = query;
         this.headers = headers.stream().map(h -> new AbstractMap.SimpleImmutableEntry<>(h.getName(), h.getValue())).collect(Collectors.toList());
         this.keyGenerator = keyGenerator;
+        this.numwantProvider = numwantProvider;
     }
 
     public String getPeerId(final MockedTorrent torrent, final RequestEvent event) {
@@ -62,6 +66,11 @@ public class BitTorrentClient {
         return ImmutableList.copyOf(headers);
     }
 
+    @VisibleForTesting
+    Integer getNumwant(final RequestEvent event) {
+        return this.numwantProvider.get(event);
+    }
+
     public URL buildAnnounceURL(final URL trackerAnnounceURI, final RequestEvent event, final TorrentWithStats torrent, final ConnectionHandler connectionHandler) throws UnsupportedEncodingException, MalformedURLException {
         String emulatedClientQuery = this.getQuery()
                 .replaceAll("\\{infohash}", URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING))
@@ -69,7 +78,8 @@ public class BitTorrentClient {
                 .replaceAll("\\{uploaded}", String.valueOf(torrent.getUploaded()))
                 .replaceAll("\\{downloaded}", String.valueOf(torrent.getDownloaded()))
                 .replaceAll("\\{left}", String.valueOf(torrent.getLeft()))
-                .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()));
+                .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
+                .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
 
         // set ip or ipv6 then remove placeholders that were left empty
         if (connectionHandler.getIpAddress() instanceof Inet4Address) {
@@ -118,12 +128,13 @@ public class BitTorrentClient {
         return com.google.common.base.Objects.equal(peerIdGenerator, that.peerIdGenerator) &&
                 Objects.equal(keyGenerator, that.keyGenerator) &&
                 Objects.equal(query, that.query) &&
-                Objects.equal(headers, that.headers);
+                Objects.equal(headers, that.headers) &&
+                Objects.equal(numwantProvider, that.numwantProvider);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(peerIdGenerator, keyGenerator, query, headers);
+        return Objects.hashCode(peerIdGenerator, keyGenerator, query, headers, numwantProvider);
     }
 
 }

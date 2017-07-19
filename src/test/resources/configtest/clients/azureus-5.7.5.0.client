@@ -13,6 +13,8 @@
         "upperCase": false,
         "lowerCase": false
     },
+    "numwant": 200,
+    "numwantOnStop": 0,
     "query": "info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant=100&no_peer_id=1&compact=1&key={key}&azver=3",
     "requestHeaders": [
       { "name": "User-Agent", "value":"Azureus 5.7.5.0;{os};1.8.0_66" },
