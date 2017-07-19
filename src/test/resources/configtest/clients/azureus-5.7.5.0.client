@@ -9,7 +9,7 @@
     "keyGenerator": {
         "refreshOn": "NEVER",
         "length": 8,
-        "type": "alphanumeric",
+        "type": "hash",
         "upperCase": false,
         "lowerCase": false
     },
