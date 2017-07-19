@@ -1,10 +1,12 @@
 package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -170,6 +172,21 @@ public class PeerIdGeneratorSerializationTest {
                                 "  \"lowerCase\" : true\n" +
                                 "}"
                 ));
+    }
+
+    @Test
+    public void shouldAllowUnicodeCharsInPrefix() throws IOException {
+        final String validJSON =
+                "{\n" +
+                        "    \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
+                        "    \"prefix\": \"-AA-\\u0039\\u0091\",\n" +
+                        "    \"type\": \"alphanumeric\",\n" +
+                        "    \"upperCase\": false,\n" +
+                        "    \"lowerCase\": true\n" +
+                        "}";
+
+        assertThat(mapper.readValue(validJSON, PeerIdGenerator.class).getPrefix())
+                .isEqualTo("-AA-" + (char) 0x0039 + (char) 0x0091);
     }
 
 }

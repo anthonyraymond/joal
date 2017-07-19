@@ -390,4 +390,24 @@ public class BitTorrentClientUrlBuilderTest {
                 .hasMessage("Client request query contains 'key' but BitTorrentClient does not have a key.");
     }
 
+    @Test
+    public void shouldURLEncodeUnicodeCharactersInPeerId() throws MalformedURLException, UnsupportedEncodingException {
+        final PeerIdGenerator peerIdGeneratorWithUnicodePrefix = PeerIdGeneratorTest.createDefault("-AA-" + (char) 0x0089 + (char) 0x00F9);
+        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
+        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final BitTorrentClient client = new BitTorrentClient(
+                peerIdGeneratorWithUnicodePrefix,
+                defaultKeyGenerator,
+                "peer_id={peerid}",
+                Collections.emptyList(),
+                defaultNumwantProvider
+        );
+
+
+        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(announceURL.getQuery())
+                .startsWith("peer_id=-AA-%89%F9");
+    }
+
 }

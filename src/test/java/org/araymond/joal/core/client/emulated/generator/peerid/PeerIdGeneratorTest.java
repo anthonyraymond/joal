@@ -19,6 +19,10 @@ public class PeerIdGeneratorTest {
         return new NeverRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHABETIC, false, false);
     }
 
+    public static PeerIdGenerator createDefault(final String prefix) {
+        return new NeverRefreshPeerIdGenerator(prefix, PeerIdTypes.ALPHABETIC, false, false);
+    }
+
     @Test
     public void shouldNotBuildWithNullPrefix() {
         assertThatThrownBy(() -> new DefaultPeerIdGenerator(null, ALPHABETIC, false, false))
