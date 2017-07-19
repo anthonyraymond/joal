@@ -12,6 +12,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class TorrentWithStatsTest {
 
+    public static TorrentWithStats createMocked() {
+        final MockedTorrent subTorrent = Mockito.mock(MockedTorrent.class);
+        Mockito.when(subTorrent.getInfoHash()).thenReturn("af2d3c294faf2d3c294faf2d3c294f".getBytes());
+        final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
+        Mockito.when(torrent.getTorrent()).thenReturn(subTorrent);
+        Mockito.when(torrent.getUploaded()).thenReturn(147L);
+        Mockito.when(torrent.getDownloaded()).thenReturn(987654L);
+        Mockito.when(torrent.getLeft()).thenReturn(0L);
+        return torrent;
+    }
+
     @Test
     public void shouldNotBuildWithNullTorrent() {
         assertThatThrownBy(() -> new TorrentWithStats(null))

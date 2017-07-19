@@ -11,6 +11,7 @@ import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
+import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStatsTest;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -52,21 +53,10 @@ public class BitTorrentClientUrlBuilderTest {
         return connectionHandler;
     }
 
-    private static final TorrentWithStats createMockedTorrentWithStats() {
-        final MockedTorrent subTorrent = Mockito.mock(MockedTorrent.class);
-        Mockito.when(subTorrent.getInfoHash()).thenReturn("af2d3c294faf2d3c294faf2d3c294f".getBytes());
-        final TorrentWithStats torrent = Mockito.mock(TorrentWithStats.class);
-        Mockito.when(torrent.getTorrent()).thenReturn(subTorrent);
-        Mockito.when(torrent.getUploaded()).thenReturn(147L);
-        Mockito.when(torrent.getDownloaded()).thenReturn(987654L);
-        Mockito.when(torrent.getLeft()).thenReturn(0L);
-        return torrent;
-    }
-
     @Test
     public void shouldFailIfPlaceHoldersRemainsInURL() {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -84,7 +74,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceInfoHash() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -102,7 +92,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplacePeerId() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -120,7 +110,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceUploaded() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -138,7 +128,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceDownloaded() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -156,7 +146,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceLeft() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -174,7 +164,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplacePort() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -192,7 +182,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceIpv6AndRemoveIpv4() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet6Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -210,7 +200,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceIpv4AndRemoveIpv6() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -228,7 +218,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceEvent() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -246,7 +236,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldRemoveEventIfNone() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -262,7 +252,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceKey() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -280,7 +270,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceNumWant() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -298,7 +288,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReplaceNumWantWithNumwantOnStopValue() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
@@ -316,7 +306,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldBuildReplaceMultipleValues() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
 
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
@@ -342,7 +332,7 @@ public class BitTorrentClientUrlBuilderTest {
     @Test
     public void shouldReturnURLEvenIfBaseUrlContainsParams() throws UnsupportedEncodingException, MalformedURLException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
 
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
@@ -394,7 +384,7 @@ public class BitTorrentClientUrlBuilderTest {
     public void shouldURLEncodeUnicodeCharactersInPeerId() throws MalformedURLException, UnsupportedEncodingException {
         final PeerIdGenerator peerIdGeneratorWithUnicodePrefix = PeerIdGeneratorTest.createDefault("-AA-" + (char) 0x0089 + (char) 0x00F9);
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 peerIdGeneratorWithUnicodePrefix,
                 defaultKeyGenerator,

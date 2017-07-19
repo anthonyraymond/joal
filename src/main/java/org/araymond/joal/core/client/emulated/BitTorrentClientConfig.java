@@ -2,6 +2,7 @@ package org.araymond.joal.core.client.emulated;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
@@ -13,7 +14,7 @@ import java.util.List;
 /**
  * Created by raymo on 24/01/2017.
  */
-class BitTorrentClientConfig {
+public class BitTorrentClientConfig {
     @JsonProperty("peerIdGenerator")
     private final PeerIdGenerator peerIdGenerator;
     @JsonProperty("query")
@@ -50,7 +51,8 @@ class BitTorrentClientConfig {
         }
     }
 
-    BitTorrentClient createClient() {
+    @VisibleForTesting
+    public BitTorrentClient createClient() {
         return new BitTorrentClient(
                 this.peerIdGenerator,
                 this.keyGenerator,
