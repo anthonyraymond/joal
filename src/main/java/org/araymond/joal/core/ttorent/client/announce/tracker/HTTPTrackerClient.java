@@ -6,6 +6,7 @@ import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
+import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
@@ -73,6 +74,10 @@ public class HTTPTrackerClient extends TrackerClient {
             throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
         } catch (final UnsupportedEncodingException e) {
             throw new AnnounceException("Error building announce request (" + e.getMessage() + ")", e);
+        } catch (final UnrecognizedAnnounceParameter e) {
+            throw new AnnounceException("Invalid placeholder in client query", e);
+        } catch (final Exception remains) {
+            throw new AnnounceException("Unhandled exception occurred while building announce URL.");
         }
 
         HttpURLConnection conn = null;

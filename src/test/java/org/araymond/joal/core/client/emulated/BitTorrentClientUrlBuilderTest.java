@@ -6,6 +6,7 @@ import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
+import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -58,6 +59,23 @@ public class BitTorrentClientUrlBuilderTest {
         Mockito.when(torrent.getDownloaded()).thenReturn(987654L);
         Mockito.when(torrent.getLeft()).thenReturn(0L);
         return torrent;
+    }
+
+    @Test
+    public void shouldFailIfPlaceHoldersRemainsInURL() {
+        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
+        final TorrentWithStats torrent = createMockedTorrentWithStats();
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "info_hash={infohash}&what_is_that={damnit}",
+                Collections.emptyList()
+        );
+
+        assertThatThrownBy(() ->
+                client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler)
+        ).isInstanceOf(UnrecognizedAnnounceParameter.class)
+                .hasMessage("Placeholder {damnit} were not recognized while building announce URL.");
     }
 
     @Test

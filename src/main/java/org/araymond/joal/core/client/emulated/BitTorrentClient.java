@@ -9,6 +9,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
+import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -16,6 +17,8 @@ import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
@@ -93,6 +96,12 @@ public class BitTorrentClient {
                                     Torrent.BYTE_ENCODING
                             )
                     );
+        }
+
+        final Matcher matcher = Pattern.compile("(\\{.*?})").matcher(emulatedClientQuery);
+        if (matcher.find()) {
+            final String unrecognizedPlaceHolder = matcher.group();
+            throw new UnrecognizedAnnounceParameter("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
         }
 
         final String base = trackerAnnounceURI.toString();
