@@ -111,6 +111,39 @@ public class KeyGeneratorSerializationTest {
     }
 
     @Test
+    public void shouldDeserializeToTimedOrAfterStartedRefresh() throws IOException {
+        final String validJSON =
+                "{\n" +
+                        "    \"refreshOn\": \"TIMED_OR_AFTER_STARTED_ANNOUNCE\",\n" +
+                        "    \"refreshEvery\": 60,\n" +
+                        "    \"length\": 8,\n" +
+                        "    \"type\": \"hash\",\n" +
+                        "    \"upperCase\": false,\n" +
+                        "    \"lowerCase\": true\n" +
+                        "}";
+
+        assertThat(mapper.readValue(validJSON, KeyGenerator.class))
+                .isInstanceOf(TimedOrAfterStartedAnnounceRefreshKeyGenerator.class);
+    }
+
+    @Test
+    public void shouldSerializeTimedOrAfterStartedRefresh() throws IOException {
+        final KeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(60, 8, KeyTypes.HASH, false, true);
+
+        assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
+                .isEqualTo(mapper.readTree(
+                        "{\n" +
+                                "  \"refreshOn\": \"TIMED_OR_AFTER_STARTED_ANNOUNCE\",\n" +
+                                "  \"refreshEvery\": 60,\n" +
+                                "  \"length\" : 8,\n" +
+                                "  \"type\" : \"hash\",\n" +
+                                "  \"upperCase\" : false,\n" +
+                                "  \"lowerCase\" : true\n" +
+                                "}"
+                ));
+    }
+
+    @Test
     public void shouldDeserializeToTorrentVolatileRefresh() throws IOException {
         final String validJSON =
                 "{\n" +

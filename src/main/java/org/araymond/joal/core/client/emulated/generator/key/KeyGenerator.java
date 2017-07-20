@@ -17,6 +17,7 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
         @JsonSubTypes.Type(value = NeverRefreshKeyGenerator.class, name = "NEVER"),
         @JsonSubTypes.Type(value = AlwaysRefreshKeyGenerator.class, name = "ALWAYS"),
         @JsonSubTypes.Type(value = TimedRefreshKeyGenerator.class, name = "TIMED"),
+        @JsonSubTypes.Type(value = TimedOrAfterStartedAnnounceRefreshKeyGenerator.class, name = "TIMED_OR_AFTER_STARTED_ANNOUNCE"),
         @JsonSubTypes.Type(value = TorrentVolatileRefreshKeyGenerator.class, name = "TORRENT_VOLATILE"),
         @JsonSubTypes.Type(value = TorrentPersistentRefreshKeyGenerator.class, name = "TORRENT_PERSISTENT")
 })
