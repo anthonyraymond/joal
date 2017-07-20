@@ -1,0 +1,24 @@
+{
+    "keyGenerator": {
+        "length": 8,
+        "type": "hash",
+        "refreshOn": "NEVER",
+        "upperCase": false,
+        "lowerCase": true
+    },
+    "peerIdGenerator": {
+        "prefix": "-TR284Z-",
+        "type": "alphanumeric",
+        "refreshOn": "TORRENT_VOLATILE",
+        "upperCase": false,
+        "lowerCase": true
+    },
+    "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&numwant={numwant}&key={key}&compact=1&supportcrypto=1&event={event}&ipv6={ipv6}",
+    "numwant": 80,
+    "numwantOnStop": 0,
+    "requestHeaders": [
+        { "name": "User-Agent", "value": "Transmission/2.84+" },
+        { "name": "Accept", "value": "*/*" },
+        { "name": "Accept-Encoding", "value": "gzip;q=1.0, deflate, identity" }
+    ]
+}
