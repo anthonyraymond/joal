@@ -1,0 +1,26 @@
+{
+    "keyGenerator": {
+        "length": 8,
+        "type": "hash",
+        "refreshOn": "TIMED_OR_AFTER_STARTED_ANNOUNCE",
+        "refreshEvery": 10,
+        "upperCase": true,
+        "lowerCase": false
+    },
+    "peerIdGenerator": {
+        "prefix": "-UT3220-To",
+        "type": "random",
+        "refreshOn": "NEVER",
+        "upperCase": false,
+        "lowerCase": false
+    },
+    "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1&ipv6={ipv6}",
+    "numwant": 200,
+    "numwantOnStop": 200,
+    "requestHeaders": [
+        { "name": "User-Agent", "value": "uTorrent/3220(28500)" },
+        { "name": "Accept-Encoding", "value": "gzip" },
+        { "name": "Accept-Language", "value": "en-US" },
+        { "name": "Connection", "value": "Close" }
+    ]
+}
