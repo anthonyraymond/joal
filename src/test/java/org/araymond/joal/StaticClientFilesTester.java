@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 /**
@@ -53,6 +54,21 @@ public class StaticClientFilesTester {
                         final String json = new String(Files.readAllBytes(file.toPath()));
                         final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
                         final BitTorrentClient client = clientConfig.createClient();
+
+                        final String query = client.getQuery();
+                        assertThat(query)
+                                .contains("info_hash={infohash}")
+                                .contains("peer_id={peerid}")
+                                .contains("uploaded={uploaded}")
+                                .contains("downloaded={downloaded}")
+                                .contains("left={left}")
+                                .contains("key={key}")
+                                .contains("event={event}")
+                                .contains("numwant={numwant}");
+                        if (query.contains("ipv6=")) assertThat(query).contains("ipv6={ipv6}");
+                        if (query.contains("ip=")) assertThat(query).contains("ip={ip}");
+                        if (query.contains("{ipv6}")) assertThat(query).contains("ipv6={ipv6}");
+                        if (query.contains("{ip}")) assertThat(query).contains("ip={ip}");
                     } catch (final Exception e) {
                         fail("Exception for client file " + file.getName(), e);
                     }
