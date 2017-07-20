@@ -1,8 +1,7 @@
 package org.araymond.joal.web.resources;
 
 import com.google.common.base.Charsets;
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
+import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -26,9 +25,9 @@ public class HttpTorrentFileController {
     @RequestMapping(value = "/add", method = RequestMethod.POST)
     public void addTorrent(@RequestBody final String b64TorrentFile) throws IOException {
         try {
-            byte[] bytes = Base64.decode(b64TorrentFile);
+            final byte[] bytes = Base64.decodeBase64(b64TorrentFile);
             logger.info(new String(bytes, Charsets.ISO_8859_1));
-        } catch (final Base64DecodingException e) {
+        } catch (final Exception e) {
             logger.error("failed to add file", e);
         }
     }
