@@ -2,6 +2,7 @@ package org.araymond.joal.web.resources;
 
 import org.araymond.joal.web.messages.outgoing.StompMessage;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * Created by raymo on 04/07/2017.
  */
+@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
 @RestController
 @RequestMapping("/replayable")
 public class SummaryController {

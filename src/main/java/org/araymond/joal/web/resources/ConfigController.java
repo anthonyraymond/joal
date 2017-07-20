@@ -7,6 +7,7 @@ import org.araymond.joal.web.messages.outgoing.impl.config.InvalidConfigPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
@@ -15,6 +16,7 @@ import javax.inject.Inject;
 /**
  * Created by raymo on 09/07/2017.
  */
+@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
 @Controller
 @MessageMapping("/config")
 public class ConfigController {

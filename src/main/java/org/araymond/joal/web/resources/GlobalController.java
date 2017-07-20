@@ -1,6 +1,7 @@
 package org.araymond.joal.web.resources;
 
 import org.araymond.joal.core.SeedManager;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
 
@@ -10,6 +11,7 @@ import java.io.IOException;
 /**
  * Created by raymo on 24/06/2017.
  */
+@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
 @Controller
 @MessageMapping("/global")
 public class GlobalController {

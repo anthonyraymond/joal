@@ -4,6 +4,7 @@ import com.google.common.base.Charsets;
 import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,6 +17,7 @@ import java.io.IOException;
 /**
  * Created by raymo on 12/07/2017.
  */
+@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
 @Controller
 @RequestMapping("/torrents")
 public class HttpTorrentFileController {

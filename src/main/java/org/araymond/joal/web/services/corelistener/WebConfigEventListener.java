@@ -9,6 +9,7 @@ import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPaylo
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -19,6 +20,7 @@ import javax.inject.Inject;
 /**
  * Created by raymo on 08/07/2017.
  */
+@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
 @Service
 public class WebConfigEventListener extends WebEventListener {
     private static final Logger logger = LoggerFactory.getLogger(WebConfigEventListener.class);
