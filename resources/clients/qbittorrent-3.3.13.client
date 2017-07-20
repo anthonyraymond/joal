@@ -1,0 +1,24 @@
+{
+    "keyGenerator": {
+        "length": 8,
+        "type": "hash_no_leading_zero",
+        "refreshOn": "TORRENT_PERSISTENT",
+        "upperCase": true,
+        "lowerCase": false
+    },
+    "peerIdGenerator": {
+        "prefix": "-qB33D0-",
+        "type": "printable",
+        "refreshOn": "NEVER",
+        "upperCase": false,
+        "lowerCase": false
+    },
+    "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1&supportcrypto=1&redundant=0",
+    "numwant": 200,
+    "numwantOnStop": 0,
+    "requestHeaders": [
+        { "name": "User-Agent", "value": "qBittorrent/3.3.13" },
+        { "name": "Accept-Encoding", "value": "gzip" },
+        { "name": "Connection", "value": "close" }
+    ]
+}
