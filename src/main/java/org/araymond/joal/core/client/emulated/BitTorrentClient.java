@@ -7,6 +7,10 @@ import com.google.common.collect.ImmutableList;
 import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.client.fluent.Executor;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.message.BasicHeader;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
@@ -18,6 +22,7 @@ import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import java.io.UnsupportedEncodingException;
 import java.net.*;
 import java.util.*;
+import java.util.function.IntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -71,7 +76,7 @@ public class BitTorrentClient {
         return this.numwantProvider.get(event);
     }
 
-    public URL buildAnnounceURL(final URL trackerAnnounceURI, final RequestEvent event, final TorrentWithStats torrent, final ConnectionHandler connectionHandler) throws UnsupportedEncodingException, MalformedURLException {
+    public Request buildAnnounceRequest(final URL trackerAnnounceURL, final RequestEvent event, final TorrentWithStats torrent, final ConnectionHandler connectionHandler) throws UnsupportedEncodingException {
         String emulatedClientQuery = this.getQuery()
                 .replaceAll("\\{infohash}", URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING))
                 .replaceAll("\\{peerid}", URLEncoder.encode(this.getPeerId(torrent.getTorrent(), event), Torrent.BYTE_ENCODING))
@@ -114,10 +119,45 @@ public class BitTorrentClient {
             throw new UnrecognizedAnnounceParameter("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
         }
 
-        final String base = trackerAnnounceURI.toString();
-        final String url = base + (base.contains("?") ? "&" : "?") + emulatedClientQuery;
+        // Append ? or & only if query contains params
+        final String base;
+        if (emulatedClientQuery.length() > 0) {
+            base = trackerAnnounceURL.toString() + (trackerAnnounceURL.toString().contains("?") ? "&" : "?");
+        } else {
+            base = trackerAnnounceURL.toString();
+        }
+        final String url = base + emulatedClientQuery;
 
-        return new URL(url);
+
+
+        final Request request = Request.Get(url);
+        this.addHeadersToRequest(request, trackerAnnounceURL);
+
+        return request;
+    }
+
+    @VisibleForTesting
+    void addHeadersToRequest(final Request request, final URL trackerAnnounceURI) {
+        final int port = trackerAnnounceURI.getPort();
+        // Add Host header first to prevent Request appending it at the end
+        request.addHeader("Host", trackerAnnounceURI.getHost() + (port == -1 ? "" : ":" + port));
+
+        //noinspection SimplifyStreamApiCallChains
+        this.headers.stream().forEachOrdered(header -> {
+            final String name = header.getKey();
+            final String value = header.getValue()
+                    .replaceAll("\\{java}", System.getProperty("java.version"))
+                    .replaceAll("\\{os}", System.getProperty("os.name"));
+
+            request.addHeader(name, value);
+        });
+
+        // if Connection header was not set, we append it. Apache HttpClient will add it what so ever, so prefer "Close" over "keep-alive"
+        final boolean hasConnectionHeader = this.headers.stream()
+                .anyMatch(header -> "Connection".equalsIgnoreCase(header.getKey()));
+        if (!hasConnectionHeader) {
+            request.addHeader("Connection", "Close");
+        }
     }
 
     @Override

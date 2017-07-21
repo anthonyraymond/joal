@@ -3,8 +3,15 @@ package org.araymond.joal.core.ttorent.client.announce.tracker;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.ResponseHandler;
+import org.apache.http.client.fluent.Request;
+import org.apache.http.client.fluent.Response;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
@@ -13,16 +20,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.Map;
-import java.util.Objects;
-import java.util.zip.GZIPInputStream;
 
 import static com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage;
 import static com.turn.ttorrent.common.protocol.TrackerMessage.MessageValidationException;
@@ -42,34 +45,12 @@ public class HTTPTrackerClient extends TrackerClient {
         this.bitTorrentClient = bitTorrentClient;
     }
 
-    @VisibleForTesting
-    void addHttpHeaders(final HttpURLConnection conn) {
-        for (final Map.Entry<String, String> header : this.bitTorrentClient.getHeaders()) {
-            final String value = header.getValue()
-                    .replaceAll("\\{java}", System.getProperty("java.version"))
-                    .replaceAll("\\{os}", System.getProperty("os.name"));
-            conn.addRequestProperty(header.getKey(), value);
-        }
-    }
-
     @Override
-    protected HTTPTrackerMessage toTrackerMessage(final ByteBuffer byteBuffer) throws AnnounceException {
+    protected TrackerMessage makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
+        final Request request;
         try {
-            // Parse and handle the response
-            return HTTPTrackerMessage.parse(byteBuffer);
-        } catch (final IOException ioe) {
-            throw new AnnounceException("Error reading tracker response!", ioe);
-        } catch (final MessageValidationException mve) {
-            throw new AnnounceException("Tracker message violates expected protocol (" + mve.getMessage() + ")", mve);
-        }
-    }
-
-    @Override
-    protected ByteBuffer makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
-        final URL target;
-        try {
-            target = this.bitTorrentClient.buildAnnounceURL(this.tracker.toURL(), event, this.torrent, this.connectionHandler);
-            logger.debug("Announce url: " + target.toString());
+            request = this.bitTorrentClient.buildAnnounceRequest(this.tracker.toURL(), event, this.torrent, this.connectionHandler);
+            logger.debug("Announce url: " + request.toString());
         } catch (final MalformedURLException mue) {
             throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
         } catch (final UnsupportedEncodingException e) {
@@ -80,59 +61,51 @@ public class HTTPTrackerClient extends TrackerClient {
             throw new AnnounceException("Unhandled exception occurred while building announce URL.");
         }
 
-        HttpURLConnection conn = null;
-        InputStream in = null;
+        final Response response;
         try {
-            conn = (HttpURLConnection) target.openConnection();
-            this.addHttpHeaders(conn);
-            in = conn.getInputStream();
-        } catch (final IOException ioe) {
-            if (conn != null) {
-                in = conn.getErrorStream();
-            }
-            logger.warn("Tracker answer was an error.", ioe);
+            response = request.execute();
+        } catch (final ClientProtocolException e) {
+            throw new AnnounceException("Failed to announce: protocol mismatch.", e);
+        } catch (final IOException e) {
+            throw new AnnounceException("Failed to announce: error or connection aborted.", e);
         }
 
-        // At this point if the input stream is null it means we have neither a
-        // response body nor an error stream from the server. No point in going
-        // any further.
-        if (in == null) {
-            throw new AnnounceException("No response or unreachable tracker!");
-        }
-
-        final ByteArrayOutputStream outputStream;
         try {
-            outputStream = new ByteArrayOutputStream();
-            if (!Objects.equals(conn.getHeaderField("Content-Encoding"), "gzip")) {
-                outputStream.write(in);
-            } else {
-                outputStream.write(new GZIPInputStream(in));
-            }
-        } catch (final IOException ioe) {
-            throw new AnnounceException("Error reading tracker response!", ioe);
-        } finally {
-            // Make sure we close everything down at the end to avoid resource
-            // leaks.
-            try {
-                in.close();
-            } catch (final IOException ioe) {
-                logger.warn("Problem ensuring error stream closed!", ioe);
-            }
-
-            // This means trying to close the error stream as well.
-            final InputStream err = conn.getErrorStream();
-            if (err != null) {
-                try {
-                    err.close();
-                } catch (final IOException ioe) {
-                    logger.warn("Problem ensuring error stream closed!", ioe);
-                }
-            }
-            conn.disconnect();
+            return response.handleResponse(new TrackerResponseHandler());
+        } catch (final IOException e) {
+            throw new AnnounceException("Failed to handle tracker response", e);
         }
-
-        // TODO : ensure outputStream.close() is not required.
-        return ByteBuffer.wrap(outputStream.toByteArray());
     }
 
+    static final class TrackerResponseHandler implements ResponseHandler<TrackerMessage> {
+        @Override
+        public TrackerMessage handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
+            final HttpEntity entity = response.getEntity();
+            if (entity == null) {
+                throw new IOException(new AnnounceException("No response from tracker"));
+            }
+
+            final int contentLength = entity.getContentLength() < 1 ? 1024 : (int) entity.getContentLength();
+            try(final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(contentLength)) {
+                if (response.getStatusLine().getStatusCode() >= 300) {
+                    logger.warn("Tracker response is an error.");
+                }
+
+                try {
+                    entity.writeTo(outputStream);
+                } catch (final IOException e) {
+                    throw new IOException(new AnnounceException("Failed to read tracker http response", e));
+                }
+
+                try {
+                    // Parse and handle the response
+                    return HTTPTrackerMessage.parse(ByteBuffer.wrap(outputStream.toByteArray()));
+                } catch (final IOException ioe) {
+                    throw new IOException(new AnnounceException("Error reading tracker response!", ioe));
+                } catch (final MessageValidationException mve) {
+                    throw new IOException(new AnnounceException("Tracker message violates expected protocol (" + mve.getMessage() + ")", mve));
+                }
+            }
+        }
+    }
 }

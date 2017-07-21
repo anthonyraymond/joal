@@ -7,6 +7,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import com.turn.ttorrent.common.protocol.http.HTTPAnnounceRequestMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
+import org.apache.http.client.fluent.Response;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -146,8 +147,7 @@ public class TrackerClientTest {
         Mockito.when(message.getPeers()).thenReturn(Lists.emptyList());
 
         final DefaultTrackerClient trackerClient = Mockito.spy(new DefaultTrackerClient(torrent, connectionHandler, uri));
-        Mockito.when(trackerClient.makeCallAndGetResponseAsByteBuffer(Mockito.any(RequestEvent.class))).thenReturn(null);
-        Mockito.when(trackerClient.toTrackerMessage(Mockito.any(ByteBuffer.class))).thenReturn(message);
+        Mockito.when(trackerClient.makeCallAndGetResponseAsByteBuffer(Mockito.any(RequestEvent.class))).thenReturn(message);
 
         final DefaultResponseListener listener = Mockito.spy(new DefaultResponseListener(new CountDownLatch(1), new CountDownLatch(1)));
         trackerClient.register(listener);
@@ -189,12 +189,7 @@ public class TrackerClientTest {
         }
 
         @Override
-        protected ByteBuffer makeCallAndGetResponseAsByteBuffer(final RequestEvent event) throws AnnounceException {
-            return null;
-        }
-
-        @Override
-        protected TrackerMessage toTrackerMessage(final ByteBuffer byteBuffer) throws AnnounceException {
+        protected TrackerMessage makeCallAndGetResponseAsByteBuffer(final RequestEvent event) throws AnnounceException {
             return null;
         }
 

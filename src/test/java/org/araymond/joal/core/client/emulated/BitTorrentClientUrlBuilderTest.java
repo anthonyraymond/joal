@@ -1,7 +1,10 @@
 package org.araymond.joal.core.client.emulated;
 
+import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.apache.http.client.fluent.Request;
+import org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
@@ -12,12 +15,17 @@ import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStatsTest;
+import org.junit.BeforeClass;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mockito;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
+import java.util.AbstractMap;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -29,6 +37,16 @@ public class BitTorrentClientUrlBuilderTest {
     private static final KeyGenerator defaultKeyGenerator = KeyGeneratorTest.createDefault();
     private static final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
     private static final NumwantProvider defaultNumwantProvider = new NumwantProvider(200, 0);
+    private static URL defaultTrackerURL;
+
+    @BeforeClass
+    public static void setUp() throws MalformedURLException {
+        defaultTrackerURL = new URL("http://my.tracker.com/announce");
+    }
+
+    private static String computeExpectedURLBegin(final URL trackerURL) {
+        return "GET " + trackerURL.toString() + "?";
+    }
 
     private static InetAddress createMockedINet4Address() {
         try {
@@ -66,7 +84,7 @@ public class BitTorrentClientUrlBuilderTest {
         );
 
         assertThatThrownBy(() ->
-                client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler)
+                client.buildAnnounceRequest(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler)
         ).isInstanceOf(UnrecognizedAnnounceParameter.class)
                 .hasMessage("Placeholder {damnit} were not recognized while building announce URL.");
     }
@@ -83,10 +101,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("info_hash=" + URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING));
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "info_hash=" + URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING) +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -101,10 +124,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("peer_id=" + defaultPeerIdGenerator.getPeerId(torrent.getTorrent(), RequestEvent.STARTED));
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "peer_id=" + defaultPeerIdGenerator.getPeerId(torrent.getTorrent(), RequestEvent.STARTED) +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -119,10 +147,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("uploaded=" + torrent.getUploaded());
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "uploaded=" + torrent.getUploaded() +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -137,10 +170,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("downloaded=" + torrent.getDownloaded());
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "downloaded=" + torrent.getDownloaded() +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -155,10 +193,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("left=" + torrent.getLeft());
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "left=" + torrent.getLeft() +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -173,10 +216,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("port=" + connHandler.getPort());
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "port=" + connHandler.getPort() +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -191,10 +239,14 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("ipv6=" + URLEncoder.encode(connHandler.getIpAddress().getHostAddress(), Torrent.BYTE_ENCODING));
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(computeExpectedURLBegin(defaultTrackerURL) +
+                        "ipv6=" + URLEncoder.encode(connHandler.getIpAddress().getHostAddress(), Torrent.BYTE_ENCODING)
+                        + " HTTP/1.1"
+                );
     }
 
     @Test
@@ -209,10 +261,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("ip=" + connHandler.getIpAddress().getHostAddress());
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "ip=" + connHandler.getIpAddress().getHostAddress() +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -227,10 +284,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("event=" + RequestEvent.STARTED.getEventName());
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "event=" + RequestEvent.STARTED.getEventName() +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -245,8 +307,11 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        assertThat(client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.NONE, torrent, connHandler).getQuery())
-                .isEqualTo("");
+        assertThat(client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.NONE, torrent, connHandler).toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL).replaceAll("\\?", "") +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -261,10 +326,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("key=" + defaultKeyGenerator.getKey(torrent.getTorrent(), RequestEvent.STARTED));
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "key=" + defaultKeyGenerator.getKey(torrent.getTorrent(), RequestEvent.STARTED) +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -279,10 +349,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("numwant=" + defaultNumwantProvider.get(RequestEvent.STARTED));
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "numwant=" + defaultNumwantProvider.get(RequestEvent.STARTED) +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -297,10 +372,15 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STOPPED, torrent, connHandler);
 
-        assertThat(announceURL.getQuery())
-                .isEqualTo("numwant=" + defaultNumwantProvider.get(RequestEvent.STOPPED));
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STOPPED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "numwant=" + defaultNumwantProvider.get(RequestEvent.STOPPED) +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -316,17 +396,20 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL trackerURL = new URL("http://my.tracker.com/announce");
-        final URL announceURL = client.buildAnnounceURL(trackerURL, RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.toString()).startsWith(trackerURL.toString());
-        assertThat(announceURL.getQuery()).isEqualTo(
-                "info_hash=" + URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING) +
-                        "&downloaded=" + torrent.getDownloaded() +
-                        "&left=" + torrent.getLeft() +
-                        "&corrupt=0" +
-                        "&ip=" + connHandler.getIpAddress().getHostAddress()
-        );
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .startsWith(computeExpectedURLBegin(defaultTrackerURL))
+                .isEqualTo(
+                        computeExpectedURLBegin(defaultTrackerURL) +
+                                "info_hash=" + URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING) +
+                                "&downloaded=" + torrent.getDownloaded() +
+                                "&left=" + torrent.getLeft() +
+                                "&corrupt=0" +
+                                "&ip=" + connHandler.getIpAddress().getHostAddress() +
+                                " HTTP/1.1"
+                );
     }
 
     @Test
@@ -343,14 +426,15 @@ public class BitTorrentClientUrlBuilderTest {
         );
 
         final URL trackerURL = new URL("http://my.tracker.com/announce?name=jack");
-        final URL announceURL = client.buildAnnounceURL(trackerURL, RequestEvent.STARTED, torrent, connHandler);
+        final Request request = client.buildAnnounceRequest(trackerURL, RequestEvent.STARTED, torrent, connHandler);
 
-        assertThat(announceURL.toString()).startsWith(trackerURL.toString());
-        assertThat(announceURL.getQuery()).isEqualTo(
-                "name=jack&event=" + RequestEvent.STARTED.getEventName()
-        );
+        assertThat(request.toString()).startsWith("GET " + trackerURL.toString())
+                .isEqualTo(
+                        computeExpectedURLBegin(trackerURL).replaceAll("\\?$", "") +
+                                "&event=" + RequestEvent.STARTED.getEventName() +
+                                " HTTP/1.1"
+                ).contains("?name=jack");
     }
-
 
     @Test
     public void shouldFailToBuildIfQueryContainsKeyButBitTorrentClientDoesNot() throws UnsupportedEncodingException, MalformedURLException {
@@ -374,8 +458,8 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
-        final URL trackerURL = new URL("http://my.tracker.com/announce");
-        assertThatThrownBy(() -> client.buildAnnounceURL(trackerURL, RequestEvent.STARTED, torrent, connectionHandler))
+
+        assertThatThrownBy(() -> client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connectionHandler))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessage("Client request query contains 'key' but BitTorrentClient does not have a key.");
     }
@@ -393,11 +477,135 @@ public class BitTorrentClientUrlBuilderTest {
                 defaultNumwantProvider
         );
 
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
 
-        final URL announceURL = client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
+        assertThat(request.toString())
+                .startsWith(computeExpectedURLBegin(defaultTrackerURL) + "peer_id=-AA-%89%F9");
+    }
 
-        assertThat(announceURL.getQuery())
-                .startsWith("peer_id=-AA-%89%F9");
+    @Test
+    public void shouldAddHeaders() {
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "d",
+                Lists.newArrayList(new HttpHeader("HName", "HValue"), new HttpHeader("Accept", "*/*")),
+                defaultNumwantProvider
+        );
+
+        final Request request = Mockito.mock(Request.class);
+
+        client.addHeadersToRequest(request, defaultTrackerURL);
+        Mockito.verify(request, Mockito.times(1)).addHeader("HName", "HValue");
+        Mockito.verify(request, Mockito.times(1)).addHeader("Accept", "*/*");
+    }
+
+    @Test
+    public void shouldAddConnectionHeaderIfNotPresent() {
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "d",
+                Lists.newArrayList(),
+                defaultNumwantProvider
+        );
+
+        final Request request = Mockito.mock(Request.class);
+
+        client.addHeadersToRequest(request, defaultTrackerURL);
+        Mockito.verify(request, Mockito.times(1)).addHeader("Connection", "Close");
+    }
+
+    @Test
+    public void shouldNotOverrideHeaderIfPresent() {
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "d",
+                Lists.newArrayList(new HttpHeader("Connection", "WOAW")),
+                defaultNumwantProvider
+        );
+
+        final Request request = Mockito.mock(Request.class);
+
+        client.addHeadersToRequest(request, defaultTrackerURL);
+        Mockito.verify(request, Mockito.times(1)).addHeader("Connection", "WOAW");
+    }
+
+    @Test
+    public void shouldAddHostHeader() throws MalformedURLException {
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "d",
+                Lists.newArrayList(new HttpHeader("Connection", "WOAW")),
+                defaultNumwantProvider
+        );
+
+        final Request requestWithoutPort = Mockito.mock(Request.class);
+
+        final URL urlWithoutPort = new URL("http://my.tracker.com");
+        client.addHeadersToRequest(requestWithoutPort, urlWithoutPort);
+        Mockito.verify(requestWithoutPort, Mockito.times(1)).addHeader("Host", urlWithoutPort.getHost());
+
+        final Request requestWithPort = Mockito.mock(Request.class);
+
+        final URL urlWithPort = new URL("http://my.tracker.com:1234");
+        client.addHeadersToRequest(requestWithPort, urlWithPort);
+        Mockito.verify(requestWithPort, Mockito.times(1)).addHeader("Host", urlWithPort.getHost() + ":" + urlWithPort.getPort());
+
+    }
+
+    @Test
+    public void shouldAddHeadersInOrder() {
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "d",
+                Lists.newArrayList(
+                        new HttpHeader("User-Agent", "jacki-jack"),
+                        new HttpHeader("Connection", "Close"),
+                        new HttpHeader("Accept", "*/*"),
+                        new HttpHeader("Accept-Encoding", "gzip"),
+                        new HttpHeader("Another-Name", "Another-Value")
+                ),
+                defaultNumwantProvider
+        );
+
+        final Request request = Mockito.mock(Request.class);
+        client.addHeadersToRequest(request, defaultTrackerURL);
+
+        final InOrder inOrder = Mockito.inOrder(request);
+        inOrder.verify(request, Mockito.times(1)).addHeader("Host", defaultTrackerURL.getHost());
+        Mockito.verify(request, Mockito.times(1)).addHeader("User-Agent", "jacki-jack");
+        Mockito.verify(request, Mockito.times(1)).addHeader("Connection", "Close");
+        Mockito.verify(request, Mockito.times(1)).addHeader("Accept", "*/*");
+        Mockito.verify(request, Mockito.times(1)).addHeader("Accept-Encoding", "gzip");
+        Mockito.verify(request, Mockito.times(1)).addHeader("Another-Name", "Another-Value");
+    }
+
+    @Test
+    public void shouldReplacePlaceholderInHeaders() throws URISyntaxException {
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                "d",
+                Lists.newArrayList(
+                        new HttpHeader("javaOnly", "{java}"),
+                        new HttpHeader("osOnly", "{os}"),
+                        new HttpHeader("javaWithText", "Java v{java} qsdqd"),
+                        new HttpHeader("osWithText", "Os {os} qdqsdqsd")
+                ),
+                defaultNumwantProvider
+        );
+
+        final Request request = Mockito.mock(Request.class);
+        client.addHeadersToRequest(request, defaultTrackerURL);
+
+        Mockito.verify(request, Mockito.times(1)).addHeader("javaOnly", System.getProperty("java.version"));
+        Mockito.verify(request, Mockito.times(1)).addHeader("osOnly", System.getProperty("os.name"));
+        Mockito.verify(request, Mockito.times(1)).addHeader("javaWithText", "Java v" + System.getProperty("java.version") + " qsdqd");
+        Mockito.verify(request, Mockito.times(1)).addHeader("osWithText", "Os " + System.getProperty("os.name") + " qdqsdqsd");
     }
 
 }

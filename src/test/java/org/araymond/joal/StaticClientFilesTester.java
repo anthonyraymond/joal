@@ -87,7 +87,7 @@ public class StaticClientFilesTester {
                         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet6Address());
                         final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
 
-                        client.buildAnnounceURL(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
+                        client.buildAnnounceRequest(new URL("http://my.tracker.com/announce"), RequestEvent.STARTED, torrent, connHandler);
                     } catch (final Exception e) {
                         fail("Exception for client file " + file.getName(), e);
                     }

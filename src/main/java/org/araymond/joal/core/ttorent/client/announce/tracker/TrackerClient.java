@@ -61,9 +61,7 @@ public abstract class TrackerClient {
         return this.tracker;
     }
 
-    protected abstract ByteBuffer makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException;
-
-    protected abstract TrackerMessage toTrackerMessage(final ByteBuffer byteBuffer) throws AnnounceException;
+    protected abstract TrackerMessage makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException;
 
     /**
      * Build, send and process a tracker announce request.
@@ -89,8 +87,7 @@ public abstract class TrackerClient {
                 this.torrent.getDownloaded(),
                 this.torrent.getLeft());
 
-        final ByteBuffer responseByteBuffer = makeCallAndGetResponseAsByteBuffer(event);
-        final TrackerMessage responseMessage = toTrackerMessage(responseByteBuffer);
+        final TrackerMessage responseMessage = makeCallAndGetResponseAsByteBuffer(event);
         this.handleTrackerAnnounceResponse(responseMessage);
     }
 
