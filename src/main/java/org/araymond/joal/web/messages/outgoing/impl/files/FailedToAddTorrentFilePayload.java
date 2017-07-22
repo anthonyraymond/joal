@@ -7,8 +7,8 @@ import org.araymond.joal.web.messages.outgoing.MessagePayload;
  * Created by raymo on 10/07/2017.
  */
 public class FailedToAddTorrentFilePayload implements MessagePayload {
-    final String fileName;
-    final String error;
+    private final String fileName;
+    private final String error;
 
     public FailedToAddTorrentFilePayload(final FailedToAddTorrentFileEvent event) {
         this.fileName = event.getFile().getName();

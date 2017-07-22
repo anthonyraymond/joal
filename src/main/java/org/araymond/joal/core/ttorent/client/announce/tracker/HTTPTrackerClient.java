@@ -1,6 +1,5 @@
 package org.araymond.joal.core.ttorent.client.announce.tracker;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
@@ -21,11 +20,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.Map;
 
 import static com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage;
 import static com.turn.ttorrent.common.protocol.TrackerMessage.MessageValidationException;

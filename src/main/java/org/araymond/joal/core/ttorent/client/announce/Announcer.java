@@ -205,6 +205,17 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     }
 
     /**
+     * Stop the announce thread.
+     *
+     * @param hard Whether to force stop the announce thread or not, i.e. not
+     *             send the final 'stopped' announce request or not.
+     */
+    private void stop(final boolean hard) {
+        this.forceStop = hard;
+        this.stop();
+    }
+
+    /**
      * Main announce loop.
      * <p>
      * <p>
@@ -424,17 +435,6 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 );
             }
         }
-    }
-
-    /**
-     * Stop the announce thread.
-     *
-     * @param hard Whether to force stop the announce thread or not, i.e. not
-     *             send the final 'stopped' announce request or not.
-     */
-    private void stop(final boolean hard) {
-        this.forceStop = hard;
-        this.stop();
     }
 
 }
