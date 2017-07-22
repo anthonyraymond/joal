@@ -73,7 +73,7 @@ public class HTTPTrackerClient extends TrackerClient {
         try {
             return response.handleResponse(new TrackerResponseHandler());
         } catch (final IOException e) {
-            throw new AnnounceException("Failed to handle tracker response", e);
+            throw new AnnounceException("Failed to handle tracker response: " + e.getMessage(), e);
         }
     }
 
@@ -82,7 +82,8 @@ public class HTTPTrackerClient extends TrackerClient {
         public TrackerMessage handleResponse(final HttpResponse response) throws ClientProtocolException, IOException {
             final HttpEntity entity = response.getEntity();
             if (entity == null) {
-                throw new IOException(new AnnounceException("No response from tracker"));
+                final String message = "No response from tracker";
+                throw new IOException(message, new AnnounceException(message));
             }
 
             final int contentLength = entity.getContentLength() < 1 ? 1024 : (int) entity.getContentLength();
@@ -94,16 +95,19 @@ public class HTTPTrackerClient extends TrackerClient {
                 try {
                     entity.writeTo(outputStream);
                 } catch (final IOException e) {
-                    throw new IOException(new AnnounceException("Failed to read tracker http response", e));
+                    final String message = "Failed to read tracker http response";
+                    throw new IOException(message, new AnnounceException(message, e));
                 }
 
                 try {
                     // Parse and handle the response
                     return HTTPTrackerMessage.parse(ByteBuffer.wrap(outputStream.toByteArray()));
                 } catch (final IOException ioe) {
-                    throw new IOException(new AnnounceException("Error reading tracker response!", ioe));
+                    final String message = "Error reading tracker response!";
+                    throw new IOException(message, new AnnounceException(message, ioe));
                 } catch (final MessageValidationException mve) {
-                    throw new IOException(new AnnounceException("Tracker message violates expected protocol (" + mve.getMessage() + ")", mve));
+                    final String message = "Tracker message violates expected protocol (" + mve.getMessage() + ")";
+                    throw new IOException(message, new AnnounceException(message, mve));
                 }
             }
         }
