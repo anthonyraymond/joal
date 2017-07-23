@@ -66,7 +66,6 @@ class TorrentFileWatcher {
             this.monitor.stop(10);
         } catch (final Exception ignored) {
         }
-        this.monitor.removeObserver(observer);
         logger.trace("TorrentFileProvider stopped.");
     }
 

@@ -53,6 +53,10 @@ public class MockedTorrent extends Torrent {
         return new MockedTorrent(data, true, torrent.toPath());
     }
 
+    public static MockedTorrent fromBytes(final byte[] bytes) throws IOException, NoSuchAlgorithmException {
+        return new MockedTorrent(bytes, false, null);
+    }
+
     public Path getPath() {
         return path;
     }

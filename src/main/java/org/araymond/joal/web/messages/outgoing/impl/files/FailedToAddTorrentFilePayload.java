@@ -11,7 +11,7 @@ public class FailedToAddTorrentFilePayload implements MessagePayload {
     private final String error;
 
     public FailedToAddTorrentFilePayload(final FailedToAddTorrentFileEvent event) {
-        this.fileName = event.getFile().getName();
+        this.fileName = event.getFileName();
         this.error = event.getError();
     }
 

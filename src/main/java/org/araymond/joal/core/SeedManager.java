@@ -37,14 +37,14 @@ public class SeedManager {
     private ConnectionHandler connectionHandler;
     private Client currentClient;
 
-    @PostConstruct
-    private void init() throws IOException {
-        connectionHandler.init();
+    public void init() throws IOException {
+        this.connectionHandler.init();
+        this.torrentFileProvider.start();
     }
 
-    @PreDestroy
-    private void tearDown() throws IOException {
-        connectionHandler.close();
+    public void tearDown() throws IOException {
+        this.connectionHandler.close();
+        this.currentClient.stop();
     }
 
     @Inject
@@ -58,9 +58,7 @@ public class SeedManager {
 
     public void startSeeding() throws IOException {
         this.configProvider.init();
-        this.torrentFileProvider.start();
         this.bitTorrentClientProvider.init();
-
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
@@ -81,8 +79,11 @@ public class SeedManager {
         this.configProvider.saveNewConf(config);
     }
 
+    public void saveTorrentToDisk(final String name, final byte[] bytes) {
+        this.torrentFileProvider.saveTorrentFileToDisk(name, bytes);
+    }
+
     public void stop() {
-        torrentFileProvider.stop();
         if (currentClient != null) {
             this.currentClient.stop();
             this.publisher.publishEvent(new SeedSessionHasEndedEvent());

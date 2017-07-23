@@ -11,6 +11,7 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
+import java.io.IOException;
 
 /**
  * Created by raymo on 08/07/2017.
@@ -30,7 +31,12 @@ public class ApplicationClosingListener implements ApplicationListener<ContextCl
     public void onApplicationEvent(final ContextClosedEvent event) {
         logger.info("Gracefully shutting down application.");
         manager.stop();
-        logger.info("Application gracefully shut down.");
+        try {
+            manager.tearDown();
+            logger.info("JOAL gracefully shut down.");
+        } catch (final IOException e) {
+            logger.error("Failed to gracefully shut down JOAL.", e);
+        }
 
         // Since we disabled log4j2 shutdown hook, we need to handle it manually.
         final LifeCycle loggerContext = (LoggerContext) LogManager.getContext(false);

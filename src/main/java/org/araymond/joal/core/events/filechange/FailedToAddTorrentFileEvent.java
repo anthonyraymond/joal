@@ -8,17 +8,17 @@ import java.io.File;
  * Created by raymo on 06/05/2017.
  */
 public class FailedToAddTorrentFileEvent {
-    private final File file;
+    private final String fileName;
     private final String error;
 
-    public FailedToAddTorrentFileEvent(final File file, final String error) {
-        Preconditions.checkNotNull(file, "File cannot be null.");
-        this.file = file;
+    public FailedToAddTorrentFileEvent(final String fileName, final String error) {
+        Preconditions.checkNotNull(fileName, "File name cannot be null.");
+        this.fileName = fileName;
         this.error = error;
     }
 
-    public File getFile() {
-        return file;
+    public String getFileName() {
+        return fileName;
     }
 
     public String getError() {

@@ -29,6 +29,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
     @Override
     public void onApplicationEvent(final ApplicationReadyEvent event) {
         try {
+            manager.init();
             manager.startSeeding();
         } catch (final Throwable e) {
             final IllegalStateException wrapped = new IllegalStateException("Fatal error encountered", e);

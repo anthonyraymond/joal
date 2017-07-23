@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -33,6 +34,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles;
     private final Set<TorrentFileChangeAware> torrentFileChangeListener;
+    private final Path torrentFolder;
     private final Path archiveFolder;
     private final ApplicationEventPublisher publisher;
     private boolean isInitOver = false;
@@ -72,7 +74,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         if (StringUtils.isBlank(confFolder)) {
             throw new IllegalArgumentException("A config path is required.");
         }
-        final Path torrentFolder = Paths.get(confFolder).resolve("torrents");
+        this.torrentFolder = Paths.get(confFolder).resolve("torrents");
         if (!Files.exists(torrentFolder)) {
             logger.error("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
             throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
@@ -113,12 +115,12 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             }
             this.publisher.publishEvent(new TorrentFileAddedEvent(torrent));
         } catch (final IOException | NoSuchAlgorithmException e) {
-            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(file, e.getMessage()));
-            logger.warn("File '{}' not added to torrent list, failed to read file.", file.getAbsolutePath(), e);
+            logger.warn("Failed to read file '{}', moved to archive folder.", file.getAbsolutePath(), e);
+            this.moveToArchiveFolder(file);
         } catch (final Exception e) {
-            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(file, e.getMessage()));
             // This thread MUST NOT crash. we need handle any other exception
-            logger.warn("File '{}' not added to torrent list, unexpected exception was caught.", e);
+            logger.warn("Unexpected exception was caught for file '{}', moved to archive folder.", e);
+            this.moveToArchiveFolder(file);
         }
     }
 
@@ -165,6 +167,19 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         }
     }
 
+    public void saveTorrentFileToDisk(final String name, final byte[] bytes) {
+        try {
+            // try if the torrent file is safe or not.
+            MockedTorrent.fromBytes(bytes);
+
+            final String torrentName = name.endsWith(".torrent") ? name : name + ".torrent";
+            Files.write(this.torrentFolder.resolve(torrentName), bytes, StandardOpenOption.CREATE);
+        } catch (final Exception e) {
+            logger.warn("Failed to save torrent file", e);
+            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, e.getMessage()));
+        }
+    }
+
     public void moveToArchiveFolder(final MockedTorrent torrent) {
         this.moveToArchiveFolder(torrent.getPath().toFile());
     }
@@ -172,6 +187,5 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     public int getTorrentCount() {
         return this.torrentFiles.size();
     }
-
 
 }
