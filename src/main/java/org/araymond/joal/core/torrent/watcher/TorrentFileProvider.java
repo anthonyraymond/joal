@@ -181,7 +181,15 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     }
 
     public void moveToArchiveFolder(final MockedTorrent torrent) {
-        this.moveToArchiveFolder(torrent.getPath().toFile());
+        final Optional<File> first = this.torrentFiles.entrySet().stream()
+                .filter(entry -> entry.getValue().equals(torrent))
+                .map(Map.Entry::getKey)
+                .findFirst();
+        if (first.isPresent()) {
+            this.moveToArchiveFolder(first.get());
+        } else {
+            logger.warn("Cannot move torrent {} to archive folder. Torrent file seems not to be registered in TorrentFileProvider.", torrent.getName());
+        }
     }
 
     public int getTorrentCount() {

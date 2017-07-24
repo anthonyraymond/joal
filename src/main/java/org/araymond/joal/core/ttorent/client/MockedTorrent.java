@@ -17,8 +17,6 @@ import java.security.NoSuchAlgorithmException;
 @SuppressWarnings("ClassWithOnlyPrivateConstructors")
 public class MockedTorrent extends Torrent {
 
-    private final Path path;
-
     /**
      * Create a new torrent from meta-info binary data.
      * <p>
@@ -30,9 +28,8 @@ public class MockedTorrent extends Torrent {
      * @throws IOException When the info dictionary can't be read or
      *                     encoded and hashed back to create the torrent's SHA-1 hash.
      */
-    private MockedTorrent(final byte[] torrent, final boolean seeder, final Path path) throws IOException, NoSuchAlgorithmException {
+    private MockedTorrent(final byte[] torrent, final boolean seeder) throws IOException, NoSuchAlgorithmException {
         super(torrent, seeder);
-        this.path = path;
 
         try {
             // Torrent validity tests
@@ -50,15 +47,11 @@ public class MockedTorrent extends Torrent {
 
     public static MockedTorrent fromFile(final File torrent) throws IOException, NoSuchAlgorithmException {
         final byte[] data = FileUtils.readFileToByteArray(torrent);
-        return new MockedTorrent(data, true, torrent.toPath());
+        return new MockedTorrent(data, true);
     }
 
     public static MockedTorrent fromBytes(final byte[] bytes) throws IOException, NoSuchAlgorithmException {
-        return new MockedTorrent(bytes, false, null);
-    }
-
-    public Path getPath() {
-        return path;
+        return new MockedTorrent(bytes, false);
     }
 
     @Override
