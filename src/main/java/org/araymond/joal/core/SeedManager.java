@@ -12,19 +12,13 @@ import org.araymond.joal.core.ttorent.client.Client;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import java.io.IOException;
 
 /**
  * Created by raymo on 27/01/2017.
  */
-@Component
 public class SeedManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
@@ -34,7 +28,7 @@ public class SeedManager {
     private final BitTorrentClientProvider bitTorrentClientProvider;
     private final ApplicationEventPublisher publisher;
 
-    private ConnectionHandler connectionHandler;
+    private final ConnectionHandler connectionHandler;
     private Client currentClient;
 
     public void init() throws IOException {
@@ -47,8 +41,7 @@ public class SeedManager {
         this.currentClient.stop();
     }
 
-    @Inject
-    public SeedManager(@Value("${joal-conf}") final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
+    public SeedManager(final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
         this.torrentFileProvider = new TorrentFileProvider(joalConfFolder, publisher);
         this.configProvider = new JoalConfigProvider(mapper, joalConfFolder, publisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalConfFolder, publisher);
