@@ -119,7 +119,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             this.moveToArchiveFolder(file);
         } catch (final Exception e) {
             // This thread MUST NOT crash. we need handle any other exception
-            logger.warn("Unexpected exception was caught for file '{}', moved to archive folder.", e);
+            logger.warn("Unexpected exception was caught for file '{}', moved to archive folder.", file.getAbsolutePath(), e);
             this.moveToArchiveFolder(file);
         }
     }
