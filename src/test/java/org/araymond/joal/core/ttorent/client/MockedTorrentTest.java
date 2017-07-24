@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class MockedTorrentTest {
 
     @Test
-    public void shouldBeEqualByPath() throws IOException, NoSuchAlgorithmException {
+    public void shouldBeEqualByHexInfoHash() throws IOException, NoSuchAlgorithmException {
         final MockedTorrent torrent = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.UBUNTU).toFile());
         final MockedTorrent torrent2 = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.UBUNTU).toFile());
 
@@ -23,7 +23,7 @@ public class MockedTorrentTest {
     }
 
     @Test
-    public void shouldNotBeEqualsWithDifferentPaths() throws IOException, NoSuchAlgorithmException {
+    public void shouldNotBeEqualsWithDifferentInfoHash() throws IOException, NoSuchAlgorithmException {
         final MockedTorrent torrent = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.UBUNTU).toFile());
         final MockedTorrent torrent2 = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.AUDIO).toFile());
 
