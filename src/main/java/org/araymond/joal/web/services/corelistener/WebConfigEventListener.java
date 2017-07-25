@@ -32,7 +32,7 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleClientFilesDiscovered(final ConfigHasChangedEvent event) {
+    void handleConfigHasChanged(final ConfigHasChangedEvent event) {
         logger.debug("Send ConfigHasChangedEvent to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ConfigHasChangedPayload(event));
