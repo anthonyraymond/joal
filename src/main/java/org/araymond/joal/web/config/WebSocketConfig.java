@@ -7,6 +7,7 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 /**
  * Created by raymo on 22/06/2017.
@@ -20,6 +21,13 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 
     public WebSocketConfig(@Value("${joal.ui.path.prefix}")final String webSocketPathPrefix) {
         this.webSocketPathPrefix = webSocketPathPrefix;
+    }
+
+    @Override
+    public void configureWebSocketTransport(final WebSocketTransportRegistration registration) {
+        registration
+                .setMessageSizeLimit(1000 * 1024) // Max outgoing message size => 1Mo
+                .setSendBufferSizeLimit(5000 * 1024); // Max incoming message size => 5Mo
     }
 
     @Override
