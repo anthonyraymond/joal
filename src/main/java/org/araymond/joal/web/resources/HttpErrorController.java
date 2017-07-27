@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * This will never be called, but it prevent Spring from throwing exception when looking for error mapper.
- * Instead, spring return a 404 with no content.
+ * Instead, spring return a 404 with no content when trying to access the server with HTTP requests.
  *
  * Created by raymo on 25/07/2017.
  */
