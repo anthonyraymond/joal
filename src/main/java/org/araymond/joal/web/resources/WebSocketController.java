@@ -1,7 +1,9 @@
 package org.araymond.joal.web.resources;
 
+import org.apache.commons.codec.binary.Base64;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.config.AppConfigurationIntegrityException;
+import org.araymond.joal.web.messages.incoming.config.Base64TorrentIncomingMessage;
 import org.araymond.joal.web.messages.incoming.config.ConfigIncomingMessage;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
 import org.araymond.joal.web.messages.outgoing.impl.config.InvalidConfigPayload;
@@ -57,6 +59,12 @@ public class WebSocketController {
     @MessageMapping("/global/stop")
     public void stopSeedSession() {
         seedManager.stop();
+    }
+
+    @MessageMapping("/torrents/upload")
+    public void uploadTorrent(final Base64TorrentIncomingMessage b64TorrentFile) throws IOException {
+        final byte[] bytes = Base64.decodeBase64(b64TorrentFile.getB64String());
+        this.seedManager.saveTorrentToDisk(b64TorrentFile.getFileName(), bytes);
     }
 
     /**
