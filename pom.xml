@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.2.RELEASE</version>
+        <version>1.5.6.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -32,20 +32,19 @@
         <java.version>1.8</java.version>
 
         <!-- COMPILE  -->
-        <apache.common-cli.version>1.3.1</apache.common-cli.version>
-        <google.guava.version>20.0</google.guava.version>
         <commons-io.version>2.5</commons-io.version>
-        <commons-lang3.version>3.5</commons-lang3.version>
-        <commons-cli.version>1.3.1</commons-cli.version>
+        <commons-lang3.version>3.6</commons-lang3.version>
         <commons-codec.version>1.10</commons-codec.version>
         <fluent-hc.version>4.5.3</fluent-hc.version>
-        <ttorrent-core.version>1.5</ttorrent-core.version>
+        <google.guava.version>22.0</google.guava.version>
         <log4j.version>2.7</log4j.version>
+        <slf4j-api.version>1.7.25</slf4j-api.version>
+        <ttorrent-core.version>1.5</ttorrent-core.version>
 
         <!-- TESTS -->
         <junit.version>4.12</junit.version>
-        <org-assertj.version>3.5.2</org-assertj.version>
-        <mockito.version>1.9.5</mockito.version>
+        <mockito.version>1.10.19</mockito.version>
+        <org-assertj.version>3.8.0</org-assertj.version>
     </properties>
 
     <dependencies>
@@ -58,6 +57,10 @@
                     <artifactId>logback-classic</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
         <dependency>
@@ -74,7 +77,7 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.25</version>
+            <version>${slf4j-api.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -128,19 +131,20 @@
             <artifactId>fluent-hc</artifactId>
             <version>${fluent-hc.version}</version>
         </dependency>
-        <dependency>
-            <groupId>commons-cli</groupId>
-            <artifactId>commons-cli</artifactId>
-            <version>${commons-cli.version}</version>
-        </dependency>
 
 
-
+        <!-- TEST -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -195,7 +199,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>3.6.1</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
