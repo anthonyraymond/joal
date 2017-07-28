@@ -36,6 +36,13 @@ public class WebSocketController {
         this.messageSendingTemplate = messageSendingTemplate;
     }
 
+    /*
+    @MessageExceptionHandler
+    @SendToUser("/queue/errors")
+    public String handleException(Throwable exception) {
+        return exception.getMessage();
+    }
+    */
 
     @MessageMapping("/config/save")
     public void saveNewConf(final ConfigIncomingMessage message) {
