@@ -1,7 +1,7 @@
 package org.araymond.joal.web.config.security.springoverrides;
 
+import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.config.security.services.TokenAuthenticationService;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.MessageHandler;
@@ -21,7 +21,7 @@ import java.util.Stack;
 /**
  * Created by raymo on 29/07/2017.
  */
-@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
+@ConditionalOnWebUi
 @Component
 public class TokenSecurityChannelInterceptor extends ChannelInterceptorAdapter implements ExecutorChannelInterceptor {
     private final SecurityContext EMPTY_CONTEXT = SecurityContextHolder

@@ -2,12 +2,12 @@ package org.araymond.joal.web.services.corelistener;
 
 import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
+import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasEndedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * Created by raymo on 22/06/2017.
  */
-@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
+@ConditionalOnWebUi
 @Service
 public class WebGlobalEventListener extends WebEventListener {
     private static final Logger logger = LoggerFactory.getLogger(WebGlobalEventListener.class);

@@ -3,6 +3,7 @@ package org.araymond.joal.web.resources;
 import org.apache.commons.codec.binary.Base64;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.config.AppConfigurationIntegrityException;
+import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.incoming.config.Base64TorrentIncomingMessage;
 import org.araymond.joal.web.messages.incoming.config.ConfigIncomingMessage;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
@@ -10,7 +11,6 @@ import org.araymond.joal.web.messages.outgoing.impl.config.InvalidConfigPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Created by raymo on 28/07/2017.
  */
-@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
+@ConditionalOnWebUi
 @Controller
 public class WebSocketController {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketController.class);

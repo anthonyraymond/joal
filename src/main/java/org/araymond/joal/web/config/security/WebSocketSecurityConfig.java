@@ -1,8 +1,8 @@
 package org.araymond.joal.web.config.security;
 
+import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.config.security.springoverrides.JoalAbstractSecurityWebSocketMessageBrokerConfigurer;
 import org.araymond.joal.web.config.security.springoverrides.TokenSecurityChannelInterceptor;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
@@ -11,7 +11,7 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 /**
  * Created by raymo on 22/06/2017.
  */
-@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
+@ConditionalOnWebUi
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketSecurityConfig extends JoalAbstractSecurityWebSocketMessageBrokerConfigurer {

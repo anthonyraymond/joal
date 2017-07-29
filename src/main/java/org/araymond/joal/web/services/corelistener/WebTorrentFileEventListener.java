@@ -3,13 +3,13 @@ package org.araymond.joal.web.services.corelistener;
 import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
+import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.files.FailedToAddTorrentFilePayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -20,7 +20,7 @@ import javax.inject.Inject;
 /**
  * Created by raymo on 11/07/2017.
  */
-@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
+@ConditionalOnWebUi
 @Service
 public class WebTorrentFileEventListener extends WebEventListener {
     private static final Logger logger = LoggerFactory.getLogger(WebTorrentFileEventListener.class);

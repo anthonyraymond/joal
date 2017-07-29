@@ -1,5 +1,6 @@
 package org.araymond.joal.web.services;
 
+import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
 import org.araymond.joal.web.messages.outgoing.impl.announce.AnnouncePayload;
@@ -8,7 +9,6 @@ import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPa
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
@@ -23,7 +23,7 @@ import static org.araymond.joal.web.messages.outgoing.StompMessageTypes.*;
 /**
  * Created by raymo on 29/06/2017.
  */
-@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
+@ConditionalOnWebUi
 @Service
 public class JoalMessageSendingTemplate {
 
