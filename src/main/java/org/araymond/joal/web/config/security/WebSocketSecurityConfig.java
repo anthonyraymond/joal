@@ -3,6 +3,7 @@ package org.araymond.joal.web.config.security;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.config.security.springoverrides.JoalAbstractSecurityWebSocketMessageBrokerConfigurer;
 import org.araymond.joal.web.config.security.springoverrides.TokenSecurityChannelInterceptor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.SimpMessageType;
 import org.springframework.security.config.annotation.web.messaging.MessageSecurityMetadataSourceRegistry;
@@ -16,8 +17,11 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 @EnableWebSocketMessageBroker
 public class WebSocketSecurityConfig extends JoalAbstractSecurityWebSocketMessageBrokerConfigurer {
 
-    public WebSocketSecurityConfig( final TokenSecurityChannelInterceptor tokenSecurityChannelInterceptor) {
+    private final boolean sameOrigin;
+
+    public WebSocketSecurityConfig(@Value("${joal.websocket.same-origin}") final boolean sameOrigin, final TokenSecurityChannelInterceptor tokenSecurityChannelInterceptor) {
         super(tokenSecurityChannelInterceptor);
+        this.sameOrigin = sameOrigin;
     }
 
     @Override
@@ -38,9 +42,8 @@ public class WebSocketSecurityConfig extends JoalAbstractSecurityWebSocketMessag
                 .anyMessage().denyAll();
     }
 
-    // TODO : test purpose, investigate on this
     @Override
     protected boolean sameOriginDisabled() {
-        return true;
+        return !this.sameOrigin;
     }
 }
