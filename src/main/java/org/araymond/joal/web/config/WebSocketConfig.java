@@ -9,6 +9,8 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
+import javax.inject.Inject;
+
 /**
  * Created by raymo on 22/06/2017.
  */
@@ -16,10 +18,10 @@ import org.springframework.web.socket.config.annotation.WebSocketTransportRegist
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
-
     private final String webSocketPathPrefix;
 
-    public WebSocketConfig(@Value("${joal.ui.path.prefix}")final String webSocketPathPrefix) {
+    @Inject
+    public WebSocketConfig(@Value("${joal.ui.path.prefix}") final String webSocketPathPrefix) {
         this.webSocketPathPrefix = webSocketPathPrefix;
     }
 
