@@ -12,6 +12,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "false")
+@ConditionalOnProperty(name = "spring.main.web-environment", havingValue = "true")
 public @interface ConditionalOnWebUi {
 }
