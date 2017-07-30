@@ -59,7 +59,7 @@ public class WebSocketController {
     }
 
     @MessageMapping("/global/start")
-    public void stopStartSession() throws IOException {
+    public void startStartSession() throws IOException {
         seedManager.startSeeding();
     }
 
