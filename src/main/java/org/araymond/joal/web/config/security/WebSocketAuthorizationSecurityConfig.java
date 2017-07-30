@@ -17,6 +17,7 @@ public class WebSocketAuthorizationSecurityConfig extends AbstractSecurityWebSoc
         messages.anyMessage().authenticated();
     }
 
+    // TODO : Add CSRF token support: https://docs.spring.io/spring-security/site/docs/current/reference/html/websocket.html#websocket-sameorigin-csrf
     @Override
     protected boolean sameOriginDisabled() {
         return true;
