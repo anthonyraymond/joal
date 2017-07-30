@@ -77,12 +77,15 @@ public class TokenSecurityChannelInterceptor extends ChannelInterceptorAdapter i
     }
 
     private Authentication getAuthentication(final Message message) {
-        Authentication authentication = this.anonymous;
+        Authentication authentication;
 
         final NativeMessageHeaderAccessor nativeMessageHeaderAccessor = NativeMessageHeaderAccessor.getAccessor(message, NativeMessageHeaderAccessor.class);
         final String authToken = nativeMessageHeaderAccessor.getFirstNativeHeader(this.authenticationHeaderName);
 
         authentication = this.tokenAuthenticationService.getAuthentication(authToken);
+        if (authentication == null) {
+            authentication = this.anonymous;
+        }
 
         return authentication;
     }

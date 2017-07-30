@@ -17,11 +17,9 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 @EnableWebSocketMessageBroker
 public class WebSocketSecurityConfig extends JoalAbstractSecurityWebSocketMessageBrokerConfigurer {
 
-    private final boolean sameOrigin;
 
-    public WebSocketSecurityConfig(@Value("${joal.websocket.same-origin}") final boolean sameOrigin, final TokenSecurityChannelInterceptor tokenSecurityChannelInterceptor) {
+    public WebSocketSecurityConfig(final TokenSecurityChannelInterceptor tokenSecurityChannelInterceptor) {
         super(tokenSecurityChannelInterceptor);
-        this.sameOrigin = sameOrigin;
     }
 
     @Override
@@ -44,6 +42,6 @@ public class WebSocketSecurityConfig extends JoalAbstractSecurityWebSocketMessag
 
     @Override
     protected boolean sameOriginDisabled() {
-        return !this.sameOrigin;
+        return true;
     }
 }
