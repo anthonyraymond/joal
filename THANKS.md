@@ -1,8 +1,8 @@
 ### Special Thanks
 People that had help to improve JOAL.
 
-- [*donator*]&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **An anonymous user** @[sb-innovation](**http://www.sb-innovation.de**): Gave-away an invite to IPTorrent.
-- [*beta-tester*] [**JourneyOver**](https://github.com/JourneyOver): Took part in v2.0.0 beta testing.
+- [*donator*] **An anonymous user** @[sb-innovation](**http://www.sb-innovation.de**): Gave-away an invite to IPTorrent.
+- [*beta-tester* & *contributor*] [**JourneyOver**](https://github.com/JourneyOver): Took part in v2.0.0 beta testing Writting .client files.
 
 
 <br/><br/><br/><br/>
