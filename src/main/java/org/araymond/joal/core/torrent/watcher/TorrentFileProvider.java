@@ -176,7 +176,9 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             Files.write(this.torrentFolder.resolve(torrentName), bytes, StandardOpenOption.CREATE);
         } catch (final Exception e) {
             logger.warn("Failed to save torrent file", e);
-            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, e.getMessage()));
+            // If NullPointerException occurs (when the file is an empty file) there is no message.
+            final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
+            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
         }
     }
 
