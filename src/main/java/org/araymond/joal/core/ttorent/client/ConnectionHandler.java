@@ -1,18 +1,20 @@
 package org.araymond.joal.core.ttorent.client;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -28,6 +30,14 @@ public class ConnectionHandler {
     private ServerSocketChannel channel;
     private InetAddress ipAddress;
     private Thread ipFetcherThread;
+    private static final String[] IP_PROVIDERS = new String[] {
+            "http://ip.tyk.nu/",
+            "http://l2.io/ip",
+            "http://ident.me/",
+            "http://icanhazip.com/",
+            "http://bot.whatismyipaddress.com/",
+            "https://tnx.nl/ip"
+    };
 
 
     public ConnectionHandler() {
@@ -62,22 +72,31 @@ public class ConnectionHandler {
     }
 
     @VisibleForTesting
-    Optional<InetAddress> getWtfIsMyIp() {
-        final String ip;
-        try {
-            final URL url = new URL("https://wtfismyip.com/json");
+    Optional<InetAddress> tryToFetchFromProviders() {
+        final List<String> shuffledList = Lists.newArrayList(IP_PROVIDERS);
+        Collections.shuffle(shuffledList);
 
-            ip = new ObjectMapper().readValue(url, FuckingIpAddressPayload.class).getYourFuckingIPAddress();
-            return Optional.of(InetAddress.getByName(ip));
-        } catch (final IOException e) {
-            logger.warn("Failed to fetch Ip", e);
-            return Optional.empty();
+        for (final String ipProvider : shuffledList) {
+            final String ip;
+            try {
+                logger.info("Fetching ip from: " + ipProvider);
+                final URL url = new URL(ipProvider);
+
+                final BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+                ip = in.readLine();
+
+                return Optional.of(InetAddress.getByName(ip));
+            } catch (final IOException e) {
+                logger.warn("Failed to fetch Ip from \"" + ipProvider + "\"", e);
+            }
         }
+
+        return Optional.empty();
     }
 
     @VisibleForTesting
     InetAddress fetchIp() throws UnknownHostException {
-        final Optional<InetAddress> ip = this.getWtfIsMyIp();
+        final Optional<InetAddress> ip = this.tryToFetchFromProviders();
         if (ip.isPresent()) {
             logger.info("Successfully fetch public IP address: {}", ip.get().getHostAddress());
             return ip.get();
@@ -131,34 +150,6 @@ public class ConnectionHandler {
             this.ipFetcherThread = null;
         }
         logger.debug("ConnectionHandler closed.");
-    }
-
-    @SuppressWarnings("unused")
-    private static final class FuckingIpAddressPayload {
-
-        private final String yourFuckingIPAddress;
-        private final String yourFuckingLocation;
-        private final String yourFuckingHostname;
-        private final String yourFuckingISP;
-        private final String yourFuckingTorExit;
-
-        @JsonCreator
-        private FuckingIpAddressPayload(
-                @JsonProperty(value = "YourFuckingIPAddress", required = true) final String yourFuckingIPAddress,
-                @JsonProperty("YourFuckingLocation") final String yourFuckingLocation,
-                @JsonProperty("YourFuckingHostname") final String yourFuckingHostname,
-                @JsonProperty("YourFuckingISP") final String yourFuckingISP,
-                @JsonProperty("YourFuckingTorExit") final String yourFuckingTorExit) {
-            this.yourFuckingIPAddress = yourFuckingIPAddress;
-            this.yourFuckingLocation = yourFuckingLocation;
-            this.yourFuckingHostname = yourFuckingHostname;
-            this.yourFuckingISP = yourFuckingISP;
-            this.yourFuckingTorExit = yourFuckingTorExit;
-        }
-
-        public String getYourFuckingIPAddress() {
-            return yourFuckingIPAddress;
-        }
     }
 
 }

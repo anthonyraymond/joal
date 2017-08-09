@@ -21,6 +21,20 @@ Ask for it in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal
 [support-no]:readme-assets/cross-mark.png
 [support-yes]:readme-assets/check-mark.png
 
+
+# How to start
+
+With UI : 
+`java -Djava.net.preferIPv6Addresses=true -jar .\jack-of-all-trades-2.0.0.jar --joal-conf="PATH_TO_CONF" --spring.main.web-environment=true --server.port=YOUR_PORT --joal.ui.path.prefix="SECRET_OBFUSCATION_PATH" --joal.ui.secret-token="SECRET_TOKEN"`
+
+Without UI:
+`java -Djava.net.preferIPv6Addresses=true -jar .\jack-of-all-trades-2.0.0.jar --joal-conf="PATH_TO_CONF" --spring.main.web-environment=false`
+
+
+
+
+
+
 # Prepare configuration folder
 You first need to get the configuration folder. Replace `<MY_CONFIG_FOLDER_PATH>` by whatever path you want.
 ```

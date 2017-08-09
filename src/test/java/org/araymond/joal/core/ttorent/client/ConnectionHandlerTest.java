@@ -29,7 +29,7 @@ public class ConnectionHandlerTest {
         final ServerSocketChannel channel = createMockedServerSocketChannel(49152);
 
         final ConnectionHandler handler = Mockito.spy(new ConnectionHandler());
-        Mockito.doReturn(Optional.empty()).when(handler).getWtfIsMyIp();
+        Mockito.doReturn(Optional.empty()).when(handler).tryToFetchFromProviders();
         Mockito.doReturn(channel).when(handler).bindToPort();
 
         handler.init();
@@ -44,11 +44,11 @@ public class ConnectionHandlerTest {
         Mockito.doReturn(channel).when(handler).bindToPort();
 
         // emulate successful call
-        Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).getWtfIsMyIp();
+        Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).tryToFetchFromProviders();
         handler.init();
 
         // emulate failed call
-        Mockito.doReturn(Optional.empty()).when(handler).getWtfIsMyIp();
+        Mockito.doReturn(Optional.empty()).when(handler).tryToFetchFromProviders();
         handler.fetchIp();
 
         assertThat(handler.getIpAddress().getHostAddress()).isEqualTo("168.168.168.168");
@@ -59,7 +59,7 @@ public class ConnectionHandlerTest {
         final ServerSocketChannel channel = createMockedServerSocketChannel(49152);
         final ConnectionHandler handler = Mockito.spy(new ConnectionHandler());
         Mockito.doReturn(channel).when(handler).bindToPort();
-        Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).getWtfIsMyIp();
+        Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).tryToFetchFromProviders();
 
         handler.init();
 
@@ -71,7 +71,7 @@ public class ConnectionHandlerTest {
         final ServerSocketChannel channel = createMockedServerSocketChannel(65534);
         final ConnectionHandler handler = Mockito.spy(new ConnectionHandler());
         Mockito.doReturn(channel).when(handler).bindToPort();
-        Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).getWtfIsMyIp();
+        Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).tryToFetchFromProviders();
 
         handler.init();
 
