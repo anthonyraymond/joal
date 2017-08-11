@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.mifmif.common.regex.Generex;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 /**
@@ -22,23 +22,23 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
         @JsonSubTypes.Type(value = TorrentPersistentRefreshPeerIdGenerator.class, name = "TORRENT_PERSISTENT")
 })
 public abstract class PeerIdGenerator {
-    static final int PEER_ID_LENGTH = 20;
+    public static final int PEER_ID_LENGTH = 20;
     private final String prefix;
-    private final PeerIdTypes type;
-    private final boolean upperCase;
-    private final boolean lowerCase;
+    private final String pattern;
+    @JsonIgnore
+    private final Generex generex;
 
-    protected PeerIdGenerator(final String prefix, final PeerIdTypes type, final boolean upperCase, final boolean lowerCase) {
+    protected PeerIdGenerator(final String prefix, final String pattern) {
         if (StringUtils.isBlank(prefix)) {
             throw new TorrentClientConfigIntegrityException("prefix must not be null or empty.");
         }
-        if (type == null) {
-            throw new TorrentClientConfigIntegrityException("peerId type must not be null.");
+        if (StringUtils.isBlank(pattern)) {
+            throw new TorrentClientConfigIntegrityException("peerId pattern must not be null or empty.");
         }
         this.prefix = prefix;
-        this.type = type;
-        this.upperCase = upperCase;
-        this.lowerCase = lowerCase;
+        this.pattern = pattern;
+        // FIXME : remove the size {...} trick as soon as https://github.com/mifmif/Generex/issues/42 is fixed
+        this.generex = new Generex(pattern + "{" + (PEER_ID_LENGTH - prefix.length()) + "}");
     }
 
     @JsonProperty("prefix")
@@ -46,19 +46,9 @@ public abstract class PeerIdGenerator {
         return prefix;
     }
 
-    @JsonProperty("type")
-    PeerIdTypes getType() {
-        return type;
-    }
-
-    @JsonProperty("upperCase")
-    boolean isUpperCase() {
-        return upperCase;
-    }
-
-    @JsonProperty("lowerCase")
-    boolean isLowerCase() {
-        return lowerCase;
+    @JsonProperty("pattern")
+    String getPattern() {
+        return pattern;
     }
 
     @JsonIgnore
@@ -67,12 +57,7 @@ public abstract class PeerIdGenerator {
     protected String generatePeerId() {
         final String peerIdPrefix = this.getPrefix();
         final int peerSuffixLength = PEER_ID_LENGTH - this.getPrefix().length();
-        String peerIdSuffix = this.getType().generateString(peerSuffixLength);
-        if (this.isUpperCase()) {
-            peerIdSuffix = peerIdSuffix.toUpperCase();
-        } else if (this.isLowerCase()) {
-            peerIdSuffix = peerIdSuffix.toLowerCase();
-        }
+        final String peerIdSuffix = this.generex.random(peerSuffixLength, peerSuffixLength);
 
         return peerIdPrefix + peerIdSuffix;
     }
@@ -82,15 +67,13 @@ public abstract class PeerIdGenerator {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final PeerIdGenerator peerIdGenerator = (PeerIdGenerator) o;
-        return upperCase == peerIdGenerator.upperCase &&
-                lowerCase == peerIdGenerator.lowerCase &&
-                com.google.common.base.Objects.equal(prefix, peerIdGenerator.prefix) &&
-                type == peerIdGenerator.type;
+        return com.google.common.base.Objects.equal(prefix, peerIdGenerator.prefix) &&
+                com.google.common.base.Objects.equal(pattern, peerIdGenerator.pattern);
     }
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(prefix, type, upperCase, lowerCase);
+        return com.google.common.base.Objects.hashCode(prefix, pattern);
     }
 
 }

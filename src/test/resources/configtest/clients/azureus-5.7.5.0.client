@@ -1,17 +1,15 @@
 {
-    "peerIdGenerator": {
-        "refreshOn": "TORRENT_VOLATILE",
-        "prefix": "-AZ5750-",
-        "type": "alphanumeric",
-        "upperCase": false,
-        "lowerCase": false
-    },
     "keyGenerator": {
         "refreshOn": "NEVER",
         "length": 8,
         "type": "hash",
         "upperCase": false,
         "lowerCase": false
+    },
+    "peerIdGenerator": {
+        "refreshOn": "TORRENT_VOLATILE",
+        "prefix": "-AZ5750-",
+        "pattern": "[a-zA-Z0-9]"
     },
     "numwant": 200,
     "numwantOnStop": 0,

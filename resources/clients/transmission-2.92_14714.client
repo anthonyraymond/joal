@@ -8,10 +8,8 @@
     },
     "peerIdGenerator": {
         "prefix": "-TR284Z-",
-        "type": "alphanumeric",
-        "refreshOn": "TORRENT_VOLATILE",
-        "upperCase": false,
-        "lowerCase": true
+        "pattern": "[a-z0-9]",
+        "refreshOn": "TORRENT_VOLATILE"
     },
     "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&numwant={numwant}&key={key}&compact=1&supportcrypto=1&event={event}&ipv6={ipv6}",
     "numwant": 80,

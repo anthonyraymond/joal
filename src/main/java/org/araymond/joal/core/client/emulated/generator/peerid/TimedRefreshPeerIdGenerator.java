@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.time.LocalDateTime;
@@ -23,11 +22,9 @@ public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
     TimedRefreshPeerIdGenerator(
             @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
             @JsonProperty(value = "prefix", required = true) final String prefix,
-            @JsonProperty(value = "type", required = true) final PeerIdTypes type,
-            @JsonProperty(value = "upperCase", required = true) final boolean upperCase,
-            @JsonProperty(value = "lowerCase", required = true) final boolean lowerCase
+            @JsonProperty(value = "pattern", required = true) final String pattern
     ) {
-        super(prefix, type, upperCase, lowerCase);
+        super(prefix, pattern);
         if (refreshEvery == null || refreshEvery < 1) {
             throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0.");
         }
@@ -41,7 +38,7 @@ public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
 
     @Override
     public String getPeerId(final MockedTorrent torrent, final RequestEvent event) {
-        if (this.shouldRegenerateKey()) {
+        if (this.shouldRegeneratePeerId()) {
             this.lastGeneration = LocalDateTime.now();
             this.peerId = super.generatePeerId();
         }
@@ -49,7 +46,7 @@ public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
         return this.peerId;
     }
 
-    private boolean shouldRegenerateKey() {
+    private boolean shouldRegeneratePeerId() {
         return this.lastGeneration == null || ChronoUnit.SECONDS.between(this.lastGeneration, LocalDateTime.now()) >= this.refreshEvery;
     }
 }

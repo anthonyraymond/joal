@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientConfig;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
@@ -19,7 +20,11 @@ import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.IntStream;
 
+import static org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator.PEER_ID_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -55,6 +60,9 @@ public class StaticClientFilesTester {
                         final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
                         final BitTorrentClient client = clientConfig.createClient();
 
+                        if (file.getName().contains("deluge")) {
+                            System.out.println("o");
+                        }
                         final String query = client.getQuery();
                         assertThat(query)
                                 .contains("info_hash={infohash}")
@@ -72,6 +80,30 @@ public class StaticClientFilesTester {
                     } catch (final Exception e) {
                         fail("Exception for client file " + file.getName(), e);
                     }
+                });
+    }
+
+    @Test
+    public void shouldMatchPeerIdPattern() {
+        FileUtils.listFiles(clientsPath.toFile(), new AcceptAllFileFilter(), null)
+                .forEach(file -> {
+                    IntStream.range(1, 30).forEach(i -> {
+                        try {
+                            final String json = new String(Files.readAllBytes(file.toPath()));
+                            final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
+                            final BitTorrentClient client = clientConfig.createClient();
+
+                            final String peerIdPattern = extractPropertyFromJson("pattern", json);
+                            final String peerIdPrefix = StringEscapeUtils.unescapeJava(extractPropertyFromJson("prefix", json));
+
+                            final String peerId = client.getPeerId(null, RequestEvent.STARTED);
+                            assertThat(peerId.substring(peerIdPrefix.length()))
+                                    .as(file.getName() + " => " + peerId)
+                                    .matches(peerIdPattern + "{" + (PEER_ID_LENGTH - peerIdPrefix.length()) + "}");
+                        } catch (final Exception e) {
+                            fail("Exception for client file " + file.getName(), e);
+                        }
+                    });
                 });
     }
 
@@ -98,6 +130,16 @@ public class StaticClientFilesTester {
         @Override
         public boolean accept(final File file) {
             return true;
+        }
+    }
+
+    private String extractPropertyFromJson(final String propertyName, final String json) throws IllegalStateException {
+        final Matcher matcher = Pattern.compile(propertyName + "\": \"(.*?)\",").matcher(json);
+        final String clientPeerIdPattern;
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            throw new IllegalStateException("Failed to extract property '" + propertyName + "'");
         }
     }
 }

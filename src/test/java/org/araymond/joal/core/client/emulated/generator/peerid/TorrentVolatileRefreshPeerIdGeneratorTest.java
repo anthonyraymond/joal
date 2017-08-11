@@ -1,7 +1,6 @@
 package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,7 +14,7 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldHaveOneKeyPerTorrent() {
-        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, false);
+        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
@@ -35,7 +34,7 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldRefreshKeyWhenTorrentHasStopped() {
-        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, false);
+        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
@@ -50,7 +49,7 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldNotHaveSameKeyForAllTorrent() {
-        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", PeerIdTypes.ALPHANUMERIC, false, false);
+        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);

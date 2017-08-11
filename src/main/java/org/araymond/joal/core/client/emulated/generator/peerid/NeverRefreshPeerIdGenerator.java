@@ -3,7 +3,6 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 /**
@@ -15,11 +14,9 @@ public class NeverRefreshPeerIdGenerator extends PeerIdGenerator {
     @JsonCreator
     NeverRefreshPeerIdGenerator(
             @JsonProperty(value = "prefix", required = true) final String prefix,
-            @JsonProperty(value = "type", required = true) final PeerIdTypes type,
-            @JsonProperty(value = "upperCase", required = true) final boolean upperCase,
-            @JsonProperty(value = "lowerCase", required = true) final boolean lowerCase
+            @JsonProperty(value = "pattern", required = true) final String pattern
     ) {
-        super(prefix, type, upperCase, lowerCase);
+        super(prefix, pattern);
 
         this.peerId = generatePeerId();
     }

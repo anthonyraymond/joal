@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.generator.peerid.type.PeerIdTypes;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.time.LocalDateTime;
@@ -22,11 +21,9 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
     @JsonCreator
     TorrentPersistentRefreshPeerIdGenerator(
             @JsonProperty(value = "prefix", required = true) final String prefix,
-            @JsonProperty(value = "type", required = true) final PeerIdTypes type,
-            @JsonProperty(value = "upperCase", required = true) final boolean upperCase,
-            @JsonProperty(value = "lowerCase", required = true) final boolean lowerCase
+            @JsonProperty(value = "pattern", required = true) final String pattern
     ) {
-        super(prefix, type, upperCase, lowerCase);
+        super(prefix, pattern);
         peerIdPerTorrent = new HashMap<>();
     }
 
