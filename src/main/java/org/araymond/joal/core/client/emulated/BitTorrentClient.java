@@ -146,7 +146,8 @@ public class BitTorrentClient {
             final String name = header.getKey();
             final String value = header.getValue()
                     .replaceAll("\\{java}", System.getProperty("java.version"))
-                    .replaceAll("\\{os}", System.getProperty("os.name"));
+                    .replaceAll("\\{os}", System.getProperty("os.name"))
+                    .replaceAll("\\{locale}", Locale.getDefault().toLanguageTag());
 
             request.addHeader(name, value);
         });

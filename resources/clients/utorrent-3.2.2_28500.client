@@ -20,7 +20,7 @@
     "requestHeaders": [
         { "name": "User-Agent", "value": "uTorrent/3220(28500)" },
         { "name": "Accept-Encoding", "value": "gzip" },
-        { "name": "Accept-Language", "value": "en-US" },
+        { "name": "Accept-Language", "value": "{locale}" },
         { "name": "Connection", "value": "Close" }
     ]
 }
