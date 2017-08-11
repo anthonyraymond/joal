@@ -465,25 +465,6 @@ public class BitTorrentClientUrlBuilderTest {
     }
 
     @Test
-    public void shouldURLEncodeUnicodeCharactersInPeerId() throws MalformedURLException, UnsupportedEncodingException {
-        final PeerIdGenerator peerIdGeneratorWithUnicodePrefix = PeerIdGeneratorTest.createDefault("-AA-" + (char) 0x0089 + (char) 0x00F9);
-        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
-        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
-        final BitTorrentClient client = new BitTorrentClient(
-                peerIdGeneratorWithUnicodePrefix,
-                defaultKeyGenerator,
-                "peer_id={peerid}",
-                Collections.emptyList(),
-                defaultNumwantProvider
-        );
-
-        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
-
-        assertThat(request.toString())
-                .startsWith(computeExpectedURLBegin(defaultTrackerURL) + "peer_id=-AA-%89%F9");
-    }
-
-    @Test
     public void shouldAddHeaders() {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,

@@ -22,9 +22,10 @@ public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
     TimedRefreshPeerIdGenerator(
             @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
             @JsonProperty(value = "prefix", required = true) final String prefix,
-            @JsonProperty(value = "pattern", required = true) final String pattern
+            @JsonProperty(value = "pattern", required = true) final String pattern,
+            @JsonProperty(value = "isUrlEncoded", required = true) final boolean isUrlEncoded
     ) {
-        super(prefix, pattern);
+        super(prefix, pattern, isUrlEncoded);
         if (refreshEvery == null || refreshEvery < 1) {
             throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0.");
         }

@@ -1,6 +1,7 @@
 package org.araymond.joal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
@@ -14,9 +15,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.net.InetAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -93,13 +92,18 @@ public class StaticClientFilesTester {
                             final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
                             final BitTorrentClient client = clientConfig.createClient();
 
-                            final String peerIdPattern = extractPropertyFromJson("pattern", json);
-                            final String peerIdPrefix = StringEscapeUtils.unescapeJava(extractPropertyFromJson("prefix", json));
+                            final String peerIdPattern = extractStringPropertyFromJson("pattern", json);
+                            final String peerIdPrefix = extractStringPropertyFromJson("prefix", json);
+                            final boolean isUrlEncode = extractBoolPropertyFromJson("isUrlEncoded", json);
 
-                            final String peerId = client.getPeerId(null, RequestEvent.STARTED);
-                            assertThat(peerId.substring(peerIdPrefix.length()))
+                            String peerId = client.getPeerId(null, RequestEvent.STARTED);
+                            if (isUrlEncode) {
+                                peerId = URLDecoder.decode(peerId, Torrent.BYTE_ENCODING);
+                            }
+                            assertThat(peerId).hasSize(20);
+                            assertThat(peerId)
                                     .as(file.getName() + " => " + peerId)
-                                    .matches(peerIdPattern + "{" + (PEER_ID_LENGTH - peerIdPrefix.length()) + "}");
+                                    .matches(peerIdPrefix + peerIdPattern);
                         } catch (final Exception e) {
                             fail("Exception for client file " + file.getName(), e);
                         }
@@ -133,11 +137,25 @@ public class StaticClientFilesTester {
         }
     }
 
-    private String extractPropertyFromJson(final String propertyName, final String json) throws IllegalStateException {
-        final Matcher matcher = Pattern.compile(propertyName + "\": \"(.*?)\",").matcher(json);
-        final String clientPeerIdPattern;
+    private String extractStringPropertyFromJson(final String propertyName, final String json) throws IllegalStateException {
+        final Matcher matcher = Pattern.compile(propertyName + "\": \"(.*?)\"([\r\n,])").matcher(json);
         if (matcher.find()) {
             return matcher.group(1);
+        } else {
+            throw new IllegalStateException("Failed to extract property '" + propertyName + "'");
+        }
+    }
+    private boolean extractBoolPropertyFromJson(final String propertyName, final String json) throws IllegalStateException {
+        final Matcher matcher = Pattern.compile(propertyName + "\": (true|false)([\r\n,])").matcher(json);
+        if (matcher.find()) {
+            final String match = matcher.group(1);
+            if ("true".equals(match)) {
+                return true;
+            } else if ("false".equals(match)) {
+                return false;
+            } else {
+                throw new IllegalStateException("Failed to extract property '" + propertyName + "', it was nor true nor false.");
+            }
         } else {
             throw new IllegalStateException("Failed to extract property '" + propertyName + "'");
         }

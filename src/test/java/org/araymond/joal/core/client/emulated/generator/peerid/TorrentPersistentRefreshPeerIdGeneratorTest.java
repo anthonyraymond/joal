@@ -19,7 +19,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldHaveOneKeyPerTorrent() {
-        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
@@ -39,7 +39,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldNotRefreshKeyWhenTorrentHasStopped() {
-        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
@@ -54,7 +54,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldNotHaveSameKeyForAllTorrent() {
-        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
@@ -65,7 +65,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldConsiderEntryEvictableIfOlderThanOneHourAndAHalf() {
-        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         final AccessAwarePeerId oldKey = Mockito.mock(AccessAwarePeerId.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(90, ChronoUnit.MINUTES));
@@ -75,7 +75,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldNotConsiderEntryEvictableIfYoungerThanOneHourAndAHalf() {
-        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         final AccessAwarePeerId oldKey = Mockito.mock(AccessAwarePeerId.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(89, ChronoUnit.MINUTES));

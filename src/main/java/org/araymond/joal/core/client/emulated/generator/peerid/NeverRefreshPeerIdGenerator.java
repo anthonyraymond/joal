@@ -14,9 +14,10 @@ public class NeverRefreshPeerIdGenerator extends PeerIdGenerator {
     @JsonCreator
     NeverRefreshPeerIdGenerator(
             @JsonProperty(value = "prefix", required = true) final String prefix,
-            @JsonProperty(value = "pattern", required = true) final String pattern
+            @JsonProperty(value = "pattern", required = true) final String pattern,
+            @JsonProperty(value = "isUrlEncoded", required = true) final boolean isUrlEncoded
     ) {
-        super(prefix, pattern);
+        super(prefix, pattern, isUrlEncoded);
 
         this.peerId = generatePeerId();
     }

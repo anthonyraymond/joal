@@ -78,7 +78,7 @@ public class BitTorrentClient {
     public Request buildAnnounceRequest(final URL trackerAnnounceURL, final RequestEvent event, final TorrentWithStats torrent, final ConnectionHandler connectionHandler) throws UnsupportedEncodingException {
         String emulatedClientQuery = this.getQuery()
                 .replaceAll("\\{infohash}", URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING))
-                .replaceAll("\\{peerid}", URLEncoder.encode(this.getPeerId(torrent.getTorrent(), event), Torrent.BYTE_ENCODING))
+                .replaceAll("\\{peerid}", this.getPeerId(torrent.getTorrent(), event))
                 .replaceAll("\\{uploaded}", String.valueOf(torrent.getUploaded()))
                 .replaceAll("\\{downloaded}", String.valueOf(torrent.getDownloaded()))
                 .replaceAll("\\{left}", String.valueOf(torrent.getLeft()))

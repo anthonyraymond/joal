@@ -15,7 +15,7 @@ public class AlwaysRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldRefreshKeyEveryTime() {
-        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", "[\u0000-\u00ff]{50}", false);
 
         final Set<String> keys = new HashSet<>();
         for (int i = 0; i < 50; ++i) {

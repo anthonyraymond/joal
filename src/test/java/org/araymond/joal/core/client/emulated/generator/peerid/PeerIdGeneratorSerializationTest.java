@@ -20,7 +20,8 @@ public class PeerIdGeneratorSerializationTest {
                 "{\n" +
                         "    \"refreshOn\": \"NEVER\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
-                        "    \"pattern\": \"[a-zA-Z0-9]\"\n" +
+                        "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
+                        "    \"isUrlEncoded\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -29,14 +30,15 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeNeverRefresh() throws IOException {
-        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\" : \"NEVER\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
-                                "  \"pattern\" : \"[a-zA-Z0-9]\"\n"+
+                                "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
+                                "  \"isUrlEncoded\": false\n" +
                                 "}"
                 ));
     }
@@ -47,7 +49,8 @@ public class PeerIdGeneratorSerializationTest {
                 "{\n" +
                         "    \"refreshOn\": \"ALWAYS\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
-                        "    \"pattern\": \"[a-zA-Z0-9]\"\n" +
+                        "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
+                        "    \"isUrlEncoded\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -56,14 +59,15 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeAlwaysRefresh() throws IOException {
-        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new AlwaysRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\" : \"ALWAYS\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
-                                "  \"pattern\" : \"[a-zA-Z0-9]\"\n"+
+                                "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
+                                "  \"isUrlEncoded\": false\n" +
                                 "}"
                 ));
     }
@@ -75,7 +79,8 @@ public class PeerIdGeneratorSerializationTest {
                         "    \"refreshOn\": \"TIMED\",\n" +
                         "    \"refreshEvery\": 60,\n" +
                         "    \"prefix\": \"-AA-\",\n" +
-                        "    \"pattern\": \"[a-zA-Z0-9]\"\n" +
+                        "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
+                        "    \"isUrlEncoded\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -84,7 +89,7 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTimedRefresh() throws IOException {
-        final PeerIdGenerator generator = new TimedRefreshPeerIdGenerator(60, "-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new TimedRefreshPeerIdGenerator(60, "-AA-", "[a-zA-Z0-9]", false);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
@@ -92,7 +97,8 @@ public class PeerIdGeneratorSerializationTest {
                                 "  \"refreshOn\": \"TIMED\",\n" +
                                 "  \"refreshEvery\": 60,\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
-                                "  \"pattern\" : \"[a-zA-Z0-9]\"\n"+
+                                "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
+                                "  \"isUrlEncoded\": false\n" +
                                 "}"
                 ));
     }
@@ -103,7 +109,8 @@ public class PeerIdGeneratorSerializationTest {
                 "{\n" +
                         "    \"refreshOn\": \"TORRENT_VOLATILE\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
-                        "    \"pattern\": \"[a-zA-Z0-9]\"\n" +
+                        "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
+                        "    \"isUrlEncoded\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -112,14 +119,15 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentVolatileRefresh() throws IOException {
-        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\": \"TORRENT_VOLATILE\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
-                                "  \"pattern\" : \"[a-zA-Z0-9]\"\n"+
+                                "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
+                                "  \"isUrlEncoded\": false\n" +
                                 "}"
                 ));
     }
@@ -130,7 +138,8 @@ public class PeerIdGeneratorSerializationTest {
                 "{\n" +
                         "    \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
-                        "    \"pattern\": \"[a-zA-Z0-9]\"\n" +
+                        "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
+                        "    \"isUrlEncoded\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -139,29 +148,17 @@ public class PeerIdGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentPersistentRefresh() throws IOException {
-        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
-                                "  \"pattern\" : \"[a-zA-Z0-9]\"\n"+
+                                "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
+                                "  \"isUrlEncoded\": false\n" +
                                 "}"
                 ));
-    }
-
-    @Test
-    public void shouldAllowUnicodeCharsInPrefix() throws IOException {
-        final String validJSON =
-                "{\n" +
-                        "    \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
-                        "    \"prefix\": \"-AA-\\u0039\\u0091\",\n" +
-                        "    \"pattern\": \"[a-zA-Z0-9]\"\n" +
-                        "}";
-
-        assertThat(mapper.readValue(validJSON, PeerIdGenerator.class).getPrefix())
-                .isEqualTo("-AA-" + (char) 0x0039 + (char) 0x0091);
     }
 
 }

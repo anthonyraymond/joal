@@ -9,7 +9,8 @@
     "peerIdGenerator": {
         "refreshOn": "TORRENT_VOLATILE",
         "prefix": "-AZ5750-",
-        "pattern": "[a-zA-Z0-9]"
+        "pattern": "[a-zA-Z0-9]",
+        "isUrlEncoded": false
     },
     "numwant": 200,
     "numwantOnStop": 0,

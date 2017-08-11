@@ -15,7 +15,7 @@ public class NeverRefreshKeyGeneratorTest {
 
     @Test
     public void shouldNeverRefresh() {
-        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]");
+        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator("-AA-", "[a-zA-Z0-9]", false);
 
         final Set<String> keys = new HashSet<>();
         for (int i = 0; i < 50; ++i) {

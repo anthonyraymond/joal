@@ -8,9 +8,10 @@
         "lowerCase": false
     },
     "peerIdGenerator": {
-        "prefix": "-BT71000\u008d\u00ab",
-        "pattern": "[\u0000-\u00ff]",
-        "refreshOn": "NEVER"
+        "prefix": "-BT71000",
+        "pattern": "(\u008d\u00ab)[\u0000-\u00ff]{10}",
+        "refreshOn": "NEVER",
+        "isUrlEncoded": true
     },
     "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1",
     "numwant": 200,
