@@ -7,8 +7,7 @@
         "lowerCase": false
     },
     "peerIdGenerator": {
-        "prefix": "-qB33D0-",
-        "pattern": "[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}",
+        "pattern": "-qB33D0-[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}",
         "refreshOn": "NEVER",
         "shouldUrlEncode": false
     },

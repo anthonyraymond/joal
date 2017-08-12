@@ -23,28 +23,18 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 })
 public abstract class PeerIdGenerator {
     public static final int PEER_ID_LENGTH = 20;
-    private final String prefix;
     private final String pattern;
     private final boolean shouldUrlEncode;
     @JsonIgnore
     private final Generex generex;
 
-    protected PeerIdGenerator(final String prefix, final String pattern, final boolean shouldUrlEncode) {
-        if (StringUtils.isBlank(prefix)) {
-            throw new TorrentClientConfigIntegrityException("prefix must not be null or empty.");
-        }
+    protected PeerIdGenerator(final String pattern, final boolean shouldUrlEncode) {
         if (StringUtils.isBlank(pattern)) {
             throw new TorrentClientConfigIntegrityException("peerId pattern must not be null or empty.");
         }
-        this.prefix = prefix;
         this.pattern = pattern;
         this.shouldUrlEncode = shouldUrlEncode;
         this.generex = new Generex(pattern);
-    }
-
-    @JsonProperty("prefix")
-    String getPrefix() {
-        return prefix;
     }
 
     @JsonProperty("pattern")
@@ -61,10 +51,7 @@ public abstract class PeerIdGenerator {
     public abstract String getPeerId(final MockedTorrent torrent, RequestEvent event);
 
     protected String generatePeerId() {
-        final String peerIdPrefix = this.getPrefix();
-        final String peerIdSuffix = this.generex.random();
-
-        return peerIdPrefix + peerIdSuffix;
+        return this.generex.random();
     }
 
     @Override
@@ -73,13 +60,12 @@ public abstract class PeerIdGenerator {
         if (o == null || getClass() != o.getClass()) return false;
         final PeerIdGenerator peerIdGenerator = (PeerIdGenerator) o;
         return shouldUrlEncode == peerIdGenerator.shouldUrlEncode &&
-                com.google.common.base.Objects.equal(prefix, peerIdGenerator.prefix) &&
                 com.google.common.base.Objects.equal(pattern, peerIdGenerator.pattern);
     }
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(prefix, pattern, shouldUrlEncode);
+        return com.google.common.base.Objects.hashCode(pattern, shouldUrlEncode);
     }
 
 }

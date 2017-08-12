@@ -7,8 +7,7 @@
         "lowerCase": true
     },
     "peerIdGenerator": {
-        "prefix": "-TR284Z-",
-        "pattern": "[a-z0-9]{12}",
+        "pattern": "-TR284Z-[a-z0-9]{12}",
         "refreshOn": "TORRENT_VOLATILE",
         "shouldUrlEncode": false
     },

@@ -93,13 +93,12 @@ public class StaticClientFilesTester {
                             final BitTorrentClient client = clientConfig.createClient();
 
                             final String peerIdPattern = extractStringPropertyFromJson("pattern", json);
-                            final String peerIdPrefix = extractStringPropertyFromJson("prefix", json);
 
                             final String peerId = client.getPeerId(null, RequestEvent.STARTED);
                             assertThat(peerId).hasSize(20);
                             assertThat(peerId)
                                     .as(file.getName() + " => " + peerId)
-                                    .matches(peerIdPrefix + peerIdPattern);
+                                    .matches(peerIdPattern);
                         } catch (final Exception e) {
                             fail("Exception for client file " + file.getName(), e);
                         }

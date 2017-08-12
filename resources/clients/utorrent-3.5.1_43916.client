@@ -8,8 +8,7 @@
         "lowerCase": false
     },
     "peerIdGenerator": {
-        "prefix": "-UT3500-",
-        "pattern": "(\u008c\u00ab)[\u0001-\u00ff]{10}",
+        "pattern": "-UT3500-(\u008c\u00ab)[\u0001-\u00ff]{10}",
         "refreshOn": "NEVER",
         "shouldUrlEncode": true
     },

@@ -20,11 +20,10 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
 
     @JsonCreator
     TorrentPersistentRefreshPeerIdGenerator(
-            @JsonProperty(value = "prefix", required = true) final String prefix,
             @JsonProperty(value = "pattern", required = true) final String pattern,
             @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
-        super(prefix, pattern, isUrlEncoded);
+        super(pattern, isUrlEncoded);
         peerIdPerTorrent = new HashMap<>();
     }
 

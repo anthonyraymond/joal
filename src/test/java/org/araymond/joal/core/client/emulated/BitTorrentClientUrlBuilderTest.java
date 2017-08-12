@@ -165,7 +165,7 @@ public class BitTorrentClientUrlBuilderTest {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
         final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
-                PeerIdGeneratorTest.createForPattern("[a]{16}", true),
+                PeerIdGeneratorTest.createForPattern("-AA-[a]{16}", true),
                 defaultKeyGenerator,
                 new UrlEncoder("", UrlEncoder.Casing.LOWER),
                 "peer_id={peerid}",
@@ -185,7 +185,7 @@ public class BitTorrentClientUrlBuilderTest {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
         final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
-                PeerIdGeneratorTest.createForPattern("[a]{16}", false),
+                PeerIdGeneratorTest.createForPattern("-AA-[a]{16}", false),
                 defaultKeyGenerator,
                 new UrlEncoder("", UrlEncoder.Casing.LOWER),
                 "peer_id={peerid}",
