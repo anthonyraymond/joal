@@ -21,7 +21,7 @@ public class PeerIdGeneratorSerializationTest {
                         "    \"refreshOn\": \"NEVER\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
                         "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
-                        "    \"isUrlEncoded\": false\n" +
+                        "    \"shouldUrlEncode\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -38,7 +38,7 @@ public class PeerIdGeneratorSerializationTest {
                                 "  \"refreshOn\" : \"NEVER\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
                                 "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
-                                "  \"isUrlEncoded\": false\n" +
+                                "  \"shouldUrlEncode\": false\n" +
                                 "}"
                 ));
     }
@@ -50,7 +50,7 @@ public class PeerIdGeneratorSerializationTest {
                         "    \"refreshOn\": \"ALWAYS\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
                         "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
-                        "    \"isUrlEncoded\": false\n" +
+                        "    \"shouldUrlEncode\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -67,7 +67,7 @@ public class PeerIdGeneratorSerializationTest {
                                 "  \"refreshOn\" : \"ALWAYS\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
                                 "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
-                                "  \"isUrlEncoded\": false\n" +
+                                "  \"shouldUrlEncode\": false\n" +
                                 "}"
                 ));
     }
@@ -80,7 +80,7 @@ public class PeerIdGeneratorSerializationTest {
                         "    \"refreshEvery\": 60,\n" +
                         "    \"prefix\": \"-AA-\",\n" +
                         "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
-                        "    \"isUrlEncoded\": false\n" +
+                        "    \"shouldUrlEncode\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -98,7 +98,7 @@ public class PeerIdGeneratorSerializationTest {
                                 "  \"refreshEvery\": 60,\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
                                 "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
-                                "  \"isUrlEncoded\": false\n" +
+                                "  \"shouldUrlEncode\": false\n" +
                                 "}"
                 ));
     }
@@ -110,7 +110,7 @@ public class PeerIdGeneratorSerializationTest {
                         "    \"refreshOn\": \"TORRENT_VOLATILE\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
                         "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
-                        "    \"isUrlEncoded\": false\n" +
+                        "    \"shouldUrlEncode\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -127,7 +127,7 @@ public class PeerIdGeneratorSerializationTest {
                                 "  \"refreshOn\": \"TORRENT_VOLATILE\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
                                 "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
-                                "  \"isUrlEncoded\": false\n" +
+                                "  \"shouldUrlEncode\": false\n" +
                                 "}"
                 ));
     }
@@ -139,7 +139,7 @@ public class PeerIdGeneratorSerializationTest {
                         "    \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
                         "    \"prefix\": \"-AA-\",\n" +
                         "    \"pattern\": \"[a-zA-Z0-9]\",\n" +
-                        "    \"isUrlEncoded\": false\n" +
+                        "    \"shouldUrlEncode\": false\n" +
                         "}";
 
         assertThat(mapper.readValue(validJSON, PeerIdGenerator.class))
@@ -156,7 +156,7 @@ public class PeerIdGeneratorSerializationTest {
                                 "  \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
                                 "  \"prefix\" : \"-AA-\",\n" +
                                 "  \"pattern\" : \"[a-zA-Z0-9]\",\n"+
-                                "  \"isUrlEncoded\": false\n" +
+                                "  \"shouldUrlEncode\": false\n" +
                                 "}"
                 ));
     }

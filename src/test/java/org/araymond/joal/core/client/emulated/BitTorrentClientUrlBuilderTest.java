@@ -5,6 +5,7 @@ import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.http.client.fluent.Request;
 import org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
+import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
@@ -36,6 +37,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class BitTorrentClientUrlBuilderTest {
     private static final KeyGenerator defaultKeyGenerator = KeyGeneratorTest.createDefault();
     private static final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
+    private final UrlEncoder defaultUrlEncoder = new UrlEncoder(".*", UrlEncoder.Casing.LOWER);
     private static final NumwantProvider defaultNumwantProvider = new NumwantProvider(200, 0);
     private static URL defaultTrackerURL;
 
@@ -78,6 +80,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "info_hash={infohash}&what_is_that={damnit}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -96,6 +99,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "info_hash={infohash}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -107,9 +111,29 @@ public class BitTorrentClientUrlBuilderTest {
         assertThat(request.toString())
                 .isEqualTo(
                         computeExpectedURLBegin(defaultTrackerURL) +
-                                "info_hash=" + URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING) +
+                                "info_hash=" + defaultUrlEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING)) +
                                 " HTTP/1.1"
                 );
+    }
+
+    @Test
+    public void shouldUrlEncodeInfoHash() throws UnsupportedEncodingException {
+        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                new UrlEncoder("", UrlEncoder.Casing.LOWER),
+                "info_hash={infohash}",
+                Collections.emptyList(),
+                defaultNumwantProvider
+        );
+
+
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .contains("%");
     }
 
     @Test
@@ -119,6 +143,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "peer_id={peerid}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -136,12 +161,52 @@ public class BitTorrentClientUrlBuilderTest {
     }
 
     @Test
+    public void shouldUrlEncodePeerId() throws UnsupportedEncodingException {
+        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
+        final BitTorrentClient client = new BitTorrentClient(
+                PeerIdGeneratorTest.createForPattern("[a]{16}", true),
+                defaultKeyGenerator,
+                new UrlEncoder("", UrlEncoder.Casing.LOWER),
+                "peer_id={peerid}",
+                Collections.emptyList(),
+                defaultNumwantProvider
+        );
+
+
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .contains("%61%61%61%61%61%61%61%61%61%61%61%61%61%61%61%61");
+    }
+
+    @Test
+    public void shouldNotUrlEncodePeerId() throws UnsupportedEncodingException {
+        final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
+        final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
+        final BitTorrentClient client = new BitTorrentClient(
+                PeerIdGeneratorTest.createForPattern("[a]{16}", false),
+                defaultKeyGenerator,
+                new UrlEncoder("", UrlEncoder.Casing.LOWER),
+                "peer_id={peerid}",
+                Collections.emptyList(),
+                defaultNumwantProvider
+        );
+
+        final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
+
+        assertThat(request.toString())
+                .contains("aaaaaaaaaaaaaaaa");
+    }
+
+    @Test
     public void shouldReplaceUploaded() throws MalformedURLException, UnsupportedEncodingException {
         final ConnectionHandler connHandler = createMockedConnectionHandler(createMockedINet4Address());
         final TorrentWithStats torrent = TorrentWithStatsTest.createMocked();
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "uploaded={uploaded}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -165,6 +230,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "downloaded={downloaded}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -188,6 +254,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "left={left}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -211,6 +278,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "port={port}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -234,17 +302,17 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                new UrlEncoder("[0-9a-zA-Z]", UrlEncoder.Casing.LOWER),
                 "ipv6={ipv6}&ip={ip}",
                 Collections.emptyList(),
                 defaultNumwantProvider
         );
 
-
         final Request request = client.buildAnnounceRequest(defaultTrackerURL, RequestEvent.STARTED, torrent, connHandler);
 
         assertThat(request.toString())
                 .isEqualTo(computeExpectedURLBegin(defaultTrackerURL) +
-                        "ipv6=" + URLEncoder.encode(connHandler.getIpAddress().getHostAddress(), Torrent.BYTE_ENCODING)
+                        "ipv6=" + connHandler.getIpAddress().getHostAddress().replaceAll(":", "%3a")
                         + " HTTP/1.1"
                 );
     }
@@ -256,6 +324,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "ip={ip}&ipv6={ipv6}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -279,6 +348,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "event={event}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -302,6 +372,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "event={event}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -321,6 +392,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "key={key}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -344,6 +416,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "numwant={numwant}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -367,6 +440,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "numwant={numwant}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -391,6 +465,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "info_hash={infohash}&downloaded={downloaded}&left={left}&corrupt=0&ip={ip}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -403,7 +478,7 @@ public class BitTorrentClientUrlBuilderTest {
                 .startsWith(computeExpectedURLBegin(defaultTrackerURL))
                 .isEqualTo(
                         computeExpectedURLBegin(defaultTrackerURL) +
-                                "info_hash=" + URLEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING), Torrent.BYTE_ENCODING) +
+                                "info_hash=" + defaultUrlEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING)) +
                                 "&downloaded=" + torrent.getDownloaded() +
                                 "&left=" + torrent.getLeft() +
                                 "&corrupt=0" +
@@ -420,6 +495,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "event={event}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -453,6 +529,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 null,
+                defaultUrlEncoder,
                 "key={key}&event={event}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -469,6 +546,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "d",
                 Lists.newArrayList(new HttpHeader("HName", "HValue"), new HttpHeader("Accept", "*/*")),
                 defaultNumwantProvider
@@ -486,6 +564,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "d",
                 Lists.newArrayList(),
                 defaultNumwantProvider
@@ -502,6 +581,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "d",
                 Lists.newArrayList(new HttpHeader("Connection", "WOAW")),
                 defaultNumwantProvider
@@ -518,6 +598,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "d",
                 Lists.newArrayList(new HttpHeader("Connection", "WOAW")),
                 defaultNumwantProvider
@@ -542,6 +623,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "d",
                 Lists.newArrayList(
                         new HttpHeader("User-Agent", "jacki-jack"),
@@ -570,6 +652,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
+                defaultUrlEncoder,
                 "d",
                 Lists.newArrayList(
                         new HttpHeader("javaOnly", "{java}"),

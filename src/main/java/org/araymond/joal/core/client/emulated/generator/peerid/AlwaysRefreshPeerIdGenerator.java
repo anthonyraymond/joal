@@ -14,7 +14,7 @@ public class AlwaysRefreshPeerIdGenerator extends PeerIdGenerator {
     AlwaysRefreshPeerIdGenerator(
             @JsonProperty(value = "prefix", required = true) final String prefix,
             @JsonProperty(value = "pattern", required = true) final String pattern,
-            @JsonProperty(value = "isUrlEncoded", required = true) final boolean isUrlEncoded
+            @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
         super(prefix, pattern, isUrlEncoded);
     }

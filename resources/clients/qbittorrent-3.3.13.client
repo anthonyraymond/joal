@@ -10,7 +10,11 @@
         "prefix": "-qB33D0-",
         "pattern": "[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}",
         "refreshOn": "NEVER",
-        "isUrlEncoded": false
+        "shouldUrlEncode": false
+    },
+    "urlEncoder": {
+        "encodingExclusionPattern": "[A-Za-z0-9_~\\(\\)\\!\\.\\*-]",
+        "encodedHexCase": "lower"
     },
     "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1&supportcrypto=1&redundant=0",
     "numwant": 200,

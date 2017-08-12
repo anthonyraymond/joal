@@ -10,7 +10,11 @@
         "refreshOn": "TORRENT_VOLATILE",
         "prefix": "-AZ5750-",
         "pattern": "[a-zA-Z0-9]",
-        "isUrlEncoded": false
+        "shouldUrlEncode": false
+    },
+    "urlEncoder": {
+        "encodingExclusionPattern": "[A-Za-z0-9_~\\(\\)\\!\\.\\*-]",
+        "encodedHexCase": "lower"
     },
     "numwant": 200,
     "numwantOnStop": 0,

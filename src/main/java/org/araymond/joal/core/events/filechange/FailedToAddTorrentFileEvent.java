@@ -2,8 +2,6 @@ package org.araymond.joal.core.events.filechange;
 
 import com.google.common.base.Preconditions;
 
-import java.io.File;
-
 /**
  * Created by raymo on 06/05/2017.
  */

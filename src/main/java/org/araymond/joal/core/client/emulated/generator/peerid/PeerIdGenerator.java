@@ -5,16 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.mifmif.common.regex.Generex;
-import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by raymo on 16/07/2017.
@@ -31,11 +25,11 @@ public abstract class PeerIdGenerator {
     public static final int PEER_ID_LENGTH = 20;
     private final String prefix;
     private final String pattern;
-    private final boolean isUrlEncoded;
+    private final boolean shouldUrlEncode;
     @JsonIgnore
     private final Generex generex;
 
-    protected PeerIdGenerator(final String prefix, final String pattern, final boolean isUrlEncoded) {
+    protected PeerIdGenerator(final String prefix, final String pattern, final boolean shouldUrlEncode) {
         if (StringUtils.isBlank(prefix)) {
             throw new TorrentClientConfigIntegrityException("prefix must not be null or empty.");
         }
@@ -44,7 +38,7 @@ public abstract class PeerIdGenerator {
         }
         this.prefix = prefix;
         this.pattern = pattern;
-        this.isUrlEncoded = isUrlEncoded;
+        this.shouldUrlEncode = shouldUrlEncode;
         this.generex = new Generex(pattern);
     }
 
@@ -58,9 +52,9 @@ public abstract class PeerIdGenerator {
         return pattern;
     }
 
-    @JsonProperty("isUrlEncoded")
-    boolean getIsUrlEncoded() {
-        return isUrlEncoded;
+    @JsonProperty("shouldUrlEncode")
+    public boolean getShouldUrlEncoded() {
+        return shouldUrlEncode;
     }
 
     @JsonIgnore
@@ -68,38 +62,9 @@ public abstract class PeerIdGenerator {
 
     protected String generatePeerId() {
         final String peerIdPrefix = this.getPrefix();
-        String peerIdSuffix = this.generex.random();
-        if (this.isUrlEncoded) {
-            peerIdSuffix = this.urlEncodeLowerCasedSpecialChars(peerIdSuffix);
-        }
+        final String peerIdSuffix = this.generex.random();
 
         return peerIdPrefix + peerIdSuffix;
-    }
-
-    /**
-     * UrlEncode the peerID, it does NOT change the casing of the regular characters, but it lower all encoded characters
-     * @param peerId peerId to encode
-     * @return encoded peerId
-     */
-    String urlEncodeLowerCasedSpecialChars(final String peerId) {
-        final String urlEncodedPeerId;
-        try {
-            urlEncodedPeerId = URLEncoder.encode(peerId, Torrent.BYTE_ENCODING);
-        } catch (final UnsupportedEncodingException e) {
-            throw new IllegalStateException("Failed to URL encode the peerid.");
-        }
-        final Matcher m = Pattern.compile("%[A-Z-a-z0-9]{2}").matcher(urlEncodedPeerId);
-
-        final StringBuilder sb = new StringBuilder();
-        int last = 0;
-        while (m.find()) {
-            sb.append(urlEncodedPeerId.substring(last, m.start()));
-            sb.append(m.group(0).toLowerCase());
-            last = m.end();
-        }
-        sb.append(urlEncodedPeerId.substring(last));
-
-        return sb.toString();
     }
 
     @Override
@@ -107,14 +72,14 @@ public abstract class PeerIdGenerator {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final PeerIdGenerator peerIdGenerator = (PeerIdGenerator) o;
-        return isUrlEncoded == peerIdGenerator.isUrlEncoded &&
+        return shouldUrlEncode == peerIdGenerator.shouldUrlEncode &&
                 com.google.common.base.Objects.equal(prefix, peerIdGenerator.prefix) &&
                 com.google.common.base.Objects.equal(pattern, peerIdGenerator.pattern);
     }
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(prefix, pattern, isUrlEncoded);
+        return com.google.common.base.Objects.hashCode(prefix, pattern, shouldUrlEncode);
     }
 
 }

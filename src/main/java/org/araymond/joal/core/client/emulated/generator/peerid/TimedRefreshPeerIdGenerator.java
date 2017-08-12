@@ -23,7 +23,7 @@ public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
             @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
             @JsonProperty(value = "prefix", required = true) final String prefix,
             @JsonProperty(value = "pattern", required = true) final String pattern,
-            @JsonProperty(value = "isUrlEncoded", required = true) final boolean isUrlEncoded
+            @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
         super(prefix, pattern, isUrlEncoded);
         if (refreshEvery == null || refreshEvery < 1) {

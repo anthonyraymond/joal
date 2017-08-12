@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
@@ -21,6 +22,8 @@ public class BitTorrentClientConfig {
     private final String query;
     @JsonProperty("keyGenerator")
     private final KeyGenerator keyGenerator;
+    @JsonProperty("urlEncoder")
+    private final UrlEncoder urlEncoder;
     @JsonProperty("requestHeaders")
     private final List<HttpHeader> requestHeaders;
     @JsonProperty("numwant")
@@ -33,6 +36,7 @@ public class BitTorrentClientConfig {
             @JsonProperty(value = "peerIdGenerator", required = true) final PeerIdGenerator peerIdGenerator,
             @JsonProperty(value = "query", required = true) final String query,
             @JsonProperty(value = "keyGenerator") final KeyGenerator keyGenerator,
+            @JsonProperty(value = "urlEncoder", required = true) final UrlEncoder urlEncoder,
             @JsonProperty(value = "requestHeaders", required = true) final List<HttpHeader> requestHeaders,
             @JsonProperty(value = "numwant", required = true) final Integer numwant,
             @JsonProperty(value = "numwantOnStop", required = true) final Integer numwantOnStop
@@ -40,6 +44,7 @@ public class BitTorrentClientConfig {
         this.peerIdGenerator = peerIdGenerator;
         this.query = query;
         this.keyGenerator = keyGenerator; // May be null
+        this.urlEncoder = urlEncoder;
         this.requestHeaders = requestHeaders; // May be empty, but not null
         this.numwant = numwant;
         this.numwantOnStop = numwantOnStop;
@@ -56,6 +61,7 @@ public class BitTorrentClientConfig {
         return new BitTorrentClient(
                 this.peerIdGenerator,
                 this.keyGenerator,
+                this.urlEncoder,
                 query,
                 ImmutableList.copyOf(requestHeaders),
                 new NumwantProvider(this.numwant, this.numwantOnStop)
@@ -68,6 +74,7 @@ public class BitTorrentClientConfig {
         if (o == null || getClass() != o.getClass()) return false;
         final BitTorrentClientConfig that = (BitTorrentClientConfig) o;
         return com.google.common.base.Objects.equal(peerIdGenerator, that.peerIdGenerator) &&
+                com.google.common.base.Objects.equal(urlEncoder, that.urlEncoder) &&
                 com.google.common.base.Objects.equal(query, that.query) &&
                 com.google.common.base.Objects.equal(keyGenerator, that.keyGenerator) &&
                 com.google.common.base.Objects.equal(requestHeaders, that.requestHeaders) &&
@@ -77,7 +84,7 @@ public class BitTorrentClientConfig {
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(peerIdGenerator, query, keyGenerator, requestHeaders, numwant, numwantOnStop);
+        return com.google.common.base.Objects.hashCode(peerIdGenerator, query, keyGenerator, urlEncoder, requestHeaders, numwant, numwantOnStop);
     }
 
 

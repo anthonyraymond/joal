@@ -1,8 +1,8 @@
 package org.araymond.joal.web.config.security;
 
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.araymond.joal.web.config.security.websocket.services.WebSocketAuthenticatorService;
 import org.araymond.joal.web.config.security.websocket.interceptor.AuthChannelInterceptorAdapter;
+import org.araymond.joal.web.config.security.websocket.services.WebSocketAuthenticatorService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

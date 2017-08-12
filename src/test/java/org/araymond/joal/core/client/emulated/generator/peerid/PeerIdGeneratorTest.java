@@ -14,23 +14,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class PeerIdGeneratorTest {
 
     public static PeerIdGenerator createDefault() {
-        return new NeverRefreshPeerIdGenerator("-AA-", "[a-zA-Z]", false);
+        return new NeverRefreshPeerIdGenerator("-AA-", "[a-zA-Z]{16}", false);
     }
-
-    public static PeerIdGenerator createDefault(final String prefix) {
-        return new NeverRefreshPeerIdGenerator(prefix, "[a-zA-Z]", false);
+    public static PeerIdGenerator createForPattern(final String pattern, final boolean isUrlEncoded) {
+        return new NeverRefreshPeerIdGenerator("-AA-", pattern, isUrlEncoded);
     }
 
     @Test
     public void shouldNotBuildWithNullPrefix() {
-        assertThatThrownBy(() -> new DefaultPeerIdGenerator(null, "[a-zA-Z]", false))
+        assertThatThrownBy(() -> new DefaultPeerIdGenerator(null, "[a-zA-Z]{16}", false))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessage("prefix must not be null or empty.");
     }
 
     @Test
     public void shouldNotBuildWithEmptyPrefix() {
-        assertThatThrownBy(() -> new DefaultPeerIdGenerator("  ", "[a-zA-Z]", false))
+        assertThatThrownBy(() -> new DefaultPeerIdGenerator("  ", "[a-zA-Z]{16}", false))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessage("prefix must not be null or empty.");
     }
@@ -73,34 +72,6 @@ public class PeerIdGeneratorTest {
                     .startsWith("-my.pre-")
                     .matches("-my.pre-[a-z]+");
         }
-    }
-
-    @Test
-    public void shouldUrlEncodePeerId() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my.pre-", "[\u0000\u0001]", true);
-
-        assertThat(peerIdGenerator.generatePeerId()).contains("%");
-    }
-
-    @Test
-    public void shouldNotFailToUrlEncodeIfThereIsNoSpecialChars() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my.pre-", "[\u0000\u00010]", true);
-
-        assertThat(peerIdGenerator.urlEncodeLowerCasedSpecialChars("AAAAAAAAAAAAAAAAAA")).isEqualTo("AAAAAAAAAAAAAAAAAA");
-    }
-
-    @Test
-    public void shouldNotFailToUrlEncodeIfThereIsOnlySpecialChars() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my.pre-", "[\u0000\u00010]", true);
-
-        assertThat(peerIdGenerator.urlEncodeLowerCasedSpecialChars("\u0010\u0010\u0010")).isEqualTo("%10%10%10");
-    }
-
-    @Test
-    public void shouldLowerCaseOnlyEncodedCharsWhenUrlEncoding() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my.pre-", "[\u0000\u00010]", true);
-
-        assertThat(peerIdGenerator.urlEncodeLowerCasedSpecialChars("\u00a6\u00ccAa\u0012\u00ea")).isEqualTo("%a6%ccAa%12%ea");
     }
 
     @Test

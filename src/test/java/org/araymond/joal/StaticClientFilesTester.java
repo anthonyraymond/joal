@@ -94,12 +94,8 @@ public class StaticClientFilesTester {
 
                             final String peerIdPattern = extractStringPropertyFromJson("pattern", json);
                             final String peerIdPrefix = extractStringPropertyFromJson("prefix", json);
-                            final boolean isUrlEncode = extractBoolPropertyFromJson("isUrlEncoded", json);
 
-                            String peerId = client.getPeerId(null, RequestEvent.STARTED);
-                            if (isUrlEncode) {
-                                peerId = URLDecoder.decode(peerId, Torrent.BYTE_ENCODING);
-                            }
+                            final String peerId = client.getPeerId(null, RequestEvent.STARTED);
                             assertThat(peerId).hasSize(20);
                             assertThat(peerId)
                                     .as(file.getName() + " => " + peerId)
@@ -141,21 +137,6 @@ public class StaticClientFilesTester {
         final Matcher matcher = Pattern.compile(propertyName + "\": \"(.*?)\"([\r\n,])").matcher(json);
         if (matcher.find()) {
             return matcher.group(1);
-        } else {
-            throw new IllegalStateException("Failed to extract property '" + propertyName + "'");
-        }
-    }
-    private boolean extractBoolPropertyFromJson(final String propertyName, final String json) throws IllegalStateException {
-        final Matcher matcher = Pattern.compile(propertyName + "\": (true|false)([\r\n,])").matcher(json);
-        if (matcher.find()) {
-            final String match = matcher.group(1);
-            if ("true".equals(match)) {
-                return true;
-            } else if ("false".equals(match)) {
-                return false;
-            } else {
-                throw new IllegalStateException("Failed to extract property '" + propertyName + "', it was nor true nor false.");
-            }
         } else {
             throw new IllegalStateException("Failed to extract property '" + propertyName + "'");
         }

@@ -9,9 +9,13 @@
     },
     "peerIdGenerator": {
         "prefix": "-UT3220-",
-        "pattern": "To[\u0000-\u00ff]{10}",
+        "pattern": "To[\u0001-\u00ff]{10}",
         "refreshOn": "NEVER",
-        "isUrlEncoded": true
+        "shouldUrlEncode": true
+    },
+    "urlEncoder": {
+        "encodingExclusionPattern": "[A-Za-z0-9-]",
+        "encodedHexCase": "lower"
     },
     "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1&ipv6={ipv6}",
     "numwant": 200,
