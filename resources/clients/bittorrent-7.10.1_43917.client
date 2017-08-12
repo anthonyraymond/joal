@@ -8,8 +8,7 @@
         "lowerCase": false
     },
     "peerIdGenerator": {
-        "prefix": "-BT71000",
-        "pattern": "(\u008d\u00ab)[\u0001-\u00ff]{10}",
+        "pattern": "-BT71000(\u008d\u00ab)[\u0001-\u00ff]{10}",
         "refreshOn": "NEVER",
         "shouldUrlEncode": true
     },
