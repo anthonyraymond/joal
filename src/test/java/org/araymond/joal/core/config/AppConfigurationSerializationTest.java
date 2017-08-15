@@ -73,4 +73,18 @@ public class AppConfigurationSerializationTest {
         assertThat(mapper.readValue(mapper.writeValueAsString(config), AppConfiguration.class)).isEqualToComparingFieldByField(config);
     }
 
+    @Test
+    public void shouldIgnoreUnknownProperties() throws IOException {
+        // If the config is a merge of multiple updates and some properties have been removed it will result in useless properties
+        // Ensure unknown properties won't make it crash
+        final AppConfiguration config = mapper.readValue(
+                "{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\", \"qddlqjdqlskdjlqk\":\"qdqdqsdd\"}",
+                AppConfiguration.class
+        );
+        assertThat(config.getMinUploadRate()).isEqualTo(180);
+        assertThat(config.getMaxUploadRate()).isEqualTo(190);
+        assertThat(config.getSimultaneousSeed()).isEqualTo(2);
+        assertThat(config.getClientFileName()).isEqualTo("azureus.client");
+    }
+
 }

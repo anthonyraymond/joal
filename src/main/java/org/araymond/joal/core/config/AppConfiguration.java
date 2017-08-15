@@ -1,6 +1,7 @@
 package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import org.apache.commons.lang3.StringUtils;
@@ -8,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Created by raymo on 24/01/2017.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class AppConfiguration {
 
     private final Long minUploadRate;
