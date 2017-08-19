@@ -27,6 +27,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/" + this.webSocketPathPrefix).permitAll()
+                .antMatchers("/" + this.webSocketPathPrefix + "/ui/**").permitAll()
                 .anyRequest().denyAll();
     }
 
