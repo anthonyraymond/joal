@@ -16,18 +16,21 @@ public class AppConfiguration {
     private final Long maxUploadRate;
     private final Integer simultaneousSeed;
     private final String client;
+    private final boolean keepTorrentWithZeroLeechers;
 
     @JsonCreator
     public AppConfiguration(
             @JsonProperty(value = "minUploadRate", required = true) final Long minUploadRate,
             @JsonProperty(value = "maxUploadRate", required = true) final Long maxUploadRate,
             @JsonProperty(value = "simultaneousSeed", required = true) final Integer simultaneousSeed,
-            @JsonProperty(value = "client", required = true) final String client
+            @JsonProperty(value = "client", required = true) final String client,
+            @JsonProperty(value = "keepTorrentWithZeroLeechers", required = true) final boolean keepTorrentWithZeroLeechers
     ) {
         this.minUploadRate = minUploadRate;
         this.maxUploadRate = maxUploadRate;
         this.simultaneousSeed = simultaneousSeed;
         this.client = client;
+        this.keepTorrentWithZeroLeechers = keepTorrentWithZeroLeechers;
 
         validate();
     }
@@ -47,6 +50,11 @@ public class AppConfiguration {
     @JsonProperty("client")
     public String getClientFileName() {
         return client;
+    }
+
+    @JsonProperty("keepTorrentWithZeroLeechers")
+    public boolean shouldKeepTorrentWithZeroLeechers() {
+        return keepTorrentWithZeroLeechers;
     }
 
     private void validate() {
@@ -75,11 +83,12 @@ public class AppConfiguration {
         return Objects.equal(minUploadRate, that.minUploadRate) &&
                 Objects.equal(maxUploadRate, that.maxUploadRate) &&
                 Objects.equal(simultaneousSeed, that.simultaneousSeed) &&
-                Objects.equal(client, that.client);
+                Objects.equal(client, that.client) &&
+                Objects.equal(keepTorrentWithZeroLeechers, that.keepTorrentWithZeroLeechers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(minUploadRate, maxUploadRate, simultaneousSeed, client);
+        return Objects.hashCode(minUploadRate, maxUploadRate, simultaneousSeed, client, keepTorrentWithZeroLeechers);
     }
 }

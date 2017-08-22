@@ -73,6 +73,10 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
     }
 
     @Override
+    public void onShouldDeleteTorrent(final Announcer announcer, final TorrentWithStats torrent) {
+    }
+
+    @Override
     public void onAnnouncerStart(final Announcer announcer) {
         this.lock.writeLock().lock();
         try {

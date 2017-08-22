@@ -16,6 +16,8 @@ public interface AnnouncerEventListener {
 
     void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent);
 
+    void onShouldDeleteTorrent(final Announcer announcer, final TorrentWithStats torrent);
+
     void onAnnouncerStart(final Announcer announcer);
 
     void onAnnouncerStop(final Announcer announcer);

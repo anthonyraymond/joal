@@ -270,7 +270,7 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                     );
                     // If announce failed at least 5 times. And at least as much as the number of tracker clients
                     // it is likely that the torrent is not registered or the tracker is dead.
-                    this.eventListeners.forEach(listener -> listener.onNoMoreLeecherForTorrent(this, torrent));
+                    this.eventListeners.forEach(listener -> listener.onShouldDeleteTorrent(this, torrent));
                 }
 
                 try {

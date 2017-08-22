@@ -19,54 +19,62 @@ public class AppConfigurationSerializationTest {
 
     @Test
     public void shouldFailToDeserializeIfMinUploadRateIsNotDefined() throws IOException {
-        assertThatThrownBy(() -> mapper.readValue("{\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\"}", AppConfiguration.class))
+        assertThatThrownBy(() -> mapper.readValue("{\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\",\"keepTorrentWithZeroLeechers\":false}", AppConfiguration.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'minUploadRate'");
     }
 
     @Test
     public void shouldFailToDeserializeIfMaxUploadRateIsNotDefined() throws IOException {
-        assertThatThrownBy(() -> mapper.readValue("{\"minUploadRate\":180,\"simultaneousSeed\":2,\"client\":\"azureus.client\"}", AppConfiguration.class))
+        assertThatThrownBy(() -> mapper.readValue("{\"minUploadRate\":180,\"simultaneousSeed\":2,\"client\":\"azureus.client\",\"keepTorrentWithZeroLeechers\":false}", AppConfiguration.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'maxUploadRate'");
     }
 
     @Test
     public void shouldFailToDeserializeIfSimultaneousSeedIsNotDefined() throws IOException {
-        assertThatThrownBy(() -> mapper.readValue("{\"minUploadRate\":180,\"maxUploadRate\":190,\"client\":\"azureus.client\"}", AppConfiguration.class))
+        assertThatThrownBy(() -> mapper.readValue("{\"minUploadRate\":180,\"maxUploadRate\":190,\"client\":\"azureus.client\",\"keepTorrentWithZeroLeechers\":false}", AppConfiguration.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'simultaneousSeed'");
     }
 
     @Test
     public void shouldFailToDeserializeIfClientIsNotDefined() throws IOException {
-        assertThatThrownBy(() -> mapper.readValue("{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2}", AppConfiguration.class))
+        assertThatThrownBy(() -> mapper.readValue("{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"keepTorrentWithZeroLeechers\":false}", AppConfiguration.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'client'");
     }
 
     @Test
+    public void shouldFailToDeserializeIfKeepTorrentWithZeroLeechersIsNotDefined() throws IOException {
+        assertThatThrownBy(() -> mapper.readValue("{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\"}", AppConfiguration.class))
+                .isInstanceOf(JsonMappingException.class)
+                .hasMessageContaining("Missing required creator property 'keepTorrentWithZeroLeechers'");
+    }
+
+    @Test
     public void shouldSerialize() throws JsonProcessingException {
-        final AppConfiguration config = new AppConfiguration(180L, 190L, 2, "azureus.client");
-        assertThat(mapper.writeValueAsString(config)).isEqualTo("{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\"}");
+        final AppConfiguration config = new AppConfiguration(180L, 190L, 2, "azureus.client", false);
+        assertThat(mapper.writeValueAsString(config)).isEqualTo("{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\",\"keepTorrentWithZeroLeechers\":false}");
     }
 
     @Test
     public void shouldDeserialize() throws IOException {
         final AppConfiguration config = mapper.readValue(
-                "{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\"}",
+                "{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\",\"keepTorrentWithZeroLeechers\":false}",
                 AppConfiguration.class
         );
         assertThat(config.getMinUploadRate()).isEqualTo(180);
         assertThat(config.getMaxUploadRate()).isEqualTo(190);
         assertThat(config.getSimultaneousSeed()).isEqualTo(2);
         assertThat(config.getClientFileName()).isEqualTo("azureus.client");
+        assertThat(config.shouldKeepTorrentWithZeroLeechers()).isEqualTo(false);
     }
 
     @Test
     public void shouldSerializeAndDeserialize() throws IOException {
         final AppConfiguration config = mapper.readValue(
-                "{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\"}",
+                "{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\",\"keepTorrentWithZeroLeechers\":false}",
                 AppConfiguration.class
         );
 
@@ -78,7 +86,7 @@ public class AppConfigurationSerializationTest {
         // If the config is a merge of multiple updates and some properties have been removed it will result in useless properties
         // Ensure unknown properties won't make it crash
         final AppConfiguration config = mapper.readValue(
-                "{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\", \"qddlqjdqlskdjlqk\":\"qdqdqsdd\"}",
+                "{\"minUploadRate\":180,\"maxUploadRate\":190,\"simultaneousSeed\":2,\"client\":\"azureus.client\",\"keepTorrentWithZeroLeechers\":false,\"qddlqjdqlskdjlqk\":\"qdqdqsdd\"}",
                 AppConfiguration.class
         );
         assertThat(config.getMinUploadRate()).isEqualTo(180);

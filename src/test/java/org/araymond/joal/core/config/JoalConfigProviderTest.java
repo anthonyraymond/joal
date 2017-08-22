@@ -30,8 +30,9 @@ public class JoalConfigProviderTest {
     public static final AppConfiguration defaultConfig = new AppConfiguration(
             180L,
             190L,
-            2,
-            "azureus-5.7.5.0.client"
+            5,
+            "azureus-5.7.5.0.client",
+            false
     );
 
     @Test
@@ -110,7 +111,8 @@ public class JoalConfigProviderTest {
                     rand.longs(1, 200).findFirst().getAsLong(),
                     rand.longs(201, 400).findFirst().getAsLong(),
                     rand.ints(1, 5).findFirst().getAsInt(),
-                    RandomStringUtils.random(60)
+                    RandomStringUtils.random(60),
+                    false
             );
 
             provider.saveNewConf(newConf);

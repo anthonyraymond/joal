@@ -14,18 +14,21 @@ public class ConfigIncomingMessage {
     private final Long maxUploadRate;
     private final Integer simultaneousSeed;
     private final String client;
+    private final boolean keepTorrentWithZeroLeechers;
 
     @JsonCreator
     ConfigIncomingMessage(
             @JsonProperty(value = "minUploadRate", required = true) final Long minUploadRate,
             @JsonProperty(value = "maxUploadRate", required = true) final Long maxUploadRate,
             @JsonProperty(value = "simultaneousSeed", required = true) final Integer simultaneousSeed,
-            @JsonProperty(value = "client", required = true) final String client
+            @JsonProperty(value = "client", required = true) final String client,
+            @JsonProperty(value = "keepTorrentWithZeroLeechers", required = true) final boolean keepTorrentWithZeroLeechers
     ) {
         this.minUploadRate = minUploadRate;
         this.maxUploadRate = maxUploadRate;
         this.simultaneousSeed = simultaneousSeed;
         this.client = client;
+        this.keepTorrentWithZeroLeechers = keepTorrentWithZeroLeechers;
     }
 
     public Long getMinUploadRate() {
@@ -44,8 +47,12 @@ public class ConfigIncomingMessage {
         return client;
     }
 
+    public boolean shouldKeepTorrentWithZeroLeechers() {
+        return keepTorrentWithZeroLeechers;
+    }
+
     public AppConfiguration toAppConfiguration() throws AppConfigurationIntegrityException {
-        return new AppConfiguration(this.minUploadRate, this.maxUploadRate, this.simultaneousSeed, this.client);
+        return new AppConfiguration(this.minUploadRate, this.maxUploadRate, this.simultaneousSeed, this.client, keepTorrentWithZeroLeechers);
     }
 
     @Override
@@ -55,6 +62,7 @@ public class ConfigIncomingMessage {
                 .add("maxUploadRate", maxUploadRate)
                 .add("simultaneousSeed", simultaneousSeed)
                 .add("client", client)
+                .add("keepTorrentWithZeroLeechers", keepTorrentWithZeroLeechers)
                 .toString();
     }
 }

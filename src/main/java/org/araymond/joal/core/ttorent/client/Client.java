@@ -144,6 +144,15 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent) {
+        if (!configProvider.get().shouldKeepTorrentWithZeroLeechers()) {
+            this.torrentFileProvider.moveToArchiveFolder(torrent.getTorrent());
+            publisher.publishEvent(new NoMoreLeechersEvent(torrent.getTorrent()));
+            announcer.stop();
+        }
+    }
+
+    @Override
+    public void onShouldDeleteTorrent(final Announcer announcer, final TorrentWithStats torrent) {
         this.torrentFileProvider.moveToArchiveFolder(torrent.getTorrent());
         publisher.publishEvent(new NoMoreLeechersEvent(torrent.getTorrent()));
         announcer.stop();
