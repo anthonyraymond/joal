@@ -22,7 +22,6 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
      * Update interval have to be a low value, because when a torrent is added, the Thread.pause may end and split value
      * among all torrent and add a non reasonable value to the freshly added torrent
      */
-    // TODO : add a decorator around TorrentWithStat and store the datetime when it was added, so we can know if we should add uploaded or not
     private final Integer updateInterval;
     private final List<TorrentWithStats> torrents;
     private final ReentrantReadWriteLock lock;
@@ -45,18 +44,24 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
     @Override
     public void onAnnouncerWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer) {
-        if (event != TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED) {
-            final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1000L;
-            final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1000L;
-
-            final Long randomSpeedInBytes = randomGenerator.nextLong(minUploadRateInBytes, maxUploadRateInBytes);
-
-            announcer.getSeedingTorrent().refreshRandomSpeedInBytes(randomSpeedInBytes);
-        }
     }
 
     @Override
     public void onAnnounceSuccess(final Announcer announcer) {
+        // compute speed on announce success, because we need to access leechers and seeders count
+        final TorrentWithStats torrent = announcer.getSeedingTorrent();
+        // if there is no leechers or seeders the speed is set to 0;
+        if (torrent.getLeechers() == 0 || torrent.getSeeders() == 0) {
+            torrent.refreshRandomSpeedInBytes(0L);
+            return;
+        }
+
+        final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1000L;
+        final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1000L;
+        final Long randomSpeedInBytes = randomGenerator.nextLong(minUploadRateInBytes, maxUploadRateInBytes);
+        this.lock.writeLock().lock();
+        announcer.getSeedingTorrent().refreshRandomSpeedInBytes(randomSpeedInBytes);
+        this.lock.writeLock().unlock();
     }
 
     @Override
@@ -128,11 +133,17 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
                 lock.readLock().lock();
 
-                final int torrentCount = this.torrents.size();
-                for (final TorrentWithStats torrent : this.torrents) {
-                    final long uploadRateInBytesForTorrent = torrent.getCurrentRandomSpeedInBytes() / torrentCount;
+                final long torrentCount = this.torrents.stream()
+                        .filter(torrent -> torrent.getCurrentRandomSpeedInBytes() > 0)
+                        .count();
 
-                    torrent.addUploaded(uploadRateInBytesForTorrent * updateInterval / 1000);
+                // prevent divide by 0
+                if (torrentCount != 0) {
+                    for (final TorrentWithStats torrent : this.torrents) {
+                        final long uploadRateInBytesForTorrent = torrent.getCurrentRandomSpeedInBytes() / torrentCount;
+
+                        torrent.addUploaded(uploadRateInBytesForTorrent * updateInterval / 1000);
+                    }
                 }
                 lock.readLock().unlock();
             }
