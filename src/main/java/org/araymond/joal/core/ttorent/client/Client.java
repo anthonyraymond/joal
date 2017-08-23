@@ -81,8 +81,8 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     private void addSeedingTorrent(final MockedTorrent torrent) {
         final Announcer announcer = new Announcer(torrent, this.self, this.bitTorrentClient, publisher);
-        announcer.registerEventListener(this);
         announcer.registerEventListener(bandwidthDispatcher);
+        announcer.registerEventListener(this);
         this.announcers.add(announcer);
 
         logger.debug("Added announcer for Torrent {}", torrent.getName());
