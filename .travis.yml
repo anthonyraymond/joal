@@ -12,7 +12,7 @@ script:
 
 before_deploy:
   - mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
-  - cd ./packager-tmp && tar -czvf joal.tar.gz && cd ..
+  - cd ./packager-tmp && tar -czvf joal.tar.gz * && cd ..
 
 deploy:
   provider: releases
