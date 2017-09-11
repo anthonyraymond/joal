@@ -190,25 +190,6 @@
 
     <build>
         <plugins>
-            <!-- Create a release on GitHub -->
-            <plugin>
-                <groupId>cy.github</groupId>
-                <artifactId>github-release-plugin</artifactId>
-                <version>0.5.1</version>
-                <configuration>
-                    <tagName>${project.artifactId}-${project.version}</tagName>
-                    <releaseTitle>Version ${project.version}</releaseTitle>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>gh-upload</goal>
-                        </goals>
-                        <phase>install</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
