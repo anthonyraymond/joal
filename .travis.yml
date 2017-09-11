@@ -21,6 +21,7 @@ deploy:
   file: packager-tmp/joal.tar.gz
   skip_cleanup: true
   draft: true
+  name: $TRAVIS_TAG
   tag_name: $TRAVIS_TAG
   on:
     tags: true
