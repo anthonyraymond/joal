@@ -10,12 +10,20 @@ cache:
 script:
   - mvn package
 
+before_deploy:
+  - mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
+  - cd ./packager-tmp && tar -czvf joal.tar.gz && cd ..
+
 deploy:
   provider: releases
   api_key:
       secure: A8CP4TfBauQBjN+VCwmIcxNFqufS4WMRXNWoQpaUCbH6tgsbo0dLUZBddc/8KkxyFp4XwDL/64YbbRMwu/qP+smtaRYZE8IfLq//Rib2utGAWUxAswau5r7NEJXWCM5gF50+nbGc5uho0fDlbCAGMMVh6DCCO01vBy64ebf1+gH65b9GJs9LoWV+wzUrR9ZonXow0WIMYPNMzQhFf2Qo+lz5LbCZtQMpkLFsOddjSO31gHFLiRDDBclUq2wWyqK/q3FTkw6rT64iY/o9C26sCwvzDQjM2+OKk8nj/st9842NRipiTIyTuaYwMb30eynVnHmEQpDZnLjRZlWmJIWaFfiu2az8J6aNg29VDBxr2fuYXDK8c2OcfVA2e/hT8ZZeJdFb1E5dWyXyrMtVdmL1Oji254x3d/NzM+PvVdt6fboMLoJMQ6akYe3dBSGNs4A9MCdL8Nw/41rT4t6wotNvIl9LFBQnjlNxYLemnksCff7bnE5mlMutO9nbt8UEw9WMPAbQzBlqVqJ2tzRQfiCF1KvHUl1OcGwMoJwGlnr81dhY4LfNp1Ta+ja/aIcYDj38eMlibY5xI6Z0wV/llnl1Nm50RBFFpA6jJ55VqeckUvHnUrEeD+85ncXY9fmCn+bJ3AKfEW9rtBxdYiNSOvCx7i8IGUCfROWnxCKXt/ikgOE=
-  file_glob: true
-  file: target/*.jar
+  file: packager-tmp/joal.tar.gz
   skip_cleanup: true
+  draft: true
+  tag_name: $TRAVIS_TAG
   on:
     tags: true
+
+after_deploy:
+  - rm -rf packager-tmp
