@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.inject.Provider;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -47,7 +48,7 @@ public class JoalConfigProviderTest {
         final String fakePath = resourcePath.resolve("nop").toString();
         assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), fakePath, Mockito.mock(ApplicationEventPublisher.class)))
                 .isInstanceOf(FileNotFoundException.class)
-                .hasMessageContaining("App configuration file '" + fakePath + "\\config.json' not found.");
+                .hasMessageContaining("App configuration file '" + fakePath + File.separator + "config.json' not found.");
     }
 
     @Test

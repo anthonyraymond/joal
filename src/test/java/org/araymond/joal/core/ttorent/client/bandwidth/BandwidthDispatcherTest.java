@@ -12,6 +12,8 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.*;
@@ -96,7 +98,7 @@ public class BandwidthDispatcherTest {
 
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final CountDownTorrentWithStats torrent = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
         torrent.setLeechers(10);
         torrent.setSeeders(10);
         final Announcer announcer = Mockito.mock(Announcer.class);
@@ -106,7 +108,7 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.onAnnounceSuccess(announcer);
 
         bandwidthDispatcher.start();
-        Thread.sleep(6);
+        torrent.getCountDownLatch().await(20, TimeUnit.MILLISECONDS);
         bandwidthDispatcher.stop();
 
         assertThat(torrent.getUploaded())
@@ -122,9 +124,9 @@ public class BandwidthDispatcherTest {
 
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final Collection<TorrentWithStats> torrents = new ArrayList<>();
+        final Collection<CountDownTorrentWithStats> torrents = new ArrayList<>();
         for (int i = 0; i < 4; ++i) {
-            final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+            final CountDownTorrentWithStats torrent = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
             torrent.setLeechers(10);
             torrent.setSeeders(10);
             final Announcer announcer = Mockito.mock(Announcer.class);
@@ -135,7 +137,15 @@ public class BandwidthDispatcherTest {
         }
 
         bandwidthDispatcher.start();
-        Thread.sleep(6);
+        torrents.stream()
+                .map(CountDownTorrentWithStats::getCountDownLatch)
+                .forEach(cdl -> {
+                    try {
+                        cdl.await(20, TimeUnit.MILLISECONDS);
+                    } catch (final InterruptedException e) {
+                        throw new IllegalStateException("Fuck has happened while awaiting CountDownLatch");
+                    }
+                });
         bandwidthDispatcher.stop();
 
         final AppConfiguration conf = configProvider.get();
@@ -154,7 +164,7 @@ public class BandwidthDispatcherTest {
 
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final CountDownTorrentWithStats torrent = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
         torrent.setLeechers(10);
         torrent.setSeeders(10);
         final Announcer announcer = Mockito.mock(Announcer.class);
@@ -162,25 +172,14 @@ public class BandwidthDispatcherTest {
 
         bandwidthDispatcher.onAnnouncerStart(announcer);
         bandwidthDispatcher.onAnnounceSuccess(announcer);
-
-        bandwidthDispatcher.start();
-        Thread.sleep(6);
         bandwidthDispatcher.onAnnouncerStop(announcer);
 
-        assertThat(torrent.getUploaded())
-                .isBetween(
-                        configProvider.get().getMinUploadRate() * 1000 / (1000 / updateInterval),
-                        configProvider.get().getMaxUploadRate() * 1000 / (1000 / updateInterval)
-                );
-
-        Thread.sleep(6);
+        bandwidthDispatcher.start();
+        torrent.getCountDownLatch().await(20, TimeUnit.MILLISECONDS);
         bandwidthDispatcher.stop();
 
         assertThat(torrent.getUploaded())
-                .isBetween(
-                        configProvider.get().getMinUploadRate() * 1000 / (1000 / updateInterval),
-                        configProvider.get().getMaxUploadRate() * 1000 / (1000 / updateInterval)
-                );
+                .isEqualTo(0);
     }
 
     @Test
@@ -236,7 +235,7 @@ public class BandwidthDispatcherTest {
 
         final int updateInterval = 2;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final CountDownTorrentWithStats torrent = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
         torrent.setLeechers(0);
         torrent.setSeeders(100);
         final Announcer announcer = Mockito.mock(Announcer.class);
@@ -245,7 +244,7 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.onAnnounceSuccess(announcer);
 
         bandwidthDispatcher.start();
-        Thread.sleep(6);
+        torrent.getCountDownLatch().await(20, TimeUnit.MILLISECONDS);
         bandwidthDispatcher.stop();
 
         assertThat(torrent.getUploaded()).isEqualTo(0);
@@ -257,7 +256,7 @@ public class BandwidthDispatcherTest {
 
         final int updateInterval = 2;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final CountDownTorrentWithStats torrent = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
         torrent.setLeechers(100);
         torrent.setSeeders(0);
         final Announcer announcer = Mockito.mock(Announcer.class);
@@ -266,7 +265,7 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.onAnnounceSuccess(announcer);
 
         bandwidthDispatcher.start();
-        Thread.sleep(6);
+        torrent.getCountDownLatch().await(20, TimeUnit.MILLISECONDS);
         bandwidthDispatcher.stop();
 
         assertThat(torrent.getUploaded()).isEqualTo(0);
@@ -278,14 +277,14 @@ public class BandwidthDispatcherTest {
 
         final int updateInterval = 4;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final CountDownTorrentWithStats torrent = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
         torrent.setLeechers(100);
         torrent.setSeeders(100);
         final Announcer announcer = Mockito.mock(Announcer.class);
         Mockito.when(announcer.getSeedingTorrent()).thenReturn(torrent);
         bandwidthDispatcher.onAnnouncerStart(announcer);
         bandwidthDispatcher.onAnnounceSuccess(announcer);
-        final TorrentWithStats torrent2 = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+        final CountDownTorrentWithStats torrent2 = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
         torrent2.setLeechers(0);
         torrent2.setSeeders(0);
         final Announcer announcer2 = Mockito.mock(Announcer.class);
@@ -294,7 +293,8 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.onAnnounceSuccess(announcer2);
 
         bandwidthDispatcher.start();
-        Thread.sleep(6);
+        torrent.getCountDownLatch().await(20, TimeUnit.MILLISECONDS);
+        torrent2.getCountDownLatch().await(20, TimeUnit.MILLISECONDS);
         bandwidthDispatcher.stop();
 
         final AppConfiguration conf = configProvider.get();
@@ -309,9 +309,9 @@ public class BandwidthDispatcherTest {
 
         final int updateInterval = 2;
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(configProvider, updateInterval);
-        final Collection<TorrentWithStats> torrents = new ArrayList<>();
+        final Collection<CountDownTorrentWithStats> torrents = new ArrayList<>();
         for (int i = 0; i < 4; ++i) {
-            final TorrentWithStats torrent = new TorrentWithStats(Mockito.mock(MockedTorrent.class));
+            final CountDownTorrentWithStats torrent = new CountDownTorrentWithStats(Mockito.mock(MockedTorrent.class), new CountDownLatch(1));
             torrent.setLeechers(0);
             torrent.setSeeders(0);
             final Announcer announcer = Mockito.mock(Announcer.class);
@@ -322,7 +322,15 @@ public class BandwidthDispatcherTest {
         }
 
         bandwidthDispatcher.start();
-        Thread.sleep(6);
+        torrents.stream()
+                .map(CountDownTorrentWithStats::getCountDownLatch)
+                .forEach(cdl -> {
+                    try {
+                        cdl.await(20, TimeUnit.MILLISECONDS);
+                    } catch (final InterruptedException e) {
+                        throw new IllegalStateException("Fuck has happened while awaiting CountDownLatch");
+                    }
+                });
         bandwidthDispatcher.stop();
 
         for (final TorrentWithStats t : torrents) {
@@ -367,6 +375,25 @@ public class BandwidthDispatcherTest {
         @Override
         public int hashCode() {
             return super.hashCode();
+        }
+    }
+
+    private static final class CountDownTorrentWithStats extends TorrentWithStats {
+        private static CountDownLatch cdl;
+
+        CountDownTorrentWithStats(final MockedTorrent torrent, final CountDownLatch countDownLatch) {
+            super(torrent);
+            cdl = countDownLatch;
+        }
+
+        @Override
+        void addUploaded(final Long uploaded) {
+            super.addUploaded(uploaded);
+            cdl.countDown();
+        }
+
+        public CountDownLatch getCountDownLatch() {
+            return cdl;
         }
     }
 
