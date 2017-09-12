@@ -76,6 +76,10 @@ public class SeedManager {
         this.torrentFileProvider.saveTorrentFileToDisk(name, bytes);
     }
 
+    public void deleteTorrent(final String torrentInfoHash) {
+        this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
+    }
+
     public void stop() {
         if (currentClient != null) {
             this.currentClient.stop();

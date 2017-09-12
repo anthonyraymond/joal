@@ -74,6 +74,11 @@ public class WebSocketController {
         this.seedManager.saveTorrentToDisk(b64TorrentFile.getFileName(), bytes);
     }
 
+    @MessageMapping("/torrents/delete")
+    public void deleteTorrent(final String torrentInfoHash) {
+        this.seedManager.deleteTorrent(torrentInfoHash);
+    }
+
     /**
      * This mapping is bypassing the spring WebSocket broker (because of SubscribeMapping) and send the response
      * directly to the client who subscribed, and only him.

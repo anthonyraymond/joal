@@ -182,6 +182,18 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         }
     }
 
+    public void moveToArchiveFolder(final String torrentInfoHash) {
+        final Optional<File> first = this.torrentFiles.entrySet().stream()
+                .filter(entry -> entry.getValue().getHexInfoHash().equals(torrentInfoHash))
+                .map(Map.Entry::getKey)
+                .findFirst();
+        if (first.isPresent()) {
+            this.moveToArchiveFolder(first.get());
+        } else {
+            logger.warn("Cannot find torrent for infohash {}, therefore we can't remove it. Torrent file seems not to be registered in TorrentFileProvider.", torrentInfoHash);
+        }
+    }
+
     public void moveToArchiveFolder(final MockedTorrent torrent) {
         final Optional<File> first = this.torrentFiles.entrySet().stream()
                 .filter(entry -> entry.getValue().equals(torrent))
