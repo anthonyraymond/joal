@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/anthonyraymond/joal.svg?branch=master)](https://travis-ci.org/anthonyraymond/joal)
+
 # JOAL
 
 ### Which client can JOAL emulate?
