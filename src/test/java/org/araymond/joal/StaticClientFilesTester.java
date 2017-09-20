@@ -59,9 +59,7 @@ public class StaticClientFilesTester {
                         final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
                         final BitTorrentClient client = clientConfig.createClient();
 
-                        if (file.getName().contains("deluge")) {
-                            System.out.println("o");
-                        }
+
                         final String query = client.getQuery();
                         assertThat(query)
                                 .contains("info_hash={infohash}")
@@ -70,8 +68,10 @@ public class StaticClientFilesTester {
                                 .contains("downloaded={downloaded}")
                                 .contains("left={left}")
                                 .contains("key={key}")
-                                .contains("event={event}")
-                                .contains("numwant={numwant}");
+                                .contains("event={event}");
+                        if (!file.getName().contains("rtorrent")) {
+                                assertThat(query).contains("numwant={numwant}");
+                        }
                         if (query.contains("ipv6=")) assertThat(query).contains("ipv6={ipv6}");
                         if (query.contains("ip=")) assertThat(query).contains("ip={ip}");
                         if (query.contains("{ipv6}")) assertThat(query).contains("ipv6={ipv6}");
