@@ -4,7 +4,8 @@ import org.junit.Test;
 
 import java.util.regex.Pattern;
 
-import static org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes.*;
+import static org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes.HASH;
+import static org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes.HASH_NO_LEADING_ZERO;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**

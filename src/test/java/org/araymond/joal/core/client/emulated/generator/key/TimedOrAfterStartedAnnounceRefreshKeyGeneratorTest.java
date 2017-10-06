@@ -2,7 +2,6 @@ package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.key.TimedOrAfterStartedAnnounceRefreshKeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
 import org.junit.Test;
 

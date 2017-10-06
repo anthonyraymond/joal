@@ -1,11 +1,9 @@
 package org.araymond.joal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientConfig;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
@@ -15,7 +13,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
-import java.net.*;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import static org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator.PEER_ID_LENGTH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 

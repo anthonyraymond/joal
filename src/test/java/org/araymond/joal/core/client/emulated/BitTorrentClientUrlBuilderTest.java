@@ -23,10 +23,7 @@ import org.mockito.Mockito;
 
 import java.io.UnsupportedEncodingException;
 import java.net.*;
-import java.util.AbstractMap;
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;

@@ -7,7 +7,6 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import com.turn.ttorrent.common.protocol.http.HTTPAnnounceRequestMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
-import org.apache.http.client.fluent.Response;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.announce.AnnounceResponseListener;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
@@ -19,7 +18,6 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
