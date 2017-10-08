@@ -11,6 +11,7 @@ This is the server application (with an **optional** webui), if you are interest
 | BitTorrent    | ![Yes][support-yes]           |                |
 | Deluge        | ![Yes][support-yes]           |                |
 | qBittorrent   | ![Yes][support-yes]           |                |
+| rTorrent      | ![Yes][support-yes]           |                |
 | Transmission  | ![Yes][support-yes]           |                |
 | µTorrent      | ![Yes][support-yes]           |                |
 | Vuze Azureus  | ![Yes][support-no]            | Will soon be   |
