@@ -36,7 +36,7 @@ java -Djava.net.preferIPv6Addresses=true -jar .\jack-of-all-trades-X.X.X.jar --j
 ```
 
 - `-Djava.net.preferIPv6Addresses=true`: is for instruct the JVM to prefer ipv6, if you ISP does not support ipv6 don't prepend this parameter.
-- `--joal-conf` is a **required** argument: path to the joal-conf folder (ie: /home/anthony/joal-conf).
+- `--joal-conf=PATH_TO_CONF` is a **required** argument: path to the joal-conf folder (ie: /home/anthony/joal-conf).
 
 <br />
 By default the web-ui is disabled, you can enable it with some more arguments:
@@ -52,6 +52,24 @@ The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to s
 
 ## Start seeding
 Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no need to restart JOAL to add more torrents, add it to the folder and JOAL will be aware of after few seconds.
+
+## Docker
+Download the Dockerfile and use the following command. You must to replace `PORT`, `PATH_TO_CONF`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN`.
+```
+docker run -d \
+    -p PORT:PORT \
+    -e _JAVA_OPTIONS='-Djava.net.preferIPv6Addresses=true' \
+    -v PATH_TO_CONF:/data \
+    --name="joal" araymond/joal \
+    --joal-conf="/data" \
+    --spring.main.web-environment=true \
+    --server.port="PORT" \
+    --joal.ui.path.prefix="SECRET_OBFUSCATION_PATH" \
+    --joal.ui.secret-token="SECRET_TOKEN"
+```
+You can pass along all the CLI argument to customize JOAL.
+
+
 
 ## Configuration file
 ### Application configuration
