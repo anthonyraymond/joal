@@ -42,11 +42,11 @@ java -Djava.net.preferIPv6Addresses=true -jar .\jack-of-all-trades-X.X.X.jar --j
 By default the web-ui is disabled, you can enable it with some more arguments:
 
 - `--spring.main.web-environment=true`: to enable the web context.
-- `--server.port=YOUR_PORT`: the port used by the web-socket connection (not the HTTP port).
+- `--server.port=YOUR_PORT`: the port to be used for both HTTP and WebSocket connection.
 - `--joal.ui.path.prefix="SECRET_OBFUSCATION_PATH"`: use your own complicated path here (this will be your first layer of security to keep joal secret). This is security though obscurity, but it is required in our case.  
 - `--joal.ui.secret-token="SECRET_TOKEN"`: use your own secret token here (this is some kind of a password, choose a complicated one).
 
-Once joal is started head to: `http://localhost:5081/SECRET_OBFUSCATION_PATH/ui/` (obviously, replace `SECRET_OBFUSCATION_PATH`) by the value you had chosen
+Once joal is started head to: `http://localhost:port/SECRET_OBFUSCATION_PATH/ui/` (obviously, replace `SECRET_OBFUSCATION_PATH`) by the value you had chosen
 The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to set it as complex as possible to prevent peoples to know that joal is running on your server.
 
 
