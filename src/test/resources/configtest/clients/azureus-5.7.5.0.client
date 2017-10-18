@@ -8,7 +8,10 @@
     },
     "peerIdGenerator": {
         "refreshOn": "TORRENT_VOLATILE",
-        "pattern": "-AZ5750-[a-zA-Z0-9]",
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "-AZ5750-[a-zA-Z0-9]"
+        },
         "shouldUrlEncode": false
     },
     "urlEncoder": {

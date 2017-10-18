@@ -8,7 +8,10 @@
         "lowerCase": false
     },
     "peerIdGenerator": {
-        "pattern": "-BT71000(\u008d\u00ab)[\u0001-\u00ff]{10}",
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "-BT71000(\u008d\u00ab)[\u0001-\u00ff]{10}"
+        },
         "refreshOn": "NEVER",
         "shouldUrlEncode": true
     },

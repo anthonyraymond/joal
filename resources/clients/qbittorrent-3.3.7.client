@@ -7,7 +7,10 @@
         "lowerCase": false
     },
     "peerIdGenerator": {
-        "pattern": "-qB3310-[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}",
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "-qB3310-[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}"
+        },
         "refreshOn": "NEVER",
         "shouldUrlEncode": false
     },

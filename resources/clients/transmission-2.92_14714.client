@@ -7,7 +7,12 @@
         "lowerCase": true
     },
     "peerIdGenerator": {
-        "pattern": "-TR284Z-[a-z0-9]{12}",
+        "algorithm": {
+            "type": "RANDOM_POOL_WITH_CHECKSUM",
+            "prefix": "-TR284Z-",
+            "charactersPool": "0123456789abcdefghijklmnopqrstuvwxyz",
+            "base": 36
+        },
         "refreshOn": "TORRENT_VOLATILE",
         "shouldUrlEncode": false
     },

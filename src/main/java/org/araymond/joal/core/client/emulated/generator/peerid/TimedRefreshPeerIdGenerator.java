@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.time.LocalDateTime;
@@ -21,10 +22,10 @@ public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
     @JsonCreator
     TimedRefreshPeerIdGenerator(
             @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
-            @JsonProperty(value = "pattern", required = true) final String pattern,
+            @JsonProperty(value = "algorithm", required = true) final PeerIdAlgorithm algorithm,
             @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
-        super(pattern, isUrlEncoded);
+        super(algorithm, isUrlEncoded);
         if (refreshEvery == null || refreshEvery < 1) {
             throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0.");
         }

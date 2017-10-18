@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.mifmif.common.regex.Generex;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 /**
@@ -23,23 +23,20 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 })
 public abstract class PeerIdGenerator {
     public static final int PEER_ID_LENGTH = 20;
-    private final String pattern;
+    private final PeerIdAlgorithm algorithm;
     private final boolean shouldUrlEncode;
-    @JsonIgnore
-    private final Generex generex;
 
-    protected PeerIdGenerator(final String pattern, final boolean shouldUrlEncode) {
-        if (StringUtils.isBlank(pattern)) {
-            throw new TorrentClientConfigIntegrityException("peerId pattern must not be null or empty.");
+    protected PeerIdGenerator(final PeerIdAlgorithm algorithm, final boolean shouldUrlEncode) {
+        if (algorithm == null) {
+            throw new TorrentClientConfigIntegrityException("peerId algorithm must not be null.");
         }
-        this.pattern = pattern;
+        this.algorithm = algorithm;
         this.shouldUrlEncode = shouldUrlEncode;
-        this.generex = new Generex(pattern);
     }
 
-    @JsonProperty("pattern")
-    String getPattern() {
-        return pattern;
+    @JsonProperty("algorithm")
+    PeerIdAlgorithm getAlgorithm() {
+        return algorithm;
     }
 
     @JsonProperty("shouldUrlEncode")
@@ -51,7 +48,7 @@ public abstract class PeerIdGenerator {
     public abstract String getPeerId(final MockedTorrent torrent, RequestEvent event);
 
     protected String generatePeerId() {
-        return this.generex.random();
+        return this.algorithm.generate();
     }
 
     @Override
@@ -60,12 +57,12 @@ public abstract class PeerIdGenerator {
         if (o == null || getClass() != o.getClass()) return false;
         final PeerIdGenerator peerIdGenerator = (PeerIdGenerator) o;
         return shouldUrlEncode == peerIdGenerator.shouldUrlEncode &&
-                com.google.common.base.Objects.equal(pattern, peerIdGenerator.pattern);
+                com.google.common.base.Objects.equal(algorithm, peerIdGenerator.algorithm);
     }
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(pattern, shouldUrlEncode);
+        return com.google.common.base.Objects.hashCode(algorithm, shouldUrlEncode);
     }
 
 }

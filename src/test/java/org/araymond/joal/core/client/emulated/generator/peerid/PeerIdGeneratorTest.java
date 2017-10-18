@@ -2,8 +2,11 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.RegexPatternPeerIdAlgorithm;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -14,17 +17,22 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class PeerIdGeneratorTest {
 
     public static PeerIdGenerator createDefault() {
-        return new NeverRefreshPeerIdGenerator("-AA-[a-zA-Z]{16}", false);
+        return new NeverRefreshPeerIdGenerator(new RegexPatternPeerIdAlgorithm("-AZ-[A-Za-Z]{16}"), false);
     }
     public static PeerIdGenerator createForPattern(final String pattern, final boolean isUrlEncoded) {
-        return new NeverRefreshPeerIdGenerator(pattern, isUrlEncoded);
+        return new NeverRefreshPeerIdGenerator(new RegexPatternPeerIdAlgorithm(pattern), isUrlEncoded);
     }
 
     @Test
-    public void shouldNotBuildWithoutPattern() {
-        assertThatThrownBy(() -> new DefaultPeerIdGenerator(null, false))
+    public void shouldNotBuildWithoutAlgorithm() {
+        assertThatThrownBy(() -> new PeerIdGenerator(null, false) {
+            @Override
+            public String getPeerId(final MockedTorrent torrent, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+                return null;
+            }
+        })
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("peerId pattern must not be null or empty.");
+                .hasMessage("peerId algorithm must not be null.");
     }
 
     @Test
@@ -61,12 +69,6 @@ public class PeerIdGeneratorTest {
     }
 
     @Test
-    public void shouldBuild() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
-        assertThat(peerIdGenerator.getPattern()).isEqualTo("-my\\.pre-[a-zA-Z]");
-    }
-
-    @Test
     public void shouldBeEqualsByProperties() {
         final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
         final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
@@ -83,7 +85,7 @@ public class PeerIdGeneratorTest {
     private static class DefaultPeerIdGenerator extends PeerIdGenerator {
 
         protected DefaultPeerIdGenerator(final String pattern, final boolean isUrlEncoded) {
-            super(pattern, isUrlEncoded);
+            super(new RegexPatternPeerIdAlgorithm(pattern), isUrlEncoded);
         }
 
         @Override

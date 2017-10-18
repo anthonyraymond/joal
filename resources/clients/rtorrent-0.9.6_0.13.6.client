@@ -7,7 +7,10 @@
         "lowerCase": true
     },
     "peerIdGenerator": {
-        "pattern": "-lt0D60-[\u0001-\u00ff]{12}",
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "-lt0D60-[\u0001-\u00ff]{12}"
+        },
         "refreshOn": "TORRENT_PERSISTENT",
         "shouldUrlEncode": true
     },

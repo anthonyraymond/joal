@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.time.LocalDateTime;
@@ -18,12 +19,14 @@ import java.util.Map;
 public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
     private final Map<MockedTorrent, AccessAwarePeerId> peerIdPerTorrent;
 
+    private int getCounter = 0;
+
     @JsonCreator
     TorrentPersistentRefreshPeerIdGenerator(
-            @JsonProperty(value = "pattern", required = true) final String pattern,
+            @JsonProperty(value = "algorithm", required = true) final PeerIdAlgorithm algorithm,
             @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
-        super(pattern, isUrlEncoded);
+        super(algorithm, isUrlEncoded);
         peerIdPerTorrent = new HashMap<>();
     }
 
@@ -34,7 +37,11 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
         }
 
         final String key = this.peerIdPerTorrent.get(torrent).getPeerId();
-        evictOldEntries();
+        getCounter++;
+        if (getCounter >= 30) {
+            getCounter = 0;
+            evictOldEntries();
+        }
         return key;
     }
 
@@ -52,7 +59,7 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
      */
     @VisibleForTesting
     boolean shouldEvictEntry(final Map.Entry<MockedTorrent, AccessAwarePeerId> entry) {
-        return ChronoUnit.MINUTES.between(entry.getValue().getLastAccess(), LocalDateTime.now()) >= 90;
+        return ChronoUnit.MINUTES.between(entry.getValue().getLastAccess(), LocalDateTime.now()) >= 120;
     }
 
     static class AccessAwarePeerId {

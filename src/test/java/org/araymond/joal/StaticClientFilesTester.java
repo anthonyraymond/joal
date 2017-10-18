@@ -82,30 +82,6 @@ public class StaticClientFilesTester {
     }
 
     @Test
-    public void shouldMatchPeerIdPattern() {
-        FileUtils.listFiles(clientsPath.toFile(), new AcceptAllFileFilter(), null)
-                .forEach(file -> {
-                    IntStream.range(1, 30).forEach(i -> {
-                        try {
-                            final String json = new String(Files.readAllBytes(file.toPath()));
-                            final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
-                            final BitTorrentClient client = clientConfig.createClient();
-
-                            final String peerIdPattern = extractStringPropertyFromJson("pattern", json);
-
-                            final String peerId = client.getPeerId(null, RequestEvent.STARTED);
-                            assertThat(peerId).hasSize(20);
-                            assertThat(peerId)
-                                    .as(file.getName() + " => " + peerId)
-                                    .matches(peerIdPattern);
-                        } catch (final Exception e) {
-                            fail("Exception for client file " + file.getName(), e);
-                        }
-                    });
-                });
-    }
-
-    @Test
     public void shouldGenerateAnnounceURL() {
         FileUtils.listFiles(clientsPath.toFile(), new AcceptAllFileFilter(), null)
                 .forEach(file -> {

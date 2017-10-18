@@ -3,6 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.util.HashMap;
@@ -16,10 +17,10 @@ public class TorrentVolatileRefreshPeerIdGenerator extends PeerIdGenerator {
 
     @JsonCreator
     TorrentVolatileRefreshPeerIdGenerator(
-            @JsonProperty(value = "pattern", required = true) final String pattern,
+            @JsonProperty(value = "algorithm", required = true) final PeerIdAlgorithm algorithm,
             @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
-        super(pattern, isUrlEncoded);
+        super(algorithm, isUrlEncoded);
         peerIdPerTorrent = new HashMap<>();
     }
 

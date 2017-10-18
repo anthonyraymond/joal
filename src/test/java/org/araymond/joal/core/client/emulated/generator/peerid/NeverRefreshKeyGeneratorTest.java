@@ -1,7 +1,9 @@
 package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -15,14 +17,15 @@ public class NeverRefreshKeyGeneratorTest {
 
     @Test
     public void shouldNeverRefresh() {
-        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator("-AA-[a-zA-Z0-9]", false);
+        final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
+        Mockito.when(algo.generate()).thenReturn("do-not-care");
+        final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator(algo, false);
 
-        final Set<String> keys = new HashSet<>();
         for (int i = 0; i < 50; ++i) {
-            keys.add(generator.getPeerId(null, RequestEvent.STARTED));
+            generator.getPeerId(null, RequestEvent.STARTED);
         }
 
-        assertThat(keys).hasSize(1);
+        Mockito.verify(algo, Mockito.times(1)).generate();
     }
 
 }

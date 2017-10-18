@@ -1,6 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -19,7 +20,9 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
 
     @Test
     public void shouldHaveOneKeyPerTorrent() {
-        final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator("-AA-[a-zA-Z0-9]", false);
+        final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
+        Mockito.when(algo.generate()).thenReturn("do-not-care");
+        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator(algo, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
@@ -30,52 +33,50 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
                 .isEqualTo(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
                 .isEqualTo(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
 
+        Mockito.verify(algo, Mockito.times(1)).generate();
+        Mockito.when(algo.generate()).thenReturn("do-not-care2");
+
         assertThat(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
                 .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
                 .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
                 .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
                 .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
-    }
 
-    @Test
-    public void shouldNotRefreshKeyWhenTorrentHasStopped() {
-        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-[a-zA-Z0-9]", false);
-
-        final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
-
-        final String key1 = generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
-        final String key2 = generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);
-        final String key3 = generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE);
-
-        assertThat(key1)
-                .isEqualTo(key2)
-                .isEqualTo(key3);
-    }
-
-    @Test
-    public void shouldNotHaveSameKeyForAllTorrent() {
-        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-[a-zA-Z0-9]", false);
-
-        final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
-        final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
-
+        Mockito.verify(algo, Mockito.times(2)).generate();
         assertThat(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
                 .isNotEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED));
     }
 
     @Test
-    public void shouldConsiderEntryEvictableIfOlderThanOneHourAndAHalf() {
-        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-[a-zA-Z0-9]", false);
+    public void shouldNotRefreshKeyWhenTorrentHasStopped() {
+        final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
+        Mockito.when(algo.generate()).thenReturn("do-not-care");
+        final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator(algo, false);
+
+        final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+
+        generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
+        generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);
+        generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE);
+
+        Mockito.verify(algo, Mockito.times(1)).generate();
+    }
+
+    @Test
+    public void shouldConsiderEntryEvictableIfOlderThanTwoHours() {
+        final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
+        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator(algo, false);
 
         final AccessAwarePeerId oldKey = Mockito.mock(AccessAwarePeerId.class);
-        Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(90, ChronoUnit.MINUTES));
+        Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(120, ChronoUnit.MINUTES));
         Mockito.when(oldKey.getPeerId()).thenReturn("-BT-C-");
         assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(MockedTorrent.class), oldKey))).isTrue();
     }
 
     @Test
     public void shouldNotConsiderEntryEvictableIfYoungerThanOneHourAndAHalf() {
-        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator("-AA-[a-zA-Z0-9]", false);
+        final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
+        final TorrentPersistentRefreshPeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator(algo, false);
 
         final AccessAwarePeerId oldKey = Mockito.mock(AccessAwarePeerId.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(89, ChronoUnit.MINUTES));
