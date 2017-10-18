@@ -14,7 +14,7 @@ RUN apt-get update \
         && rm -rf /data/clients \
         && tar -zxvf joal.tar.gz 'clients/' \
         && mv *.jar joal.jar \
-        && rm joal.tar.gz
+        && rm joal.tar.gz \
         && apt-get remove curl \
         && rm -rf /var/lib/apt/lists/*
 
