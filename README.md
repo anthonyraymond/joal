@@ -7,14 +7,14 @@ This is the server application (with an **optional** webui), if you are interest
 
 | Client        | Support                       | Comment        |
 | ------------- |:-----------------------------:|----------------|
-| BitComet      | ![FUCK NO !][support-fuck_no] | Will never be !|
+| BitComet      | ![FUCK NO ! numwant management is a mess !][support-fuck_no] | Will never be !|
 | BitTorrent    | ![Yes][support-yes]           |                |
 | Deluge        | ![Yes][support-yes]           |                |
 | qBittorrent   | ![Yes][support-yes]           |                |
 | rTorrent      | ![Yes][support-yes]           |                |
 | Transmission  | ![Yes][support-yes]           |                |
 | µTorrent      | ![Yes][support-yes]           |                |
-| Vuze Azureus  | ![Yes][support-no]            | Will soon be   |
+| Vuze Azureus  | ![Yes][support-yes]           |                |
 | Vuze Leap     | ![Yes][support-yes]           |                |
 
 If your favorite client is not yet supported feel free to ask (except for BitComet).<br/>

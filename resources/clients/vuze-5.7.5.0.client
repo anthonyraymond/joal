@@ -1,0 +1,31 @@
+{
+    "keyGenerator": {
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "[A-Za-z0-9]{8}"
+        },
+        "refreshOn": "TORRENT_VOLATILE",
+        "keyCase": "none"
+    },
+    "peerIdGenerator": {
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "-AZ5750-[a-zA-Z0-9]{12}"
+        },
+        "refreshOn": "TORRENT_VOLATILE",
+        "shouldUrlEncode": false
+    },
+    "urlEncoder": {
+        "encodingExclusionPattern": "[A-Za-z0-9_~\\(\\)\\!\\.\\*-]",
+        "encodedHexCase": "upper"
+    },
+    "query": "info_hash={infohash}&peer_id={peerid}&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3",
+    "numwant": 100,
+    "numwantOnStop": 0,
+    "requestHeaders": [
+        { "name": "User-Agent", "value": "Azureus 5.7.5.0;{os};Java {java}" },
+        { "name": "Connection", "value": "close" },
+        { "name": "Accept-Encoding", "value": "gzip" },
+        { "name": "Accept", "value": "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2" }
+    ]
+}
