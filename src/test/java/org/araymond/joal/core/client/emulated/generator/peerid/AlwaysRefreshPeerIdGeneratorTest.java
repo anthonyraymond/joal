@@ -5,11 +5,6 @@ import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerId
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import static org.assertj.core.api.Assertions.assertThat;
-
 /**
  * Created by raymo on 16/07/2017.
  */
