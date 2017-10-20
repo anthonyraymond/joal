@@ -54,7 +54,14 @@ The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to s
 Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no need to restart JOAL to add more torrents, add it to the folder and JOAL will be aware of after few seconds.
 
 ## Docker
-Download the Dockerfile and use the following command. You must to replace `PORT`, `PATH_TO_CONF`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN`.
+Build it:
+```
+docker build -f Dockerfile -t araymond/joal .
+```
+If you want to build the **raspberry** docker image replace `Dockerfile` with `Dockerfile.arm`.
+
+Then run it:
+In next command you have to replace `PORT`, `PATH_TO_CONF`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN`.
 ```
 docker run -d \
     -p PORT:PORT \
