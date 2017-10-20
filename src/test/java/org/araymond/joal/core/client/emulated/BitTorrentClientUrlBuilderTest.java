@@ -11,6 +11,7 @@ import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
@@ -34,7 +35,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class BitTorrentClientUrlBuilderTest {
     private static final KeyGenerator defaultKeyGenerator = KeyGeneratorTest.createDefault();
     private static final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
-    private final UrlEncoder defaultUrlEncoder = new UrlEncoder(".*", UrlEncoder.Casing.LOWER);
+    private final UrlEncoder defaultUrlEncoder = new UrlEncoder(".*", Casing.LOWER);
     private static final NumwantProvider defaultNumwantProvider = new NumwantProvider(200, 0);
     private static URL defaultTrackerURL;
 
@@ -120,7 +121,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
-                new UrlEncoder("", UrlEncoder.Casing.LOWER),
+                new UrlEncoder("", Casing.LOWER),
                 "info_hash={infohash}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -164,7 +165,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 PeerIdGeneratorTest.createForPattern("-AA-[a]{16}", true),
                 defaultKeyGenerator,
-                new UrlEncoder("", UrlEncoder.Casing.LOWER),
+                new UrlEncoder("", Casing.LOWER),
                 "peer_id={peerid}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -184,7 +185,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 PeerIdGeneratorTest.createForPattern("-AA-[a]{16}", false),
                 defaultKeyGenerator,
-                new UrlEncoder("", UrlEncoder.Casing.LOWER),
+                new UrlEncoder("", Casing.LOWER),
                 "peer_id={peerid}",
                 Collections.emptyList(),
                 defaultNumwantProvider
@@ -299,7 +300,7 @@ public class BitTorrentClientUrlBuilderTest {
         final BitTorrentClient client = new BitTorrentClient(
                 defaultPeerIdGenerator,
                 defaultKeyGenerator,
-                new UrlEncoder("[0-9a-zA-Z]", UrlEncoder.Casing.LOWER),
+                new UrlEncoder("[0-9a-zA-Z]", Casing.LOWER),
                 "ipv6={ipv6}&ip={ip}",
                 Collections.emptyList(),
                 defaultNumwantProvider

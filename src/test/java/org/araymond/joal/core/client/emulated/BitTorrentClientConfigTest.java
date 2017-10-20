@@ -6,6 +6,7 @@ import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,7 +25,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class BitTorrentClientConfigTest {
     private final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
-    private final UrlEncoder defaultUrlEncoder = new UrlEncoder(".*", UrlEncoder.Casing.LOWER);
+    private final UrlEncoder defaultUrlEncoder = new UrlEncoder(".*", Casing.LOWER);
 
     @Test
     public void shouldBuildEvenIfKeyGeneratorIsNotDefined() {

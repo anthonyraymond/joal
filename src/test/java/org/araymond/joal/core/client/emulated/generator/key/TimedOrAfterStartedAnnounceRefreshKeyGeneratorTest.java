@@ -3,6 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.key;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,28 +16,28 @@ public class TimedOrAfterStartedAnnounceRefreshKeyGeneratorTest {
 
     @Test
     public void shouldNotBuildWithoutRefreshEvery() {
-        assertThatThrownBy(() -> new TimedOrAfterStartedAnnounceRefreshKeyGenerator(null, 8, KeyTypes.HASH, false, false))
+        assertThatThrownBy(() -> new TimedOrAfterStartedAnnounceRefreshKeyGenerator(null, 8, KeyTypes.HASH, Casing.NONE))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessage("refreshEvery must be greater than 0.");
     }
 
     @Test
     public void shouldNotBuildWithRefreshEveryLessThanOne() {
-        assertThatThrownBy(() -> new TimedOrAfterStartedAnnounceRefreshKeyGenerator(0, 8, KeyTypes.HASH, false, false))
+        assertThatThrownBy(() -> new TimedOrAfterStartedAnnounceRefreshKeyGenerator(0, 8, KeyTypes.HASH, Casing.NONE))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessage("refreshEvery must be greater than 0.");
     }
 
     @Test
     public void shouldBuild() {
-        final TimedOrAfterStartedAnnounceRefreshKeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(10, 8, KeyTypes.HASH, false, false);
+        final TimedOrAfterStartedAnnounceRefreshKeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(10, 8, KeyTypes.HASH, Casing.NONE);
 
         assertThat(generator.getRefreshEvery()).isEqualTo(10);
     }
 
     @Test
     public void keyShouldNotBeRefreshedIfDelayIsNotElapsedAndRefreshWhenElapsed() throws InterruptedException {
-        final TimedOrAfterStartedAnnounceRefreshKeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(1, 8, KeyTypes.HASH, false, false);
+        final TimedOrAfterStartedAnnounceRefreshKeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(1, 8, KeyTypes.HASH, Casing.NONE);
 
         final String firstKey = generator.getKey(null, RequestEvent.STOPPED);
         assertThat(generator.getKey(null, RequestEvent.STOPPED))
@@ -54,7 +55,7 @@ public class TimedOrAfterStartedAnnounceRefreshKeyGeneratorTest {
 
     @Test
     public void shouldBeRefreshAfterStartedEvent() {
-        final TimedOrAfterStartedAnnounceRefreshKeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(1, 8, KeyTypes.HASH, false, false);
+        final TimedOrAfterStartedAnnounceRefreshKeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(1, 8, KeyTypes.HASH, Casing.NONE);
 
         final String firstKey = generator.getKey(null, RequestEvent.STOPPED);
         assertThat(generator.getKey(null, RequestEvent.STOPPED))

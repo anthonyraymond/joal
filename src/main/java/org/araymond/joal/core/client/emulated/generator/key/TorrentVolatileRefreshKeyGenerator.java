@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.util.HashMap;
@@ -19,10 +20,9 @@ public class TorrentVolatileRefreshKeyGenerator extends KeyGenerator {
     TorrentVolatileRefreshKeyGenerator(
             @JsonProperty(value = "length", required = true) final Integer length,
             @JsonProperty(value = "type", required = true) final KeyTypes type,
-            @JsonProperty(value = "upperCase", required = true) final boolean upperCase,
-            @JsonProperty(value = "lowerCase", required = true) final boolean lowerCase
+            @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {
-        super(length, type, upperCase, lowerCase);
+        super(length, type, keyCase);
         keyPerTorrent = new HashMap<>();
     }
 

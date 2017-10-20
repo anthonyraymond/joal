@@ -3,8 +3,7 @@
         "length": 8,
         "type": "hash_no_leading_zero",
         "refreshOn": "TORRENT_PERSISTENT",
-        "upperCase": true,
-        "lowerCase": false
+        "keyCase": "upper"
     },
     "peerIdGenerator": {
         "algorithm": {

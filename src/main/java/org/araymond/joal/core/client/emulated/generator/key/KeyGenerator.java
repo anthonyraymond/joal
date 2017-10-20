@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 /**
@@ -25,10 +26,9 @@ public abstract class KeyGenerator {
 
     private final Integer length;
     private final KeyTypes type;
-    private final boolean upperCase;
-    private final boolean lowerCase;
+    private final Casing keyCase;
 
-    protected KeyGenerator(final Integer length, final KeyTypes type, final boolean upperCase, final boolean lowerCase) {
+    protected KeyGenerator(final Integer length, final KeyTypes type, final Casing keyCase) {
         if (length <=0) {
             throw new TorrentClientConfigIntegrityException("key length must be greater than 0.");
         }
@@ -37,8 +37,7 @@ public abstract class KeyGenerator {
         }
         this.length = length;
         this.type = type;
-        this.upperCase = upperCase;
-        this.lowerCase = lowerCase;
+        this.keyCase = keyCase;
     }
 
     @JsonProperty("length")
@@ -51,28 +50,19 @@ public abstract class KeyGenerator {
         return type;
     }
 
-    @JsonProperty("upperCase")
-    boolean isUpperCase() {
-        return upperCase;
+    @JsonProperty("keyCase")
+    Casing getKeyCase() {
+        return keyCase;
     }
 
-    @JsonProperty("lowerCase")
-    boolean isLowerCase() {
-        return lowerCase;
-    }
 
     @JsonIgnore
     public abstract String getKey(final MockedTorrent torrent, RequestEvent event);
 
     protected String generateKey() {
-        String key = this.type.generateHash(this.length);
-        if (this.upperCase) {
-            key = key.toUpperCase();
-        } else if (this.lowerCase) {
-            key = key.toLowerCase();
-        }
+        final String key = this.type.generateHash(this.length);
 
-        return key;
+        return keyCase.toCase(key);
     }
 
     @Override
@@ -80,15 +70,14 @@ public abstract class KeyGenerator {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final KeyGenerator keyGenerator = (KeyGenerator) o;
-        return upperCase == keyGenerator.upperCase &&
-                lowerCase == keyGenerator.lowerCase &&
+        return keyCase == keyGenerator.keyCase &&
                 com.google.common.base.Objects.equal(length, keyGenerator.length) &&
                 type == keyGenerator.type;
     }
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(length, type, upperCase, lowerCase);
+        return com.google.common.base.Objects.hashCode(length, type, keyCase);
     }
 
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
 import java.time.LocalDateTime;
@@ -24,10 +25,9 @@ public class TimedOrAfterStartedAnnounceRefreshKeyGenerator extends KeyGenerator
             @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
             @JsonProperty(value = "length", required = true) final Integer length,
             @JsonProperty(value = "type", required = true) final KeyTypes type,
-            @JsonProperty(value = "upperCase", required = true) final boolean upperCase,
-            @JsonProperty(value = "lowerCase", required = true) final boolean lowerCase
+            @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {
-        super(length, type, upperCase, lowerCase);
+        super(length, type, keyCase);
         if (refreshEvery == null || refreshEvery < 1) {
             throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0.");
         }

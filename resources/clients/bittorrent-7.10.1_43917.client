@@ -4,8 +4,7 @@
         "type": "hash",
         "refreshOn": "TIMED_OR_AFTER_STARTED_ANNOUNCE",
         "refreshEvery": 10,
-        "upperCase": true,
-        "lowerCase": false
+        "keyCase": "upper"
     },
     "peerIdGenerator": {
         "algorithm": {

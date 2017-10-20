@@ -1,6 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -16,19 +17,19 @@ public class UrlEncoderSerializationTest {
         final UrlEncoder urlEncoder = new ObjectMapper().readValue(json, UrlEncoder.class);
 
         assertThat(urlEncoder.getEncodingExclusionPattern()).isEqualTo("[a-z]");
-        assertThat(urlEncoder.getEncodedHexCase()).isEqualTo(UrlEncoder.Casing.LOWER);
+        assertThat(urlEncoder.getEncodedHexCase()).isEqualTo(Casing.LOWER);
     }
 
     @Test
     public void shouldSerialize() throws IOException {
-        final UrlEncoder urlEncoder = new UrlEncoder("[a-z]", UrlEncoder.Casing.LOWER);
+        final UrlEncoder urlEncoder = new UrlEncoder("[a-z]", Casing.LOWER);
 
         assertThat(new ObjectMapper().writeValueAsString(urlEncoder)).isEqualTo(json);
     }
 
     @Test
     public void shouldSerializeAndDeserialize() throws IOException {
-        final UrlEncoder urlEncoder = new UrlEncoder("[a-z]", UrlEncoder.Casing.LOWER);
+        final UrlEncoder urlEncoder = new UrlEncoder("[a-z]", Casing.LOWER);
 
         assertThat(new ObjectMapper().readValue(new ObjectMapper().writeValueAsString(urlEncoder), UrlEncoder.class))
                 .isEqualTo(urlEncoder);

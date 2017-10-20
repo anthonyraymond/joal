@@ -3,8 +3,7 @@
         "refreshOn": "NEVER",
         "length": 8,
         "type": "hash",
-        "upperCase": false,
-        "lowerCase": false
+        "keyCase": "none"
     },
     "peerIdGenerator": {
         "refreshOn": "TORRENT_VOLATILE",

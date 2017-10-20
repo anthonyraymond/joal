@@ -2,6 +2,7 @@ package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -15,7 +16,7 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
 
     @Test
     public void shouldHaveOneKeyPerTorrent() {
-        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, KeyTypes.HASH, false, false);
+        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, KeyTypes.HASH, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
@@ -35,7 +36,7 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
 
     @Test
     public void shouldRefreshKeyWhenTorrentHasStopped() {
-        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, KeyTypes.HASH, false, false);
+        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, KeyTypes.HASH, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
@@ -50,7 +51,7 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
 
     @Test
     public void shouldNotHaveSameKeyForAllTorrent() {
-        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, KeyTypes.HASH, false, false);
+        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, KeyTypes.HASH, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
