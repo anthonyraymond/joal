@@ -2,7 +2,8 @@ package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.generator.key.algorithm.HashKeyAlgorithm;
+import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.junit.Test;
@@ -16,27 +17,20 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class KeyGeneratorTest {
 
     public static KeyGenerator createDefault() {
-        return new NeverRefreshKeyGenerator(8, KeyTypes.HASH, Casing.NONE);
+        return new NeverRefreshKeyGenerator(new HashKeyAlgorithm(8), Casing.NONE);
     }
 
     @Test
-    public void shouldNotBuildWithLengthLessThanOne() {
-        assertThatThrownBy(() -> new DefaultKeyGenerator(0, KeyTypes.HASH, Casing.NONE))
+    public void shouldNotBuildWithNullAlgorithm() {
+        assertThatThrownBy(() -> new DefaultKeyGenerator(null, Casing.NONE))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("key length must be greater than 0.");
-    }
-
-    @Test
-    public void shouldNotBuildWithNullTypeLessThanOne() {
-        assertThatThrownBy(() -> new DefaultKeyGenerator(8, null, Casing.NONE))
-                .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("key type must not be null.");
+                .hasMessage("key algorithm must not be null.");
     }
 
 
     @Test
     public void shouldGenerateKeyLowerCased() {
-        final KeyGenerator generator = new DefaultKeyGenerator(8, KeyTypes.HASH, Casing.LOWER);
+        final KeyGenerator generator = new DefaultKeyGenerator(new HashKeyAlgorithm(8), Casing.LOWER);
 
         for (int i = 0; i < 30; i++) {
             assertThat(generator.generateKey()).matches("[0-9a-z]{8}");
@@ -45,7 +39,7 @@ public class KeyGeneratorTest {
 
     @Test
     public void shouldGenerateKeyUpperCased() {
-        final KeyGenerator generator = new DefaultKeyGenerator(8, KeyTypes.HASH, Casing.UPPER);
+        final KeyGenerator generator = new DefaultKeyGenerator(new HashKeyAlgorithm(8), Casing.UPPER);
 
         for (int i = 0; i < 30; i++) {
             assertThat(generator.generateKey()).matches("[0-9A-Z]{8}");
@@ -54,8 +48,8 @@ public class KeyGeneratorTest {
 
     private static final class DefaultKeyGenerator extends KeyGenerator {
 
-        private DefaultKeyGenerator(final Integer length, final KeyTypes type, final Casing keyCase) {
-            super(length, type, keyCase);
+        private DefaultKeyGenerator(final KeyAlgorithm algorithm, final Casing keyCase) {
+            super(algorithm, keyCase);
         }
 
         @Override

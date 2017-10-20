@@ -3,7 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.key;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
@@ -15,11 +15,10 @@ public class NeverRefreshKeyGenerator extends KeyGenerator {
     private final String key;
     @JsonCreator
     NeverRefreshKeyGenerator(
-            @JsonProperty(value = "length", required = true) final Integer length,
-            @JsonProperty(value = "type", required = true) final KeyTypes type,
+            @JsonProperty(value = "algorithm", required = true) final KeyAlgorithm algorithm,
             @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {
-        super(length, type, keyCase);
+        super(algorithm, keyCase);
 
         this.key = generateKey();
     }

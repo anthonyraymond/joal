@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
@@ -22,11 +22,10 @@ public class TorrentPersistentRefreshKeyGenerator extends KeyGenerator {
 
     @JsonCreator
     TorrentPersistentRefreshKeyGenerator(
-            @JsonProperty(value = "length", required = true) final Integer length,
-            @JsonProperty(value = "type", required = true) final KeyTypes type,
+            @JsonProperty(value = "algorithm", required = true) final KeyAlgorithm algorithm,
             @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {
-        super(length, type, keyCase);
+        super(algorithm, keyCase);
         keyPerTorrent = new HashMap<>();
     }
 
@@ -48,14 +47,14 @@ public class TorrentPersistentRefreshKeyGenerator extends KeyGenerator {
     }
 
     /**
-     * If an entry is older than one hour and a half, it shoul be considered as evictable
+     * If an entry is older than two hours, it should be considered as evictable
      *
      * @param entry decide whether this entry is evictable
      * @return true if evictable, false otherwise
      */
     @VisibleForTesting
     boolean shouldEvictEntry(final Map.Entry<MockedTorrent, AccessAwareKey> entry) {
-        return ChronoUnit.MINUTES.between(entry.getValue().getLastAccess(), LocalDateTime.now()) >= 90;
+        return ChronoUnit.MINUTES.between(entry.getValue().getLastAccess(), LocalDateTime.now()) >= 120;
     }
 
     static class AccessAwareKey {

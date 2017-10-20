@@ -1,7 +1,8 @@
 package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.generator.key.algorithm.HashKeyAlgorithm;
+import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.junit.Test;
 
@@ -21,8 +22,10 @@ public class KeyGeneratorSerializationTest {
         final String validJSON =
                 "{\n" +
                         "  \"refreshOn\": \"NEVER\",\n" +
-                        "  \"length\": 8,\n" +
-                        "  \"type\": \"hash\",\n" +
+                        "  \"algorithm\": {\n" +
+                        "    \"type\": \"HASH\",\n" +
+                        "    \"length\": 8\n" +
+                        "  },\n" +
                         "  \"keyCase\" : \"lower\"\n" +
                         "}";
 
@@ -32,14 +35,17 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeNeverRefresh() throws IOException {
-        final KeyGenerator generator = new NeverRefreshKeyGenerator(8, KeyTypes.HASH, Casing.LOWER);
+        final KeyAlgorithm algo = new HashKeyAlgorithm(8);
+        final KeyGenerator generator = new NeverRefreshKeyGenerator(algo, Casing.LOWER);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\" : \"NEVER\",\n" +
-                                "  \"length\" : 8,\n" +
-                                "  \"type\" : \"hash\",\n" +
+                                "  \"algorithm\": {\n" +
+                                "    \"type\": \"HASH\",\n" +
+                                "    \"length\": 8\n" +
+                                "  },\n" +
                                 "  \"keyCase\" : \"lower\"\n" +
                                 "}"
                 ));
@@ -50,8 +56,10 @@ public class KeyGeneratorSerializationTest {
         final String validJSON =
                 "{\n" +
                         "  \"refreshOn\": \"ALWAYS\",\n" +
-                        "  \"length\": 8,\n" +
-                        "  \"type\": \"hash\",\n" +
+                        "  \"algorithm\": {\n" +
+                        "    \"type\": \"HASH\",\n" +
+                        "    \"length\": 8\n" +
+                        "  },\n" +
                         "  \"keyCase\" : \"lower\"\n" +
                         "}";
 
@@ -61,14 +69,17 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeAlwaysRefresh() throws IOException {
-        final KeyGenerator generator = new AlwaysRefreshKeyGenerator(8, KeyTypes.HASH, Casing.LOWER);
+        final KeyAlgorithm algo = new HashKeyAlgorithm(8);
+        final KeyGenerator generator = new AlwaysRefreshKeyGenerator(algo, Casing.LOWER);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\" : \"ALWAYS\",\n" +
-                                "  \"length\" : 8,\n" +
-                                "  \"type\" : \"hash\",\n" +
+                                "  \"algorithm\": {\n" +
+                                "    \"type\": \"HASH\",\n" +
+                                "    \"length\": 8\n" +
+                                "  },\n" +
                                 "  \"keyCase\" : \"lower\"\n" +
                                 "}"
                 ));
@@ -80,8 +91,10 @@ public class KeyGeneratorSerializationTest {
                 "{\n" +
                         "  \"refreshOn\": \"TIMED\",\n" +
                         "  \"refreshEvery\": 60,\n" +
-                        "  \"length\": 8,\n" +
-                        "  \"type\": \"hash\",\n" +
+                        "  \"algorithm\": {\n" +
+                        "    \"type\": \"HASH\",\n" +
+                        "    \"length\": 8\n" +
+                        "  },\n" +
                         "  \"keyCase\" : \"lower\"\n" +
                         "}";
 
@@ -91,15 +104,18 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTimedRefresh() throws IOException {
-        final KeyGenerator generator = new TimedRefreshKeyGenerator(60, 8, KeyTypes.HASH, Casing.LOWER);
+        final KeyAlgorithm algo = new HashKeyAlgorithm(8);
+        final KeyGenerator generator = new TimedRefreshKeyGenerator(60, algo, Casing.LOWER);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\": \"TIMED\",\n" +
                                 "  \"refreshEvery\": 60,\n" +
-                                "  \"length\" : 8,\n" +
-                                "  \"type\" : \"hash\",\n" +
+                                "  \"algorithm\": {\n" +
+                                "    \"type\": \"HASH\",\n" +
+                                "    \"length\": 8\n" +
+                                "  },\n" +
                                 "  \"keyCase\" : \"lower\"\n" +
                                 "}"
                 ));
@@ -111,8 +127,10 @@ public class KeyGeneratorSerializationTest {
                 "{\n" +
                         "  \"refreshOn\": \"TIMED_OR_AFTER_STARTED_ANNOUNCE\",\n" +
                         "  \"refreshEvery\": 60,\n" +
-                        "  \"length\": 8,\n" +
-                        "  \"type\": \"hash\",\n" +
+                        "  \"algorithm\": {\n" +
+                        "    \"type\": \"HASH\",\n" +
+                        "    \"length\": 8\n" +
+                        "  },\n" +
                         "  \"keyCase\" : \"lower\"\n" +
                         "}";
 
@@ -122,15 +140,18 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTimedOrAfterStartedRefresh() throws IOException {
-        final KeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(60, 8, KeyTypes.HASH, Casing.LOWER);
+        final KeyAlgorithm algo = new HashKeyAlgorithm(8);
+        final KeyGenerator generator = new TimedOrAfterStartedAnnounceRefreshKeyGenerator(60, algo, Casing.LOWER);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\": \"TIMED_OR_AFTER_STARTED_ANNOUNCE\",\n" +
                                 "  \"refreshEvery\": 60,\n" +
-                                "  \"length\" : 8,\n" +
-                                "  \"type\" : \"hash\",\n" +
+                                "  \"algorithm\": {\n" +
+                                "    \"type\": \"HASH\",\n" +
+                                "    \"length\": 8\n" +
+                                "  },\n" +
                                 "  \"keyCase\" : \"lower\"\n" +
                                 "}"
                 ));
@@ -141,8 +162,10 @@ public class KeyGeneratorSerializationTest {
         final String validJSON =
                 "{\n" +
                         "  \"refreshOn\": \"TORRENT_VOLATILE\",\n" +
-                        "  \"length\": 8,\n" +
-                        "  \"type\": \"hash\",\n" +
+                        "  \"algorithm\": {\n" +
+                        "    \"type\": \"HASH\",\n" +
+                        "    \"length\": 8\n" +
+                        "  },\n" +
                         "  \"keyCase\" : \"lower\"\n" +
                         "}";
 
@@ -152,14 +175,17 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentVolatileRefresh() throws IOException {
-        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(8, KeyTypes.HASH, Casing.LOWER);
+        final KeyAlgorithm algo = new HashKeyAlgorithm(8);
+        final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(algo, Casing.LOWER);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\": \"TORRENT_VOLATILE\",\n" +
-                                "  \"length\" : 8,\n" +
-                                "  \"type\" : \"hash\",\n" +
+                                "  \"algorithm\": {\n" +
+                                "    \"type\": \"HASH\",\n" +
+                                "    \"length\": 8\n" +
+                                "  },\n" +
                                 "  \"keyCase\" : \"lower\"\n" +
                                 "}"
                 ));
@@ -170,8 +196,10 @@ public class KeyGeneratorSerializationTest {
         final String validJSON =
                 "{\n" +
                         "  \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
-                        "  \"length\": 8,\n" +
-                        "  \"type\": \"hash\",\n" +
+                        "  \"algorithm\": {\n" +
+                        "    \"type\": \"HASH\",\n" +
+                        "    \"length\": 8\n" +
+                        "  },\n" +
                         "  \"keyCase\" : \"lower\"\n" +
                         "}";
 
@@ -181,14 +209,17 @@ public class KeyGeneratorSerializationTest {
 
     @Test
     public void shouldSerializeTorrentPersistentRefresh() throws IOException {
-        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(8, KeyTypes.HASH, Casing.LOWER);
+        final KeyAlgorithm algo = new HashKeyAlgorithm(8);
+        final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(algo, Casing.LOWER);
 
         assertThat(mapper.readTree(mapper.writerWithDefaultPrettyPrinter().writeValueAsString(generator)))
                 .isEqualTo(mapper.readTree(
                         "{\n" +
                                 "  \"refreshOn\": \"TORRENT_PERSISTENT\",\n" +
-                                "  \"length\" : 8,\n" +
-                                "  \"type\" : \"hash\",\n" +
+                                "  \"algorithm\": {\n" +
+                                "    \"type\": \"HASH\",\n" +
+                                "    \"length\": 8\n" +
+                                "  },\n" +
                                 "  \"keyCase\" : \"lower\"\n" +
                                 "}"
                 ));

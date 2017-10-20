@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
-import org.araymond.joal.core.client.emulated.generator.key.type.KeyTypes;
+import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 
@@ -24,30 +24,21 @@ import org.araymond.joal.core.ttorent.client.MockedTorrent;
 })
 public abstract class KeyGenerator {
 
-    private final Integer length;
-    private final KeyTypes type;
+    private final KeyAlgorithm algorithm;
     private final Casing keyCase;
 
-    protected KeyGenerator(final Integer length, final KeyTypes type, final Casing keyCase) {
-        if (length <=0) {
-            throw new TorrentClientConfigIntegrityException("key length must be greater than 0.");
+    protected KeyGenerator(final KeyAlgorithm keyAlgorithm, final Casing keyCase) {
+        if (keyAlgorithm == null) {
+            throw new TorrentClientConfigIntegrityException("key algorithm must not be null.");
         }
-        if (type == null) {
-            throw new TorrentClientConfigIntegrityException("key type must not be null.");
-        }
-        this.length = length;
-        this.type = type;
+        this.algorithm = keyAlgorithm;
         this.keyCase = keyCase;
     }
 
-    @JsonProperty("length")
-    Integer getLength() {
-        return length;
-    }
 
-    @JsonProperty("type")
-    KeyTypes getType() {
-        return type;
+    @JsonProperty("algorithm")
+    KeyAlgorithm getAlgorithm() {
+        return algorithm;
     }
 
     @JsonProperty("keyCase")
@@ -60,7 +51,7 @@ public abstract class KeyGenerator {
     public abstract String getKey(final MockedTorrent torrent, RequestEvent event);
 
     protected String generateKey() {
-        final String key = this.type.generateHash(this.length);
+        final String key = this.algorithm.generate();
 
         return keyCase.toCase(key);
     }
@@ -71,13 +62,12 @@ public abstract class KeyGenerator {
         if (o == null || getClass() != o.getClass()) return false;
         final KeyGenerator keyGenerator = (KeyGenerator) o;
         return keyCase == keyGenerator.keyCase &&
-                com.google.common.base.Objects.equal(length, keyGenerator.length) &&
-                type == keyGenerator.type;
+                com.google.common.base.Objects.equal(algorithm, keyGenerator.algorithm);
     }
 
     @Override
     public int hashCode() {
-        return com.google.common.base.Objects.hashCode(length, type, keyCase);
+        return com.google.common.base.Objects.hashCode(algorithm, keyCase);
     }
 
 }

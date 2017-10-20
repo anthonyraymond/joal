@@ -1,7 +1,9 @@
 {
     "keyGenerator": {
-        "length": 8,
-        "type": "hash",
+        "algorithm": {
+            "type": "HASH",
+            "length": 8
+        },
         "refreshOn": "TIMED_OR_AFTER_STARTED_ANNOUNCE",
         "refreshEvery": 10,
         "keyCase": "upper"

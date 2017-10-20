@@ -1,7 +1,9 @@
 {
     "keyGenerator": {
-        "length": 8,
-        "type": "hash",
+        "algorithm": {
+            "type": "HASH",
+            "length": 8
+        },
         "refreshOn": "TORRENT_PERSISTENT",
         "keyCase": "lower"
     },

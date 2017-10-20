@@ -1,8 +1,10 @@
 {
     "keyGenerator": {
         "refreshOn": "NEVER",
-        "length": 8,
-        "type": "hash",
+        "algorithm": {
+            "type": "HASH",
+            "length": 8
+        },
         "keyCase": "none"
     },
     "peerIdGenerator": {
