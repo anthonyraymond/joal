@@ -5,34 +5,32 @@ This is the server application (with an **optional** webui), if you are interest
 
 ### Which client can JOAL emulate?
 
-| Client        | Support                       | Comment        |
-| ------------- |:-----------------------------:|----------------|
-| BitComet      | ![FUCK NO ! numwant management is a mess !][support-fuck_no] | Will never be !|
-| BitTorrent    | ![Yes][support-yes]           |                |
-| Deluge        | ![Yes][support-yes]           |                |
-| qBittorrent   | ![Yes][support-yes]           |                |
-| rTorrent      | ![Yes][support-yes]           |                |
-| Transmission  | ![Yes][support-yes]           |                |
-| µTorrent      | ![Yes][support-yes]           |                |
-| Vuze Azureus  | ![Yes][support-yes]           |                |
-| Vuze Leap     | ![Yes][support-yes]           |                |
+| Client        | Support                       | Comment        |  | Client        | Support                       | Comment        |
+| ------------- |:-----------------------------:|----------------|--|---------------|:-----------------------------:|----------------|
+| BitComet      | ![Numwant mess][support-never]| Will never be !|  | Transmission  | ![Yes][support-yes]           |                |
+| BitTorrent    | ![Yes][support-yes]           |                |  | µTorrent      | ![Yes][support-yes]           |                |
+| Deluge        | ![Yes][support-yes]           |                |  | Vuze Azureus  | ![Yes][support-yes]           |                |
+| qBittorrent   | ![Yes][support-yes]           |                |  | Vuze Leap     | ![Yes][support-yes]           |                |
+| rTorrent      | ![Yes][support-yes]           |                |  |
 
 If your favorite client is not yet supported feel free to ask (except for BitComet).<br/>
 Ask for it in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal.contact@gmail.com</a>.
 
+## Preview
+![preview](readme-assets/webui-preview.png?raw=true)
 
-[support-fuck_no]:readme-assets/warning.png
-[support-no]:readme-assets/cross-mark.png
-[support-yes]:readme-assets/check-mark.png
 
 ## Getting started
-Download the latest `tar.gz` release.
+Download the [latest tar.gz release](https://github.com/anthonyraymond/joal/releases/latest).
 Put `config.json`, `clients`, and `torrents` folder into the location of your choice (this will be your configuration folder). For the rest of this README, it will be named `joal-conf`.
+
+The folder should look like this:<br/>
+![joal-conf][joal-conf-folder]
 
 ## How to run
 
 ```
-java -Djava.net.preferIPv6Addresses=true -jar .\jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF" 
+java -Djava.net.preferIPv6Addresses=true -jar .\jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
 ```
 
 - `-Djava.net.preferIPv6Addresses=true`: is for instruct the JVM to prefer ipv6, if you ISP does not support ipv6 don't prepend this parameter.
@@ -53,6 +51,8 @@ The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to s
 ## Start seeding
 Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no need to restart JOAL to add more torrents, add it to the folder and JOAL will be aware of after few seconds.
 
+If WebUi is enabled you can also drag and drop torrents in the joal ui.
+
 ## Docker
 Build it:
 ```
@@ -61,7 +61,7 @@ docker build -f Dockerfile -t araymond/joal .
 If you want to build the **raspberry** docker image replace `Dockerfile` with `Dockerfile.arm`.
 
 Then run it:
-In next command you have to replace `PORT`, `PATH_TO_CONF`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN`.
+In next command you have to replace `PATH_TO_CONF`, `PORT`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN`.
 ```
 docker run -d \
     -p PORT:PORT \
@@ -102,3 +102,9 @@ This project use a modified version of the awesome [mpetazzoni/ttorrent](http://
 Also this project has benefited from the help of several peoples, see [Thanks.md](THANKS.md)
 
 [![Analytics](https://ga-beacon.appspot.com/UA-97530761-1/joal/readme?pixel)](https://github.com/igrigorik/ga-beacon)
+
+
+[support-never]:readme-assets/warning.png
+[support-no]:readme-assets/cross-mark.png
+[support-yes]:readme-assets/check-mark.png
+[joal-conf-folder]:readme-assets/joal-conf-folder.png
