@@ -11,8 +11,6 @@ RUN apt-get update \
         | cut -d '"' -f 4 \
         | wget -i - \
         && tar --wildcards -zxvf joal.tar.gz '*.jar' \
-        && rm -rf /data/clients \
-        && tar -zxvf joal.tar.gz 'clients/' \
         && mv *.jar joal.jar \
         && rm joal.tar.gz \
         && apt-get remove curl wget \
