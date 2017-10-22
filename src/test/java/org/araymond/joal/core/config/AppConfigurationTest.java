@@ -18,38 +18,47 @@ public class AppConfigurationTest {
     }
 
     @Test
-    public void shouldCreateIfMinUploadRateEqualsZero() {
+    public void shouldBuildIfMinUploadRateEqualsZero() {
         final AppConfiguration config = new AppConfiguration(0L, 190L, 2, "azureus.client", false);
 
         assertThat(config.getMinUploadRate()).isEqualTo(0);
     }
 
     @Test
-    public void shouldNotBuildIfMaxUploadRateIsLessThanOne() {
-        assertThatThrownBy(() -> new AppConfiguration(180L, -1L, 2, "azureus.client", false))
-                .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("maxUploadRate must greater than 0.");
-    }
-
-    @Test
-    public void shouldCreateIfMinUploadRateEqualsOne() {
+    public void shouldBuildIfMinUploadRateEqualsOne() {
         final AppConfiguration config = new AppConfiguration(0L, 1L, 2, "azureus.client", false);
 
         assertThat(config.getMaxUploadRate()).isEqualTo(1);
     }
 
     @Test
-    public void shouldNotBuildIfMaxRateIsLesserThanMinRate() {
-        assertThatThrownBy(() -> new AppConfiguration(180L, 150L, 2, "azureus.client", false))
+    public void shouldNotBuildIfMaxUploadRateIsLessThanZero() {
+        assertThatThrownBy(() -> new AppConfiguration(180L, -1L, 2, "azureus.client", false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("maxUploadRate must be strictly greater than minUploadRate.");
+                .hasMessageContaining("maxUploadRate must greater or equal to 0.");
     }
 
     @Test
-    public void shouldNotBuildIfMaxRateEqualsThanMinRate() {
-        assertThatThrownBy(() -> new AppConfiguration(180L, 180L, 2, "azureus.client", false))
+    public void shouldBuildIfMinRateAndMaxRateEqualsZero() {
+        final AppConfiguration conf = new AppConfiguration(0L, 0L, 2, "azureus.client", false);
+
+        assertThat(conf.getMinUploadRate()).isEqualTo(0L);
+        assertThat(conf.getMaxUploadRate()).isEqualTo(0L);
+    }
+
+    @Test
+    public void shouldNotBuildIfMaxRateIsLesserThanMinRate() {
+        assertThatThrownBy(() -> new AppConfiguration(180L, 179L, 2, "azureus.client", false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("maxUploadRate must be strictly greater than minUploadRate.");
+                .hasMessageContaining("maxUploadRate must be greater or equal to minUploadRate.");
+    }
+
+    @Test
+    public void shouldBuildIfMaxRateEqualsMinRate() {
+        final AppConfiguration conf = new AppConfiguration(180L, 180L, 2, "azureus.client", false);
+
+        assertThat(conf.getMinUploadRate()).isEqualTo(180L);
+        assertThat(conf.getMaxUploadRate()).isEqualTo(180L);
     }
 
     @Test

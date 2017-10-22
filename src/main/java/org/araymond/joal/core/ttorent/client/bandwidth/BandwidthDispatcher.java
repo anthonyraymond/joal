@@ -56,7 +56,10 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
         final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1000L;
         final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1000L;
-        final Long randomSpeedInBytes = ThreadLocalRandom.current().nextLong(minUploadRateInBytes, maxUploadRateInBytes);
+        final Long randomSpeedInBytes = (minUploadRateInBytes.equals(maxUploadRateInBytes))
+                ? maxUploadRateInBytes
+                : ThreadLocalRandom.current().nextLong(minUploadRateInBytes, maxUploadRateInBytes);
+
         this.lock.writeLock().lock();
         announcer.getSeedingTorrent().refreshRandomSpeedInBytes(randomSpeedInBytes);
         this.lock.writeLock().unlock();

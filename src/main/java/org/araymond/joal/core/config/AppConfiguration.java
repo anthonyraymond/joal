@@ -62,10 +62,10 @@ public class AppConfiguration {
             throw new AppConfigurationIntegrityException("minUploadRate must be at least 0.");
         }
         if (maxUploadRate < 0L) {
-            throw new AppConfigurationIntegrityException("maxUploadRate must greater than 0.");
+            throw new AppConfigurationIntegrityException("maxUploadRate must greater or equal to 0.");
         }
-        if (maxUploadRate <= minUploadRate) {
-            throw new AppConfigurationIntegrityException("maxUploadRate must be strictly greater than minUploadRate.");
+        if (maxUploadRate < minUploadRate) {
+            throw new AppConfigurationIntegrityException("maxUploadRate must be greater or equal to minUploadRate.");
         }
         if (simultaneousSeed < 1) {
             throw new AppConfigurationIntegrityException("simultaneousSeed must be greater than 0.");
