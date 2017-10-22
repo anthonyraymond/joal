@@ -95,7 +95,7 @@ The application configuration belongs in `joal-conf/config.json`.
 - `maxUploadRate` : The maximum uploadRate you want to fake (in kB/s) (**required**)
 - `simultaneousSeed` : How many torrents should be seeding at the same time (**required**)
 - `client` : The name of the .client file to use in `joal-conf/clients/` (**required**)
-- `keepTorrentWithZeroLeechers`: should JOAL keep torrent with no leechers or seeders. If yes, torrent with no peers will be seed at 0kB/s. If false torrents will be deleted on 0 peers reached.
+- `keepTorrentWithZeroLeechers`: should JOAL keep torrent with no leechers or seeders. If yes, torrent with no peers will be seed at 0kB/s. If false torrents will be deleted on 0 peers reached. (**required**)
 
 # Thanks:
 This project use a modified version of the awesome [mpetazzoni/ttorrent](http://mpetazzoni.github.com/ttorrent/) library. Thanks to **mpetazzoni** for this.
