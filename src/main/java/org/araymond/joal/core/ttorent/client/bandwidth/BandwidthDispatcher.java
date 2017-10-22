@@ -5,10 +5,10 @@ import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.announce.AnnouncerEventListener;
-import org.araymond.joal.core.utils.RandomGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -17,7 +17,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
     private final JoalConfigProvider configProvider;
-    private final RandomGenerator randomGenerator;
     /**
      * Update interval have to be a low value, because when a torrent is added, the Thread.pause may end and split value
      * among all torrent and add a non reasonable value to the freshly added torrent
@@ -39,7 +38,6 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
         this.updateInterval = updateInterval;
         this.torrents = new ArrayList<>(configProvider.get().getSimultaneousSeed());
         lock = new ReentrantReadWriteLock();
-        this.randomGenerator = new RandomGenerator();
     }
 
     @Override
@@ -58,7 +56,7 @@ public class BandwidthDispatcher implements AnnouncerEventListener, Runnable {
 
         final Long minUploadRateInBytes = configProvider.get().getMinUploadRate() * 1000L;
         final Long maxUploadRateInBytes = configProvider.get().getMaxUploadRate() * 1000L;
-        final Long randomSpeedInBytes = randomGenerator.nextLong(minUploadRateInBytes, maxUploadRateInBytes);
+        final Long randomSpeedInBytes = ThreadLocalRandom.current().nextLong(minUploadRateInBytes, maxUploadRateInBytes);
         this.lock.writeLock().lock();
         announcer.getSeedingTorrent().refreshRandomSpeedInBytes(randomSpeedInBytes);
         this.lock.writeLock().unlock();
