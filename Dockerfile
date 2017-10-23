@@ -13,7 +13,7 @@ RUN apt-get update \
         && tar --wildcards -zxvf joal.tar.gz '*.jar' \
         && mv *.jar joal.jar \
         && rm joal.tar.gz \
-        && apt-get remove curl \
+        && apt-get remove -y curl \
         && rm -rf /var/lib/apt/lists/*
 
 
