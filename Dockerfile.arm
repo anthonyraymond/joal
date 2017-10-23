@@ -13,7 +13,7 @@ RUN apt-get update \
         && tar --wildcards -zxvf joal.tar.gz '*.jar' \
         && mv *.jar joal.jar \
         && rm joal.tar.gz \
-        && apt-get remove curl wget \
+        && apt-get remove -y curl wget \
         && rm -rf /var/lib/apt/lists/*
 
 EXPOSE 5081 49152-65534
