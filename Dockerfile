@@ -5,13 +5,10 @@ WORKDIR /joal/
 
 RUN apt-get update \
         && apt-get install -y ca-certificates curl \
-        && curl -s https://api.github.com/repos/anthonyraymond/joal/releases/latest \
-        | grep browser_download_url \
-        | grep joal.tar.gz \
-        | cut -d '"' -f 4 \
-        | wget -i - \
-        && tar --wildcards -zxvf joal.tar.gz '*.jar' \
-        && mv *.jar joal.jar \
+        && JOAL_VERSION="2.0.5" \
+        && curl -LO https://github.com/anthonyraymond/joal/releases/download/v2.0.5/joal.tar.gz \
+        && tar --wildcards -zxvf joal.tar.gz "jack-of-all-trades-$JOAL_VERSION.jar" \
+        && mv "jack-of-all-trades-$JOAL_VERSION.jar" joal.jar \
         && rm joal.tar.gz \
         && apt-get remove -y curl \
         && rm -rf /var/lib/apt/lists/*
