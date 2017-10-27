@@ -97,6 +97,21 @@ The application configuration belongs in `joal-conf/config.json`.
 - `client` : The name of the .client file to use in `joal-conf/clients/` (**required**)
 - `keepTorrentWithZeroLeechers`: should JOAL keep torrent with no leechers or seeders. If yes, torrent with no peers will be seed at 0kB/s. If false torrents will be deleted on 0 peers reached. (**required**)
 
+
+
+## Supported browser (for web-ui)
+| Client                              | Support                 | Comment                                              |
+| ----------------------------------- |:-----------------------:|------------------------------------------------------|
+| ![Google Chrome][browser-chrome]    | ![yes][support-yes]     |                                                      |
+| ![Mozilla Firefox][browser-firefox] | ![yes][support-yes]     |                                                      |
+| ![Opera][browser-opera]             | ![yes][support-yes]     |                                                      |
+| ![Opera mini][browser-opera-mini]   | ![no][support-no]       | Lack of `referrer-policy` & No support for WebSocket |
+| ![Safari][browser-safari]           | ![no][support-danger]   | Lack of `referrer-policy`                            |
+| ![Edge][browser-edge]               | ![no][support-danger]   | Lack of `referrer-policy`                            |
+| ![Internet explorer][browser-ie]    | ![no][support-danger]   | Not enough space to explain...                       |
+
+Some non-supported browser might works, but they may be unsafe due to the lack of support for `referrer-policy`.
+
 # Thanks:
 This project use a modified version of the awesome [mpetazzoni/ttorrent](http://mpetazzoni.github.com/ttorrent/) library. Thanks to **mpetazzoni** for this.
 Also this project has benefited from the help of several peoples, see [Thanks.md](THANKS.md)
@@ -104,7 +119,14 @@ Also this project has benefited from the help of several peoples, see [Thanks.md
 [![Analytics](https://ga-beacon.appspot.com/UA-97530761-1/joal/readme?pixel)](https://github.com/igrigorik/ga-beacon)
 
 
-[support-never]:readme-assets/warning.png
+[support-danger]:readme-assets/warning.png
 [support-no]:readme-assets/cross-mark.png
 [support-yes]:readme-assets/check-mark.png
 [joal-conf-folder]:readme-assets/joal-conf-folder.png
+[browser-chrome]:readme-assets/browsers/chrome.png
+[browser-firefox]:readme-assets/browsers/firefox.png
+[browser-opera]:readme-assets/browsers/opera.png
+[browser-opera-mini]:readme-assets/browsers/opera-mini.png
+[browser-safari]:readme-assets/browsers/safari.png
+[browser-ie]:readme-assets/browsers/ie.png
+[browser-edge]:readme-assets/browsers/edge.png
