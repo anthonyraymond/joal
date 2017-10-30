@@ -35,7 +35,7 @@ public class HTTPTrackerClient extends TrackerClient {
     private static final Logger logger = LoggerFactory.getLogger(HTTPTrackerClient.class);
     private final BitTorrentClient bitTorrentClient;
 
-    public HTTPTrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker, final BitTorrentClient bitTorrentClient) {
+    HTTPTrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker, final BitTorrentClient bitTorrentClient) {
         super(torrent, connectionHandler, tracker);
         Preconditions.checkNotNull(bitTorrentClient, "BitTorrentClient must not be null.");
 

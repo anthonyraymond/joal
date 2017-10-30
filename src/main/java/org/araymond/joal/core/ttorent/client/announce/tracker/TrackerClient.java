@@ -33,7 +33,7 @@ public abstract class TrackerClient {
     protected final ConnectionHandler connectionHandler;
     protected final URI tracker;
 
-    public TrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker) {
+    TrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker) {
         Preconditions.checkNotNull(torrent, "Torrent must not be null.");
         Preconditions.checkNotNull(connectionHandler, "ConnectionHandler must not be null.");
         Preconditions.checkNotNull(tracker, "URI must not be null.");
@@ -51,6 +51,10 @@ public abstract class TrackerClient {
      */
     public void register(final AnnounceResponseListener listener) {
         this.listeners.add(listener);
+    }
+
+    public void unregister(final AnnounceResponseListener listener) {
+        this.listeners.remove(listener);
     }
 
     /**

@@ -3,22 +3,21 @@ package org.araymond.joal.core.ttorent.client.announce;
 import com.google.common.collect.EvictingQueue;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
-import org.apache.commons.lang3.NotImplementedException;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
-import org.araymond.joal.core.ttorent.client.announce.tracker.HTTPTrackerClient;
 import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClient;
+import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClientProvider;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.net.UnknownServiceException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage;
 import static org.araymond.joal.core.ttorent.client.announce.AnnounceResult.ErrorAnnounceResult;
@@ -32,73 +31,28 @@ public class Announcer implements Runnable, AnnounceResponseListener {
     protected static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
     private final TorrentWithStats torrent;
-    private final ConnectionHandler connectionHandler;
     private final ApplicationEventPublisher publisher;
-
+    private final TrackerClientProvider trackerClientProvider;
+    private TrackerClient currentClient;
 
     private final EvictingQueue<AnnounceResult> announceHistory;
     private final List<AnnouncerEventListener> eventListeners;
-
-    /**
-     * The tiers of tracker clients matching the tracker URIs defined in the
-     * torrent.
-     */
-    private final List<List<TrackerClient>> clients;
-    private final Set<TrackerClient> allClients;
 
     /**
      * Announce thread and control.
      */
     private Thread thread;
     private boolean stop;
-    private boolean forceStop;
-
-    private int currentTier;
-    private int currentClient;
 
     public Announcer(final MockedTorrent torrent, final ConnectionHandler connectionHandler, final BitTorrentClient bitTorrentClient, final ApplicationEventPublisher publisher) {
         this.announceHistory = EvictingQueue.create(3);
         this.torrent = new TorrentWithStats(torrent);
-        this.connectionHandler = connectionHandler;
         this.publisher = publisher;
-        this.clients = new ArrayList<>();
-        this.allClients = new HashSet<>();
         this.eventListeners = new ArrayList<>();
-
-        /*
-         * Build the tiered structure of tracker clients mapping to the
-         * trackers of the torrent.
-         */
-        for (final List<URI> tier : this.torrent.getTorrent().getAnnounceList()) {
-            final List<TrackerClient> tierClients = new ArrayList<>();
-            for (final URI tracker : tier) {
-                try {
-                    final TrackerClient client = this.createTrackerClient(this.torrent, this.connectionHandler, tracker, bitTorrentClient);
-
-                    tierClients.add(client);
-                    this.allClients.add(client);
-                } catch (final Exception e) {
-                    logger.warn("Will not announce on {} for torrent {}: {}!",
-                            tracker,
-                            torrent.getName(),
-                            e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName()
-                    );
-                }
-            }
-
-            // Shuffle the list of tracker clients once on creation.
-            Collections.shuffle(tierClients);
-
-            // Tier is guaranteed to be non-empty by
-            // Torrent#parseAnnounceInformation(), so we can add it safely.
-            clients.add(tierClients);
-        }
+        this.trackerClientProvider = new TrackerClientProvider(this.torrent, connectionHandler, bitTorrentClient);
+        this.moveToNextTrackerClient();
 
         this.thread = null;
-        this.currentTier = 0;
-        this.currentClient = 0;
-
-        this.register(this);
 
         if (logger.isDebugEnabled()) {
             logger.debug("Initialized announce sub-system with {} trackers on {}.", new Object[]{this.torrent.getTorrent().getTrackerCount(), torrent});
@@ -107,17 +61,6 @@ public class Announcer implements Runnable, AnnounceResponseListener {
 
     public Collection<AnnounceResult> getAnnounceHistory() {
         return Collections.unmodifiableCollection(announceHistory);
-    }
-
-    /**
-     * Register a new announce response listener.
-     *
-     * @param listener The listener to register on this announcer events.
-     */
-    private void register(final AnnounceResponseListener listener) {
-        for (final TrackerClient client : this.allClients) {
-            client.register(listener);
-        }
     }
 
     @Override
@@ -159,9 +102,8 @@ public class Announcer implements Runnable, AnnounceResponseListener {
      */
     public void start() {
         this.stop = false;
-        this.forceStop = false;
 
-        if (this.clients.size() > 0 && (this.thread == null || !this.thread.isAlive())) {
+        if (this.thread == null || !this.thread.isAlive()) {
             this.thread = new Thread(this);
             this.thread.setName("bt-announce(" + this.torrent.getTorrent().getHexInfoHash() + ")");
             this.thread.start();
@@ -188,10 +130,6 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         if (this.thread != null && this.thread.isAlive()) {
             this.thread.interrupt();
 
-            for (final TrackerClient client : this.allClients) {
-                client.close();
-            }
-
             try {
                 this.thread.join();
             } catch (final InterruptedException ignored) {
@@ -202,17 +140,6 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         if (logger.isDebugEnabled()) {
             logger.debug("Announcer stopped for torrent {}", torrent.getTorrent().getName());
         }
-    }
-
-    /**
-     * Stop the announce thread.
-     *
-     * @param hard Whether to force stop the announce thread or not, i.e. not
-     *             send the final 'stopped' announce request or not.
-     */
-    private void stop(final boolean hard) {
-        this.forceStop = hard;
-        this.stop();
     }
 
     /**
@@ -245,10 +172,8 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 for (final AnnouncerEventListener listener : this.eventListeners) {
                     listener.onAnnouncerWillAnnounce(event, this);
                 }
-                // TODO : may need a better way to handle exception here, like "retry twice on fail then move to next"
-                this.getCurrentTrackerClient().announce(event);
+                this.currentClient.announce(event);
 
-                this.promoteCurrentTrackerClient();
                 event = AnnounceRequestMessage.RequestEvent.NONE;
 
                 successiveAnnounceErrors = 0;
@@ -262,22 +187,18 @@ public class Announcer implements Runnable, AnnounceResponseListener {
                 }
 
                 ++successiveAnnounceErrors;
-                if (successiveAnnounceErrors >= this.clients.size() && successiveAnnounceErrors > 5) {
+                if (successiveAnnounceErrors >= this.trackerClientProvider.addressesCount() && successiveAnnounceErrors > 5) {
                     logger.warn(
-                            "Announcing for torrent {} has failed {} consecutive times, this torrent will be deleted.",
-                            torrent.getTorrent().getName(),
-                            successiveAnnounceErrors
+                            "Failed {} consecutive announce for torrent {}, this torrent will be deleted.",
+                            successiveAnnounceErrors,
+                            torrent.getTorrent().getName()
                     );
                     // If announce failed at least 5 times. And at least as much as the number of tracker clients
                     // it is likely that the torrent is not registered or the tracker is dead.
                     this.eventListeners.forEach(listener -> listener.onShouldDeleteTorrent(this, torrent));
                 }
 
-                try {
-                    this.moveToNextTrackerClient();
-                } catch (final AnnounceException e) {
-                    logger.warn("Unable to move to the next tracker client for torrent: {}", torrent.getTorrent().getName(), e);
-                }
+                this.moveToNextTrackerClient();
             }
 
             try {
@@ -295,67 +216,25 @@ public class Announcer implements Runnable, AnnounceResponseListener {
             logger.debug("Exited announce loop for torrent {}.", torrent.getTorrent().getName());
         }
 
-        if (!this.forceStop) {
-            // Send the final 'stopped' event to the tracker after a little while.
-            event = AnnounceRequestMessage.RequestEvent.STOPPED;
+        // Send the final 'stopped' event to the tracker after a little while.
+        event = AnnounceRequestMessage.RequestEvent.STOPPED;
 
-            try {
-                for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnouncerWillAnnounce(event, this);
-                }
+        try {
+            for (final AnnouncerEventListener listener : this.eventListeners) {
+                listener.onAnnouncerWillAnnounce(event, this);
+            }
 
-                this.getCurrentTrackerClient().announce(event);
-            } catch (final AnnounceException ae) {
-                logger.warn("Error while announcing stop for torrent {}.", torrent.getTorrent().getName(), ae);
+            this.currentClient.announce(event);
+        } catch (final AnnounceException ae) {
+            logger.warn("Error while announcing stop for torrent {}.", torrent.getTorrent().getName(), ae);
 
-                final AnnounceResult announceResult = new ErrorAnnounceResult(ae.getMessage());
-                this.announceHistory.add(announceResult);
-                for (final AnnouncerEventListener listener : this.eventListeners) {
-                    listener.onAnnounceFail(this, ae.getMessage());
-                }
+            final AnnounceResult announceResult = new ErrorAnnounceResult(ae.getMessage());
+            this.announceHistory.add(announceResult);
+            for (final AnnouncerEventListener listener : this.eventListeners) {
+                listener.onAnnounceFail(this, ae.getMessage());
             }
         }
         this.eventListeners.forEach(listener -> listener.onAnnouncerStop(this));
-    }
-
-    /**
-     * Create a {@link TrackerClient} announcing to the given tracker address.
-     *
-     * @param torrent          The torrent the tracker client will be announcing for.
-     * @param connectionHandler current ConnectionHandler.
-     * @param tracker          The tracker address as a {@link URI}.
-     * @param bitTorrentClient the BitTorrent that should announce.
-     * @throws UnknownHostException    If the tracker address is invalid.
-     * @throws UnknownServiceException If the tracker protocol is not supported.
-     */
-    private TrackerClient createTrackerClient(final TorrentWithStats torrent, final ConnectionHandler connectionHandler, final URI tracker, final BitTorrentClient bitTorrentClient) throws UnknownHostException, UnknownServiceException {
-        final String scheme = tracker.getScheme();
-
-        if ("http".equals(scheme) || "https".equals(scheme)) {
-            return new HTTPTrackerClient(torrent, connectionHandler, tracker, bitTorrentClient);
-        } else if ("udp".equals(scheme)) {
-            // FIXME: implement UDPTrackerClient
-            throw new NotImplementedException("UDP Client not implemented yet.");
-            //return new UDPTrackerClient(torrent, peer, tracker);
-        }
-
-        throw new UnknownServiceException("Unsupported announce scheme for torrent " + torrent.getTorrent().getName() + ": " + scheme + "!");
-    }
-
-    /**
-     * Returns the current tracker client used for announces.
-     *
-     * @throws AnnounceException When the current announce tier isn't defined
-     *                           in the torrent.
-     */
-    public TrackerClient getCurrentTrackerClient() throws AnnounceException {
-        if ((this.currentTier >= this.clients.size()) || (this.currentClient >= this.clients.get(this.currentTier).size())) {
-            throw new AnnounceException("Current tier or client isn't available for torrent " + torrent.getTorrent().getName());
-        }
-
-        return this.clients
-                .get(this.currentTier)
-                .get(this.currentClient);
     }
 
     public TorrentWithStats getSeedingTorrent() {
@@ -366,75 +245,14 @@ public class Announcer implements Runnable, AnnounceResponseListener {
         return this.torrent.getTorrent().equals(torrent);
     }
 
-    /**
-     * Promote the current tracker client to the top of its tier.
-     * <p>
-     * <p>
-     * As defined by BEP#0012, when communication with a tracker is successful,
-     * it should be moved to the front of its tier.
-     * </p>
-     * <p>
-     * <p>
-     * The index of the currently used {@link TrackerClient} is reset to 0 to
-     * reflect this change.
-     * </p>
-     *
-     * @throws AnnounceException
-     */
-    private void promoteCurrentTrackerClient() throws AnnounceException {
-        if (logger.isTraceEnabled()) {
-            logger.trace("Promoting current tracker client for {} " + "(tier {}, position {} -> 0).",
-                    this.getCurrentTrackerClient().getTrackerURI(),
-                    this.currentTier,
-                    this.currentClient
-            );
+
+    private void moveToNextTrackerClient() {
+        if (this.currentClient != null) {
+            this.currentClient.unregister(this);
+            this.currentClient.close();
         }
-
-        Collections.swap(this.clients.get(this.currentTier), this.currentClient, 0);
-        this.currentClient = 0;
-    }
-
-    /**
-     * Move to the next tracker client.
-     * <p>
-     * <p>
-     * If no more trackers are available in the current tier, move to the next
-     * tier. If we were on the last tier, restart from the first tier.
-     * </p>
-     * <p>
-     * <p>
-     * By design no empty tier can be in the tracker list structure so we don't
-     * need to check for empty tiers here.
-     * </p>
-     *
-     * @throws AnnounceException
-     */
-    private void moveToNextTrackerClient() throws AnnounceException {
-        int tier = this.currentTier;
-        int client = this.currentClient + 1;
-
-        if (client >= this.clients.get(tier).size()) {
-            client = 0;
-
-            tier++;
-
-            if (tier >= this.clients.size()) {
-                tier = 0;
-            }
-        }
-
-        if (tier != this.currentTier || client != this.currentClient) {
-            this.currentTier = tier;
-            this.currentClient = client;
-
-            if (logger.isDebugEnabled()) {
-                logger.debug("Switched to tracker client for {} " + "(tier {}, position {}).",
-                        this.getCurrentTrackerClient().getTrackerURI(),
-                        this.currentTier,
-                        this.currentClient
-                );
-            }
-        }
+        this.currentClient = trackerClientProvider.getNext();
+        this.currentClient.register(this);
     }
 
 }
