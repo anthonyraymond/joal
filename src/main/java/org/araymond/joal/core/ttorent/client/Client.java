@@ -6,7 +6,6 @@ import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.announce.*;
-import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
