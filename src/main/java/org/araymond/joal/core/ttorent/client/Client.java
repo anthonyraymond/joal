@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
-import org.araymond.joal.core.events.NoMoreLeechersEvent;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.announce.*;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
@@ -146,7 +145,6 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     public void onNoMoreLeecherForTorrent(final Announcer announcer, final TorrentWithStats torrent) {
         if (!configProvider.get().shouldKeepTorrentWithZeroLeechers()) {
             this.torrentFileProvider.moveToArchiveFolder(torrent.getTorrent());
-            publisher.publishEvent(new NoMoreLeechersEvent(torrent.getTorrent()));
             announcer.stop();
         }
     }
@@ -154,7 +152,6 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
     @Override
     public void onShouldDeleteTorrent(final Announcer announcer, final TorrentWithStats torrent) {
         this.torrentFileProvider.moveToArchiveFolder(torrent.getTorrent());
-        publisher.publishEvent(new NoMoreLeechersEvent(torrent.getTorrent()));
         announcer.stop();
     }
 

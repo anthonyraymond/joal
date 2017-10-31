@@ -2,7 +2,6 @@ package org.araymond.joal.core;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.io.FileUtils;
-import org.araymond.joal.core.events.NoMoreLeechersEvent;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.events.announce.AnnouncerWillAnnounceEvent;
@@ -60,14 +59,6 @@ public class CoreEventListener {
     void handleNoMoreTorrents(final NoMoreTorrentsFileAvailableEvent event) {
         logger.debug("Event NoMoreTorrentsFileAvailableEvent caught.");
         // logger.warn("There is no more .torrent file, add some more to resume seed.");
-    }
-
-    @Async
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    @EventListener
-    void handleNoMoreLeechers(final NoMoreLeechersEvent event) throws IOException {
-        logger.debug("Event NoMoreLeechersEvent caught.");
-        //logger.warn("0 peers are currently leeching, moving torrent to archived and restarting seed.");
     }
 
     @Async
