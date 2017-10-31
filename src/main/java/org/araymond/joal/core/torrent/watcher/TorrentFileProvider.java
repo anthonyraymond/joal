@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 /**
  * Created by raymo on 28/01/2017.
  */
-public class TorrentFileProvider extends FileAlterationListenerAdaptor implements Lifecycle {
+public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     private static final Logger logger = LoggerFactory.getLogger(TorrentFileProvider.class);
 
     private final TorrentFileWatcher watcher;
@@ -36,9 +36,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     private final Set<TorrentFileChangeAware> torrentFileChangeListener;
     private final Path torrentFolder;
     private final Path archiveFolder;
-    private final ApplicationEventPublisher publisher;
-    private boolean isInitOver = false;
-    private boolean isRunning;
 
     @VisibleForTesting
     void init() {
@@ -55,22 +52,14 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     public void start() {
         this.init();
         this.watcher.start();
-        this.isInitOver = true;
-        this.isRunning = true;
     }
 
     public void stop() {
         this.watcher.stop();
         this.torrentFiles.clear();
-        this.isInitOver = false;
-        this.isRunning = false;
     }
 
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public TorrentFileProvider(final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
+    public TorrentFileProvider(final String confFolder) throws FileNotFoundException {
         if (StringUtils.isBlank(confFolder)) {
             throw new IllegalArgumentException("A config path is required.");
         }
@@ -80,7 +69,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
         }
 
-        this.publisher = publisher;
         this.archiveFolder = torrentFolder.resolve("archived");
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
@@ -101,7 +89,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
         this.torrentFiles.remove(file);
         this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileRemoved(torrent));
-        this.publisher.publishEvent(new TorrentFileDeletedEvent(torrent));
     }
 
     @Override
@@ -110,10 +97,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         try {
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
-            if (this.isInitOver) {
-                this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileAdded(torrent));
-            }
-            this.publisher.publishEvent(new TorrentFileAddedEvent(torrent));
+            this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileAdded(torrent));
         } catch (final IOException | NoSuchAlgorithmException e) {
             logger.warn("Failed to read file '{}', moved to archive folder.", file.getAbsolutePath(), e);
             this.moveToArchiveFolder(file);
@@ -178,7 +162,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             logger.warn("Failed to save torrent file", e);
             // If NullPointerException occurs (when the file is an empty file) there is no message.
             final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
-            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
+            this.torrentFileChangeListener.forEach(listener -> listener.onInvalidTorrentFile(name, errorMessage));
         }
     }
 

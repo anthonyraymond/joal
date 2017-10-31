@@ -6,6 +6,9 @@ import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.announce.*;
+import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
+import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
+import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
@@ -107,6 +110,8 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onTorrentFileAdded(final MockedTorrent torrent) {
+        this.publisher.publishEvent(new TorrentFileAddedEvent(torrent));
+
         if (this.currentState != ClientState.STARTED) {
             return;
         }
@@ -118,12 +123,20 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onTorrentFileRemoved(final MockedTorrent torrent) {
+        this.publisher.publishEvent(new TorrentFileDeletedEvent(torrent));
+
         // Work on a copy of the list for concurrency purpose (otherwise manually removing a torrent cause the app to crash)
         for (final Announcer announcer : Lists.newArrayList(this.announcers)) {
             if (announcer.isForTorrent(torrent)) {
                 announcer.stop();
             }
         }
+    }
+
+    @Override
+    public void onInvalidTorrentFile(final String fileName, final String errMessage) {
+        // TODO: move file to archive
+        this.publisher.publishEvent(new FailedToAddTorrentFileEvent(fileName, errMessage));
     }
 
     @Override

@@ -42,7 +42,7 @@ public class SeedManager {
     }
 
     public SeedManager(final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
-        this.torrentFileProvider = new TorrentFileProvider(joalConfFolder, publisher);
+        this.torrentFileProvider = new TorrentFileProvider(joalConfFolder);
         this.configProvider = new JoalConfigProvider(mapper, joalConfFolder, publisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalConfFolder, publisher);
         this.publisher = publisher;

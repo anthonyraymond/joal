@@ -11,4 +11,5 @@ public interface TorrentFileChangeAware {
 
     void onTorrentFileRemoved(final MockedTorrent torrent);
 
+    void onInvalidTorrentFile(final String fileName, final String errMessage);
 }
