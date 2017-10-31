@@ -100,7 +100,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
 
         logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
         this.torrentFiles.remove(file);
-        this.torrentFileChangeListener.forEach(listener -> listener.onTorrentRemoved(torrent));
+        this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileRemoved(torrent));
         this.publisher.publishEvent(new TorrentFileDeletedEvent(torrent));
     }
 
@@ -111,7 +111,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
             if (this.isInitOver) {
-                this.torrentFileChangeListener.forEach(listener -> listener.onTorrentAdded(torrent));
+                this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileAdded(torrent));
             }
             this.publisher.publishEvent(new TorrentFileAddedEvent(torrent));
         } catch (final IOException | NoSuchAlgorithmException e) {

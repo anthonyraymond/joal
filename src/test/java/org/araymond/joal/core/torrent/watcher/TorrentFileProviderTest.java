@@ -289,12 +289,12 @@ public class TorrentFileProviderTest {
         }
 
         @Override
-        public void onTorrentAdded(final MockedTorrent torrent) {
+        public void onTorrentFileAdded(final MockedTorrent torrent) {
             createLock.countDown();
         }
 
         @Override
-        public void onTorrentRemoved(final MockedTorrent torrent) {
+        public void onTorrentFileRemoved(final MockedTorrent torrent) {
             deleteLock.countDown();
         }
     }
