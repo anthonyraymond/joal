@@ -1,5 +1,6 @@
 package org.araymond.joal.core.torrent.watcher;
 
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.ttorent.client.MockedTorrent;
 import org.araymond.joal.core.utils.TorrentFileCreator;
@@ -28,18 +29,16 @@ import static org.assertj.core.api.Assertions.*;
  */
 public class TorrentFileProviderTest {
 
-    private static final Path resourcePath = Paths.get("src/test/resources/configtest");
-    private static final Path torrentsPath = resourcePath.resolve("torrents");
-    private static final Path archivedTorrentPath = torrentsPath.resolve("archived");
+    private static final SeedManager.JoalFoldersPath joalFoldersPath = new SeedManager.JoalFoldersPath(Paths.get("src/test/resources/configtest"));
 
     private void resetDirectories() throws IOException {
-        if (Files.exists(torrentsPath)) {
-            Files.walk(torrentsPath, FileVisitOption.FOLLOW_LINKS)
+        if (Files.exists(joalFoldersPath.getTorrentFilesPath())) {
+            Files.walk(joalFoldersPath.getTorrentFilesPath(), FileVisitOption.FOLLOW_LINKS)
                     .sorted(Comparator.reverseOrder())
                     .map(Path::toFile)
                     .forEach(File::delete);
         }
-        Files.createDirectory(torrentsPath);
+        Files.createDirectory(joalFoldersPath.getTorrentFilesPath());
     }
 
     @After
@@ -50,7 +49,7 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldNotBuildIfFolderDoesNotExists() throws FileNotFoundException {
-        assertThatThrownBy(() -> new TorrentFileProvider(resourcePath.resolve("nop").toString()))
+        assertThatThrownBy(() -> new TorrentFileProvider(new SeedManager.JoalFoldersPath(Paths.get("nop"))))
                 .isInstanceOf(FileNotFoundException.class)
                 .hasMessageStartingWith("Torrent folder '")
                 .hasMessageEndingWith("' not found.");
@@ -58,15 +57,15 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldCreateArchiveFolderIfNotCreatedAlready() throws IOException {
-        Files.deleteIfExists(archivedTorrentPath);
-        assertThat(exists(archivedTorrentPath)).isFalse();
-        new TorrentFileProvider(resourcePath.toString()).init();
-        assertThat(exists(archivedTorrentPath)).isTrue();
+        Files.deleteIfExists(joalFoldersPath.getTorrentArchivedPath());
+        assertThat(exists(joalFoldersPath.getTorrentArchivedPath())).isFalse();
+        new TorrentFileProvider(joalFoldersPath).init();
+        assertThat(exists(joalFoldersPath.getTorrentArchivedPath())).isTrue();
     }
 
     @Test
     public void shouldFailIfFolderDoesNotContainsTorrentFiles() throws IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
 
         assertThatThrownBy(() -> provider.getTorrentNotIn(new ArrayList<>()))
                 .isInstanceOf(NoMoreTorrentsFileAvailableException.class)
@@ -75,87 +74,87 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldAddFileToListOnCreation() throws IOException {
-        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         assertThat(provider.getTorrentCount()).isEqualTo(0);
 
-        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        provider.onFileCreate(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
     }
 
     @Test
     public void shouldNotAddDuplicatedFiles() throws IOException {
-        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         assertThat(provider.getTorrentCount()).isEqualTo(0);
 
-        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
-        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        provider.onFileCreate(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent").toFile());
+        provider.onFileCreate(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
     }
 
     @Test
     public void shouldRemoveFileFromListOnDeletion() throws IOException {
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
-        TorrentFileCreator.create(torrentsPath.resolve("ninja.torrent"), TorrentFileCreator.TorrentType.NINJA_HEAT);
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
+        TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ninja.torrent"), TorrentFileCreator.TorrentType.NINJA_HEAT);
 
         assertThat(provider.getTorrentCount()).isEqualTo(0);
-        provider.onFileCreate(torrentsPath.resolve("ninja.torrent").toFile());
+        provider.onFileCreate(joalFoldersPath.getTorrentFilesPath().resolve("ninja.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
-        provider.onFileDelete(torrentsPath.resolve("ninja.torrent").toFile());
+        provider.onFileDelete(joalFoldersPath.getTorrentFilesPath().resolve("ninja.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(0);
     }
 
     @Test
     public void shouldRemoveThenAddFileToListOnUpdate() throws IOException {
-        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
 
-        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        provider.onFileCreate(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
-        provider.onFileChange(torrentsPath.resolve("ubuntu.torrent").toFile());
+        provider.onFileChange(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
     }
 
     @Test
     public void shouldMoveTorrentFileToArchivedFolderFromMockedTorrent() throws IOException, NoMoreTorrentsFileAvailableException {
-        TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         provider.init();
-        provider.onFileCreate(torrentsPath.resolve("ubuntu.torrent").toFile());
+        provider.onFileCreate(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent").toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
-        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).doesNotExist();
+        assertThat(joalFoldersPath.getTorrentArchivedPath().resolve("ubuntu.torrent")).doesNotExist();
         provider.moveToArchiveFolder(provider.getTorrentNotIn(new ArrayList<>()));
-        assertThat(torrentsPath.resolve("ubuntu.torrent")).doesNotExist();
+        assertThat(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent")).doesNotExist();
 
-        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
+        assertThat(joalFoldersPath.getTorrentArchivedPath().resolve("ubuntu.torrent")).exists();
     }
 
     @Test
     public void shouldMoveTorrentFileToArchivedFolder() throws IOException {
-        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         provider.init();
         provider.onFileCreate(torrentFile.toFile());
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
-        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).doesNotExist();
+        assertThat(joalFoldersPath.getTorrentArchivedPath().resolve("ubuntu.torrent")).doesNotExist();
         provider.moveToArchiveFolder(torrentFile.toFile());
-        assertThat(torrentsPath.resolve("ubuntu.torrent")).doesNotExist();
+        assertThat(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent")).doesNotExist();
 
-        assertThat(archivedTorrentPath.resolve("ubuntu.torrent")).exists();
+        assertThat(joalFoldersPath.getTorrentArchivedPath().resolve("ubuntu.torrent")).exists();
     }
 
     @Test
     public void shouldNotFailIfFileIsNotPresentWhenArchiving() throws IOException {
-        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
 
         try {
             provider.moveToArchiveFolder(torrentFile.resolve("dd.torrent").toFile());
@@ -166,9 +165,9 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldCallOnFileDeleteBeforeDeletingFileWhenArchiving() throws IOException {
-        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = Mockito.spy(new TorrentFileProvider(resourcePath.toString()));
+        final TorrentFileProvider provider = Mockito.spy(new TorrentFileProvider(joalFoldersPath));
         provider.init();
         Mockito.doAnswer(invocation -> {
             assertThat(torrentFile.toFile()).exists();
@@ -183,9 +182,9 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldNotifyListenerOnFileAdded() throws IOException {
-        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         provider.start();
 
 
@@ -204,9 +203,9 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldNotifyListenerOnFileRemoved() throws IOException {
-        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         provider.onFileCreate(torrentFile.toFile());
 
         final CountDownLatch createLock = new CountDownLatch(1);
@@ -223,9 +222,9 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldNotifyListenerOnFileChanged() throws IOException {
-        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         provider.start();
 
         final CountDownLatch createLock = new CountDownLatch(1);
@@ -243,10 +242,10 @@ public class TorrentFileProviderTest {
 
     @Test
     public void shouldUnRegisterListener() throws IOException {
-        final Path torrentFile = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        final Path torrentFile2 = TorrentFileCreator.create(torrentsPath.resolve("audio.torrent"), TorrentFileCreator.TorrentType.AUDIO);
+        final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
+        final Path torrentFile2 = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("audio.torrent"), TorrentFileCreator.TorrentType.AUDIO);
 
-        final TorrentFileProvider provider = new TorrentFileProvider(resourcePath.toString());
+        final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
         provider.start();
 
         final CountDownLatch createLock = new CountDownLatch(2);

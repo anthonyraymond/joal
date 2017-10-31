@@ -2,6 +2,7 @@ package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -26,8 +27,8 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class JoalConfigProviderTest {
 
-    private static final Path resourcePath = Paths.get("src/test/resources/configtest");
-    private static final Path rewritableResourcePath = Paths.get("src/test/resources/rewritable-config");
+    private static final SeedManager.JoalFoldersPath joalFoldersPath = new SeedManager.JoalFoldersPath(Paths.get("src/test/resources/configtest"));
+    private static final SeedManager.JoalFoldersPath rewritableJoalFoldersPath = new SeedManager.JoalFoldersPath(Paths.get("src/test/resources/rewritable-config"));
     public static final AppConfiguration defaultConfig = new AppConfiguration(
             180L,
             190L,
@@ -37,23 +38,16 @@ public class JoalConfigProviderTest {
     );
 
     @Test
-    public void shouldFailIWithEmptyConfigPath() {
-        assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), " ", Mockito.mock(ApplicationEventPublisher.class)))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("A config path is required.");
-    }
-
-    @Test
     public void shouldFailIfJsonFileIsNotPresent() {
-        final String fakePath = resourcePath.resolve("nop").toString();
-        assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), fakePath, Mockito.mock(ApplicationEventPublisher.class)))
+        final SeedManager.JoalFoldersPath fakeFolders = new SeedManager.JoalFoldersPath(Paths.get("nop"));
+        assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), fakeFolders, Mockito.mock(ApplicationEventPublisher.class)))
                 .isInstanceOf(FileNotFoundException.class)
-                .hasMessageContaining("App configuration file '" + fakePath + File.separator + "config.json' not found.");
+                .hasMessageContaining("App configuration file '" + fakeFolders.getConfPath() + File.separator + "config.json' not found.");
     }
 
     @Test
     public void shouldFailToGetConfIfNotInitialized() throws FileNotFoundException {
-        final Provider<AppConfiguration> provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final Provider<AppConfiguration> provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
 
         assertThatThrownBy(provider::get)
                 .isInstanceOf(IllegalStateException.class)
@@ -62,14 +56,14 @@ public class JoalConfigProviderTest {
 
     @Test
     public void shouldLoadCong() throws FileNotFoundException {
-        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
 
         assertThat(provider.loadConfiguration()).isEqualToComparingFieldByField(defaultConfig);
     }
 
     @Test
     public void shouldGetConf() throws FileNotFoundException {
-        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
         provider.init();
 
         assertThat(provider.get()).isEqualTo(defaultConfig);
@@ -77,7 +71,7 @@ public class JoalConfigProviderTest {
 
     @Test
     public void shouldAlwaysReturnsSameConf() throws FileNotFoundException {
-        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
         provider.init();
 
         assertThat(provider.get()).usingComparator((Comparator<AppConfiguration>) (o1, o2) -> {
@@ -91,7 +85,7 @@ public class JoalConfigProviderTest {
     @Test
     public void shouldPublishConfigHasBeenLoadedEventOnConfigLoad() throws FileNotFoundException {
         final ApplicationEventPublisher publisher = Mockito.mock(ApplicationEventPublisher.class);
-        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), resourcePath.toString(), publisher);
+        final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, publisher);
 
         final AppConfiguration loadedConf = provider.loadConfiguration();
 
@@ -104,9 +98,9 @@ public class JoalConfigProviderTest {
 
     @Test
     public void shouldWriteConfigurationFile() throws IOException {
-        new ObjectMapper().writeValue(rewritableResourcePath.resolve("config.json").toFile(), defaultConfig);
+        new ObjectMapper().writeValue(rewritableJoalFoldersPath.getConfPath().resolve("config.json").toFile(), defaultConfig);
         try {
-            final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), rewritableResourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+            final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), rewritableJoalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
             final Random rand = new Random();
             final AppConfiguration newConf = new AppConfiguration(
                     rand.longs(1, 200).findFirst().getAsLong(),
@@ -120,7 +114,7 @@ public class JoalConfigProviderTest {
 
             assertThat(provider.loadConfiguration()).isEqualTo(newConf);
         } finally {
-            Files.deleteIfExists(rewritableResourcePath.resolve("config.json"));
+            Files.deleteIfExists(rewritableJoalFoldersPath.getConfPath().resolve("config.json"));
         }
     }
 

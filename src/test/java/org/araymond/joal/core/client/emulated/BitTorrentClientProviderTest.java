@@ -1,6 +1,7 @@
 package org.araymond.joal.core.client.emulated;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.config.JoalConfigProviderTest;
 import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
@@ -21,19 +22,19 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class BitTorrentClientProviderTest {
 
-    private static final Path resourcePath = Paths.get("src/test/resources/configtest");
+    private static final SeedManager.JoalFoldersPath joalFoldersPath = new SeedManager.JoalFoldersPath(Paths.get("src/test/resources/configtest"));
 
     private static BitTorrentClientProvider createProvider() {
         final JoalConfigProvider configProvider = Mockito.mock(JoalConfigProvider.class);
         Mockito.when(configProvider.get()).thenReturn(JoalConfigProviderTest.defaultConfig);
-        return new BitTorrentClientProvider(configProvider, new ObjectMapper(), resourcePath.toString(), Mockito.mock(ApplicationEventPublisher.class));
+        return new BitTorrentClientProvider(configProvider, new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
     }
 
     @Test
     public void shouldFailIfClientFileDoesNotExists() {
         final JoalConfigProvider configProvider = Mockito.mock(JoalConfigProvider.class);
         Mockito.when(configProvider.get()).thenReturn(JoalConfigProviderTest.defaultConfig);
-        final BitTorrentClientProvider provider = new BitTorrentClientProvider(configProvider, new ObjectMapper(), resourcePath.resolve("nop").toString(), Mockito.mock(ApplicationEventPublisher.class));
+        final BitTorrentClientProvider provider = new BitTorrentClientProvider(configProvider, new ObjectMapper(), new SeedManager.JoalFoldersPath(Paths.get("nop")), Mockito.mock(ApplicationEventPublisher.class));
 
         assertThatThrownBy(provider::generateNewClient)
                 .isInstanceOf(FileNotFoundException.class)
@@ -72,7 +73,7 @@ public class BitTorrentClientProviderTest {
     @Test
     public void shouldPublishClientFilesDiscoveredOnInit() {
         final ApplicationEventPublisher publisher = Mockito.mock(ApplicationEventPublisher.class);
-        final BitTorrentClientProvider provider = new BitTorrentClientProvider(Mockito.mock(JoalConfigProvider.class), new ObjectMapper(), resourcePath.toString(), publisher);
+        final BitTorrentClientProvider provider = new BitTorrentClientProvider(Mockito.mock(JoalConfigProvider.class), new ObjectMapper(), joalFoldersPath, publisher);
 
         provider.init();
 

@@ -135,7 +135,7 @@ public class Client implements AnnouncerEventListener, TorrentFileChangeAware {
 
     @Override
     public void onInvalidTorrentFile(final String fileName, final String errMessage) {
-        // TODO: move file to archive
+        // TODO: delete file
         this.publisher.publishEvent(new FailedToAddTorrentFileEvent(fileName, errMessage));
     }
 

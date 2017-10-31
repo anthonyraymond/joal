@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.apache.commons.lang3.StringUtils;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
@@ -59,17 +60,14 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         this.torrentFiles.clear();
     }
 
-    public TorrentFileProvider(final String confFolder) throws FileNotFoundException {
-        if (StringUtils.isBlank(confFolder)) {
-            throw new IllegalArgumentException("A config path is required.");
-        }
-        this.torrentFolder = Paths.get(confFolder).resolve("torrents");
+    public TorrentFileProvider(final SeedManager.JoalFoldersPath joalFoldersPath) throws FileNotFoundException {
+        this.torrentFolder = joalFoldersPath.getTorrentFilesPath();
         if (!Files.exists(torrentFolder)) {
             logger.error("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
             throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
         }
 
-        this.archiveFolder = torrentFolder.resolve("archived");
+        this.archiveFolder = joalFoldersPath.getTorrentArchivedPath();
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
         this.torrentFileChangeListener = new HashSet<>();
@@ -148,21 +146,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
             logger.info("Successfully moved file: {} to archive folder", torrentFile.getAbsolutePath());
         } catch (final IOException e) {
             logger.warn("Failed to archive file: {}, the file won't be used anymore for the current session, but it remains on the folder.", e);
-        }
-    }
-
-    public void saveTorrentFileToDisk(final String name, final byte[] bytes) {
-        try {
-            // try if the torrent file is safe or not.
-            MockedTorrent.fromBytes(bytes);
-
-            final String torrentName = name.endsWith(".torrent") ? name : name + ".torrent";
-            Files.write(this.torrentFolder.resolve(torrentName), bytes, StandardOpenOption.CREATE);
-        } catch (final Exception e) {
-            logger.warn("Failed to save torrent file", e);
-            // If NullPointerException occurs (when the file is an empty file) there is no message.
-            final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
-            this.torrentFileChangeListener.forEach(listener -> listener.onInvalidTorrentFile(name, errorMessage));
         }
     }
 

@@ -3,6 +3,7 @@ package org.araymond.joal.core.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang3.StringUtils;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.core.events.config.ConfigHasChangedEvent;
 import org.slf4j.Logger;
@@ -28,14 +29,11 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     private AppConfiguration config = null;
     private final ApplicationEventPublisher publisher;
 
-    public JoalConfigProvider(final ObjectMapper objectMapper, final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
+    public JoalConfigProvider(final ObjectMapper objectMapper, final SeedManager.JoalFoldersPath joalFoldersPath, final ApplicationEventPublisher publisher) throws FileNotFoundException {
         this.objectMapper = objectMapper;
         this.publisher = publisher;
 
-        if (StringUtils.isBlank(confFolder)) {
-            throw new IllegalArgumentException("A config path is required.");
-        }
-        this.joalConfPath = Paths.get(confFolder).resolve(CONF_FILE_NAME);
+        this.joalConfPath = joalFoldersPath.getConfPath().resolve(CONF_FILE_NAME);
         if (!Files.exists(joalConfPath)) {
             throw new FileNotFoundException(String.format("App configuration file '%s' not found.", joalConfPath));
         }
