@@ -285,10 +285,6 @@ public class TorrentFileProviderTest {
             deleteLock.countDown();
         }
 
-        @Override
-        public void onInvalidTorrentFile(final String fileName, final String errMessage) {
-
-        }
     }
 
 }
