@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorent.client;
 
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.Test;
 

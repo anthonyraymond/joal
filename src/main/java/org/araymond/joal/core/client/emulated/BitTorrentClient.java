@@ -13,8 +13,10 @@ import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
+import org.araymond.joal.core.bandwith.TorrentSeedStats;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 
 import java.io.UnsupportedEncodingException;
@@ -78,6 +80,50 @@ public class BitTorrentClient {
         return this.numwantProvider.get(event);
     }
 
+    public String createRequestQuery(final RequestEvent event, final InfoHash torrentInfoHash, final TorrentSeedStats stats, final ConnectionHandler connectionHandler) {
+        String emulatedClientQuery = this.getQuery()
+                .replaceAll("\\{infohash}", urlEncoder.encode(torrentInfoHash.value()))
+                .replaceAll("\\{uploaded}", String.valueOf(stats.getUploaded()))
+                .replaceAll("\\{downloaded}", String.valueOf(stats.getDownloaded()))
+                .replaceAll("\\{left}", String.valueOf(stats.getLeft()))
+                .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
+                .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
+
+        if (this.peerIdGenerator.getShouldUrlEncoded()) {
+            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", urlEncoder.encode(this.getPeerId(torrent.getTorrent(), event)));
+        } else {
+            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", this.getPeerId(torrent.getTorrent(), event));
+        }
+
+        // set ip or ipv6 then remove placeholders that were left empty
+        if (connectionHandler.getIpAddress() instanceof Inet4Address) {
+            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ip}", connectionHandler.getIpAddress().getHostAddress());
+        } else if(connectionHandler.getIpAddress() instanceof Inet6Address) {
+            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ipv6}", urlEncoder.encode(connectionHandler.getIpAddress().getHostAddress()));
+        }
+        emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ipv6}", "");
+        emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ip}", "");
+
+        if (event == null || event == RequestEvent.NONE) {
+            // if event was NONE, remove the event from the query string
+            emulatedClientQuery = emulatedClientQuery.replaceAll("([&]*[a-zA-Z0-9]+=\\{event})", "");
+        } else {
+            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{event}", event.getEventName());
+        }
+
+        if (emulatedClientQuery.contains("{key}")) {
+            final String key = this.getKey(torrent.getTorrent(), event).orElseThrow(() -> new IllegalStateException("Client request query contains 'key' but BitTorrentClient does not have a key."));
+            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{key}", urlEncoder.encode(key));
+        }
+
+        final Matcher matcher = Pattern.compile("(\\{.*?})").matcher(emulatedClientQuery);
+        if (matcher.find()) {
+            final String unrecognizedPlaceHolder = matcher.group();
+            throw new UnrecognizedAnnounceParameter("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
+        }
+        return emulatedClientQuery;
+    }
+
     public Request buildAnnounceRequest(final URL trackerAnnounceURL, final RequestEvent event, final TorrentWithStats torrent, final ConnectionHandler connectionHandler) throws UnsupportedEncodingException {
         String emulatedClientQuery = this.getQuery()
                 .replaceAll("\\{infohash}", urlEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING)))
@@ -135,6 +181,21 @@ public class BitTorrentClient {
         this.addHeadersToRequest(request, trackerAnnounceURL);
 
         return request;
+    }
+
+    public List<Map.Entry<String, String>> createRequestHeaders() {
+        final List<Map.Entry<String, String>> headers = new ArrayList<>(this.headers.size() + 1);
+
+        this.headers.stream().forEachOrdered(header -> {
+            final String name = header.getKey();
+            final String value = header.getValue()
+                    .replaceAll("\\{java}", System.getProperty("java.version"))
+                    .replaceAll("\\{os}", System.getProperty("os.name"))
+                    .replaceAll("\\{locale}", Locale.getDefault().toLanguageTag());
+
+            headers.add(new AbstractMap.SimpleImmutableEntry<>(name, value));
+        });
+        return headers;
     }
 
     @VisibleForTesting

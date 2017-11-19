@@ -2,13 +2,12 @@ package org.araymond.joal.core.torrent.watcher;
 
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.File;
 import java.io.FileNotFoundException;

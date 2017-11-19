@@ -9,6 +9,7 @@ import org.araymond.joal.core.events.announce.*;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;

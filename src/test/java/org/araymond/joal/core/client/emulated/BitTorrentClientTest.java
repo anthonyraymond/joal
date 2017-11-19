@@ -9,7 +9,7 @@ import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
 

@@ -5,7 +5,7 @@ import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityExcept
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.HashKeyAlgorithm;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

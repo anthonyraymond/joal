@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

@@ -14,7 +14,7 @@ import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTe
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStatsTest;
 import org.junit.BeforeClass;

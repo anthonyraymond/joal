@@ -1,5 +1,6 @@
-package org.araymond.joal.core.ttorent.client;
+package org.araymond.joal.core.torrent.torrent;
 
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import com.turn.ttorrent.bcodec.InvalidBEncodingException;
 import com.turn.ttorrent.common.Torrent;
@@ -8,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -15,7 +17,9 @@ import java.security.NoSuchAlgorithmException;
  */
 @SuppressWarnings("ClassWithOnlyPrivateConstructors")
 public class MockedTorrent extends Torrent {
+    public static final Charset BYTE_ENCODING = Charsets.ISO_8859_1;
 
+    private final InfoHash infoHash;
     /**
      * Create a new torrent from meta-info binary data.
      * <p>
@@ -41,7 +45,11 @@ public class MockedTorrent extends Torrent {
         } catch (final InvalidBEncodingException ex) {
             throw new IllegalArgumentException("Error reading torrent meta-info fields!", ex);
         }
+        this.infoHash = new InfoHash(this.getInfoHash());
+    }
 
+    public InfoHash getTorrentInfoHash() {
+        return this.infoHash;
     }
 
     public static MockedTorrent fromFile(final File torrent) throws IOException, NoSuchAlgorithmException {

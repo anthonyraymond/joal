@@ -1,4 +1,6 @@
-package org.araymond.joal.core.ttorrent.client.announcer;
+package org.araymond.joal.core.ttorrent.client.announcer.utils;
+
+import com.google.common.base.Objects;
 
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalUnit;
@@ -69,7 +71,7 @@ public class AvailableAfterIntervalQueue<T> {
     }
 
 
-    private static class IntervalAware<T> implements Comparable<IntervalAware> {
+    private static final class IntervalAware<T> implements Comparable<IntervalAware> {
         private final LocalDateTime releaseAt;
         private final T item;
 
@@ -85,6 +87,20 @@ public class AvailableAfterIntervalQueue<T> {
         @Override
         public int compareTo(final IntervalAware o) {
             return this.releaseAt.compareTo(o.releaseAt);
+        }
+
+        @Override
+        public boolean equals(final Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            final IntervalAware<?> that = (IntervalAware<?>) o;
+            return Objects.equal(releaseAt, that.releaseAt) &&
+                    Objects.equal(item, that.item);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(releaseAt, item);
         }
     }
 }

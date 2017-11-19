@@ -2,7 +2,7 @@ package org.araymond.joal.core.ttorent.client.bandwidth;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 
 /**
  * Created by raymo on 14/05/2017.

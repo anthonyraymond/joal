@@ -1,7 +1,6 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
@@ -12,7 +11,7 @@ import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.Client;
 import org.araymond.joal.core.ttorent.client.ConnectionHandler;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;

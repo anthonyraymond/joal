@@ -1,6 +1,6 @@
 package org.araymond.joal.core.events.filechange;
 
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
 

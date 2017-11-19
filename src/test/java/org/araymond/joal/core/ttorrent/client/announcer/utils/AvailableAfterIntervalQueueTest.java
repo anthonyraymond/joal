@@ -1,5 +1,6 @@
-package org.araymond.joal.core.ttorrent.client.announcer;
+package org.araymond.joal.core.ttorrent.client.announcer.utils;
 
+import org.araymond.joal.core.ttorrent.client.announcer.utils.AvailableAfterIntervalQueue;
 import org.junit.Test;
 
 import java.time.temporal.ChronoUnit;

@@ -2,7 +2,7 @@ package org.araymond.joal.core.ttorent.client.bandwidth;
 
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.assertj.core.data.Percentage;
 import org.junit.Test;

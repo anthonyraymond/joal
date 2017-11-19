@@ -1,6 +1,6 @@
 package org.araymond.joal.core.ttorent.client.announce.exceptions;
 
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 
 public class TooMuchAnnouncesFailedInARawException extends Exception {
     private static final long serialVersionUID = 1864953989056739188L;
