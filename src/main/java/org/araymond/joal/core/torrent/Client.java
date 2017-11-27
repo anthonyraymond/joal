@@ -26,9 +26,8 @@ import java.util.concurrent.Executors;
 public class Client implements TorrentAnnounceAware, TorrentFileChangeAware {
     private static final Logger logger = LoggerFactory.getLogger(Client.class);
 
-    // TODO : List<MockedTorrent>
-    // TODO : AvailableAfterIntervalQueue<InfoHash> announceQueue;
-    private final AnnounceQueue announceQueue = new AnnounceQueue();
+    private final AnnounceQueueConsumer announceQueueConsumer;
+    private final AnnounceQueue announceQueue;
     private final JoalConfigProvider configProvider;
     private final TorrentFileProvider torrentFileProvider;
     private final BitTorrentClient bitTorrentClient;
@@ -43,11 +42,12 @@ public class Client implements TorrentAnnounceAware, TorrentFileChangeAware {
         this.torrentFileProvider = torrentFileProvider;
         this.bitTorrentClient = bitTorrentClient;
         this.connectionHandler = connectionHandler;
-        this.bandwidthDispatcher = new NewBandwidthDispatcher();
+        this.bandwidthDispatcher = new NewBandwidthDispatcher(3000);
         this.currentlySeedingTorrents = new ArrayList<>();
+        this.announceQueue = new AnnounceQueue();
+        this.announceQueueConsumer = new AnnounceQueueConsumer(announceQueue);
     }
 
-    // TODO: don't care about the thread. We create the consumer, the queue and the producer here.
     // TODO: we subscribes to the consumer which is going to dispatch events for announces.
 
     // TODO: to know how many announcers are running we cant trust the queue, because an element can be announcing (and thus not in the queue anyore)
@@ -61,6 +61,10 @@ public class Client implements TorrentAnnounceAware, TorrentFileChangeAware {
             this.announceQueue.addToStart(new Announcer(torrent));
         } catch (final NoMoreTorrentsFileAvailableException ignore) {
         }
+    }
+
+    public void start() {
+
     }
 
     public void stop() {

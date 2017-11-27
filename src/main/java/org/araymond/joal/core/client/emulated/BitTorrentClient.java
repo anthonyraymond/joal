@@ -6,6 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.turn.ttorrent.common.Torrent;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.apache.commons.lang3.NotImplementedException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
 import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
@@ -89,7 +90,8 @@ public class BitTorrentClient {
                 .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
                 .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
 
-        if (this.peerIdGenerator.getShouldUrlEncoded()) {
+        throw new NotImplementedException("need to uncommend the below code");
+        /*if (this.peerIdGenerator.getShouldUrlEncoded()) {
             emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", urlEncoder.encode(this.getPeerId(torrent.getTorrent(), event)));
         } else {
             emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", this.getPeerId(torrent.getTorrent(), event));
@@ -121,7 +123,7 @@ public class BitTorrentClient {
             final String unrecognizedPlaceHolder = matcher.group();
             throw new UnrecognizedAnnounceParameter("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
         }
-        return emulatedClientQuery;
+        return emulatedClientQuery;*/
     }
 
     public Request buildAnnounceRequest(final URL trackerAnnounceURL, final RequestEvent event, final TorrentWithStats torrent, final ConnectionHandler connectionHandler) throws UnsupportedEncodingException {
