@@ -1,5 +1,6 @@
 package org.araymond.joal.core.bandwith;
 
+import com.google.common.collect.Sets;
 import org.araymond.joal.core.bandwith.weight.PeersAwareWeightCalculator;
 import org.araymond.joal.core.bandwith.weight.WeightHolder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
@@ -12,22 +13,24 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class NewBandwidthDispatcher implements Runnable {
 
     private final ReentrantReadWriteLock lock;
-    private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats;
     private final WeightHolder<InfoHash> weightHolder;
+    private final RandomSpeedProvider randomSpeedProvider;
+    private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats;
     private final Map<InfoHash, Speed> speedMap;
-    private int currentBandwithInBytes;
     private final int threadPauseInterval;
+    private int threadLoopCounter = 0;
     private volatile boolean stop = false;
     private Thread thread;
 
-    public NewBandwidthDispatcher(final int threadPauseInterval) {
+    public NewBandwidthDispatcher(final int threadPauseInterval, final RandomSpeedProvider randomSpeedProvider) {
         this.threadPauseInterval = threadPauseInterval;
         this.torrentsSeedStats = new HashMap<>();
         this.speedMap = new HashMap<>();
-        lock = new ReentrantReadWriteLock();
-        weightHolder = new WeightHolder<>(new PeersAwareWeightCalculator());
-        // TODO: compute a first time
-        this.currentBandwithInBytes = 0;
+        this.lock = new ReentrantReadWriteLock();
+
+
+        this.weightHolder = new WeightHolder<>(new PeersAwareWeightCalculator());
+        this.randomSpeedProvider = randomSpeedProvider;
     }
 
     /*
@@ -46,7 +49,12 @@ public class NewBandwidthDispatcher implements Runnable {
     }
 
     public void stop() {
-
+        this.stop = true;
+        this.thread.interrupt();
+        try {
+            this.thread.join();
+        } catch (final InterruptedException ignored) {
+        }
     }
 
     @Override
@@ -54,18 +62,24 @@ public class NewBandwidthDispatcher implements Runnable {
         try {
             while (!this.stop) {
                 Thread.sleep(this.threadPauseInterval);
+                ++this.threadLoopCounter;
+                // refresh bandwidth every 1200000 milliseconds (20 minutes)
+                if (this.threadLoopCounter == 1200000 / this.threadPauseInterval) {
+                    this.refreshCurrentBandwidth();
+                }
                 // TODO: refresh current speed every 20 minutes
 
                 // This method as to run as fast as possible to avoid blocking other ones. Because we wan't this loop
                 //  to be scheduled as precise as we can. Locking to much will delay the Thread.sleep and cause stats
                 //  to be undervalued
                 this.lock.readLock().lock();
-                final Set<Map.Entry<InfoHash, TorrentSeedStats>> entrySet = this.torrentsSeedStats.entrySet();
+                final Set<Map.Entry<InfoHash, TorrentSeedStats>> entrySet = Sets.newHashSet(this.torrentsSeedStats.entrySet());
                 this.lock.readLock().unlock();
 
                 for (final Map.Entry<InfoHash, TorrentSeedStats> entry : entrySet) {
                     final long speedInBytesPerSecond = this.speedMap.getOrDefault(entry.getKey(), new Speed(0)).getBytesPerSeconds();
-                    entry.getValue().addUploaded(speedInBytesPerSecond * this.threadPauseInterval);
+                    // Divide by 1000 because of the thread pause interval being in milliseconds
+                    entry.getValue().addUploaded(speedInBytesPerSecond / 1000 * this.threadPauseInterval);
                 }
             }
         } catch (final InterruptedException ignore) {
@@ -104,6 +118,16 @@ public class NewBandwidthDispatcher implements Runnable {
         }
     }
 
+    private void refreshCurrentBandwidth() {
+        this.lock.writeLock().lock();
+        try {
+            this.randomSpeedProvider.refresh();
+            this.recomputeSpeeds();
+        } finally {
+            this.lock.writeLock().unlock();
+        }
+    }
+
     private void recomputeSpeeds() {
         for (final InfoHash infohash : this.torrentsSeedStats.keySet()) {
             final double percentOfSpeedAssigned = this.weightHolder.getTotalWeight() == 0.0
@@ -114,7 +138,7 @@ public class NewBandwidthDispatcher implements Runnable {
                 if (speed == null) {
                     return new Speed(0);
                 }
-                speed.setBytesPerSeconds((int) (this.currentBandwithInBytes * percentOfSpeedAssigned));
+                speed.setBytesPerSeconds((long) (this.randomSpeedProvider.getInBytesPerSeconds() * percentOfSpeedAssigned));
                 return speed;
             });
         }

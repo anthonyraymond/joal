@@ -69,7 +69,12 @@ public class NewTrackerClient {
         }
 
         final AnnounceResponseMessage announceResponseMessage = (AnnounceResponseMessage) responseMessage;
-        return new SuccessAnnounceResponse(announceResponseMessage.getInterval(), announceResponseMessage.getComplete(), announceResponseMessage.getIncomplete());
+
+        final int interval = announceResponseMessage.getInterval();
+        // Subtract one to seeders since we are one of them.
+        final int seeders = announceResponseMessage.getComplete() == 0 ? 0 : announceResponseMessage.getComplete() - 1;
+        final int leechers = announceResponseMessage.getIncomplete();
+        return new SuccessAnnounceResponse(interval, seeders, leechers);
     }
 
     private TrackerMessage makeCallAndGetResponseAsByteBuffer(final URI announceUri, final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {

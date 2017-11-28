@@ -4,6 +4,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import org.araymond.joal.core.bandwith.NewBandwidthDispatcher;
+import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
@@ -42,7 +43,7 @@ public class Client implements TorrentAnnounceAware, TorrentFileChangeAware {
         this.torrentFileProvider = torrentFileProvider;
         this.bitTorrentClient = bitTorrentClient;
         this.connectionHandler = connectionHandler;
-        this.bandwidthDispatcher = new NewBandwidthDispatcher(3000);
+        this.bandwidthDispatcher = new NewBandwidthDispatcher(3000, new RandomSpeedProvider(configProvider));
         this.currentlySeedingTorrents = new ArrayList<>();
         this.announceQueue = new AnnounceQueue();
         this.announceQueueConsumer = new AnnounceQueueConsumer(announceQueue);

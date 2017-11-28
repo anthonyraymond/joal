@@ -2,16 +2,25 @@ package org.araymond.joal.core.bandwith;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.Test;
+import org.mockito.Mockito;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.fail;
-import static org.assertj.core.api.Assertions.in;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
+import static org.assertj.core.api.Assertions.*;
 
 public class NewBandwidthDispatcherTest {
 
     @Test
     public void shouldReturnZeroIfInfoHashIsNotRegistered() throws InterruptedException {
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2);
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
         bandwidthDispatcher.start();
         Thread.sleep(10);
         final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(new InfoHash(new byte[]{12}));
@@ -25,8 +34,11 @@ public class NewBandwidthDispatcherTest {
 
     @Test
     public void shouldNotIncrementRegisteredTorrentsBeforePeersHaveBeenAdded() throws InterruptedException {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
         final InfoHash infoHash = new InfoHash(new byte[]{12});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2);
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.start();
@@ -41,12 +53,15 @@ public class NewBandwidthDispatcherTest {
     }
 
     @Test
-    public void shouldNotIncrementRegisteredTorrentsWithZeroPeers() throws InterruptedException {
+    public void shouldNotIncrementRegisteredTorrentsWithZeroSeeders() throws InterruptedException {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
         final InfoHash infoHash = new InfoHash(new byte[]{12});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2);
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
-        bandwidthDispatcher.updateTorrentPeers(infoHash, 0, 0);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 0, 100);
         bandwidthDispatcher.start();
         Thread.sleep(10);
         final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(infoHash);
@@ -59,38 +74,64 @@ public class NewBandwidthDispatcherTest {
     }
 
     @Test
-    public void shouldNotIncrementUnregisteredTorrent() throws InterruptedException {
+    public void shouldNotIncrementRegisteredTorrentsWithZeroLeechers() throws InterruptedException {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
         final InfoHash infoHash = new InfoHash(new byte[]{12});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2);
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+
+        bandwidthDispatcher.registerTorrent(infoHash);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 100, 0);
+        bandwidthDispatcher.start();
+        Thread.sleep(10);
+        final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(infoHash);
+        bandwidthDispatcher.stop();
+
+
+        assertThat(seedStats.getDownloaded()).isEqualTo(0);
+        assertThat(seedStats.getUploaded()).isEqualTo(0);
+        assertThat(seedStats.getLeft()).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldRemoveUnregisteredTorrent() throws InterruptedException {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
+        final InfoHash infoHash = new InfoHash(new byte[]{12});
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
 
         bandwidthDispatcher.start();
-        Thread.sleep(10);
+        Thread.sleep(20);
 
-        bandwidthDispatcher.unregisterTorrent(infoHash);
         final long uploadedBeforeUnregistering = bandwidthDispatcher.getSeedStatForTorrent(infoHash).getUploaded();
         assertThat(uploadedBeforeUnregistering).isGreaterThan(1);
+        bandwidthDispatcher.unregisterTorrent(infoHash);
 
-        Thread.sleep(10);
+        assertThat(bandwidthDispatcher.getSeedStatForTorrent(infoHash).getUploaded()).isEqualTo(0);
+
         bandwidthDispatcher.stop();
-
-        final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(infoHash);
-        assertThat(seedStats.getUploaded()).isEqualTo(uploadedBeforeUnregistering);
     }
 
     @Test
     public void shouldIncrementRegisteredTorrent() throws InterruptedException {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         final InfoHash infoHash2 = new InfoHash(new byte[]{100});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2);
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
-        bandwidthDispatcher.updateTorrentPeers(infoHash, 20, 30);
+        bandwidthDispatcher.registerTorrent(infoHash2);
+        bandwidthDispatcher.updateTorrentPeers(infoHash2, 20, 30);
         bandwidthDispatcher.start();
-        Thread.sleep(10);
+        Thread.sleep(30);
         final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(infoHash);
         final TorrentSeedStats seedStats2 = bandwidthDispatcher.getSeedStatForTorrent(infoHash2);
         bandwidthDispatcher.stop();
@@ -101,12 +142,40 @@ public class NewBandwidthDispatcherTest {
     }
 
     @Test
-    public void shouldBeSafeToUpdateTorrentSeedsStatsWhileRegisteringTorrents() {
-        fail("not implemented");
+    public void shouldBeSafeToUpdateTorrentSeedsStatsWhileRegisteringTorrents() throws ExecutionException, InterruptedException {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(1, speedProvider);
+
+        bandwidthDispatcher.start();
+
+        final ExecutorService executorService = Executors.newFixedThreadPool(5);
+        final List<Future<?>> futures = new ArrayList<>();
+        for (int i = 0; i < 100; ++i) {
+            final InfoHash infoHash = new InfoHash((i + "").getBytes());
+            futures.add(executorService.submit(() -> {
+                bandwidthDispatcher.registerTorrent(infoHash);
+                bandwidthDispatcher.updateTorrentPeers(infoHash, 20, 50);
+            }));
+        }
+        for (final Future<?> future : futures) {
+            future.get();
+        }
+
+        futures.clear();
+
+        for (int i = 0; i < 100; ++i) {
+            final InfoHash infoHash = new InfoHash((i + "").getBytes());
+            futures.add(executorService.submit(() -> {
+                bandwidthDispatcher.unregisterTorrent(infoHash);
+            }));
+        }
+        for (final Future<?> future : futures) {
+            future.get();
+        }
+
+        bandwidthDispatcher.stop();
     }
 
-    @Test
-    public void shouldBeSafeToUpdateTorrentSeedsStatsWhileUnregisteringTorrents() {
-        fail("not implemented");
-    }
 }
