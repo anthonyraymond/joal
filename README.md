@@ -30,7 +30,7 @@ The folder should look like this:<br/>
 ## How to run
 
 ```
-java -Djava.net.preferIPv6Addresses=true -jar .\jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
+java -Djava.net.preferIPv6Addresses=true -jar ./jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
 ```
 
 - `-Djava.net.preferIPv6Addresses=true`: is for instruct the JVM to prefer ipv6, if you ISP does not support ipv6 don't prepend this parameter.
