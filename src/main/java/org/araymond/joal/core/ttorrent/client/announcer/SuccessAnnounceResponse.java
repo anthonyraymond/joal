@@ -1,4 +1,4 @@
-package org.araymond.joal.core.torrent.announcer;
+package org.araymond.joal.core.ttorrent.client.announcer;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 

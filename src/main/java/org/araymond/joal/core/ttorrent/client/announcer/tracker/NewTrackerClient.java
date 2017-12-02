@@ -1,4 +1,4 @@
-package org.araymond.joal.core.torrent.announcer.tracker;
+package org.araymond.joal.core.ttorrent.client.announcer.tracker;
 
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
@@ -12,7 +12,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
-import org.araymond.joal.core.torrent.announcer.SuccessAnnounceResponse;
+import org.araymond.joal.core.ttorrent.client.announcer.SuccessAnnounceResponse;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

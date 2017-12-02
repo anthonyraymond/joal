@@ -1,11 +1,8 @@
-package org.araymond.joal.core.torrent.announcer;
+package org.araymond.joal.core.ttorrent.client.announcer;
 
 import com.google.common.base.Objects;
 import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.common.protocol.TrackerMessage;
-import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceResponseMessage;
-import org.araymond.joal.core.torrent.announcer.tracker.NewTrackerClient;
+import org.araymond.joal.core.ttorrent.client.announcer.tracker.NewTrackerClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;

@@ -1,10 +1,9 @@
-package org.araymond.joal.core.torrent;
+package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.util.concurrent.FutureCallback;
-import org.araymond.joal.core.bandwith.NewBandwidthDispatcher;
-import org.araymond.joal.core.torrent.announcer.Announcer;
-import org.araymond.joal.core.torrent.announcer.SuccessAnnounceResponse;
-import org.araymond.joal.core.torrent.announcer.TorrentAnnounceAware;
+import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.SuccessAnnounceResponse;
+import org.araymond.joal.core.ttorrent.client.announcer.TorrentAnnounceAware;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.ExecutorService;

@@ -1,6 +1,4 @@
-package org.araymond.joal.core.torrent.announcer;
-
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+package org.araymond.joal.core.ttorrent.client.announcer;
 
 public interface TorrentAnnounceAware {
 

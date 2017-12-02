@@ -1,16 +1,13 @@
-package org.araymond.joal.core.torrent;
+package org.araymond.joal.core.ttorrent.client;
 
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.ListeningExecutorService;
-import com.google.common.util.concurrent.MoreExecutors;
 import org.araymond.joal.core.bandwith.NewBandwidthDispatcher;
 import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
-import org.araymond.joal.core.torrent.announcer.Announcer;
-import org.araymond.joal.core.torrent.announcer.SuccessAnnounceResponse;
-import org.araymond.joal.core.torrent.announcer.TorrentAnnounceAware;
+import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.SuccessAnnounceResponse;
+import org.araymond.joal.core.ttorrent.client.announcer.TorrentAnnounceAware;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
@@ -18,11 +15,8 @@ import org.araymond.joal.core.ttorent.client.ConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Client implements TorrentAnnounceAware, TorrentFileChangeAware {
     private static final Logger logger = LoggerFactory.getLogger(Client.class);

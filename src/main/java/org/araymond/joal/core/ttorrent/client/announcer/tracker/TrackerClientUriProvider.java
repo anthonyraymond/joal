@@ -1,4 +1,4 @@
-package org.araymond.joal.core.torrent.announcer.tracker;
+package org.araymond.joal.core.ttorrent.client.announcer.tracker;
 
 import com.google.common.collect.Iterators;
 import org.slf4j.Logger;
