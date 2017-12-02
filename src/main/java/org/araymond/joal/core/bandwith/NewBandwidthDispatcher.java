@@ -1,5 +1,6 @@
 package org.araymond.joal.core.bandwith;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.araymond.joal.core.bandwith.weight.PeersAwareWeightCalculator;
 import org.araymond.joal.core.bandwith.weight.WeightHolder;
@@ -17,6 +18,7 @@ public class NewBandwidthDispatcher implements Runnable {
     private final RandomSpeedProvider randomSpeedProvider;
     private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats;
     private final Map<InfoHash, Speed> speedMap;
+    private SpeedChangedListener speedChangedListener;
     private final int threadPauseInterval;
     private int threadLoopCounter = 0;
     private volatile boolean stop = false;
@@ -31,6 +33,10 @@ public class NewBandwidthDispatcher implements Runnable {
 
         this.weightHolder = new WeightHolder<>(new PeersAwareWeightCalculator());
         this.randomSpeedProvider = randomSpeedProvider;
+    }
+
+    public void setSpeedListener(final SpeedChangedListener speedListener) {
+        this.speedChangedListener = speedListener;
     }
 
     /*
@@ -142,22 +148,9 @@ public class NewBandwidthDispatcher implements Runnable {
                 return speed;
             });
         }
-        // TODO: notify speed has changed
-    }
-
-    private static final class Speed {
-        private long bytesPerSeconds;
-
-        private Speed(final long bytesPerSeconds) {
-            this.bytesPerSeconds = bytesPerSeconds;
-        }
-
-        private long getBytesPerSeconds() {
-            return bytesPerSeconds;
-        }
-
-        private void setBytesPerSeconds(final long bytesPerSeconds) {
-            this.bytesPerSeconds = bytesPerSeconds;
+        if (speedChangedListener != null) {
+            speedChangedListener.speedsHasChanged(Maps.newHashMap(this.speedMap));
         }
     }
+
 }

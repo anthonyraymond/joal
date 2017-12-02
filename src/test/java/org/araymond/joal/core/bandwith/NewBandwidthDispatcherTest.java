@@ -2,10 +2,12 @@ package org.araymond.joal.core.bandwith;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.Test;
+import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -176,6 +178,33 @@ public class NewBandwidthDispatcherTest {
         }
 
         bandwidthDispatcher.stop();
+    }
+
+    @Test
+    public void shouldNotifyThatSpeedHasChangedAfterRegisteringTorrent() throws InterruptedException {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(10000L).when(speedProvider).getInBytesPerSeconds();
+
+        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        bandwidthDispatcher.start();
+
+        final SpeedChangedListener speedListener = Mockito.spy(new VoidSpeedChangedListener());
+        bandwidthDispatcher.setSpeedListener(speedListener);
+
+        final InfoHash infoHash = new InfoHash(new byte[]{12});
+        bandwidthDispatcher.registerTorrent(infoHash);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
+        Thread.sleep(30);
+
+        bandwidthDispatcher.stop();
+
+        Mockito.verify(speedListener, Mockito.times(1)).speedsHasChanged(Matchers.anyMap());
+    }
+
+    private static class VoidSpeedChangedListener implements SpeedChangedListener {
+        @Override
+        public void speedsHasChanged(final Map<InfoHash, Speed> speeds) {
+        }
     }
 
 }
