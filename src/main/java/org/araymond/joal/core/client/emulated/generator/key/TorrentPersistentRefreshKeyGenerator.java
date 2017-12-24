@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 
 import java.time.LocalDateTime;
@@ -18,7 +19,7 @@ import java.util.Map;
  * Created by raymo on 16/07/2017.
  */
 public class TorrentPersistentRefreshKeyGenerator extends KeyGenerator {
-    private final Map<MockedTorrent, AccessAwareKey> keyPerTorrent;
+    private final Map<InfoHash, AccessAwareKey> keyPerTorrent;
 
     @JsonCreator
     TorrentPersistentRefreshKeyGenerator(
@@ -30,12 +31,12 @@ public class TorrentPersistentRefreshKeyGenerator extends KeyGenerator {
     }
 
     @Override
-    public String getKey(final MockedTorrent torrent, final RequestEvent event) {
-        if (!this.keyPerTorrent.containsKey(torrent)) {
-            this.keyPerTorrent.put(torrent, new AccessAwareKey(super.generateKey()));
+    public String getKey(final InfoHash infoHash, final RequestEvent event) {
+        if (!this.keyPerTorrent.containsKey(infoHash)) {
+            this.keyPerTorrent.put(infoHash, new AccessAwareKey(super.generateKey()));
         }
 
-        final String key = this.keyPerTorrent.get(torrent).getPeerId();
+        final String key = this.keyPerTorrent.get(infoHash).getPeerId();
         evictOldEntries();
         return key;
     }
@@ -53,7 +54,7 @@ public class TorrentPersistentRefreshKeyGenerator extends KeyGenerator {
      * @return true if evictable, false otherwise
      */
     @VisibleForTesting
-    boolean shouldEvictEntry(final Map.Entry<MockedTorrent, AccessAwareKey> entry) {
+    boolean shouldEvictEntry(final Map.Entry<InfoHash, AccessAwareKey> entry) {
         return ChronoUnit.MINUTES.between(entry.getValue().getLastAccess(), LocalDateTime.now()) >= 120;
     }
 

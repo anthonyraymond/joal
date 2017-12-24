@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ import java.util.Map;
  * Created by raymo on 16/07/2017.
  */
 public class TorrentVolatileRefreshKeyGenerator extends KeyGenerator {
-    private final Map<MockedTorrent, String> keyPerTorrent;
+    private final Map<InfoHash, String> keyPerTorrent;
 
     @JsonCreator
     TorrentVolatileRefreshKeyGenerator(
@@ -26,17 +26,17 @@ public class TorrentVolatileRefreshKeyGenerator extends KeyGenerator {
     }
 
     @Override
-    public String getKey(final MockedTorrent torrent, final RequestEvent event) {
+    public String getKey(final InfoHash infoHash, final RequestEvent event) {
         final String key;
 
-        if (!this.keyPerTorrent.containsKey(torrent)) {
-            this.keyPerTorrent.put(torrent, super.generateKey());
+        if (!this.keyPerTorrent.containsKey(infoHash)) {
+            this.keyPerTorrent.put(infoHash, super.generateKey());
         }
 
-        key = this.keyPerTorrent.get(torrent);
+        key = this.keyPerTorrent.get(infoHash);
 
         if (event == RequestEvent.STOPPED) {
-            this.keyPerTorrent.remove(torrent);
+            this.keyPerTorrent.remove(infoHash);
         }
 
         return key;

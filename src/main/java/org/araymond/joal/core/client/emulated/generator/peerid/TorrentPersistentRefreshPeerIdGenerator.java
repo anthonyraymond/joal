@@ -6,7 +6,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Sets;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -17,7 +17,7 @@ import java.util.Map;
  * Created by raymo on 16/07/2017.
  */
 public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
-    private final Map<MockedTorrent, AccessAwarePeerId> peerIdPerTorrent;
+    private final Map<InfoHash, AccessAwarePeerId> peerIdPerTorrent;
 
     private int getCounter = 0;
 
@@ -31,12 +31,12 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
     }
 
     @Override
-    public String getPeerId(final MockedTorrent torrent, final RequestEvent event) {
-        if (!this.peerIdPerTorrent.containsKey(torrent)) {
-            this.peerIdPerTorrent.put(torrent, new AccessAwarePeerId(super.generatePeerId()));
+    public String getPeerId(final InfoHash infoHash, final RequestEvent event) {
+        if (!this.peerIdPerTorrent.containsKey(infoHash)) {
+            this.peerIdPerTorrent.put(infoHash, new AccessAwarePeerId(super.generatePeerId()));
         }
 
-        final String key = this.peerIdPerTorrent.get(torrent).getPeerId();
+        final String key = this.peerIdPerTorrent.get(infoHash).getPeerId();
         getCounter++;
         if (getCounter >= 30) {
             getCounter = 0;
@@ -58,7 +58,7 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
      * @return true if evictable, false otherwise
      */
     @VisibleForTesting
-    boolean shouldEvictEntry(final Map.Entry<MockedTorrent, AccessAwarePeerId> entry) {
+    boolean shouldEvictEntry(final Map.Entry<InfoHash, AccessAwarePeerId> entry) {
         return ChronoUnit.MINUTES.between(entry.getValue().getLastAccess(), LocalDateTime.now()) >= 120;
     }
 

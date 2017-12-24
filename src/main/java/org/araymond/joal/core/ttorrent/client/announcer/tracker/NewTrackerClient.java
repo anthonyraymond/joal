@@ -12,7 +12,7 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
-import org.araymond.joal.core.ttorrent.client.announcer.SuccessAnnounceResponse;
+import org.araymond.joal.core.ttorrent.client.announcer.announcer.SuccessAnnounceResponse;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

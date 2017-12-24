@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class NewBandwidthDispatcher implements Runnable {
+public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnable {
 
     private final ReentrantReadWriteLock lock;
     private final WeightHolder<InfoHash> weightHolder;

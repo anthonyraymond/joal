@@ -56,16 +56,16 @@ public class BitTorrentClient {
         this.numwantProvider = numwantProvider;
     }
 
-    public String getPeerId(final MockedTorrent torrent, final RequestEvent event) {
-        return peerIdGenerator.getPeerId(torrent, event);
+    public String getPeerId(final InfoHash infoHash, final RequestEvent event) {
+        return peerIdGenerator.getPeerId(infoHash, event);
     }
 
     @VisibleForTesting
-    Optional<String> getKey(final MockedTorrent torrent, final RequestEvent event) {
+    Optional<String> getKey(final InfoHash infoHash, final RequestEvent event) {
         if (keyGenerator == null) {
             return Optional.empty();
         }
-        return Optional.of(keyGenerator.getKey(torrent, event));
+        return Optional.of(keyGenerator.getKey(infoHash, event));
     }
 
     public String getQuery() {
@@ -90,56 +90,13 @@ public class BitTorrentClient {
                 .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
                 .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
 
-        throw new NotImplementedException("need to uncommend the below code");
-        /*if (this.peerIdGenerator.getShouldUrlEncoded()) {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", urlEncoder.encode(this.getPeerId(torrent.getTorrent(), event)));
-        } else {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", this.getPeerId(torrent.getTorrent(), event));
-        }
-
-        // set ip or ipv6 then remove placeholders that were left empty
-        if (connectionHandler.getIpAddress() instanceof Inet4Address) {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ip}", connectionHandler.getIpAddress().getHostAddress());
-        } else if(connectionHandler.getIpAddress() instanceof Inet6Address) {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ipv6}", urlEncoder.encode(connectionHandler.getIpAddress().getHostAddress()));
-        }
-        emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ipv6}", "");
-        emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ip}", "");
-
-        if (event == null || event == RequestEvent.NONE) {
-            // if event was NONE, remove the event from the query string
-            emulatedClientQuery = emulatedClientQuery.replaceAll("([&]*[a-zA-Z0-9]+=\\{event})", "");
-        } else {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{event}", event.getEventName());
-        }
-
-        if (emulatedClientQuery.contains("{key}")) {
-            final String key = this.getKey(torrent.getTorrent(), event).orElseThrow(() -> new IllegalStateException("Client request query contains 'key' but BitTorrentClient does not have a key."));
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{key}", urlEncoder.encode(key));
-        }
-
-        final Matcher matcher = Pattern.compile("(\\{.*?})").matcher(emulatedClientQuery);
-        if (matcher.find()) {
-            final String unrecognizedPlaceHolder = matcher.group();
-            throw new UnrecognizedAnnounceParameter("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
-        }
-        return emulatedClientQuery;*/
-    }
-
-    public Request buildAnnounceRequest(final URL trackerAnnounceURL, final RequestEvent event, final TorrentWithStats torrent, final ConnectionHandler connectionHandler) throws UnsupportedEncodingException {
-        String emulatedClientQuery = this.getQuery()
-                .replaceAll("\\{infohash}", urlEncoder.encode(new String(torrent.getTorrent().getInfoHash(), Torrent.BYTE_ENCODING)))
-                .replaceAll("\\{uploaded}", String.valueOf(torrent.getUploaded()))
-                .replaceAll("\\{downloaded}", String.valueOf(torrent.getDownloaded()))
-                .replaceAll("\\{left}", String.valueOf(torrent.getLeft()))
-                .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
-                .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
-
+        final String peerId;
         if (this.peerIdGenerator.getShouldUrlEncoded()) {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", urlEncoder.encode(this.getPeerId(torrent.getTorrent(), event)));
+            peerId = urlEncoder.encode(this.getPeerId(torrentInfoHash, event));
         } else {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", this.getPeerId(torrent.getTorrent(), event));
+            peerId = this.getPeerId(torrentInfoHash, event);
         }
+        emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", peerId);
 
         // set ip or ipv6 then remove placeholders that were left empty
         if (connectionHandler.getIpAddress() instanceof Inet4Address) {
@@ -158,7 +115,7 @@ public class BitTorrentClient {
         }
 
         if (emulatedClientQuery.contains("{key}")) {
-            final String key = getKey(torrent.getTorrent(), event).orElseThrow(() -> new IllegalStateException("Client request query contains 'key' but BitTorrentClient does not have a key."));
+            final String key = this.getKey(torrentInfoHash, event).orElseThrow(() -> new IllegalStateException("Client request query contains 'key' but BitTorrentClient does not have a key."));
             emulatedClientQuery = emulatedClientQuery.replaceAll("\\{key}", urlEncoder.encode(key));
         }
 
@@ -167,22 +124,7 @@ public class BitTorrentClient {
             final String unrecognizedPlaceHolder = matcher.group();
             throw new UnrecognizedAnnounceParameter("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
         }
-
-        // Append ? or & only if query contains params
-        final String base;
-        if (emulatedClientQuery.length() > 0) {
-            base = trackerAnnounceURL.toString() + (trackerAnnounceURL.toString().contains("?") ? "&" : "?");
-        } else {
-            base = trackerAnnounceURL.toString();
-        }
-        final String url = base + emulatedClientQuery;
-
-
-
-        final Request request = Request.Get(url);
-        this.addHeadersToRequest(request, trackerAnnounceURL);
-
-        return request;
+        return emulatedClientQuery;
     }
 
     public List<Map.Entry<String, String>> createRequestHeaders() {

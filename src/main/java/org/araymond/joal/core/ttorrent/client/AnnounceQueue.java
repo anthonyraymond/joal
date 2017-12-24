@@ -1,7 +1,7 @@
 package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.collect.Lists;
-import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.utils.AvailableAfterIntervalQueue;
 
 import java.time.temporal.ChronoUnit;

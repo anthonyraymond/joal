@@ -1,7 +1,10 @@
-package org.araymond.joal.core.ttorrent.client.announcer;
+package org.araymond.joal.core.ttorrent.client.announcer.announcer;
 
 import com.google.common.base.Objects;
 import com.turn.ttorrent.client.announce.AnnounceException;
+import com.turn.ttorrent.common.protocol.TrackerMessage;
+import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.NewTrackerClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
@@ -13,17 +16,21 @@ import java.util.Map;
 public class Announcer {
     private static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
-    private int lastKnownInterval = 15;
+    private int lastKnownInterval = 10;
     private final MockedTorrent torrent;
     private final NewTrackerClient trackerClient;
+    private final AnnounceDataAccessor announceDataAccessor;
 
-    public Announcer(final MockedTorrent torrent) {
+    public Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor) {
         this.torrent = torrent;
         this.trackerClient = new NewTrackerClient(torrent);
+        this.announceDataAccessor = announceDataAccessor;
     }
 
-    public SuccessAnnounceResponse announce(final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
-        final SuccessAnnounceResponse responseMessage = this.trackerClient.announce(requestQuery, headers);
+    public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException {
+        final SuccessAnnounceResponse responseMessage = this.trackerClient.announce(
+                this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
+                this.announceDataAccessor.getHttpHeadersForTorrent());
 
         this.lastKnownInterval = responseMessage.getInterval();
 

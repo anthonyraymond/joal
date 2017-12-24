@@ -6,7 +6,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -39,7 +39,7 @@ public class TimedRefreshKeyGenerator extends KeyGenerator {
     }
 
     @Override
-    public String getKey(final MockedTorrent torrent, final RequestEvent event) {
+    public String getKey(final InfoHash infoHash, final RequestEvent event) {
         if (this.shouldRegenerateKey()) {
             this.lastGeneration = LocalDateTime.now();
             this.key = super.generateKey();

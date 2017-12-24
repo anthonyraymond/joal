@@ -8,7 +8,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 /**
  * Created by raymo on 16/07/2017.
@@ -48,7 +48,7 @@ public abstract class KeyGenerator {
 
 
     @JsonIgnore
-    public abstract String getKey(final MockedTorrent torrent, RequestEvent event);
+    public abstract String getKey(final InfoHash infoHash, RequestEvent event);
 
     protected String generateKey() {
         final String key = this.algorithm.generate();
