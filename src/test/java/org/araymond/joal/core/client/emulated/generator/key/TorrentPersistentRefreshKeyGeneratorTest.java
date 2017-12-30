@@ -4,6 +4,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.client.emulated.generator.key.TorrentPersistentRefreshKeyGenerator.AccessAwareKey;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -28,18 +29,18 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
 
-        assertThat(generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
-                .isEqualTo(generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
+        assertThat(generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
         Mockito.verify(algo, Mockito.times(1)).generate();
 
-        assertThat(generator.getKey(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
-                .isEqualTo(generator.getKey(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
+        assertThat(generator.getKey(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
         Mockito.verify(algo, Mockito.times(2)).generate();
     }
 
@@ -51,9 +52,9 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
-        final String key1 = generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
-        final String key2 = generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);
-        final String key3 = generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
+        final String key1 = generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
+        final String key2 = generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);
+        final String key3 = generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
 
         Mockito.verify(algo, Mockito.times(1)).generate();
 
@@ -71,9 +72,9 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
 
-        final String key1 = generator.getKey(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
+        final String key1 = generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
         Mockito.when(algo.generate()).thenReturn("do-not-care2");
-        final String key2 = generator.getKey(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
+        final String key2 = generator.getKey(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
 
         Mockito.verify(algo, Mockito.times(2)).generate();
 
@@ -90,7 +91,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
         final AccessAwareKey oldKey = Mockito.mock(AccessAwareKey.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(120, ChronoUnit.MINUTES));
         Mockito.when(oldKey.getPeerId()).thenReturn("-BT-C-");
-        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(MockedTorrent.class), oldKey))).isTrue();
+        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(InfoHash.class), oldKey))).isTrue();
     }
 
     @Test
@@ -102,7 +103,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
         final AccessAwareKey oldKey = Mockito.mock(AccessAwareKey.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(119, ChronoUnit.MINUTES));
         Mockito.when(oldKey.getPeerId()).thenReturn("-BT-C-");
-        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(MockedTorrent.class), oldKey))).isFalse();
+        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(InfoHash.class), oldKey))).isFalse();
     }
 
 }

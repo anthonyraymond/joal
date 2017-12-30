@@ -9,6 +9,7 @@ import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -39,7 +40,7 @@ public class BitTorrentClientTest {
     public void shouldBuildAndReturnOptionalEmptyIfKeyIsNull() {
         final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, null, defaultUrlEncoder, "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), defaultNumwantProvider);
 
-        assertThat(client.getKey(Mockito.mock(MockedTorrent.class), RequestEvent.STARTED)).isEmpty();
+        assertThat(client.getKey(Mockito.mock(InfoHash.class), RequestEvent.STARTED)).isEmpty();
     }
 
     @Test
@@ -88,8 +89,8 @@ public class BitTorrentClientTest {
     @Test
     public void shouldBuild() {
         final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator, defaultUrlEncoder, "myqueryString", Collections.singletonList(new BitTorrentClientConfig.HttpHeader("Connection", "close")), defaultNumwantProvider);
-        assertThat(client.getPeerId(Mockito.mock(MockedTorrent.class), RequestEvent.STARTED)).isEqualTo(defaultPeerIdGenerator.getPeerId(Mockito.mock(MockedTorrent.class), RequestEvent.STARTED));
-        assertThat(client.getKey(Mockito.mock(MockedTorrent.class), RequestEvent.STARTED).get()).isEqualTo(defaultKeyGenerator.getKey(Mockito.mock(MockedTorrent.class), RequestEvent.STARTED));
+        assertThat(client.getPeerId(Mockito.mock(InfoHash.class), RequestEvent.STARTED)).isEqualTo(defaultPeerIdGenerator.getPeerId(Mockito.mock(InfoHash.class), RequestEvent.STARTED));
+        assertThat(client.getKey(Mockito.mock(InfoHash.class), RequestEvent.STARTED).get()).isEqualTo(defaultKeyGenerator.getKey(Mockito.mock(InfoHash.class), RequestEvent.STARTED));
         assertThat(client.getQuery()).isEqualTo("myqueryString");
         assertThat(client.getHeaders()).hasSize(1);
         assertThat(client.getNumwant(RequestEvent.STARTED)).isEqualTo(defaultNumwantProvider.get(RequestEvent.STARTED));

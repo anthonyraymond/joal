@@ -1,6 +1,4 @@
-package org.araymond.joal.core.ttorrent.client.announcer.announcer;
-
-import org.araymond.joal.core.torrent.torrent.InfoHash;
+package org.araymond.joal.core.ttorrent.client.announcer.request;
 
 public class SuccessAnnounceResponse {
 

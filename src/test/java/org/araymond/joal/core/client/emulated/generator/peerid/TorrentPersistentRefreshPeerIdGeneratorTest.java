@@ -2,6 +2,7 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -27,24 +28,24 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
 
-        assertThat(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
-                .isEqualTo(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
+        assertThat(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
 
         Mockito.verify(algo, Mockito.times(1)).generate();
         Mockito.when(algo.generate()).thenReturn("do-not-care2");
 
-        assertThat(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
-                .isEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
+        assertThat(generator.getPeerId(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE))
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED));
 
         Mockito.verify(algo, Mockito.times(2)).generate();
-        assertThat(generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
-                .isNotEqualTo(generator.getPeerId(t2, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED));
+        assertThat(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
+                .isNotEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED));
     }
 
     @Test
@@ -55,9 +56,9 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
-        generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
-        generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);
-        generator.getPeerId(t1, TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE);
+        generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
+        generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);
+        generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.NONE);
 
         Mockito.verify(algo, Mockito.times(1)).generate();
     }
@@ -70,7 +71,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
         final AccessAwarePeerId oldKey = Mockito.mock(AccessAwarePeerId.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(120, ChronoUnit.MINUTES));
         Mockito.when(oldKey.getPeerId()).thenReturn("-BT-C-");
-        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(MockedTorrent.class), oldKey))).isTrue();
+        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(InfoHash.class), oldKey))).isTrue();
     }
 
     @Test
@@ -81,7 +82,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
         final AccessAwarePeerId oldKey = Mockito.mock(AccessAwarePeerId.class);
         Mockito.when(oldKey.getLastAccess()).thenReturn(LocalDateTime.now().minus(89, ChronoUnit.MINUTES));
         Mockito.when(oldKey.getPeerId()).thenReturn("-BT-C-");
-        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(MockedTorrent.class), oldKey))).isFalse();
+        assertThat(generator.shouldEvictEntry(new AbstractMap.SimpleEntry<>(Mockito.mock(InfoHash.class), oldKey))).isFalse();
     }
 
 }

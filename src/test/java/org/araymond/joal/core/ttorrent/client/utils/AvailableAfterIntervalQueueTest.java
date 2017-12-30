@@ -19,10 +19,10 @@ public class AvailableAfterIntervalQueueTest {
     @Test
     public void shouldSort() {
         final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
-        queue.add("two", 20, ChronoUnit.SECONDS);
-        queue.add("one", 10, ChronoUnit.MILLIS);
-        queue.add("four", 1801, ChronoUnit.SECONDS);
-        queue.add("three", 30, ChronoUnit.MINUTES);
+        queue.addOrReplace("two", 20, ChronoUnit.SECONDS);
+        queue.addOrReplace("one", 10, ChronoUnit.MILLIS);
+        queue.addOrReplace("four", 1801, ChronoUnit.SECONDS);
+        queue.addOrReplace("three", 30, ChronoUnit.MINUTES);
 
         final List<String> announcers = queue.drainAll();
         assertThat(announcers).containsExactly("one", "two", "three", "four");
@@ -33,12 +33,12 @@ public class AvailableAfterIntervalQueueTest {
     public void shouldNotBeAvailableBeforeIntervalTimeout() {
         final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
 
-        queue.add("one", -2, ChronoUnit.MILLIS);
-        queue.add("two", -1, ChronoUnit.MILLIS);
-        queue.add("three", 30, ChronoUnit.MINUTES);
-        queue.add("four", 1801, ChronoUnit.SECONDS);
+        queue.addOrReplace("one", -2, ChronoUnit.MILLIS);
+        queue.addOrReplace("two", -1, ChronoUnit.MILLIS);
+        queue.addOrReplace("three", 30, ChronoUnit.MINUTES);
+        queue.addOrReplace("four", 1801, ChronoUnit.SECONDS);
 
-        final List<String> announcers = queue.getAvailable();
+        final List<String> announcers = queue.getAvailables();
         assertThat(announcers).hasSize(2);
         assertThat(announcers).containsExactly("one", "two");
     }
@@ -48,9 +48,9 @@ public class AvailableAfterIntervalQueueTest {
 
         final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
 
-        queue.add("one", 20, ChronoUnit.MILLIS);
-        queue.add("two", 50, ChronoUnit.SECONDS);
-        queue.add("three", 30, ChronoUnit.MINUTES);
+        queue.addOrReplace("one", 20, ChronoUnit.MILLIS);
+        queue.addOrReplace("two", 50, ChronoUnit.SECONDS);
+        queue.addOrReplace("three", 30, ChronoUnit.MINUTES);
 
         queue.remove("two");
 
@@ -64,10 +64,10 @@ public class AvailableAfterIntervalQueueTest {
     public void shouldBeThreadSafe() throws InterruptedException {
         final int threadCount = 100;
         final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
-        IntStream.range(0, threadCount).forEach(i -> queue.add(String.valueOf(i), -50, ChronoUnit.MILLIS));
+        IntStream.range(0, threadCount).forEach(i -> queue.addOrReplace(String.valueOf(i), -50, ChronoUnit.MILLIS));
 
         final List<Callable<List<String>>> callables = IntStream.range(0, threadCount)
-                .mapToObj(i -> (Callable<List<String>>) queue::getAvailable)
+                .mapToObj(i -> (Callable<List<String>>) queue::getAvailables)
                 .collect(Collectors.toList());
         final ExecutorService executor = Executors.newFixedThreadPool(7);
         final List<Future<List<String>>> futures = executor.invokeAll(callables);

@@ -22,22 +22,22 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
 
-        final String keyOne = generator.getPeerId(t1, RequestEvent.STARTED);
+        final String keyOne = generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STARTED);
         assertThat(keyOne)
-                .isEqualTo(generator.getPeerId(t1, RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t1, RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t1, RequestEvent.NONE))
-                .isEqualTo(generator.getPeerId(t1, RequestEvent.STOPPED));
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.NONE))
+                .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STOPPED));
 
         Mockito.verify(algo, Mockito.times(1)).generate();
         Mockito.when(algo.generate()).thenReturn("do-not-care2");
 
-        final String keyTwo = generator.getPeerId(t2, RequestEvent.STARTED);
+        final String keyTwo = generator.getPeerId(t2.getTorrentInfoHash(), RequestEvent.STARTED);
         assertThat(keyTwo)
-                .isEqualTo(generator.getPeerId(t2, RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t2, RequestEvent.STARTED))
-                .isEqualTo(generator.getPeerId(t2, RequestEvent.NONE))
-                .isEqualTo(generator.getPeerId(t2, RequestEvent.STOPPED));
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), RequestEvent.NONE))
+                .isEqualTo(generator.getPeerId(t2.getTorrentInfoHash(), RequestEvent.STOPPED));
 
         Mockito.verify(algo, Mockito.times(2)).generate();
         assertThat(keyOne).isNotEqualTo(keyTwo);
@@ -51,9 +51,9 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
-        generator.getPeerId(t1, RequestEvent.STARTED);
-        generator.getPeerId(t1, RequestEvent.STOPPED);
-        generator.getPeerId(t1, RequestEvent.STARTED);
+        generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STARTED);
+        generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STOPPED);
+        generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STARTED);
 
         Mockito.verify(algo, Mockito.times(2)).generate();
     }

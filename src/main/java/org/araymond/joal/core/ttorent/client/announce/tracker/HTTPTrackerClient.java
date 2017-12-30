@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.nio.ByteBuffer;
 
 import static com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage;
@@ -46,12 +47,10 @@ public class HTTPTrackerClient extends TrackerClient {
     protected TrackerMessage makeCallAndGetResponseAsByteBuffer(final AnnounceRequestMessage.RequestEvent event) throws AnnounceException {
         final Request request;
         try {
-            request = this.bitTorrentClient.buildAnnounceRequest(this.tracker.toURL(), event, this.torrent, this.connectionHandler);
+            request = Request.Get(String.valueOf(new URL("")));
             logger.debug("Announce url: " + request.toString());
         } catch (final MalformedURLException mue) {
             throw new AnnounceException("Invalid announce URL (" + mue.getMessage() + ")", mue);
-        } catch (final UnsupportedEncodingException e) {
-            throw new AnnounceException("Error building announce request (" + e.getMessage() + ")", e);
         } catch (final UnrecognizedAnnounceParameter e) {
             throw new AnnounceException("Invalid placeholder in client query", e);
         } catch (final Exception remains) {

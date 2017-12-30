@@ -5,6 +5,7 @@ import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityExcept
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.HashKeyAlgorithm;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 
@@ -53,7 +54,7 @@ public class KeyGeneratorTest {
         }
 
         @Override
-        public String getKey(final MockedTorrent torrent, final RequestEvent event) {
+        public String getKey(final InfoHash infoHash, final RequestEvent event) {
             return "";
         }
     }

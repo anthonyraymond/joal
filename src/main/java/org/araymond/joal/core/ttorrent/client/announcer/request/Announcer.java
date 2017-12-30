@@ -1,17 +1,13 @@
-package org.araymond.joal.core.ttorrent.client.announcer.announcer;
+package org.araymond.joal.core.ttorrent.client.announcer.request;
 
 import com.google.common.base.Objects;
 import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.ttorrent.client.announcer.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.NewTrackerClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Map;
 
 public class Announcer {
     private static final Logger logger = LoggerFactory.getLogger(Announcer.class);
@@ -30,7 +26,8 @@ public class Announcer {
     public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException {
         final SuccessAnnounceResponse responseMessage = this.trackerClient.announce(
                 this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
-                this.announceDataAccessor.getHttpHeadersForTorrent());
+                this.announceDataAccessor.getHttpHeadersForTorrent()
+        );
 
         this.lastKnownInterval = responseMessage.getInterval();
 
@@ -45,8 +42,8 @@ public class Announcer {
         return lastKnownInterval;
     }
 
-    public boolean isSeedingTorrent(final InfoHash infoHash) {
-        return this.torrent.getTorrentInfoHash().equals(infoHash);
+    public InfoHash getTorrentInfoHash() {
+        return this.getTorrent().getTorrentInfoHash();
     }
 
     @Override
@@ -54,11 +51,11 @@ public class Announcer {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final Announcer announcer = (Announcer) o;
-        return Objects.equal(torrent.getHexInfoHash(), announcer.torrent.getHexInfoHash());
+        return Objects.equal(this.getTorrentInfoHash(), announcer.getTorrentInfoHash());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(torrent.getHexInfoHash());
+        return this.getTorrentInfoHash().hashCode();
     }
 }

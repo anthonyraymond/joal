@@ -3,6 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.RegexPatternPeerIdAlgorithm;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ public class PeerIdGeneratorTest {
     public void shouldNotBuildWithoutAlgorithm() {
         assertThatThrownBy(() -> new PeerIdGenerator(null, false) {
             @Override
-            public String getPeerId(final MockedTorrent torrent, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+            public String getPeerId(final InfoHash infoHash, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
                 return null;
             }
         })
@@ -87,7 +88,7 @@ public class PeerIdGeneratorTest {
         }
 
         @Override
-        public String getPeerId(final MockedTorrent torrent, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+        public String getPeerId(final InfoHash infoHash, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
             return "";
         }
     }

@@ -7,11 +7,23 @@ import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ *
+ *
+ * @param <T> element held by the list (MUST IMPLEMENT equals AND hashcode).
+ */
 public class AvailableAfterIntervalQueue<T> {
     private final ReentrantLock lock = new ReentrantLock();
     private final Queue<IntervalAware<T>> queue = new PriorityQueue<>();
 
-    public void add(final T item, final int interval, final TemporalUnit unit) {
+    /**
+     * Add to item to the queue, and ensure item uniqueness into the queue.
+     *
+     * @param item
+     * @param interval
+     * @param unit
+     */
+    public void addOrReplace(final T item, final int interval, final TemporalUnit unit) {
         final IntervalAware<T> intervalAware = new IntervalAware<>(
                 item,
                 LocalDateTime.now().plus(interval, unit)
@@ -19,13 +31,14 @@ public class AvailableAfterIntervalQueue<T> {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
+            this.queue.removeIf(i -> i.getItem().equals(item)); // Ensure no double will be present in the queue (don't ant to have two announce type for a torrent)
             this.queue.add(intervalAware);
         } finally {
             lock.unlock();
         }
     }
 
-    public List<T> getAvailable() {
+    public List<T> getAvailables() {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
@@ -84,6 +97,7 @@ public class AvailableAfterIntervalQueue<T> {
             return item;
         }
 
+        @SuppressWarnings("NullableProblems")
         @Override
         public int compareTo(final IntervalAware o) {
             return this.releaseAt.compareTo(o.releaseAt);

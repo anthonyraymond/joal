@@ -23,17 +23,17 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
 
-        assertThat(generator.getKey(t1, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t1, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t1, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t1, RequestEvent.NONE))
-                .isEqualTo(generator.getKey(t1, RequestEvent.STOPPED));
+        assertThat(generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), RequestEvent.NONE))
+                .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STOPPED));
 
-        assertThat(generator.getKey(t2, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t2, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t2, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(t2, RequestEvent.NONE))
-                .isEqualTo(generator.getKey(t2, RequestEvent.STOPPED));
+        assertThat(generator.getKey(t2.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), RequestEvent.NONE))
+                .isEqualTo(generator.getKey(t2.getTorrentInfoHash(), RequestEvent.STOPPED));
 
         Mockito.verify(algo, Mockito.times(2)).generate();
     }
@@ -46,11 +46,11 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
 
-        final String key1 = generator.getKey(t1, RequestEvent.STARTED);
-        final String key2 = generator.getKey(t1, RequestEvent.STOPPED);
+        final String key1 = generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED);
+        final String key2 = generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STOPPED);
 
         Mockito.when(algo.generate()).thenReturn("do-not-care2");
-        final String key3 = generator.getKey(t1, RequestEvent.STARTED);
+        final String key3 = generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED);
 
 
         Mockito.verify(algo, Mockito.times(2)).generate();
@@ -69,9 +69,9 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
 
-        final String key1 = generator.getKey(t1, RequestEvent.STARTED);
+        final String key1 = generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED);
         Mockito.when(algo.generate()).thenReturn("do-not-care2");
-        final String key2 = generator.getKey(t2, RequestEvent.STARTED);
+        final String key2 = generator.getKey(t2.getTorrentInfoHash(), RequestEvent.STARTED);
         assertThat(key1)
                 .isNotEqualTo(key2);
 
