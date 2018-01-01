@@ -3,6 +3,7 @@ package org.araymond.joal.core.ttorrent.client.announcer.request;
 import com.google.common.base.Objects;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.ttorent.client.announce.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.NewTrackerClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
@@ -23,7 +24,7 @@ public class Announcer {
         this.announceDataAccessor = announceDataAccessor;
     }
 
-    public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException {
+    public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {
         final SuccessAnnounceResponse responseMessage = this.trackerClient.announce(
                 this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
                 this.announceDataAccessor.getHttpHeadersForTorrent()

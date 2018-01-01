@@ -16,6 +16,7 @@ import org.araymond.joal.core.ttorent.client.announce.Announcer;
 import org.araymond.joal.core.ttorent.client.announce.AnnouncerEventListener;
 import org.araymond.joal.core.ttorent.client.bandwidth.BandwidthDispatcher;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;

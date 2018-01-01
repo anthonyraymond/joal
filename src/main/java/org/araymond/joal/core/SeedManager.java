@@ -10,7 +10,7 @@ import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorent.client.Client;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

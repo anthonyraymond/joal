@@ -4,7 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Iterators;
 import org.apache.commons.lang3.NotImplementedException;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

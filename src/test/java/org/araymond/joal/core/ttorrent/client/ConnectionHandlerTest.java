@@ -1,5 +1,6 @@
-package org.araymond.joal.core.ttorent.client;
+package org.araymond.joal.core.ttorrent.client;
 
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.junit.Test;
 import org.mockito.Mockito;
 

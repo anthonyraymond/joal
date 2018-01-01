@@ -1,20 +1,16 @@
 package org.araymond.joal;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AbstractFileFilter;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientConfig;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStatsTest;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
 import java.nio.file.Path;

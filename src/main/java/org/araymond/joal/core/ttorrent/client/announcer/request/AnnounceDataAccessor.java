@@ -4,7 +4,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.bandwith.BandwidthDispatcherFacade;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 
 import java.util.List;
 import java.util.Map;

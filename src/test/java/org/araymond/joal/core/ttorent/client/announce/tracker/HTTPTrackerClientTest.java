@@ -1,7 +1,7 @@
 package org.araymond.joal.core.ttorent.client.announce.tracker;
 
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.junit.Test;
 import org.mockito.Mockito;

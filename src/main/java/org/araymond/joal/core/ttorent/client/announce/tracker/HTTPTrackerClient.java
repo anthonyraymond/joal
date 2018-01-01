@@ -13,13 +13,12 @@ import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;

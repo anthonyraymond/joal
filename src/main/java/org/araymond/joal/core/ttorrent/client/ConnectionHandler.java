@@ -1,4 +1,4 @@
-package org.araymond.joal.core.ttorent.client;
+package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;

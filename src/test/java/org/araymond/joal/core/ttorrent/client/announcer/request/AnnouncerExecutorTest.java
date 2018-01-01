@@ -1,9 +1,11 @@
 package org.araymond.joal.core.ttorrent.client.announcer.request;
 
 import com.turn.ttorrent.client.announce.AnnounceException;
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+import org.araymond.joal.core.ttorent.client.announce.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.response.AnnounceResponseCallback;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -59,11 +61,17 @@ public class AnnouncerExecutorTest {
                     AnnounceRequest.createRegular(new FakeAnnouncer()),
                     new AnnounceResponseCallback() {
                         @Override
+                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
+                        }
+                        @Override
                         public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
                             countDown.countDown();
                         }
                         @Override
                         public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
+                        }
+                        @Override
+                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
                         }
                     }
             );
@@ -88,11 +96,17 @@ public class AnnouncerExecutorTest {
                     }),
                     new AnnounceResponseCallback() {
                         @Override
+                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
+                        }
+                        @Override
                         public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
                         }
                         @Override
                         public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
                             countDown.countDown();
+                        }
+                        @Override
+                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
                         }
                     }
             );
@@ -124,12 +138,18 @@ public class AnnouncerExecutorTest {
                 }),
                 new AnnounceResponseCallback() {
                     @Override
+                    public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
+                    }
+                    @Override
                     public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
                         atomicInteger.incrementAndGet();
                     }
                     @Override
                     public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
                         atomicInteger.incrementAndGet();
+                    }
+                    @Override
+                    public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
                     }
                 }
         );
@@ -177,13 +197,18 @@ public class AnnouncerExecutorTest {
                     }),
                     new AnnounceResponseCallback() {
                         @Override
+                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
+                        }
+                        @Override
                         public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
                             atomicInteger.incrementAndGet();
                         }
-
                         @Override
                         public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
                             atomicInteger.incrementAndGet();
+                        }
+                        @Override
+                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
                         }
                     }
             );
@@ -226,12 +251,17 @@ public class AnnouncerExecutorTest {
                     }),
                     new AnnounceResponseCallback() {
                         @Override
+                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
+                        }
+                        @Override
                         public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
                             atomicInteger.incrementAndGet();
                         }
-
                         @Override
                         public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
+                        }
+                        @Override
+                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
                         }
                     }
             );
@@ -255,10 +285,17 @@ public class AnnouncerExecutorTest {
 
     private static final class DefaultCallback implements AnnounceResponseCallback {
         @Override
+        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
+        }
+        @Override
         public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
         }
         @Override
         public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
+        }
+
+        @Override
+        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
         }
     }
 

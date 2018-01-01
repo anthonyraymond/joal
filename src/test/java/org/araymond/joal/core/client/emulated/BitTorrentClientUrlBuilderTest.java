@@ -1,10 +1,5 @@
 package org.araymond.joal.core.client.emulated;
 
-import com.google.common.collect.Lists;
-import com.turn.ttorrent.common.Torrent;
-import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.apache.http.client.fluent.Request;
-import org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
@@ -12,22 +7,10 @@ import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStatsTest;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.mockito.InOrder;
-import org.mockito.Mockito;
 
-import java.io.UnsupportedEncodingException;
 import java.net.*;
-import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 /**
  * Created by raymo on 16/07/2017.

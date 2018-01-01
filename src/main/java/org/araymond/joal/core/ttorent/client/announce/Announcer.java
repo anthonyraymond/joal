@@ -5,7 +5,7 @@ import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.Peer;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
-import org.araymond.joal.core.ttorent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClient;
 import org.araymond.joal.core.ttorent.client.announce.tracker.TrackerClientProvider;

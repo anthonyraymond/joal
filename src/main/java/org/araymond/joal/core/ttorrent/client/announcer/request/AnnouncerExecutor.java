@@ -3,6 +3,7 @@ package org.araymond.joal.core.ttorrent.client.announcer.request;
 import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.ttorent.client.announce.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.response.AnnounceResponseCallback;
 import org.slf4j.Logger;
 
@@ -30,8 +31,11 @@ public class AnnouncerExecutor {
     public void execute(final AnnounceRequest request, final AnnounceResponseCallback callback) {
         final Callable<Void> callbable = () -> {
             try {
+                callback.onAnnounceWillAnnounce(request.getEvent(), request.getAnnouncer());
                 final SuccessAnnounceResponse result = request.getAnnouncer().announce(request.getEvent());
                 callback.onAnnounceSuccess(request.getEvent(), request.getAnnouncer(), result);
+            } catch (final TooMuchAnnouncesFailedInARawException e) {
+                callback.onTooManyAnnounceFailedInARaw(request.getEvent(), request.getAnnouncer(), e);
             } catch (final Throwable throwable) {
                 callback.onAnnounceFailure(request.getEvent(), request.getAnnouncer(), throwable);
             } finally {
