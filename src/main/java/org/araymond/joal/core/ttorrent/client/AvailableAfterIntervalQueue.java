@@ -1,4 +1,4 @@
-package org.araymond.joal.core.ttorrent.client.utils;
+package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.base.Objects;
 

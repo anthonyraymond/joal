@@ -9,7 +9,6 @@ import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
-import org.araymond.joal.core.ttorent.client.Client;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
@@ -30,36 +29,35 @@ public class SeedManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
 
-    private final JoalFoldersPath joalFoldersPath;
+    /*private final JoalFoldersPath joalFoldersPath;
     private final JoalConfigProvider configProvider;
     private final TorrentFileProvider torrentFileProvider;
     private final BitTorrentClientProvider bitTorrentClientProvider;
     private final ApplicationEventPublisher publisher;
 
-    private final ConnectionHandler connectionHandler;
-    private Client currentClient;
+    private final ConnectionHandler connectionHandler;*/
 
     public void init() throws IOException {
-        this.connectionHandler.init();
-        this.torrentFileProvider.start();
+        /*this.connectionHandler.init();
+        this.torrentFileProvider.start();*/
     }
 
     public void tearDown() throws IOException {
-        this.connectionHandler.close();
-        this.currentClient.stop();
+        /*this.connectionHandler.close();
+        this.currentClient.stop();*/
     }
 
     public SeedManager(final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
-        this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
+        /*this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
         this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, publisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath, publisher);
         this.publisher = publisher;
-        this.connectionHandler = new ConnectionHandler();
+        this.connectionHandler = new ConnectionHandler();*/
     }
 
     public void startSeeding() throws IOException {
-        this.configProvider.init();
+        /*this.configProvider.init();
         this.bitTorrentClientProvider.init();
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
@@ -74,15 +72,15 @@ public class SeedManager {
 
         this.currentClient.share();
 
-        publisher.publishEvent(new SeedSessionHasStartedEvent(bitTorrentClient));
+        publisher.publishEvent(new SeedSessionHasStartedEvent(bitTorrentClient));*/
     }
 
     public void saveNewConfiguration(final AppConfiguration config) {
-        this.configProvider.saveNewConf(config);
+        /*this.configProvider.saveNewConf(config);*/
     }
 
     public void saveTorrentToDisk(final String name, final byte[] bytes) {
-        try {
+        /*try {
             // test if torrent file is valid or not.
             MockedTorrent.fromBytes(bytes);
 
@@ -93,18 +91,18 @@ public class SeedManager {
             // If NullPointerException occurs (when the file is an empty file) there is no message.
             final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
             this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
-        }
+        }*/
     }
 
     public void deleteTorrent(final String torrentInfoHash) {
-        this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
+        //this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
     }
 
     public void stop() {
-        if (currentClient != null) {
+        /*if (currentClient != null) {
             this.currentClient.stop();
             this.publisher.publishEvent(new SeedSessionHasEndedEvent());
-        }
+        }*/
     }
 
     public static class JoalFoldersPath {

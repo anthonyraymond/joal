@@ -1,7 +1,7 @@
 package org.araymond.joal.core.ttorrent.client.announcer;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.araymond.joal.core.ttorent.client.announce.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
 
 import java.util.HashMap;
 import java.util.Map;

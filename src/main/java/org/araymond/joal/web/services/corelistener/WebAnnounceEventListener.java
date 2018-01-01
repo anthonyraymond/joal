@@ -1,14 +1,9 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.announce.*;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.araymond.joal.web.messages.outgoing.impl.announce.*;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -25,7 +20,7 @@ public class WebAnnounceEventListener extends WebEventListener {
     public WebAnnounceEventListener(final JoalMessageSendingTemplate messagingTemplate) {
         super(messagingTemplate);
     }
-
+/*
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     void handleAnnouncerHasStarted(final AnnouncerHasStartedEvent event) {
@@ -71,5 +66,5 @@ public class WebAnnounceEventListener extends WebEventListener {
                 new AnnouncerHasFailedToAnnouncePayload(event)
         );
     }
-
+*/
 }

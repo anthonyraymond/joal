@@ -1,6 +1,5 @@
 package org.araymond.joal.web.messages.outgoing;
 
-import org.araymond.joal.web.messages.outgoing.impl.announce.*;
 import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
@@ -20,11 +19,11 @@ import java.util.Map;
 public enum StompMessageTypes {
     SEED_SESSION_HAS_STARTED(SeedSessionHasStartedPayload.class),
     SEED_SESSION_HAS_ENDED(SeedSessionHasEndedPayload.class),
-    ANNOUNCER_HAS_STARTED(AnnouncerHasStartedPayload.class),
+    /*ANNOUNCER_HAS_STARTED(AnnouncerHasStartedPayload.class),
     ANNOUNCER_HAS_STOPPED(AnnouncerHasStoppedPayload.class),
     ANNOUNCER_WILL_ANNOUNCE(AnnouncerWillAnnouncePayload.class),
     ANNOUNCER_HAS_ANNOUNCED(AnnouncerHasAnnouncedPayload.class),
-    ANNOUNCER_HAS_FAILED_TO_ANNOUNCE(AnnouncerHasFailedToAnnouncePayload.class),
+    ANNOUNCER_HAS_FAILED_TO_ANNOUNCE(AnnouncerHasFailedToAnnouncePayload.class),*/
     CLIENT_FILES_DISCOVERED(ClientFilesDiscoveredPayload.class),
     CONFIG_HAS_CHANGED(ConfigHasChangedPayload.class),
     INVALID_CONFIG(InvalidConfigPayload.class),

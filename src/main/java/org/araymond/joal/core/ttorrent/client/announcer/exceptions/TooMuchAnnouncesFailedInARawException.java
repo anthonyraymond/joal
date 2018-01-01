@@ -1,4 +1,4 @@
-package org.araymond.joal.core.ttorent.client.announce.exceptions;
+package org.araymond.joal.core.ttorrent.client.announcer.exceptions;
 
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 

@@ -1,12 +1,12 @@
-package org.araymond.joal.core.events.newd.announcer;
+package org.araymond.joal.core.events.announce;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 
-public class AnnouncerHasStarted {
+public class FailedToAnnounceEvent {
     private final InfoHash infoHash;
     private final int interval;
 
-    public AnnouncerHasStarted(final InfoHash infoHash, final int interval) {
+    public FailedToAnnounceEvent(final InfoHash infoHash, final int interval) {
         this.infoHash = infoHash;
         this.interval = interval;
     }

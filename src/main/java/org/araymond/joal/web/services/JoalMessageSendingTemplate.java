@@ -3,7 +3,6 @@ package org.araymond.joal.web.services;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
-import org.araymond.joal.web.messages.outgoing.impl.announce.AnnouncePayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
@@ -70,7 +69,7 @@ public class JoalMessageSendingTemplate {
                     replayablePayloads.removeIf(message -> TorrentFileAddedPayload.class.isAssignableFrom(message.getPayload().getClass()));
                     break;
                 }
-                case ANNOUNCER_HAS_STARTED: {
+                /*case ANNOUNCER_HAS_STARTED: {
                     replayablePayloads.add(stompMessage);
                     break;
                 }
@@ -123,7 +122,7 @@ public class JoalMessageSendingTemplate {
                     });
                     replayablePayloads.add(stompMessage);
                     break;
-                }
+                }*/
                 case CLIENT_FILES_DISCOVERED: {
                     replayablePayloads.removeIf(message -> ClientFilesDiscoveredPayload.class.isAssignableFrom(message.getPayload().getClass()));
                     replayablePayloads.add(stompMessage);

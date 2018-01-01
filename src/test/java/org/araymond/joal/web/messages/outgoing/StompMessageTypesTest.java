@@ -1,6 +1,5 @@
 package org.araymond.joal.web.messages.outgoing;
 
-import org.araymond.joal.web.messages.outgoing.impl.announce.*;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasEndedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedPayload;
 import org.junit.Test;
@@ -32,7 +31,7 @@ public class StompMessageTypesTest {
                 .isEqualTo(StompMessageTypes.SEED_SESSION_HAS_ENDED);
     }
 
-    @Test
+    /*@Test
     public void shouldMapAnnouncerHasStartedPayload() {
         assertThat(StompMessageTypes.typeFor(AnnouncerHasStartedPayload.class))
                 .isEqualTo(StompMessageTypes.ANNOUNCER_HAS_STARTED);
@@ -60,7 +59,7 @@ public class StompMessageTypesTest {
     public void shouldMapAnnouncerHasFailedToAnnouncePayload() {
         assertThat(StompMessageTypes.typeFor(AnnouncerHasFailedToAnnouncePayload.class))
                 .isEqualTo(StompMessageTypes.ANNOUNCER_HAS_FAILED_TO_ANNOUNCE);
-    }
+    }*/
 
     private static final class NonExistingPayloadType implements MessagePayload {
     }

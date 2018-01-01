@@ -1,14 +1,10 @@
 package org.araymond.joal.core;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.apache.commons.io.FileUtils;
 import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
-import org.araymond.joal.core.events.announce.AnnouncerWillAnnounceEvent;
 import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
 import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
-import org.araymond.joal.core.ttorent.client.bandwidth.TorrentWithStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -37,21 +33,6 @@ public class CoreEventListener {
         this.appContext = appContext;
     }
 
-    @Async
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    @EventListener
-    void handleAnnounceRequesting(final AnnouncerWillAnnounceEvent event) {
-        final RequestEvent announceEvent = event.getEvent();
-        final TorrentWithStats torrent = event.getTorrent();
-        logger.info(
-                "Announced {} for torrent {} Up={}/Down={}/Left={}",
-                announceEvent == RequestEvent.NONE ? "" : announceEvent,
-                torrent.getTorrent().getName(),
-                FileUtils.byteCountToDisplaySize(torrent.getUploaded()),
-                FileUtils.byteCountToDisplaySize(torrent.getDownloaded()),
-                FileUtils.byteCountToDisplaySize(torrent.getLeft())
-        );
-    }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)

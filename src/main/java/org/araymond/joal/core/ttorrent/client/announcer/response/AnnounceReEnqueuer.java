@@ -1,10 +1,10 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
-import org.araymond.joal.core.ttorent.client.announce.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
-import org.araymond.joal.core.ttorrent.client.utils.AvailableAfterIntervalQueue;
+import org.araymond.joal.core.ttorrent.client.AvailableAfterIntervalQueue;
 
 import java.time.temporal.ChronoUnit;
 
