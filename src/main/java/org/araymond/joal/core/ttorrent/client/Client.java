@@ -27,6 +27,10 @@ public class Client implements TorrentFileChangeAware {
         this.currentlySeedingTorrents = new ArrayList<>();
     }
 
+    public void onSeedSlotIsAvailable() {
+        // TODO: add a new torrent
+    }
+
     @Override
     public void onTorrentFileAdded(final MockedTorrent torrent) {
 
