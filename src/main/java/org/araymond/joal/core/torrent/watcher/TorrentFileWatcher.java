@@ -1,6 +1,7 @@
 package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.base.Preconditions;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -41,6 +42,7 @@ class TorrentFileWatcher {
         this.listener = listener;
         this.monitoredFolder = monitoredFolder.toFile();
         this.monitor = new FileAlterationMonitor(interval);
+        this.monitor.setThreadFactory(new ThreadFactoryBuilder().setNameFormat("torrent-file-watcher-%d").build());
         this.observer = new FileAlterationObserver(this.monitoredFolder, TORRENT_FILE_FILTER);
 
         this.observer.addListener(this.listener);

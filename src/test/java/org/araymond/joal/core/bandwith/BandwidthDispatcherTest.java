@@ -15,14 +15,14 @@ import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.*;
 
-public class NewBandwidthDispatcherTest {
+public class BandwidthDispatcherTest {
 
     @Test
     public void shouldReturnZeroIfInfoHashIsNotRegistered() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
         Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
 
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
         bandwidthDispatcher.start();
         Thread.sleep(10);
         final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(new InfoHash(new byte[]{12}));
@@ -40,7 +40,7 @@ public class NewBandwidthDispatcherTest {
         Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.start();
@@ -60,7 +60,7 @@ public class NewBandwidthDispatcherTest {
         Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.updateTorrentPeers(infoHash, 0, 100);
@@ -81,7 +81,7 @@ public class NewBandwidthDispatcherTest {
         Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.updateTorrentPeers(infoHash, 100, 0);
@@ -102,7 +102,7 @@ public class NewBandwidthDispatcherTest {
         Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
@@ -126,7 +126,7 @@ public class NewBandwidthDispatcherTest {
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         final InfoHash infoHash2 = new InfoHash(new byte[]{100});
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
         bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
@@ -148,7 +148,7 @@ public class NewBandwidthDispatcherTest {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
         Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
 
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(1, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(1, speedProvider);
 
         bandwidthDispatcher.start();
 
@@ -185,7 +185,7 @@ public class NewBandwidthDispatcherTest {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
         Mockito.doReturn(10000L).when(speedProvider).getInBytesPerSeconds();
 
-        final NewBandwidthDispatcher bandwidthDispatcher = new NewBandwidthDispatcher(2, speedProvider);
+        final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
         bandwidthDispatcher.start();
 
         final SpeedChangedListener speedListener = Mockito.spy(new VoidSpeedChangedListener());

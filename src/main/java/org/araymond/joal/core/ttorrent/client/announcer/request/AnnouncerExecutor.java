@@ -2,6 +2,7 @@ package org.araymond.joal.core.ttorrent.client.announcer.request;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.response.AnnounceResponseCallback;
@@ -24,7 +25,8 @@ public class AnnouncerExecutor {
         //   maximumPoolSize therefore doesn't have any effect.) This may be appropriate when each task is completely independent of others, so tasks
         //   cannot affect each others execution
         final int corePoolSize = 3;
-        this.executorService = new ThreadPoolExecutor(corePoolSize, 3, 40, TimeUnit.MINUTES, new LinkedBlockingQueue<>());
+        final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("announce-thread-%d").build();
+        this.executorService = new ThreadPoolExecutor(corePoolSize, 3, 40, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), threadFactory);
         this.currentlyRunning = new HashMap<>(corePoolSize);
     }
 
@@ -44,7 +46,7 @@ public class AnnouncerExecutor {
             return null;
         };
 
-        final Future<Void> future =  executorService.submit(callbable);
+        final Future<Void> future = this.executorService.submit(callbable);
 
         this.currentlyRunning.put(
                 request.getAnnouncer().getTorrentInfoHash(),

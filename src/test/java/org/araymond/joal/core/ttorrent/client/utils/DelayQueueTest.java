@@ -1,6 +1,6 @@
 package org.araymond.joal.core.ttorrent.client.utils;
 
-import org.araymond.joal.core.ttorrent.client.AvailableAfterIntervalQueue;
+import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.junit.Test;
 
 import java.time.temporal.ChronoUnit;
@@ -14,12 +14,12 @@ import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class AvailableAfterIntervalQueueTest {
+public class DelayQueueTest {
 
 
     @Test
     public void shouldSort() {
-        final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
+        final DelayQueue<String> queue = new DelayQueue<>();
         queue.addOrReplace("two", 20, ChronoUnit.SECONDS);
         queue.addOrReplace("one", 10, ChronoUnit.MILLIS);
         queue.addOrReplace("four", 1801, ChronoUnit.SECONDS);
@@ -32,7 +32,7 @@ public class AvailableAfterIntervalQueueTest {
 
     @Test
     public void shouldNotBeAvailableBeforeIntervalTimeout() {
-        final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
+        final DelayQueue<String> queue = new DelayQueue<>();
 
         queue.addOrReplace("one", -2, ChronoUnit.MILLIS);
         queue.addOrReplace("two", -1, ChronoUnit.MILLIS);
@@ -47,7 +47,7 @@ public class AvailableAfterIntervalQueueTest {
     @Test
     public void shouldBeAbleToRemoveOneElement() {
 
-        final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
+        final DelayQueue<String> queue = new DelayQueue<>();
 
         queue.addOrReplace("one", 20, ChronoUnit.MILLIS);
         queue.addOrReplace("two", 50, ChronoUnit.SECONDS);
@@ -64,7 +64,7 @@ public class AvailableAfterIntervalQueueTest {
     @Test
     public void shouldBeThreadSafe() throws InterruptedException {
         final int threadCount = 100;
-        final AvailableAfterIntervalQueue<String> queue = new AvailableAfterIntervalQueue<>();
+        final DelayQueue<String> queue = new DelayQueue<>();
         IntStream.range(0, threadCount).forEach(i -> queue.addOrReplace(String.valueOf(i), -50, ChronoUnit.MILLIS));
 
         final List<Callable<List<String>>> callables = IntStream.range(0, threadCount)

@@ -2,17 +2,21 @@ package org.araymond.joal.core.bandwith;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.apache.commons.io.FileUtils;
 import org.araymond.joal.core.bandwith.weight.PeersAwareWeightCalculator;
 import org.araymond.joal.core.bandwith.weight.WeightHolder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnable {
+import static org.slf4j.LoggerFactory.getLogger;
 
+public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable {
+    private static final Logger logger = getLogger(BandwidthDispatcher.class);
     private final ReentrantReadWriteLock lock;
     private final WeightHolder<InfoHash> weightHolder;
     private final RandomSpeedProvider randomSpeedProvider;
@@ -24,7 +28,7 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
     private volatile boolean stop = false;
     private Thread thread;
 
-    public NewBandwidthDispatcher(final int threadPauseInterval, final RandomSpeedProvider randomSpeedProvider) {
+    public BandwidthDispatcher(final int threadPauseInterval, final RandomSpeedProvider randomSpeedProvider) {
         this.threadPauseInterval = threadPauseInterval;
         this.torrentsSeedStats = new HashMap<>();
         this.speedMap = new HashMap<>();
@@ -71,9 +75,11 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
                 ++this.threadLoopCounter;
                 // refresh bandwidth every 1200000 milliseconds (20 minutes)
                 if (this.threadLoopCounter == 1200000 / this.threadPauseInterval) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Refreshing global bandwidth");
+                    }
                     this.refreshCurrentBandwidth();
                 }
-                // TODO: refresh current speed every 20 minutes
 
                 // This method as to run as fast as possible to avoid blocking other ones. Because we wan't this loop
                 //  to be scheduled as precise as we can. Locking to much will delay the Thread.sleep and cause stats
@@ -85,7 +91,8 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
                 for (final Map.Entry<InfoHash, TorrentSeedStats> entry : entrySet) {
                     final long speedInBytesPerSecond = this.speedMap.getOrDefault(entry.getKey(), new Speed(0)).getBytesPerSeconds();
                     // Divide by 1000 because of the thread pause interval being in milliseconds
-                    entry.getValue().addUploaded(speedInBytesPerSecond / 1000 * this.threadPauseInterval);
+                    // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
+                    entry.getValue().addUploaded((speedInBytesPerSecond * this.threadPauseInterval) / 1000);
                 }
             }
         } catch (final InterruptedException ignore) {
@@ -93,6 +100,9 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
     }
 
     public void updateTorrentPeers(final InfoHash infoHash, final int seeders, final int leechers) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Updating Peers stats for {}", infoHash.value());
+        }
         this.lock.writeLock().lock();
         try {
             this.weightHolder.addOrUpdate(infoHash, new Peers(seeders, leechers));
@@ -103,6 +113,9 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
     }
 
     public void registerTorrent(final InfoHash infoHash) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} has been added to bandwidth dispatcher.", infoHash.value());
+        }
         this.lock.writeLock().lock();
         try {
             this.torrentsSeedStats.put(infoHash, new TorrentSeedStats());
@@ -113,6 +126,9 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
     }
 
     public void unregisterTorrent(final InfoHash infoHash) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("{} has been removed from bandwidth dispatcher.", infoHash.value());
+        }
         this.lock.writeLock().lock();
         try {
             this.weightHolder.remove(infoHash);
@@ -135,6 +151,9 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
     }
 
     private void recomputeSpeeds() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Refreshing all torrents speeds");
+        }
         for (final InfoHash infohash : this.torrentsSeedStats.keySet()) {
             final double percentOfSpeedAssigned = this.weightHolder.getTotalWeight() == 0.0
                     ? 0.0
@@ -150,6 +169,21 @@ public class NewBandwidthDispatcher implements BandwidthDispatcherFacade, Runnab
         }
         if (speedChangedListener != null) {
             speedChangedListener.speedsHasChanged(Maps.newHashMap(this.speedMap));
+        }
+        if (logger.isDebugEnabled()) {
+            final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
+            this.speedMap.forEach((infoHash, speed) -> {
+                final String humanReadAbleSpeed = FileUtils.byteCountToDisplaySize(speed.getBytesPerSeconds());
+                sb.append("      ")
+                        .append(String.format("%25s", infoHash.value().replaceAll("\\p{C}", "")))
+                        .append(": ")
+                        .append(humanReadAbleSpeed)
+                        .append(" with an overall upload of ")
+                        .append(FileUtils.byteCountToDisplaySize(this.torrentsSeedStats.get(infoHash).getUploaded()))
+                        .append("/s\n");
+            });
+            sb.setLength(sb.length() - 1); // remove last \n
+            logger.debug(sb.toString());
         }
     }
 

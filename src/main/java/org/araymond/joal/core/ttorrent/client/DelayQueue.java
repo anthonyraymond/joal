@@ -12,7 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @param <T> element held by the list (MUST IMPLEMENT equals AND hashcode).
  */
-public class AvailableAfterIntervalQueue<T> {
+public class DelayQueue<T> {
     private final ReentrantLock lock = new ReentrantLock();
     private final Queue<IntervalAware<T>> queue = new PriorityQueue<>();
 

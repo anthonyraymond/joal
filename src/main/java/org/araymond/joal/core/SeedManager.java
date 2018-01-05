@@ -1,16 +1,20 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.araymond.joal.core.bandwith.BandwidthDispatcher;
+import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
-import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
-import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
+import org.araymond.joal.core.ttorrent.client.DelayQueue;
+import org.araymond.joal.core.ttorrent.client.Client;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
+import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
+import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
+import org.araymond.joal.core.ttorrent.client.announcer.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -19,8 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.util.Optional;
 
 /**
  * Created by raymo on 27/01/2017.
@@ -29,50 +31,64 @@ public class SeedManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
 
-    /*private final JoalFoldersPath joalFoldersPath;
+    private final JoalFoldersPath joalFoldersPath;
     private final JoalConfigProvider configProvider;
     private final TorrentFileProvider torrentFileProvider;
     private final BitTorrentClientProvider bitTorrentClientProvider;
     private final ApplicationEventPublisher publisher;
-
-    private final ConnectionHandler connectionHandler;*/
+    private final ConnectionHandler connectionHandler;
+    private BandwidthDispatcher bandwidthDispatcher;
+    private Client client;
 
     public void init() throws IOException {
-        /*this.connectionHandler.init();
-        this.torrentFileProvider.start();*/
+        this.connectionHandler.init();
+        this.torrentFileProvider.start();
     }
 
     public void tearDown() throws IOException {
-        /*this.connectionHandler.close();
-        this.currentClient.stop();*/
+        this.connectionHandler.close();
+        if (this.client != null) {
+            this.client.stop();
+        }
     }
 
     public SeedManager(final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
-        /*this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
+        this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
         this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, publisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath, publisher);
         this.publisher = publisher;
-        this.connectionHandler = new ConnectionHandler();*/
+        this.connectionHandler = new ConnectionHandler();
     }
 
     public void startSeeding() throws IOException {
-        /*this.configProvider.init();
+        this.configProvider.init();
         this.bitTorrentClientProvider.init();
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
-        this.currentClient = new Client(
-                this.connectionHandler,
-                configProvider,
-                torrentFileProvider,
-                publisher,
-                bitTorrentClient
-        );
+        final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(this.configProvider);
+        this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
+        this.bandwidthDispatcher.start();
 
-        this.currentClient.share();
+        final AnnouncerExecutor executor = new AnnouncerExecutor();
+        final DelayQueue<AnnounceRequest> delayQueue = new DelayQueue<>();
+        final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
 
-        publisher.publishEvent(new SeedSessionHasStartedEvent(bitTorrentClient));*/
+        final AnnounceResponseHandlerChain announceResponseCallback = new AnnounceResponseHandlerChain();
+        announceResponseCallback.appendHandler(new AnnounceEventPublisher(this.publisher));
+        announceResponseCallback.appendHandler(new AnnounceReEnqueuer(delayQueue));
+        announceResponseCallback.appendHandler(new BandwidthDispatcherNotifier(bandwidthDispatcher));
+        final ClientNotifier clientNotifier = new ClientNotifier();
+        announceResponseCallback.appendHandler(clientNotifier);
+
+        this.client = new Client(this.configProvider, this.torrentFileProvider, executor, delayQueue, announceResponseCallback, announceDataAccessor);
+        clientNotifier.setClient(client);
+
+        this.client.start();
+        /*
+        publisher.publishEvent(new SeedSessionHasStartedEvent(bitTorrentClient));
+        */
     }
 
     public void saveNewConfiguration(final AppConfiguration config) {
@@ -99,10 +115,16 @@ public class SeedManager {
     }
 
     public void stop() {
-        /*if (currentClient != null) {
-            this.currentClient.stop();
-            this.publisher.publishEvent(new SeedSessionHasEndedEvent());
-        }*/
+        if (client != null) {
+            this.client.stop();
+            // TODO: fix it
+            // this.publisher.publishEvent(new SeedSessionHasEndedEvent());
+            this.client = null;
+        }
+        if (this.bandwidthDispatcher != null) {
+            this.bandwidthDispatcher.stop();
+            this.bandwidthDispatcher = null;
+        }
     }
 
     public static class JoalFoldersPath {

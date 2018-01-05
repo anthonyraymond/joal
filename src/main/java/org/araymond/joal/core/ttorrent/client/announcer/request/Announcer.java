@@ -14,6 +14,7 @@ public class Announcer {
     private static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
     private int lastKnownInterval = 10;
+    private int consecutiveFails = 0;
     private final MockedTorrent torrent;
     private final NewTrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
@@ -25,14 +26,37 @@ public class Announcer {
     }
 
     public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final SuccessAnnounceResponse responseMessage = this.trackerClient.announce(
-                this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
-                this.announceDataAccessor.getHttpHeadersForTorrent()
-        );
+        if (logger.isDebugEnabled()) {
+            logger.debug("Attempt to announce {} for {}", event.getEventName(), this.torrent.getTorrentInfoHash().value());
+        }
 
-        this.lastKnownInterval = responseMessage.getInterval();
+        try {
+            final SuccessAnnounceResponse responseMessage = this.trackerClient.announce(
+                    this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
+                    this.announceDataAccessor.getHttpHeadersForTorrent()
+            );
+            if (logger.isInfoEnabled()) {
+                logger.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval", this.torrent.getTorrentInfoHash().value(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
+            }
 
-        return responseMessage;
+            this.consecutiveFails = 0;
+            this.lastKnownInterval = responseMessage.getInterval();
+
+            return responseMessage;
+        } catch (final AnnounceException e) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("{} has failed to announce", this.torrent.getTorrentInfoHash().value(), e);
+            }
+
+            ++this.consecutiveFails;
+            if (this.consecutiveFails == 5) {
+                if (logger.isInfoEnabled()) {
+                    logger.info("{} has failed to announce 5 times in a raw", this.torrent.getTorrentInfoHash().value());
+                }
+                throw new TooMuchAnnouncesFailedInARawException(torrent);
+            }
+            throw e;
+        }
     }
 
     public MockedTorrent getTorrent() {

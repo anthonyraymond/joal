@@ -4,15 +4,19 @@ import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnoun
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
-import org.araymond.joal.core.ttorrent.client.AvailableAfterIntervalQueue;
+import org.araymond.joal.core.ttorrent.client.DelayQueue;
+import org.slf4j.Logger;
 
 import java.time.temporal.ChronoUnit;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 
 public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
-    private final AvailableAfterIntervalQueue<AnnounceRequest> delayQueue;
+    private static final Logger logger = getLogger(AnnounceReEnqueuer.class);
+    private final DelayQueue<AnnounceRequest> delayQueue;
 
-    public AnnounceReEnqueuer(final AvailableAfterIntervalQueue<AnnounceRequest> delayQueue) {
+    public AnnounceReEnqueuer(final DelayQueue<AnnounceRequest> delayQueue) {
         this.delayQueue = delayQueue;
     }
 
@@ -22,26 +26,32 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Enqueue torrent {} in regular queue.", announcer.getTorrentInfoHash().value());
+        }
         this.delayQueue.addOrReplace(AnnounceRequest.createRegular(announcer), result.getInterval(), ChronoUnit.SECONDS);
     }
 
     @Override
     public void onAnnounceStartFails(final Announcer announcer, final Throwable throwable) {
-        if (TooMuchAnnouncesFailedInARawException.class.isAssignableFrom(throwable.getClass())) {
-            return;
+        if (logger.isDebugEnabled()) {
+            logger.debug("Enqueue torrent {} in start queue once again (because it failed).", announcer.getTorrentInfoHash().value());
         }
         this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 5, ChronoUnit.SECONDS);
     }
 
     @Override
     public void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Enqueue torrent {} in regular queue.", announcer.getTorrentInfoHash().value());
+        }
         this.delayQueue.addOrReplace(AnnounceRequest.createRegular(announcer), result.getInterval(), ChronoUnit.SECONDS);
     }
 
     @Override
     public void onAnnounceRegularFails(final Announcer announcer, final Throwable throwable) {
-        if (TooMuchAnnouncesFailedInARawException.class.isAssignableFrom(throwable.getClass())) {
-            return;
+        if (logger.isDebugEnabled()) {
+            logger.debug("Enqueue torrent {} in regular queue once again (because it failed).", announcer.getTorrentInfoHash().value());
         }
         this.delayQueue.addOrReplace(AnnounceRequest.createRegular(announcer), announcer.getLastKnownInterval(), ChronoUnit.SECONDS);
     }
@@ -52,10 +62,10 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onAnnounceStopFails(final Announcer announcer, final Throwable throwable) {
-        if (TooMuchAnnouncesFailedInARawException.class.isAssignableFrom(throwable.getClass())) {
-            return;
+        if (logger.isDebugEnabled()) {
+            logger.debug("Enqueue torrent {} in stop queue once again (because it failed).", announcer.getTorrentInfoHash().value());
         }
-        this.delayQueue.addOrReplace(AnnounceRequest.createStop(announcer), announcer.getLastKnownInterval(), ChronoUnit.SECONDS);
+        this.delayQueue.addOrReplace(AnnounceRequest.createStop(announcer), 0, ChronoUnit.SECONDS);
     }
 
     @Override

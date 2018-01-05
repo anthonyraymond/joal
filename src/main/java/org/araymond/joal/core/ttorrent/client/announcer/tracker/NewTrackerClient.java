@@ -38,10 +38,10 @@ public class NewTrackerClient {
     public final SuccessAnnounceResponse announce(final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
         final URI baseUri;
         try {
-            baseUri = this.trackerClientUriProvider.get();
-            while (!baseUri.getScheme().startsWith("http")) {
+            while (!this.trackerClientUriProvider.get().getScheme().startsWith("http")) {
                 this.trackerClientUriProvider.deleteCurrentAndMoveToNext();
             }
+            baseUri = this.trackerClientUriProvider.get();
         } catch (final NoMoreUriAvailableException e) {
             throw new AnnounceException("No more valid tracker URI", e);
         }
@@ -49,6 +49,11 @@ public class NewTrackerClient {
         final TrackerMessage responseMessage;
         try {
             responseMessage = this.makeCallAndGetResponseAsByteBuffer(baseUri, requestQuery, headers);
+
+            if (responseMessage instanceof ErrorMessage) {
+                final ErrorMessage error = (ErrorMessage) responseMessage;
+                throw new AnnounceException(error.getReason());
+            }
         } catch (final AnnounceException e) {
             // If the request has failed we need to move to the next tracker.
             try {
@@ -57,11 +62,6 @@ public class NewTrackerClient {
                 throw new AnnounceException("No more valid tracker for torrent.", e1);
             }
             throw new AnnounceException(e.getMessage(), e);
-        }
-
-        if (responseMessage instanceof ErrorMessage) {
-            final ErrorMessage error = (ErrorMessage) responseMessage;
-            throw new AnnounceException(error.getReason());
         }
 
         if (!(responseMessage instanceof AnnounceResponseMessage)) {
