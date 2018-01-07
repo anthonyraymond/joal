@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -31,7 +32,10 @@ public class NewTrackerClient {
     private final TrackerClientUriProvider trackerClientUriProvider;
 
     public NewTrackerClient(final MockedTorrent torrent) {
-        final Set<URI> trackerURIs = torrent.getAnnounceList().stream().flatMap(Collection::stream).collect(Collectors.toSet());
+        final List<URI> trackerURIs = torrent.getAnnounceList().stream() // Use a list to keep it ordered
+                .sequential()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
         this.trackerClientUriProvider = new TrackerClientUriProvider(trackerURIs);
     }
 

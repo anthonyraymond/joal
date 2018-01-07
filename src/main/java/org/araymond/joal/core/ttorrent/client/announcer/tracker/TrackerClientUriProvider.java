@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 class TrackerClientUriProvider {
@@ -14,7 +15,7 @@ class TrackerClientUriProvider {
     private final Iterator<URI> addressIterator;
     private URI currentURI = null;
 
-    TrackerClientUriProvider(@SuppressWarnings("TypeMayBeWeakened") final Set<URI> trackersURI) {
+    TrackerClientUriProvider(@SuppressWarnings("TypeMayBeWeakened") final List<URI> trackersURI) {
         // TODO: sorted(new PreferHTTPSComparator())
         this.addressIterator = Iterators.cycle(trackersURI);
     }
