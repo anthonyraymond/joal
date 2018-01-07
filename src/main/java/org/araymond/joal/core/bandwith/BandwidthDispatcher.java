@@ -75,9 +75,6 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 ++this.threadLoopCounter;
                 // refresh bandwidth every 1200000 milliseconds (20 minutes)
                 if (this.threadLoopCounter == 1200000 / this.threadPauseInterval) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Refreshing global bandwidth");
-                    }
                     this.refreshCurrentBandwidth();
                 }
 
@@ -141,10 +138,16 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     private void refreshCurrentBandwidth() {
+        if (logger.isDebugEnabled()) {
+            logger.debug("Refreshing global bandwidth");
+        }
         this.lock.writeLock().lock();
         try {
             this.randomSpeedProvider.refresh();
             this.recomputeSpeeds();
+            if (logger.isDebugEnabled()) {
+                logger.debug("Global bandwidth refreshed, new value is {}", FileUtils.byteCountToDisplaySize(this.randomSpeedProvider.getInBytesPerSeconds()));
+            }
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -172,15 +175,20 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         }
         if (logger.isDebugEnabled()) {
             final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
+            final double totalWeight = this.weightHolder.getTotalWeight();
             this.speedMap.forEach((infoHash, speed) -> {
-                final String humanReadAbleSpeed = FileUtils.byteCountToDisplaySize(speed.getBytesPerSeconds());
+                final String humanReadableSpeed = FileUtils.byteCountToDisplaySize(speed.getBytesPerSeconds());
+                final double torrentWeight = this.weightHolder.getWeightFor(infoHash);
+                final double weightInPercent = torrentWeight > 0.0
+                        ? totalWeight / torrentWeight * 100
+                        : 0;
                 sb.append("      ")
-                        .append(String.format("%25s", infoHash.value().replaceAll("\\p{C}", "")))
-                        .append(": ")
-                        .append(humanReadAbleSpeed)
-                        .append(" with an overall upload of ")
-                        .append(FileUtils.byteCountToDisplaySize(this.torrentsSeedStats.get(infoHash).getUploaded()))
-                        .append("/s\n");
+                        .append(infoHash.humanReadableValue())
+                        .append(":")
+                        .append("\n          ").append("current speed: ").append(humanReadableSpeed).append("/s")
+                        .append("\n          ").append("overall upload: ").append(FileUtils.byteCountToDisplaySize(this.torrentsSeedStats.get(infoHash).getUploaded()))
+                        .append("\n          ").append("weight: ").append(weightInPercent).append("% (").append(torrentWeight).append(" out of ").append(totalWeight).append(")")
+                        .append("\n");
             });
             sb.setLength(sb.length() - 1); // remove last \n
             logger.debug(sb.toString());
