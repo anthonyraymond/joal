@@ -98,7 +98,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
 
     public void updateTorrentPeers(final InfoHash infoHash, final int seeders, final int leechers) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Updating Peers stats for {}", infoHash.value());
+            logger.debug("Updating Peers stats for {}", infoHash.humanReadableValue());
         }
         this.lock.writeLock().lock();
         try {
@@ -111,7 +111,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
 
     public void registerTorrent(final InfoHash infoHash) {
         if (logger.isDebugEnabled()) {
-            logger.debug("{} has been added to bandwidth dispatcher.", infoHash.value());
+            logger.debug("{} has been added to bandwidth dispatcher.", infoHash.humanReadableValue());
         }
         this.lock.writeLock().lock();
         try {
@@ -124,7 +124,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
 
     public void unregisterTorrent(final InfoHash infoHash) {
         if (logger.isDebugEnabled()) {
-            logger.debug("{} has been removed from bandwidth dispatcher.", infoHash.value());
+            logger.debug("{} has been removed from bandwidth dispatcher.", infoHash.humanReadableValue());
         }
         this.lock.writeLock().lock();
         try {

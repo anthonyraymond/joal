@@ -24,7 +24,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onAnnouncerWillAnnounce(final Announcer announcer) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish WillAnnounceEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish WillAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         this.eventPublisher.publishEvent(new WillAnnounceEvent(infoHash));
@@ -33,7 +33,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = result.getInterval();
@@ -43,7 +43,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onAnnounceStartFails(final Announcer announcer, final Throwable throwable) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = announcer.getLastKnownInterval();
@@ -53,7 +53,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = result.getInterval();
@@ -63,7 +63,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onAnnounceRegularFails(final Announcer announcer, final Throwable throwable) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = announcer.getLastKnownInterval();
@@ -73,7 +73,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onAnnounceStopSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, 0));
@@ -82,7 +82,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onAnnounceStopFails(final Announcer announcer, final Throwable throwable) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, 0));
@@ -91,7 +91,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     @Override
     public void onTooManyAnnounceFailedInARaw(final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
         if(logger.isDebugEnabled()) {
-            logger.debug("Publish TooManyAnnouncesFailedEvent event for {}.", announcer.getTorrentInfoHash().value());
+            logger.debug("Publish TooManyAnnouncesFailedEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         this.eventPublisher.publishEvent(new TooManyAnnouncesFailedEvent(infoHash));

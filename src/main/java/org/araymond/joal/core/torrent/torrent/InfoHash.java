@@ -9,6 +9,10 @@ public class InfoHash {
         this.infoHash = new String(bytes, MockedTorrent.BYTE_ENCODING);
     }
 
+    public String humanReadableValue() {
+        return infoHash.replaceAll("\\p{C}", "");
+    }
+
     public String value() {
         return infoHash;
     }

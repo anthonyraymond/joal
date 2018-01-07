@@ -27,7 +27,7 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
     @Override
     public void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Enqueue torrent {} in regular queue.", announcer.getTorrentInfoHash().value());
+            logger.debug("Enqueue torrent {} in regular queue.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         this.delayQueue.addOrReplace(AnnounceRequest.createRegular(announcer), result.getInterval(), ChronoUnit.SECONDS);
     }
@@ -35,7 +35,7 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
     @Override
     public void onAnnounceStartFails(final Announcer announcer, final Throwable throwable) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Enqueue torrent {} in start queue once again (because it failed).", announcer.getTorrentInfoHash().value());
+            logger.debug("Enqueue torrent {} in start queue once again (because it failed).", announcer.getTorrentInfoHash().humanReadableValue());
         }
         this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 5, ChronoUnit.SECONDS);
     }
@@ -43,7 +43,7 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
     @Override
     public void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Enqueue torrent {} in regular queue.", announcer.getTorrentInfoHash().value());
+            logger.debug("Enqueue torrent {} in regular queue.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         this.delayQueue.addOrReplace(AnnounceRequest.createRegular(announcer), result.getInterval(), ChronoUnit.SECONDS);
     }
@@ -51,7 +51,7 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
     @Override
     public void onAnnounceRegularFails(final Announcer announcer, final Throwable throwable) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Enqueue torrent {} in regular queue once again (because it failed).", announcer.getTorrentInfoHash().value());
+            logger.debug("Enqueue torrent {} in regular queue once again (because it failed).", announcer.getTorrentInfoHash().humanReadableValue());
         }
         this.delayQueue.addOrReplace(AnnounceRequest.createRegular(announcer), announcer.getLastKnownInterval(), ChronoUnit.SECONDS);
     }
@@ -63,7 +63,7 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
     @Override
     public void onAnnounceStopFails(final Announcer announcer, final Throwable throwable) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Enqueue torrent {} in stop queue once again (because it failed).", announcer.getTorrentInfoHash().value());
+            logger.debug("Enqueue torrent {} in stop queue once again (because it failed).", announcer.getTorrentInfoHash().humanReadableValue());
         }
         this.delayQueue.addOrReplace(AnnounceRequest.createStop(announcer), 0, ChronoUnit.SECONDS);
     }

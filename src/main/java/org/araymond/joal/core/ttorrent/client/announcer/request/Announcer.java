@@ -27,7 +27,7 @@ public class Announcer {
 
     public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Attempt to announce {} for {}", event.getEventName(), this.torrent.getTorrentInfoHash().value());
+            logger.debug("Attempt to announce {} for {}", event.getEventName(), this.torrent.getTorrentInfoHash().humanReadableValue());
         }
 
         try {
@@ -36,7 +36,7 @@ public class Announcer {
                     this.announceDataAccessor.getHttpHeadersForTorrent()
             );
             if (logger.isInfoEnabled()) {
-                logger.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval", this.torrent.getTorrentInfoHash().value(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
+                logger.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval", this.torrent.getTorrentInfoHash().humanReadableValue(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
             }
 
             this.consecutiveFails = 0;
@@ -45,13 +45,13 @@ public class Announcer {
             return responseMessage;
         } catch (final AnnounceException e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("{} has failed to announce", this.torrent.getTorrentInfoHash().value(), e);
+                logger.warn("{} has failed to announce", this.torrent.getTorrentInfoHash().humanReadableValue(), e);
             }
 
             ++this.consecutiveFails;
             if (this.consecutiveFails == 5) {
                 if (logger.isInfoEnabled()) {
-                    logger.info("{} has failed to announce 5 times in a raw", this.torrent.getTorrentInfoHash().value());
+                    logger.info("{} has failed to announce 5 times in a raw", this.torrent.getTorrentInfoHash().humanReadableValue());
                 }
                 throw new TooMuchAnnouncesFailedInARawException(torrent);
             }
