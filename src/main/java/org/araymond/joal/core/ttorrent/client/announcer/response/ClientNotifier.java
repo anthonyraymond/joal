@@ -22,6 +22,9 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
+        if (result.getSeeders() == 0 || result.getLeechers() == 0) {
+            this.client.onNoMorePeers(announcer.getTorrent());
+        }
     }
 
     @Override
@@ -30,6 +33,9 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
+        if (result.getSeeders() < 1 || result.getLeechers() < 1) {
+            this.client.onNoMorePeers(announcer.getTorrent());
+        }
     }
 
     @Override
@@ -41,7 +47,7 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
         if(logger.isDebugEnabled()) {
             logger.debug("Notify client that a torrent has stopped.");
         }
-        this.client.onTorrentHasStopped(announcer.getTorrent());
+        this.client.onTorrentHasStopped(announcer);
     }
 
     @Override
@@ -53,6 +59,6 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
         if(logger.isDebugEnabled()) {
             logger.debug("Notify client that a torrent has stopped.");
         }
-        this.client.onTorrentHasStopped(announcer.getTorrent());
+        this.client.onTooManyFailedInARaw(announcer);
     }
 }
