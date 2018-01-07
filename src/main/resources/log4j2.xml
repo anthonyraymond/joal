@@ -5,7 +5,7 @@
         <Root level="INFO" additivity="false">
             <AppenderRef ref="CONSOLE"/>
         </Root>
-        <Logger name="org.araymond.joal" level="DEBUG" additivity="false">
+        <Logger name="org.araymond.joal" level="INFO" additivity="false">
             <Appender-ref ref="CONSOLE"/>
         </Logger>
     </Loggers>
