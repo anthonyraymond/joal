@@ -1,9 +1,11 @@
 package org.araymond.joal.core.ttorrent.client;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
@@ -17,13 +19,12 @@ import org.slf4j.Logger;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
-public class Client implements TorrentFileChangeAware {
+public class Client implements TorrentFileChangeAware, ClientFacade {
     private static final Logger logger = getLogger(Client.class);
 
     private final JoalConfigProvider configProvider;
@@ -38,7 +39,12 @@ public class Client implements TorrentFileChangeAware {
     private volatile boolean stop = false;
 
 
-    public Client(final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnounceResponseCallback announceResponseCallback, AnnounceDataAccessor announceDataAccessor) {
+    Client(final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnounceResponseCallback announceResponseCallback, final AnnounceDataAccessor announceDataAccessor) {
+        Preconditions.checkNotNull(configProvider, "JoalConfigProvider must not be null");
+        Preconditions.checkNotNull(torrentFileProvider, "TorrentFileProvider must not be null");
+        Preconditions.checkNotNull(delayQueue, "DelayQueue must not be null");
+        Preconditions.checkNotNull(announceResponseCallback, "AnnounceResponseCallback must not be null");
+        Preconditions.checkNotNull(announceDataAccessor, "AnnounceDataAccessor must not be null");
         this.configProvider = configProvider;
         this.torrentFileProvider = torrentFileProvider;
         this.announcerExecutor = announcerExecutor;
@@ -49,6 +55,7 @@ public class Client implements TorrentFileChangeAware {
         this.lock = new ReentrantReadWriteLock();
     }
 
+    @Override
     public void start() {
         this.stop = false;
 
@@ -97,6 +104,7 @@ public class Client implements TorrentFileChangeAware {
         this.torrentFileProvider.registerListener(this);
     }
 
+    @Override
     public void stop() {
         this.stop = true;
         this.torrentFileProvider.unRegisterListener(this);
@@ -112,6 +120,20 @@ public class Client implements TorrentFileChangeAware {
                 .forEach(req -> this.announcerExecutor.execute(req, this.announceResponseCallback));
 
         this.announcerExecutor.awaitForRunningTasks();
+    }
+
+    public void stopTorrent(final InfoHash infoHash) {
+        try {
+            this.lock.writeLock().lock();
+            this.currentlySeedingAnnouncer.stream()
+                    .filter(announcer -> announcer.getTorrentInfoHash().equals(infoHash))
+                    .findFirst()
+                    .ifPresent(announcer ->
+                            this.delayQueue.addOrReplace(AnnounceRequest.createStop(announcer), 1, ChronoUnit.SECONDS)
+                    );
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     public void onTooManyFailedInARaw(final Announcer announcer) {

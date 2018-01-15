@@ -8,13 +8,8 @@ import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
-import org.araymond.joal.core.ttorrent.client.DelayQueue;
-import org.araymond.joal.core.ttorrent.client.Client;
-import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.*;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
-import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
-import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
-import org.araymond.joal.core.ttorrent.client.announcer.response.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -38,7 +33,7 @@ public class SeedManager {
     private final ApplicationEventPublisher publisher;
     private final ConnectionHandler connectionHandler;
     private BandwidthDispatcher bandwidthDispatcher;
-    private Client client;
+    private ClientFacade client;
 
     public void init() throws IOException {
         this.connectionHandler.init();
@@ -71,19 +66,15 @@ public class SeedManager {
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
         this.bandwidthDispatcher.start();
 
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
-        final DelayQueue<AnnounceRequest> delayQueue = new DelayQueue<>();
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
 
-        final AnnounceResponseHandlerChain announceResponseCallback = new AnnounceResponseHandlerChain();
-        announceResponseCallback.appendHandler(new AnnounceEventPublisher(this.publisher));
-        announceResponseCallback.appendHandler(new AnnounceReEnqueuer(delayQueue));
-        announceResponseCallback.appendHandler(new BandwidthDispatcherNotifier(bandwidthDispatcher));
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        announceResponseCallback.appendHandler(clientNotifier);
-
-        this.client = new Client(this.configProvider, this.torrentFileProvider, executor, delayQueue, announceResponseCallback, announceDataAccessor);
-        clientNotifier.setClient(client);
+        this.client = ClientBuilder.builder()
+                .withConfigProvider(this.configProvider)
+                .withTorrentFileProvider(this.torrentFileProvider)
+                .withBandwidthDispatcher(this.bandwidthDispatcher)
+                .withAnnounceDataAccessor(announceDataAccessor)
+                .withEventPublisher(this.publisher)
+                .build();
 
         this.client.start();
         /*
@@ -111,7 +102,7 @@ public class SeedManager {
     }
 
     public void deleteTorrent(final String torrentInfoHash) {
-        //this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
+        this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
     }
 
     public void stop() {
