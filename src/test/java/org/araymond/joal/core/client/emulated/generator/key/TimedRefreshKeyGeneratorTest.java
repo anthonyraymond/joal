@@ -4,6 +4,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -48,22 +49,23 @@ public class TimedRefreshKeyGeneratorTest {
         Mockito.when(algo.generate()).thenReturn("do-not-care");
         final TimedRefreshKeyGenerator generator = new TimedRefreshKeyGenerator(1, algo, Casing.NONE);
 
-        final String firstKey = generator.getKey(null, RequestEvent.STARTED);
+        final InfoHash infoHash = new InfoHash(new byte[] { 22 });
+        final String firstKey = generator.getKey(infoHash, RequestEvent.STARTED);
         assertThat(generator.getKey(null, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(null, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(null, RequestEvent.STARTED))
-                .isEqualTo(generator.getKey(null, RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(infoHash, RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(infoHash, RequestEvent.STARTED))
+                .isEqualTo(generator.getKey(infoHash, RequestEvent.STARTED))
                 .isEqualTo(firstKey);
 
         Mockito.verify(algo, Mockito.times(1)).generate();
         Mockito.when(algo.generate()).thenReturn("do-not-care2");
 
         Thread.sleep(500);
-        generator.getKey(null, RequestEvent.STARTED);
+        generator.getKey(infoHash, RequestEvent.STARTED);
         Thread.sleep(510);
 
         Mockito.verify(algo, Mockito.times(1)).generate();
-        assertThat(generator.getKey(null, RequestEvent.STARTED)).isNotEqualTo(firstKey);
+        assertThat(generator.getKey(infoHash, RequestEvent.STARTED)).isNotEqualTo(firstKey);
     }
 
 }

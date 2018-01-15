@@ -26,7 +26,9 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
         final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator(algo, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 42 })).when(t2).getTorrentInfoHash();
 
         assertThat(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
                 .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
@@ -55,6 +57,7 @@ public class TorrentPersistentRefreshPeerIdGeneratorTest {
         final PeerIdGenerator generator = new TorrentPersistentRefreshPeerIdGenerator(algo, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
 
         generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
         generator.getPeerId(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);

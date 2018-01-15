@@ -3,6 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.key;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -21,7 +22,9 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
         final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(algo, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 42 })).when(t2).getTorrentInfoHash();
 
         assertThat(generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED))
                 .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED))
@@ -45,6 +48,7 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
         final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(algo, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
 
         final String key1 = generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED);
         final String key2 = generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STOPPED);
@@ -67,7 +71,9 @@ public class TorrentVolatileRefreshKeyGeneratorTest {
         final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(algo, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 42 })).when(t2).getTorrentInfoHash();
 
         final String key1 = generator.getKey(t1.getTorrentInfoHash(), RequestEvent.STARTED);
         Mockito.when(algo.generate()).thenReturn("do-not-care2");

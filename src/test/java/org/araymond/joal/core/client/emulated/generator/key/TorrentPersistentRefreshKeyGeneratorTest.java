@@ -27,7 +27,9 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
         final KeyGenerator generator = new TorrentVolatileRefreshKeyGenerator(algo, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 42 })).when(t2).getTorrentInfoHash();
 
         assertThat(generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
                 .isEqualTo(generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED))
@@ -51,6 +53,7 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
         final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(algo, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
 
         final String key1 = generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
         final String key2 = generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STOPPED);
@@ -70,7 +73,9 @@ public class TorrentPersistentRefreshKeyGeneratorTest {
         final KeyGenerator generator = new TorrentPersistentRefreshKeyGenerator(algo, Casing.NONE);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 22 })).when(t1).getTorrentInfoHash();
         final MockedTorrent t2 = Mockito.mock(MockedTorrent.class);
+        Mockito.doReturn(new InfoHash(new byte[] { 42 })).when(t2).getTorrentInfoHash();
 
         final String key1 = generator.getKey(t1.getTorrentInfoHash(), TrackerMessage.AnnounceRequestMessage.RequestEvent.STARTED);
         Mockito.when(algo.generate()).thenReturn("do-not-care2");
