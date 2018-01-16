@@ -26,7 +26,7 @@ public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
     @Override
     public void onAnnounceWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer) {
         for (final AnnounceResponseHandlerChainElement element : chainElements) {
-            element.onAnnouncerWillAnnounce(announcer);
+            element.onAnnouncerWillAnnounce(announcer, event);
         }
     }
 

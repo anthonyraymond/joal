@@ -1,9 +1,10 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
-import org.araymond.joal.core.events.old.announce.FailedToAnnounceEvent;
-import org.araymond.joal.core.events.old.announce.SuccessfullyAnnounceEvent;
-import org.araymond.joal.core.events.old.announce.TooManyAnnouncesFailedEvent;
-import org.araymond.joal.core.events.old.announce.WillAnnounceEvent;
+import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.events.announce.FailedToAnnounceEvent;
+import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
+import org.araymond.joal.core.events.announce.TooManyAnnouncesFailedEvent;
+import org.araymond.joal.core.events.announce.WillAnnounceEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
@@ -22,12 +23,12 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
     }
 
     @Override
-    public void onAnnouncerWillAnnounce(final Announcer announcer) {
+    public void onAnnouncerWillAnnounce(final Announcer announcer, final RequestEvent event) {
         if(logger.isDebugEnabled()) {
             logger.debug("Publish WillAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
-        this.eventPublisher.publishEvent(new WillAnnounceEvent(infoHash));
+        this.eventPublisher.publishEvent(new WillAnnounceEvent(infoHash, event));
     }
 
     @Override
@@ -37,7 +38,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = result.getInterval();
-        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, interval));
+        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, RequestEvent.STARTED, interval));
     }
 
     @Override
@@ -47,7 +48,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = announcer.getLastKnownInterval();
-        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, interval));
+        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, RequestEvent.STARTED, interval));
     }
 
     @Override
@@ -57,7 +58,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = result.getInterval();
-        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, interval));
+        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, RequestEvent.NONE, interval));
     }
 
     @Override
@@ -67,7 +68,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
         final int interval = announcer.getLastKnownInterval();
-        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, interval));
+        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, RequestEvent.NONE, interval));
     }
 
     @Override
@@ -76,7 +77,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
             logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
-        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, 0));
+        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, RequestEvent.STOPPED, 0));
     }
 
     @Override
@@ -85,7 +86,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
             logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
-        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, 0));
+        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, RequestEvent.STOPPED, 0));
     }
 
     @Override

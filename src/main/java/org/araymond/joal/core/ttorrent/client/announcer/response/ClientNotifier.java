@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.ttorrent.client.Client;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
@@ -17,7 +18,7 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
     }
 
     @Override
-    public void onAnnouncerWillAnnounce(final Announcer announcer) {
+    public void onAnnouncerWillAnnounce(final Announcer announcer, TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
     }
 
     @Override

@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
@@ -20,7 +21,7 @@ public class AnnounceResponseHandlerChainTest {
             final int handlerPosition = i;
             chain.appendHandler(new DefaultResponseHandler() {
                 @Override
-                public void onAnnouncerWillAnnounce(final Announcer announcer) {
+                public void onAnnouncerWillAnnounce(final Announcer announcer, TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
                     builder.append(handlerPosition);
                 }
             });
@@ -36,7 +37,7 @@ public class AnnounceResponseHandlerChainTest {
 
     private static class DefaultResponseHandler implements AnnounceResponseHandlerChainElement {
         @Override
-        public void onAnnouncerWillAnnounce(final Announcer announcer) {
+        public void onAnnouncerWillAnnounce(final Announcer announcer, TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
         }
         @Override
         public void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {

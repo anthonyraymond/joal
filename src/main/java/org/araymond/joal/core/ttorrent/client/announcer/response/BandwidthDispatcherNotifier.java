@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
+import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
@@ -18,7 +19,7 @@ public class BandwidthDispatcherNotifier implements AnnounceResponseHandlerChain
     }
 
     @Override
-    public void onAnnouncerWillAnnounce(final Announcer announcer) {
+    public void onAnnouncerWillAnnounce(final Announcer announcer, TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
     }
 
     @Override
