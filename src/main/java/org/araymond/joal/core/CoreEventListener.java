@@ -2,9 +2,8 @@ package org.araymond.joal.core;
 
 import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
-import org.araymond.joal.core.events.old.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.old.SomethingHasFuckedUpEvent;
-import org.araymond.joal.core.events.old.filechange.TorrentFileAddedEvent;
+import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -33,14 +32,6 @@ public class CoreEventListener {
         this.appContext = appContext;
     }
 
-
-    @Async
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    @EventListener
-    void handleNoMoreTorrents(final NoMoreTorrentsFileAvailableEvent event) {
-        logger.debug("Event NoMoreTorrentsFileAvailableEvent caught.");
-        // logger.warn("There is no more .torrent file, add some more to resume seed.");
-    }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)

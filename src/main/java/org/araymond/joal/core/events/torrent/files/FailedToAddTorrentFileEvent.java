@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events.old.filechange;
+package org.araymond.joal.core.events.torrent.files;
 
 import com.google.common.base.Preconditions;
 

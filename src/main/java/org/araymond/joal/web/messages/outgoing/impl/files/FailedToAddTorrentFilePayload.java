@@ -1,6 +1,6 @@
 package org.araymond.joal.web.messages.outgoing.impl.files;
 
-import org.araymond.joal.core.events.old.filechange.FailedToAddTorrentFileEvent;
+import org.araymond.joal.core.events.torrent.files.FailedToAddTorrentFileEvent;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 /**
