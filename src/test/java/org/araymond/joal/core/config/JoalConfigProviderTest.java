@@ -3,7 +3,7 @@ package org.araymond.joal.core.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.araymond.joal.core.SeedManager;
-import org.araymond.joal.core.events.old.config.ConfigHasBeenLoadedEvent;
+import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;

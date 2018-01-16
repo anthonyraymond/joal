@@ -1,8 +1,8 @@
 package org.araymond.joal.web.services.corelistener;
 
 import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
-import org.araymond.joal.core.events.old.config.ConfigHasBeenLoadedEvent;
-import org.araymond.joal.core.events.old.config.ConfigHasChangedEvent;
+import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
+import org.araymond.joal.core.events.config.ConfigurationIsInDirtyState;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
@@ -32,8 +32,8 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleConfigHasChanged(final ConfigHasChangedEvent event) {
-        logger.debug("Send ConfigHasChangedEvent to clients.");
+    void handleConfigHasChanged(final ConfigurationIsInDirtyState event) {
+        logger.debug("Send ConfigurationIsInDirtyState to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ConfigHasChangedPayload(event));
     }

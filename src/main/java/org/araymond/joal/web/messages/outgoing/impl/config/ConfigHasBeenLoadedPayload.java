@@ -1,7 +1,7 @@
 package org.araymond.joal.web.messages.outgoing.impl.config;
 
 import org.araymond.joal.core.config.AppConfiguration;
-import org.araymond.joal.core.events.old.config.ConfigHasBeenLoadedEvent;
+import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 /**

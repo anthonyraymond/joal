@@ -1,7 +1,7 @@
 package org.araymond.joal.web.messages.outgoing.impl.config;
 
 import org.araymond.joal.core.config.AppConfiguration;
-import org.araymond.joal.core.events.old.config.ConfigHasChangedEvent;
+import org.araymond.joal.core.events.config.ConfigurationIsInDirtyState;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 /**
@@ -11,7 +11,7 @@ public class ConfigHasChangedPayload implements MessagePayload {
 
     private final AppConfiguration config;
 
-    public ConfigHasChangedPayload(final ConfigHasChangedEvent event) {
+    public ConfigHasChangedPayload(final ConfigurationIsInDirtyState event) {
         this.config = event.getConfiguration();
     }
 

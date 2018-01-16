@@ -90,7 +90,7 @@ public class SeedManager {
     }
 
     public void saveNewConfiguration(final AppConfiguration config) {
-        /*this.configProvider.saveNewConf(config);*/
+        this.configProvider.saveNewConf(config);
     }
 
     public void saveTorrentToDisk(final String name, final byte[] bytes) {
