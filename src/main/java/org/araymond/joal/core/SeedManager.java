@@ -1,13 +1,13 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
+import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.core.events.speed.SeedingSpeedsHasChangedEvent;
@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 /**
  * Created by raymo on 27/01/2017.
@@ -55,14 +56,15 @@ public class SeedManager {
         this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
         this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, publisher);
-        this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath, publisher);
+        this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath);
         this.publisher = publisher;
         this.connectionHandler = new ConnectionHandler();
     }
 
     public void startSeeding() throws IOException {
         this.configProvider.init();
-        this.bitTorrentClientProvider.init();
+        final List<String> clientFiles = this.bitTorrentClientProvider.listClientFiles();
+        this.publisher.publishEvent(new ListOfClientFilesEvent(clientFiles));
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 

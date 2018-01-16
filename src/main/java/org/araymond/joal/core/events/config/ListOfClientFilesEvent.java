@@ -1,16 +1,13 @@
-package org.araymond.joal.core.events.old.config;
+package org.araymond.joal.core.events.config;
 
 import com.google.common.base.Preconditions;
 
 import java.util.List;
 
-/**
- * Created by raymo on 08/07/2017.
- */
-public class ClientFilesDiscoveredEvent {
+public class ListOfClientFilesEvent {
     private final List<String> clients;
 
-    public ClientFilesDiscoveredEvent(final List<String> clients) {
+    public ListOfClientFilesEvent(final List<String> clients) {
         Preconditions.checkNotNull(clients, "Clients list must not be null");
         this.clients = clients;
     }
@@ -18,6 +15,4 @@ public class ClientFilesDiscoveredEvent {
     public List<String> getClients() {
         return clients;
     }
-
 }
-

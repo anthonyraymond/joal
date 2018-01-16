@@ -1,6 +1,6 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.old.config.ClientFilesDiscoveredEvent;
+import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.core.events.old.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.core.events.old.config.ConfigHasChangedEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
@@ -48,8 +48,8 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleClientFilesDiscovered(final ClientFilesDiscoveredEvent event) {
-        logger.debug("Send ClientFilesDiscoveredEvent to clients.");
+    void handleClientFilesDiscovered(final ListOfClientFilesEvent event) {
+        logger.debug("Send ListOfClientFilesEvent to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ClientFilesDiscoveredPayload(event));
     }
