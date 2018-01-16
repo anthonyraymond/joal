@@ -1,6 +1,7 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
@@ -9,6 +10,7 @@ import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
+import org.araymond.joal.core.events.speed.SeedingSpeedsHasChangedEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.*;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
@@ -66,6 +68,9 @@ public class SeedManager {
 
         final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(this.configProvider);
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
+        this.bandwidthDispatcher.setSpeedListener((speeds -> {
+            this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
+        }));
         this.bandwidthDispatcher.start();
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
@@ -113,6 +118,7 @@ public class SeedManager {
         }
         if (this.bandwidthDispatcher != null) {
             this.bandwidthDispatcher.stop();
+            this.bandwidthDispatcher.setSpeedListener(null);
             this.bandwidthDispatcher = null;
         }
     }
