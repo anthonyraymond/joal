@@ -1,7 +1,7 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.old.global.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.old.global.SeedSessionHasStartedEvent;
+import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
+import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasEndedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedPayload;
@@ -31,7 +31,7 @@ public class WebGlobalEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasStarted(final SeedSessionHasStartedEvent event) {
+    void handleSeedSessionHasStarted(final GlobalSeedStartedEvent event) {
         logger.debug("Send SeedSessionHasStartedPayload to clients.");
 
         final String client = event.getBitTorrentClient().getHeaders().stream()
@@ -45,7 +45,7 @@ public class WebGlobalEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasEnded(final SeedSessionHasEndedEvent event) {
+    void handleSeedSessionHasEnded(final GlobalSeedStoppedEvent event) {
         logger.debug("Send SeedSessionHasEndedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/global", new SeedSessionHasEndedPayload());

@@ -7,6 +7,8 @@ import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
+import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
+import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.*;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
@@ -77,9 +79,7 @@ public class SeedManager {
                 .build();
 
         this.client.start();
-        /*
-        publisher.publishEvent(new SeedSessionHasStartedEvent(bitTorrentClient));
-        */
+        publisher.publishEvent(new GlobalSeedStartedEvent(bitTorrentClient));
     }
 
     public void saveNewConfiguration(final AppConfiguration config) {
@@ -108,8 +108,7 @@ public class SeedManager {
     public void stop() {
         if (client != null) {
             this.client.stop();
-            // TODO: fix it
-            // this.publisher.publishEvent(new SeedSessionHasEndedEvent());
+            this.publisher.publishEvent(new GlobalSeedStoppedEvent());
             this.client = null;
         }
         if (this.bandwidthDispatcher != null) {

@@ -1,10 +1,10 @@
 package org.araymond.joal.core;
 
+import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
+import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.core.events.old.NoMoreTorrentsFileAvailableEvent;
 import org.araymond.joal.core.events.old.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.events.old.filechange.TorrentFileAddedEvent;
-import org.araymond.joal.core.events.old.global.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.old.global.SeedSessionHasStartedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -52,8 +52,8 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasStarted(final SeedSessionHasStartedEvent event) {
-        logger.debug("Event SeedSessionHasStartedEvent caught.");
+    void handleSeedSessionHasStarted(final GlobalSeedStartedEvent event) {
+        logger.debug("Event GlobalSeedStartedEvent caught.");
         // TODO : add a log to tell which BitTorrent client.
         // TODO : detailed BitTorrent client log at debug log level
     }
@@ -61,8 +61,8 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasEnded(final SeedSessionHasEndedEvent event) {
-        logger.debug("Event SeedSessionHasEndedEvent caught.");
+    void handleSeedSessionHasEnded(final GlobalSeedStoppedEvent event) {
+        logger.debug("Event GlobalSeedStoppedEvent caught.");
         // TODO : log that the seed session is over
     }
 
