@@ -122,20 +122,6 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         this.announcerExecutor.awaitForRunningTasks();
     }
 
-    public void stopTorrent(final InfoHash infoHash) {
-        try {
-            this.lock.writeLock().lock();
-            this.currentlySeedingAnnouncer.stream()
-                    .filter(announcer -> announcer.getTorrentInfoHash().equals(infoHash))
-                    .findFirst()
-                    .ifPresent(announcer ->
-                            this.delayQueue.addOrReplace(AnnounceRequest.createStop(announcer), 1, ChronoUnit.SECONDS)
-                    );
-        } finally {
-            this.lock.writeLock().unlock();
-        }
-    }
-
     public void onTooManyFailedInARaw(final Announcer announcer) {
         try {
             this.lock.writeLock().lock();
