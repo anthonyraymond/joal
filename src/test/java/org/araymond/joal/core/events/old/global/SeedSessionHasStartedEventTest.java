@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events.global;
+package org.araymond.joal.core.events.old.global;
 
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.junit.Test;

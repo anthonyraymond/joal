@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events.announce;
+package org.araymond.joal.core.events.old.announce;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 

@@ -1,5 +1,6 @@
 package org.araymond.joal.core.events;
 
+import org.araymond.joal.core.events.old.NoMoreTorrentsFileAvailableEvent;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.fail;

@@ -1,8 +1,8 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
+import org.araymond.joal.core.events.old.filechange.FailedToAddTorrentFileEvent;
+import org.araymond.joal.core.events.old.filechange.TorrentFileAddedEvent;
+import org.araymond.joal.core.events.old.filechange.TorrentFileDeletedEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.files.FailedToAddTorrentFilePayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;

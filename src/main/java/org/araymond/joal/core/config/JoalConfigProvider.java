@@ -2,10 +2,9 @@ package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.SeedManager;
-import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
-import org.araymond.joal.core.events.config.ConfigHasChangedEvent;
+import org.araymond.joal.core.events.old.config.ConfigHasBeenLoadedEvent;
+import org.araymond.joal.core.events.old.config.ConfigHasChangedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -15,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Created by raymo on 18/04/2017.

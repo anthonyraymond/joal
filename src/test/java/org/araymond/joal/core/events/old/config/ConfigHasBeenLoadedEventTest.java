@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events.config;
+package org.araymond.joal.core.events.old.config;
 
 import org.araymond.joal.core.config.AppConfiguration;
 import org.junit.Test;

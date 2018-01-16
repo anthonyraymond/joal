@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events.filechange;
+package org.araymond.joal.core.events.old.filechange;
 
 import com.google.common.base.Preconditions;
 

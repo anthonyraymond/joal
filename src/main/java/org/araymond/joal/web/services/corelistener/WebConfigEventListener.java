@@ -1,8 +1,8 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
-import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
-import org.araymond.joal.core.events.config.ConfigHasChangedEvent;
+import org.araymond.joal.core.events.old.config.ClientFilesDiscoveredEvent;
+import org.araymond.joal.core.events.old.config.ConfigHasBeenLoadedEvent;
+import org.araymond.joal.core.events.old.config.ConfigHasChangedEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;

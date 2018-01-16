@@ -1,6 +1,6 @@
 package org.araymond.joal.web.messages.outgoing.impl.files;
 
-import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
+import org.araymond.joal.core.events.old.filechange.TorrentFileDeletedEvent;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 /**

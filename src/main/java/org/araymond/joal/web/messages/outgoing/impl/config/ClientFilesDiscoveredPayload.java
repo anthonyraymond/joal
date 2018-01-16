@@ -1,6 +1,6 @@
 package org.araymond.joal.web.messages.outgoing.impl.config;
 
-import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
+import org.araymond.joal.core.events.old.config.ClientFilesDiscoveredEvent;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 import java.util.List;

@@ -4,14 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.config.JoalConfigProviderTest;
-import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
+import org.araymond.joal.core.events.old.config.ClientFilesDiscoveredEvent;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.FileNotFoundException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.assertj.core.api.Assertions.assertThat;

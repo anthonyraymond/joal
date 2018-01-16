@@ -1,9 +1,9 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
-import org.araymond.joal.core.events.announce.FailedToAnnounceEvent;
-import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
-import org.araymond.joal.core.events.announce.TooManyAnnouncesFailedEvent;
-import org.araymond.joal.core.events.announce.WillAnnounceEvent;
+import org.araymond.joal.core.events.old.announce.FailedToAnnounceEvent;
+import org.araymond.joal.core.events.old.announce.SuccessfullyAnnounceEvent;
+import org.araymond.joal.core.events.old.announce.TooManyAnnouncesFailedEvent;
+import org.araymond.joal.core.events.old.announce.WillAnnounceEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;

@@ -1,7 +1,7 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
+import org.araymond.joal.core.events.old.global.SeedSessionHasEndedEvent;
+import org.araymond.joal.core.events.old.global.SeedSessionHasStartedEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasEndedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedPayload;

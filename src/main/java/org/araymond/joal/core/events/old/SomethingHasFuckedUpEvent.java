@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events;
+package org.araymond.joal.core.events.old;
 
 import com.google.common.base.Preconditions;
 

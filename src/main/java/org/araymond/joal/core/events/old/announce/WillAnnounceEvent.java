@@ -1,11 +1,11 @@
-package org.araymond.joal.core.events.announce;
+package org.araymond.joal.core.events.old.announce;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 
-public class TooManyAnnouncesFailedEvent {
+public class WillAnnounceEvent {
     private final InfoHash infoHash;
 
-    public TooManyAnnouncesFailedEvent(final InfoHash infoHash) {
+    public WillAnnounceEvent(final InfoHash infoHash) {
         this.infoHash = infoHash;
     }
 

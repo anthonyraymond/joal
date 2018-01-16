@@ -1,4 +1,4 @@
-package org.araymond.joal.core.events.config;
+package org.araymond.joal.core.events.old.config;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;

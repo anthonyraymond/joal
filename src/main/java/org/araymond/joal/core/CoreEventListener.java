@@ -1,10 +1,10 @@
 package org.araymond.joal.core;
 
-import org.araymond.joal.core.events.NoMoreTorrentsFileAvailableEvent;
-import org.araymond.joal.core.events.SomethingHasFuckedUpEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
-import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
+import org.araymond.joal.core.events.old.NoMoreTorrentsFileAvailableEvent;
+import org.araymond.joal.core.events.old.SomethingHasFuckedUpEvent;
+import org.araymond.joal.core.events.old.filechange.TorrentFileAddedEvent;
+import org.araymond.joal.core.events.old.global.SeedSessionHasEndedEvent;
+import org.araymond.joal.core.events.old.global.SeedSessionHasStartedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
