@@ -2,11 +2,9 @@ package org.araymond.joal.core;
 
 import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
-import org.araymond.joal.core.events.old.SomethingHasFuckedUpEvent;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
@@ -55,16 +53,6 @@ public class CoreEventListener {
     void handleSeedSessionHasEnded(final GlobalSeedStoppedEvent event) {
         logger.debug("Event GlobalSeedStoppedEvent caught.");
         // TODO : log that the seed session is over
-    }
-
-    @Async
-    @Order(Ordered.LOWEST_PRECEDENCE)
-    @EventListener
-    void handleSomethingHasFuckedUp(final SomethingHasFuckedUpEvent event) {
-        // We caught an unrecoverable exception in a thread, we better stop right now.
-        logger.error("Event SomethingHasFuckedUpEvent caught.", event.getException());
-        // Stop the application
-        SpringApplication.exit(appContext, () -> 42);
     }
 
 }
