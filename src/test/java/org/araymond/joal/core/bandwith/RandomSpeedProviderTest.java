@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -27,6 +28,15 @@ public class RandomSpeedProviderTest {
     }
 
     @Test
+    public void shouldProvideValueWithinRange() {
+        final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConfProvider());
+        for (int i = 0; i < 50; i++) {
+            speedProvider.refresh();
+            assertThat(speedProvider.getInBytesPerSeconds() / 1000).isBetween(MIN_UPLOAD_RATE, MAX_UPLOAD_RATE);
+        }
+    }
+
+    @Test
     public void shouldReturnRandomSpeedAfterBuild() {
         // no call to refresh before call to get
         final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConfProvider());
@@ -38,14 +48,14 @@ public class RandomSpeedProviderTest {
     public void shouldRefreshSpeed() {
         final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConfProvider());
 
-        final List<Long> recordedSpeeds = IntStream.range(1, 10)
+        final Set<Long> recordedSpeeds = IntStream.range(1, 10)
                 .mapToObj(i -> {
                     speedProvider.refresh();
                     return speedProvider.getInBytesPerSeconds();
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
-        assertThat(recordedSpeeds).doesNotHaveDuplicates();
+        assertThat(recordedSpeeds.size()).isGreaterThan(1);
     }
 
 }

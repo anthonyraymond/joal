@@ -68,7 +68,7 @@ public class BitTorrentClientProviderTest {
     }
 
     @Test
-    public void shouldistClientFiles() {
+    public void shouldListClientFiles() {
         final BitTorrentClientProvider provider = new BitTorrentClientProvider(Mockito.mock(JoalConfigProvider.class), new ObjectMapper(), joalFoldersPath);
 
         final List<String> clientFiles = provider.listClientFiles();
