@@ -1,11 +1,11 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
-import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.slf4j.Logger;
 
 import java.time.temporal.ChronoUnit;

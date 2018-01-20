@@ -8,7 +8,6 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;

@@ -1,12 +1,12 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.core.events.config.ConfigurationIsInDirtyStateEvent;
+import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigIsInDirtyStatePayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

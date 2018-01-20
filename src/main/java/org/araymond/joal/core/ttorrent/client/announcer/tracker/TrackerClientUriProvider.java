@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 class TrackerClientUriProvider {
     private static final Logger logger = LoggerFactory.getLogger(TrackerClientUriProvider.class);

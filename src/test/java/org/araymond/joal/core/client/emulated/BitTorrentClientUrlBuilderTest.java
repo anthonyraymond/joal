@@ -8,9 +8,7 @@ import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 
-import java.net.*;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import java.net.URL;
 
 /**
  * Created by raymo on 16/07/2017.

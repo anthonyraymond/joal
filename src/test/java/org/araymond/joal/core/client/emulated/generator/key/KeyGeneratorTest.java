@@ -6,7 +6,6 @@ import org.araymond.joal.core.client.emulated.generator.key.algorithm.HashKeyAlg
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;

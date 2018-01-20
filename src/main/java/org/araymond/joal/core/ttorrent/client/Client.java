@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
-import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;

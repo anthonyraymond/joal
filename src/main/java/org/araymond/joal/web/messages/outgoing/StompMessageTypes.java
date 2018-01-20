@@ -4,10 +4,10 @@ import org.araymond.joal.web.messages.outgoing.impl.announce.FailedToAnnouncePay
 import org.araymond.joal.web.messages.outgoing.impl.announce.SuccessfullyAnnouncePayload;
 import org.araymond.joal.web.messages.outgoing.impl.announce.TooManyAnnouncesFailedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.announce.WillAnnouncePayload;
-import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigIsInDirtyStatePayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.InvalidConfigPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.FailedToAddTorrentFilePayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;

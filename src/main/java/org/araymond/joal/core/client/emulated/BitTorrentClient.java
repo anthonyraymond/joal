@@ -7,12 +7,12 @@ import com.google.common.collect.ImmutableList;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.fluent.Request;
+import org.araymond.joal.core.bandwith.TorrentSeedStats;
 import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
-import org.araymond.joal.core.bandwith.TorrentSeedStats;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 

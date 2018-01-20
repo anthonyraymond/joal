@@ -12,8 +12,8 @@ import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
-import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
+import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,6 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class NewTrackerClient {
