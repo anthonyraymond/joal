@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
-import org.araymond.joal.core.events.config.ConfigurationIsInDirtyState;
+import org.araymond.joal.core.events.config.ConfigurationIsInDirtyStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -75,7 +75,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     public void saveNewConf(final AppConfiguration conf) {
         try {
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(joalConfPath.toFile(), conf);
-            publisher.publishEvent(new ConfigurationIsInDirtyState(conf));
+            publisher.publishEvent(new ConfigurationIsInDirtyStateEvent(conf));
         } catch (final IOException e) {
             logger.error("Failed to write new configuration file", e);
             throw new IllegalStateException(e);

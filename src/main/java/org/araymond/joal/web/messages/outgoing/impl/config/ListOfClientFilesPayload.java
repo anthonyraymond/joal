@@ -8,11 +8,11 @@ import java.util.List;
 /**
  * Created by raymo on 08/07/2017.
  */
-public class ClientFilesDiscoveredPayload implements MessagePayload {
+public class ListOfClientFilesPayload implements MessagePayload {
 
     private final List<String> clients;
 
-    public ClientFilesDiscoveredPayload(final ListOfClientFilesEvent event) {
+    public ListOfClientFilesPayload(final ListOfClientFilesEvent event) {
         this.clients = event.getClients();
     }
 

@@ -3,9 +3,9 @@ package org.araymond.joal.web.services;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
-import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
-import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ConfigIsInDirtyStatePayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
 import org.springframework.messaging.MessagingException;
@@ -57,12 +57,12 @@ public class JoalMessageSendingTemplate {
             lock.writeLock().lock();
             switch (stompMessage.getType()) {
                 case SEED_SESSION_HAS_STARTED: {
-                    replayablePayloads.removeIf(message -> message.getType() == SEED_SESSION_HAS_STARTED || message.getType() == SEED_SESSION_HAS_ENDED);
+                    replayablePayloads.removeIf(message -> message.getType() == SEED_SESSION_HAS_STARTED || message.getType() == GLOBAL_SEED_STOPPED);
                     replayablePayloads.add(stompMessage);
                     break;
                 }
-                case SEED_SESSION_HAS_ENDED: {
-                    replayablePayloads.removeIf(message -> message.getType() == SEED_SESSION_HAS_STARTED || message.getType() == SEED_SESSION_HAS_ENDED);
+                case GLOBAL_SEED_STOPPED: {
+                    replayablePayloads.removeIf(message -> message.getType() == SEED_SESSION_HAS_STARTED || message.getType() == GLOBAL_SEED_STOPPED);
                     replayablePayloads.add(stompMessage);
 
                     // Remove torrents added (because they are dispatched again when starting the TorrentFileProvider
@@ -123,13 +123,13 @@ public class JoalMessageSendingTemplate {
                     replayablePayloads.add(stompMessage);
                     break;
                 }*/
-                case CLIENT_FILES_DISCOVERED: {
-                    replayablePayloads.removeIf(message -> ClientFilesDiscoveredPayload.class.isAssignableFrom(message.getPayload().getClass()));
+                case LIST_OF_CLIENT_FILES: {
+                    replayablePayloads.removeIf(message -> ListOfClientFilesPayload.class.isAssignableFrom(message.getPayload().getClass()));
                     replayablePayloads.add(stompMessage);
                     break;
                 }
-                case CONFIG_HAS_CHANGED: {
-                    replayablePayloads.removeIf(message -> ConfigHasChangedPayload.class.isAssignableFrom(message.getPayload().getClass()));
+                case CONFIG_IS_IN_DIRTY_STATE: {
+                    replayablePayloads.removeIf(message -> ConfigIsInDirtyStatePayload.class.isAssignableFrom(message.getPayload().getClass()));
                     replayablePayloads.add(stompMessage);
                     break;
                 }
@@ -138,7 +138,7 @@ public class JoalMessageSendingTemplate {
                 }
                 case CONFIG_HAS_BEEN_LOADED: {
                     replayablePayloads.removeIf(message -> ConfigHasBeenLoadedPayload.class.isAssignableFrom(message.getPayload().getClass())
-                                || ConfigHasChangedPayload.class.isAssignableFrom(message.getPayload().getClass())
+                                || ConfigIsInDirtyStatePayload.class.isAssignableFrom(message.getPayload().getClass())
                     );
                     replayablePayloads.add(stompMessage);
                     break;

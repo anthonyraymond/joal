@@ -2,11 +2,11 @@ package org.araymond.joal.web.services.corelistener;
 
 import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
-import org.araymond.joal.core.events.config.ConfigurationIsInDirtyState;
+import org.araymond.joal.core.events.config.ConfigurationIsInDirtyStateEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
-import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ConfigIsInDirtyStatePayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,10 +32,10 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleConfigHasChanged(final ConfigurationIsInDirtyState event) {
-        logger.debug("Send ConfigurationIsInDirtyState to clients.");
+    void handleConfigHasChanged(final ConfigurationIsInDirtyStateEvent event) {
+        logger.debug("Send ConfigurationIsInDirtyStateEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/config", new ConfigHasChangedPayload(event));
+        this.messagingTemplate.convertAndSend("/config", new ConfigIsInDirtyStatePayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
@@ -51,7 +51,7 @@ public class WebConfigEventListener extends WebEventListener {
     void handleClientFilesDiscovered(final ListOfClientFilesEvent event) {
         logger.debug("Send ListOfClientFilesEvent to clients.");
 
-        this.messagingTemplate.convertAndSend("/config", new ClientFilesDiscoveredPayload(event));
+        this.messagingTemplate.convertAndSend("/config", new ListOfClientFilesPayload(event));
     }
 
 }

@@ -7,11 +7,13 @@ public class FailedToAnnounceEvent {
     private final InfoHash infoHash;
     private final RequestEvent event;
     private final int interval;
+    private final String errMessage;
 
-    public FailedToAnnounceEvent(final InfoHash infoHash, final RequestEvent event, final int interval) {
+    public FailedToAnnounceEvent(final InfoHash infoHash, final RequestEvent event, final int interval, final String errMessage) {
         this.infoHash = infoHash;
         this.event = event;
         this.interval = interval;
+        this.errMessage = errMessage;
     }
 
     public InfoHash getInfoHash() {
@@ -24,5 +26,9 @@ public class FailedToAnnounceEvent {
 
     public int getInterval() {
         return interval;
+    }
+
+    public String getErrMessage() {
+        return errMessage;
     }
 }
