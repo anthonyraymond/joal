@@ -1,9 +1,20 @@
 package org.araymond.joal.web.services.corelistener;
 
+import org.araymond.joal.core.events.announce.FailedToAnnounceEvent;
+import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
+import org.araymond.joal.core.events.announce.TooManyAnnouncesFailedEvent;
+import org.araymond.joal.core.events.announce.WillAnnounceEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
+import org.araymond.joal.web.messages.outgoing.impl.announce.FailedToAnnouncePayload;
+import org.araymond.joal.web.messages.outgoing.impl.announce.SuccessfullyAnnouncePayload;
+import org.araymond.joal.web.messages.outgoing.impl.announce.TooManyAnnouncesFailedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.announce.WillAnnouncePayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -20,51 +31,37 @@ public class WebAnnounceEventListener extends WebEventListener {
     public WebAnnounceEventListener(final JoalMessageSendingTemplate messagingTemplate) {
         super(messagingTemplate);
     }
-/*
+
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleAnnouncerHasStarted(final AnnouncerHasStartedEvent event) {
-        logger.debug("Send AnnouncerHasStartedEvent to clients.");
+    void failedToAnnounce(final FailedToAnnounceEvent event) {
+        logger.debug("Send FailedToAnnouncePayload to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStartedPayload(event));
+        this.messagingTemplate.convertAndSend("/announce", new FailedToAnnouncePayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleAnnounceHasStopped(final AnnouncerHasStoppedEvent event) {
-        logger.debug("Send AnnouncerHasStoppedEvent to clients.");
+    void successfullyAnnounce(final SuccessfullyAnnounceEvent event) {
+        logger.debug("Send SuccessfullyAnnouncePayload to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerHasStoppedPayload(event));
+        this.messagingTemplate.convertAndSend("/announce", new SuccessfullyAnnouncePayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleAnnouncerWillAnnounce(final AnnouncerWillAnnounceEvent event) {
-        logger.debug("Send AnnouncerWillAnnounceEvent to clients.");
+    void tooManyAnnouncesFailed(final TooManyAnnouncesFailedEvent event) {
+        logger.debug("Send TooManyAnnouncesFailedPayload to clients.");
 
-        this.messagingTemplate.convertAndSend("/announce", new AnnouncerWillAnnouncePayload(event));
+        this.messagingTemplate.convertAndSend("/announce", new TooManyAnnouncesFailedPayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleAnnouncerHasAnnounced(final AnnouncerHasAnnouncedEvent event) {
-        logger.debug("Send AnnouncerHasAnnouncedEvent to clients.");
+    void willAnnounce(final WillAnnounceEvent event) {
+        logger.debug("Send WillAnnouncePayload to clients.");
 
-        this.messagingTemplate.convertAndSend(
-                "/announce",
-                new AnnouncerHasAnnouncedPayload(event)
-        );
+        this.messagingTemplate.convertAndSend("/announce", new WillAnnouncePayload(event));
     }
 
-    @Order(Ordered.LOWEST_PRECEDENCE)
-    @EventListener
-    void handleAnnouncerFailedToAnnounce(final AnnouncerHasFailedToAnnounceEvent event) {
-        logger.debug("Send AnnouncerHasFailedToAnnounceEvent to clients.");
-
-        this.messagingTemplate.convertAndSend(
-                "/announce",
-                new AnnouncerHasFailedToAnnouncePayload(event)
-        );
-    }
-*/
 }
