@@ -5,19 +5,14 @@ import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
-public class SuccessfullyAnnouncePayload implements MessagePayload {
-    private final InfoHash infoHash;
+public class SuccessfullyAnnouncePayload extends AnnouncePayload {
     private final int interval;
     private final RequestEvent requestEvent;
 
     public SuccessfullyAnnouncePayload(final SuccessfullyAnnounceEvent event) {
-        this.infoHash = event.getInfoHash();
+        super(event.getInfoHash());
         this.interval = event.getInterval();
         this.requestEvent = event.getEvent();
-    }
-
-    public InfoHash getInfoHash() {
-        return infoHash;
     }
 
     public int getInterval() {

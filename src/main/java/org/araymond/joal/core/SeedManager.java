@@ -11,6 +11,8 @@ import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.core.events.speed.SeedingSpeedsHasChangedEvent;
+import org.araymond.joal.core.events.torrent.files.FailedToAddTorrentFileEvent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.ClientBuilder;
 import org.araymond.joal.core.ttorrent.client.ClientFacade;
@@ -24,7 +26,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by raymo on 27/01/2017.
@@ -96,7 +100,7 @@ public class SeedManager {
     }
 
     public void saveTorrentToDisk(final String name, final byte[] bytes) {
-        /*try {
+        try {
             // test if torrent file is valid or not.
             MockedTorrent.fromBytes(bytes);
 
@@ -107,7 +111,7 @@ public class SeedManager {
             // If NullPointerException occurs (when the file is an empty file) there is no message.
             final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
             this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
-        }*/
+        }
     }
 
     public void deleteTorrent(final String torrentInfoHash) {
