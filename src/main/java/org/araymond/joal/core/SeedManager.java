@@ -68,6 +68,9 @@ public class SeedManager {
     }
 
     public void startSeeding() throws IOException {
+        if (this.client != null) {
+            return;
+        }
         this.configProvider.init();
         final List<String> clientFiles = this.bitTorrentClientProvider.listClientFiles();
         this.publisher.publishEvent(new ListOfClientFilesEvent(clientFiles));

@@ -5,7 +5,6 @@ import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
 import org.araymond.joal.web.messages.outgoing.impl.announce.AnnouncePayload;
-import org.araymond.joal.web.messages.outgoing.impl.announce.WillAnnouncePayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
 import org.springframework.messaging.MessagingException;
@@ -98,7 +97,7 @@ public class JoalMessageSendingTemplate {
                             return false;
                         }
                         final TorrentFileDeletedPayload newMsg = (TorrentFileDeletedPayload) stompMessage.getPayload();
-                        return ((TorrentFileAddedPayload) message.getPayload()).getId().equals(newMsg.getId());
+                        return ((TorrentFileAddedPayload) message.getPayload()).getInfoHash().equals(newMsg.getInfoHash());
                     });
                     break;
                 }

@@ -22,4 +22,12 @@ public class SuccessfullyAnnouncePayload extends AnnouncePayload {
     public int getInterval() {
         return interval;
     }
+
+    public RequestEvent getRequestEvent() {
+        return requestEvent;
+    }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
 }

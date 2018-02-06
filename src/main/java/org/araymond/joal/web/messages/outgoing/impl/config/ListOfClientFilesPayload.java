@@ -9,7 +9,6 @@ import java.util.List;
  * Created by raymo on 08/07/2017.
  */
 public class ListOfClientFilesPayload implements MessagePayload {
-
     private final List<String> clients;
 
     public ListOfClientFilesPayload(final ListOfClientFilesEvent event) {

@@ -26,4 +26,8 @@ public class FailedToAnnouncePayload extends AnnouncePayload {
     public int getInterval() {
         return interval;
     }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
 }

@@ -13,4 +13,8 @@ public class WillAnnouncePayload extends AnnouncePayload {
         super(event.getInfoHash());
         this.dateTime = LocalDateTime.now();
     }
+
+    public LocalDateTime getDateTime() {
+        return dateTime;
+    }
 }
