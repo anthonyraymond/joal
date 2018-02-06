@@ -4,14 +4,18 @@ import org.araymond.joal.core.events.announce.FailedToAnnounceEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
+import java.time.LocalDateTime;
+
 public class FailedToAnnouncePayload extends AnnouncePayload {
     private final String errMessage;
     private final int interval;
+    private final LocalDateTime dateTime;
 
     public FailedToAnnouncePayload(final FailedToAnnounceEvent event) {
         super(event.getInfoHash());
         this.errMessage = event.getErrMessage();
         this.interval = event.getInterval();
+        this.dateTime = LocalDateTime.now();
     }
 
 
