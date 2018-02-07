@@ -13,6 +13,7 @@ import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayloa
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.state.GlobalSeedStartedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.global.state.GlobalSeedStoppedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.speed.SeedingSpeedHasChangedPayload;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,7 +41,10 @@ public enum StompMessageTypes {
 
     //global.state
     GLOBAL_SEED_STARTED(GlobalSeedStartedPayload.class),
-    GLOBAL_SEED_STOPPED(GlobalSeedStoppedPayload.class);
+    GLOBAL_SEED_STOPPED(GlobalSeedStoppedPayload.class),
+
+    // speed
+    SEEDING_SPEED_HAS_CHANGED(SeedingSpeedHasChangedPayload.class);
 
     private static final Map<Class<? extends MessagePayload>, StompMessageTypes> classToType = new HashMap<>();
     private final Class<? extends MessagePayload> clazz;

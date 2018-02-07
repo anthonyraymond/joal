@@ -155,6 +155,10 @@ public class JoalMessageSendingTemplate {
                     });
                     break;
                 }
+                case SEEDING_SPEED_HAS_CHANGED: {
+                    this.replayablePayloads.removeIf(message -> message.getType() == SEEDING_SPEED_HAS_CHANGED);
+                    this.replayablePayloads.add(stompMessage);
+                }
             }
         } finally {
             lock.writeLock().unlock();
