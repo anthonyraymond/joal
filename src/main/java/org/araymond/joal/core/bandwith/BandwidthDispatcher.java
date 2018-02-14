@@ -51,6 +51,15 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         return this.torrentsSeedStats.getOrDefault(infoHash, new TorrentSeedStats());
     }
 
+    public Map<InfoHash, Speed> getSpeedMap() {
+        try {
+            this.lock.readLock().lock();
+            return speedMap;
+        } finally {
+            this.lock.readLock().unlock();
+        }
+    }
+
     public void start() {
         this.stop = false;
         this.thread = new Thread(this);

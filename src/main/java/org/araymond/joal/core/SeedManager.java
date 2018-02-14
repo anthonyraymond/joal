@@ -3,6 +3,7 @@ package org.araymond.joal.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.RandomSpeedProvider;
+import org.araymond.joal.core.bandwith.Speed;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
@@ -12,11 +13,13 @@ import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.core.events.speed.SeedingSpeedsHasChangedEvent;
 import org.araymond.joal.core.events.torrent.files.FailedToAddTorrentFileEvent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.ClientBuilder;
 import org.araymond.joal.core.ttorrent.client.ClientFacade;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +30,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -79,7 +84,9 @@ public class SeedManager {
 
         final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(this.configProvider);
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
-        this.bandwidthDispatcher.setSpeedListener((speeds -> this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds))));
+        this.bandwidthDispatcher.setSpeedListener((speeds -> {
+            this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
+        }));
         this.bandwidthDispatcher.start();
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
@@ -117,6 +124,17 @@ public class SeedManager {
 
     public void deleteTorrent(final String torrentInfoHash) {
         this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
+    }
+
+    public List<AnnouncerFacade> getCurrentlySeedingAnnouncer() {
+        if (this.client == null) {
+            return new ArrayList<>();
+        }
+        return client.getCurrentlySeedingAnnouncer();
+    }
+
+    public Map<InfoHash, Speed> getSpeedMap() {
+        return bandwidthDispatcher.getSpeedMap();
     }
 
     public void stop() {

@@ -8,6 +8,7 @@ import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
@@ -195,7 +196,13 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         }
     }
 
-    public List<Announcer> getCurrentlySeedingAnnouncer() {
-        return currentlySeedingAnnouncer;
+    @Override
+    public List<AnnouncerFacade> getCurrentlySeedingAnnouncer() {
+        try {
+            this.lock.readLock().lock();
+            return Lists.newArrayList(this.currentlySeedingAnnouncer);
+        } finally {
+            this.lock.readLock().unlock();
+        }
     }
 }
