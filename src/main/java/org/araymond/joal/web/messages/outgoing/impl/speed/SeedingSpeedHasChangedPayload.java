@@ -4,7 +4,6 @@ import org.araymond.joal.core.events.speed.SeedingSpeedsHasChangedEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
-import java.util.AbstractMap;
 import java.util.List;
 import java.util.stream.Collectors;
 

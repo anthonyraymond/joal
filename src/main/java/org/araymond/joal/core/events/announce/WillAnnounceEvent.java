@@ -1,7 +1,6 @@
 package org.araymond.joal.core.events.announce;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 
 public class WillAnnounceEvent {

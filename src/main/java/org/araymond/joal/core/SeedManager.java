@@ -79,9 +79,7 @@ public class SeedManager {
 
         final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(this.configProvider);
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
-        this.bandwidthDispatcher.setSpeedListener((speeds -> {
-            this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
-        }));
+        this.bandwidthDispatcher.setSpeedListener((speeds -> this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds))));
         this.bandwidthDispatcher.start();
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);

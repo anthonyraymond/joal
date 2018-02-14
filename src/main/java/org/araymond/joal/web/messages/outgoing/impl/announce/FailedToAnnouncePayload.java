@@ -1,10 +1,6 @@
 package org.araymond.joal.web.messages.outgoing.impl.announce;
 
 import org.araymond.joal.core.events.announce.FailedToAnnounceEvent;
-import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.araymond.joal.web.messages.outgoing.MessagePayload;
-
-import java.time.LocalDateTime;
 
 public class FailedToAnnouncePayload extends AnnouncePayload {
     private final String errMessage;

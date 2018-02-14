@@ -23,11 +23,9 @@ import java.io.IOException;
 public class CoreEventListener {
     private static final Logger logger = LoggerFactory.getLogger(CoreEventListener.class);
 
-    private final ApplicationContext appContext;
-
     @Inject
-    public CoreEventListener(final ApplicationContext appContext) {
-        this.appContext = appContext;
+    public CoreEventListener() {
+
     }
 
 

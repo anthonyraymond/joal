@@ -5,7 +5,6 @@ import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public abstract class AnnouncePayload implements MessagePayload {
     private final InfoHash infoHash;
