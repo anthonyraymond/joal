@@ -1,15 +1,15 @@
 package org.araymond.joal.core.events.announce;
 
-import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 
 public class TooManyAnnouncesFailedEvent {
-    private final InfoHash infoHash;
+    private final AnnouncerFacade announcerFacade;
 
-    public TooManyAnnouncesFailedEvent(final InfoHash infoHash) {
-        this.infoHash = infoHash;
+    public TooManyAnnouncesFailedEvent(final AnnouncerFacade announcerFacade) {
+        this.announcerFacade = announcerFacade;
     }
 
-    public InfoHash getInfoHash() {
-        return infoHash;
+    public AnnouncerFacade getAnnouncerFacade() {
+        return announcerFacade;
     }
 }

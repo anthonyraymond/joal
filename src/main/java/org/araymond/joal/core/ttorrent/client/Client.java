@@ -10,7 +10,7 @@ import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
-import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
 import org.araymond.joal.core.ttorrent.client.announcer.response.AnnounceResponseCallback;
 import org.slf4j.Logger;
@@ -193,5 +193,9 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         } finally {
             this.lock.writeLock().unlock();
         }
+    }
+
+    public List<Announcer> getCurrentlySeedingAnnouncer() {
+        return currentlySeedingAnnouncer;
     }
 }

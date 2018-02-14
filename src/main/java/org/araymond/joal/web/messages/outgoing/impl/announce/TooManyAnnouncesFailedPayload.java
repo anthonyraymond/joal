@@ -6,6 +6,6 @@ import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 public class TooManyAnnouncesFailedPayload extends AnnouncePayload {
     public TooManyAnnouncesFailedPayload(final TooManyAnnouncesFailedEvent event) {
-        super(event.getInfoHash());
+        super(event.getAnnouncerFacade());
     }
 }

@@ -1,10 +1,11 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
-import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.slf4j.Logger;
 
@@ -22,7 +23,7 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
     }
 
     @Override
-    public void onAnnouncerWillAnnounce(final Announcer announcer, TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+    public void onAnnouncerWillAnnounce(final Announcer announcer, final RequestEvent event) {
     }
 
     @Override

@@ -2,27 +2,22 @@ package org.araymond.joal.core.events.announce;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 
 public class SuccessfullyAnnounceEvent {
-    private final InfoHash infoHash;
+    private final AnnouncerFacade announcerFacade;
     private final RequestEvent event;
-    private final int interval;
 
-    public SuccessfullyAnnounceEvent(final InfoHash infoHash, final RequestEvent event, final int interval) {
-        this.infoHash = infoHash;
+    public SuccessfullyAnnounceEvent(final AnnouncerFacade announcerFacade, final RequestEvent event) {
+        this.announcerFacade = announcerFacade;
         this.event = event;
-        this.interval = interval;
     }
 
-    public InfoHash getInfoHash() {
-        return infoHash;
+    public AnnouncerFacade getAnnouncerFacade() {
+        return announcerFacade;
     }
 
     public RequestEvent getEvent() {
         return event;
-    }
-
-    public int getInterval() {
-        return interval;
     }
 }

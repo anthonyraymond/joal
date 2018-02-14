@@ -8,26 +8,13 @@ import java.time.LocalDateTime;
 
 public class FailedToAnnouncePayload extends AnnouncePayload {
     private final String errMessage;
-    private final int interval;
-    private final LocalDateTime dateTime;
 
     public FailedToAnnouncePayload(final FailedToAnnounceEvent event) {
-        super(event.getInfoHash());
+        super(event.getAnnouncerFacade());
         this.errMessage = event.getErrMessage();
-        this.interval = event.getInterval();
-        this.dateTime = LocalDateTime.now();
     }
-
 
     public String getErrMessage() {
         return errMessage;
-    }
-
-    public int getInterval() {
-        return interval;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
     }
 }

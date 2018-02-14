@@ -1,4 +1,4 @@
-package org.araymond.joal.core.ttorrent.client.announcer.request;
+package org.araymond.joal.core.ttorrent.client.announcer;
 
 import com.google.common.base.Objects;
 import com.turn.ttorrent.client.announce.AnnounceException;
@@ -6,15 +6,23 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
+import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.NewTrackerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Announcer {
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+public class Announcer implements AnnouncerFacade {
     private static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
     private int lastKnownInterval = 10;
     private int consecutiveFails = 0;
+    private Integer lastKnownLeechers = null;
+    private Integer lastKnownSeeders = null;
+    private LocalDateTime lastAnnouncedAt = null;
     private final MockedTorrent torrent;
     private final NewTrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
@@ -31,6 +39,7 @@ public class Announcer {
         }
 
         try {
+            this.lastAnnouncedAt = LocalDateTime.now();
             final SuccessAnnounceResponse responseMessage = this.trackerClient.announce(
                     this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
                     this.announceDataAccessor.getHttpHeadersForTorrent()
@@ -39,8 +48,10 @@ public class Announcer {
                 logger.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval", this.torrent.getTorrentInfoHash().humanReadableValue(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
             }
 
-            this.consecutiveFails = 0;
             this.lastKnownInterval = responseMessage.getInterval();
+            this.lastKnownLeechers = responseMessage.getLeechers();
+            this.lastKnownSeeders = responseMessage.getSeeders();
+            this.consecutiveFails = 0;
 
             return responseMessage;
         } catch (final AnnounceException e) {
@@ -59,14 +70,41 @@ public class Announcer {
         }
     }
 
-    public MockedTorrent getTorrent() {
-        return torrent;
-    }
-
+    @Override
     public int getLastKnownInterval() {
         return lastKnownInterval;
     }
 
+    @Override
+    public int getConsecutiveFails() {
+        return consecutiveFails;
+    }
+
+    @Override
+    public Optional<Integer> getLastKnownLeechers() {
+        return Optional.ofNullable(lastKnownLeechers);
+    }
+
+    @Override
+    public Optional<Integer> getLastKnownSeeders() {
+        return Optional.ofNullable(lastKnownSeeders);
+    }
+
+    @Override
+    public Optional<LocalDateTime> getLastAnnouncedAt() {
+        return Optional.ofNullable(lastAnnouncedAt);
+    }
+
+    public MockedTorrent getTorrent() {
+        return torrent;
+    }
+
+    @Override
+    public String getTorrentName() {
+        return this.torrent.getName();
+    }
+
+    @Override
     public InfoHash getTorrentInfoHash() {
         return this.getTorrent().getTorrentInfoHash();
     }

@@ -2,18 +2,19 @@ package org.araymond.joal.core.events.announce;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 
 public class WillAnnounceEvent {
-    private final InfoHash infoHash;
+    private final AnnouncerFacade announcerFacade;
     private final RequestEvent event;
 
-    public WillAnnounceEvent(final InfoHash infoHash, final RequestEvent event) {
-        this.infoHash = infoHash;
+    public WillAnnounceEvent(final AnnouncerFacade announcerFacade, final RequestEvent event) {
+        this.announcerFacade = announcerFacade;
         this.event = event;
     }
 
-    public InfoHash getInfoHash() {
-        return infoHash;
+    public AnnouncerFacade getAnnouncerFacade() {
+        return announcerFacade;
     }
 
     public RequestEvent getEvent() {

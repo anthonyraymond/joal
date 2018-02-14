@@ -7,7 +7,7 @@ import org.araymond.joal.core.events.announce.TooManyAnnouncesFailedEvent;
 import org.araymond.joal.core.events.announce.WillAnnounceEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
-import org.araymond.joal.core.ttorrent.client.announcer.request.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.slf4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
@@ -27,8 +27,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish WillAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
-        this.eventPublisher.publishEvent(new WillAnnounceEvent(infoHash, event));
+        this.eventPublisher.publishEvent(new WillAnnounceEvent(announcer, event));
     }
 
     @Override
@@ -36,9 +35,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
-        final int interval = result.getInterval();
-        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, RequestEvent.STARTED, interval));
+        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(announcer, RequestEvent.STARTED));
     }
 
     @Override
@@ -46,9 +43,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
-        final int interval = announcer.getLastKnownInterval();
-        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, RequestEvent.STARTED, interval, throwable.getMessage()));
+        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(announcer, RequestEvent.STARTED, throwable.getMessage()));
     }
 
     @Override
@@ -56,9 +51,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
-        final int interval = result.getInterval();
-        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, RequestEvent.NONE, interval));
+        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(announcer, RequestEvent.NONE));
     }
 
     @Override
@@ -66,9 +59,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
-        final int interval = announcer.getLastKnownInterval();
-        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, RequestEvent.NONE, interval, throwable.getMessage()));
+        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(announcer, RequestEvent.NONE, throwable.getMessage()));
     }
 
     @Override
@@ -76,8 +67,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
-        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(infoHash, RequestEvent.STOPPED, 0));
+        this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(announcer, RequestEvent.STOPPED));
     }
 
     @Override
@@ -86,7 +76,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
             logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
         final InfoHash infoHash = announcer.getTorrentInfoHash();
-        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(infoHash, RequestEvent.STOPPED, 0, throwable.getMessage()));
+        this.eventPublisher.publishEvent(new FailedToAnnounceEvent(announcer, RequestEvent.STOPPED, throwable.getMessage()));
     }
 
     @Override
@@ -94,8 +84,7 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish TooManyAnnouncesFailedEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
-        this.eventPublisher.publishEvent(new TooManyAnnouncesFailedEvent(infoHash));
+        this.eventPublisher.publishEvent(new TooManyAnnouncesFailedEvent(announcer));
     }
 
 }

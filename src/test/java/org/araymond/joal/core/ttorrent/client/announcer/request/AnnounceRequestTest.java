@@ -1,6 +1,7 @@
 package org.araymond.joal.core.ttorrent.client.announcer.request;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.junit.Test;
 import org.mockito.Mockito;
 

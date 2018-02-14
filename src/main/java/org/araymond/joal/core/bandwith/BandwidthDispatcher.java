@@ -45,7 +45,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
 
     /*
      * This method does not benefit from the lock, because the value will never be accessed in a ambiguous way.
-     * And even if i happens, we returns 0 by default.
+     * And even if it happens, we returns 0 by default.
      */
     public TorrentSeedStats getSeedStatForTorrent(final InfoHash infoHash) {
         return this.torrentsSeedStats.getOrDefault(infoHash, new TorrentSeedStats());
@@ -171,7 +171,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
             });
         }
         if (speedChangedListener != null) {
-            speedChangedListener.speedsHasChanged(Maps.newHashMap(this.speedMap));
+            this.speedChangedListener.speedsHasChanged(Maps.newHashMap(this.speedMap));
         }
         if (logger.isDebugEnabled()) {
             final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
