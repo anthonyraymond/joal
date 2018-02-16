@@ -54,7 +54,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
         return bitTorrentClient;
     }
 
-    public void generateNewClient() throws FileNotFoundException {
+    public void generateNewClient() throws FileNotFoundException, IllegalStateException {
         logger.debug("Generating new client.");
         final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClientFileName());
         if (!Files.exists(clientConfigPath)) {

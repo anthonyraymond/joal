@@ -38,11 +38,14 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
                 "/global",
                 "/announce",
                 "/config",
-                "/torrents"
+                "/torrents",
+                "/speed"
         );
+        // Message received with one of those destinationPrefixes will be automatically router to controllers @MessageMapping
         config.setApplicationDestinationPrefixes("/joal");
     }
 
+    // Handshake endpoint
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry.addEndpoint(this.webSocketPathPrefix)

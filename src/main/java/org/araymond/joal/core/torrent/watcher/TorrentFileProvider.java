@@ -2,6 +2,7 @@ package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
@@ -167,6 +168,10 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     public int getTorrentCount() {
         return this.torrentFiles.size();
+    }
+
+    public List<MockedTorrent> getTorrentFiles() {
+        return Lists.newArrayList(this.torrentFiles.values());
     }
 
 }

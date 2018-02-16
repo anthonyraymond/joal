@@ -1,6 +1,7 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.bandwith.Speed;
@@ -42,6 +43,7 @@ public class SeedManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
 
+    private boolean isSeeding;
     private final JoalFoldersPath joalFoldersPath;
     private final JoalConfigProvider configProvider;
     private final TorrentFileProvider torrentFileProvider;
@@ -64,6 +66,7 @@ public class SeedManager {
     }
 
     public SeedManager(final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
+        this.isSeeding = false;
         this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
         this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, publisher);
@@ -76,6 +79,8 @@ public class SeedManager {
         if (this.client != null) {
             return;
         }
+        this.isSeeding = true;
+
         this.configProvider.init();
         final List<String> clientFiles = this.bitTorrentClientProvider.listClientFiles();
         this.publisher.publishEvent(new ListOfClientFilesEvent(clientFiles));
@@ -126,6 +131,18 @@ public class SeedManager {
         this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
     }
 
+    public boolean isSeeding() {
+        return this.isSeeding;
+    }
+
+    public List<MockedTorrent> getTorrentFiles() {
+        return torrentFileProvider.getTorrentFiles();
+    }
+
+    public List<String> listClientFiles() {
+        return bitTorrentClientProvider.listClientFiles();
+    }
+
     public List<AnnouncerFacade> getCurrentlySeedingAnnouncer() {
         if (this.client == null) {
             return new ArrayList<>();
@@ -134,10 +151,36 @@ public class SeedManager {
     }
 
     public Map<InfoHash, Speed> getSpeedMap() {
+        if (this.bandwidthDispatcher == null) {
+            return Maps.newHashMap();
+        }
         return bandwidthDispatcher.getSpeedMap();
     }
 
+    public AppConfiguration getCurrentConfig() {
+        try {
+            return this.configProvider.get();
+        } catch (final IllegalStateException e) {
+            this.configProvider.init();
+            return this.configProvider.get();
+        }
+    }
+
+    public String getCurrentEmulatedClient() {
+        try {
+            return this.bitTorrentClientProvider.get().getHeaders().stream()
+                    .filter(entry -> "User-Agent".equalsIgnoreCase(entry.getKey()))
+                    .map(Map.Entry::getValue)
+                    .findFirst()
+                    .orElse("Unknown");
+        } catch (final IllegalStateException e) {
+            return "None";
+        }
+    }
+
     public void stop() {
+        this.isSeeding = false;
+        this.bandwidthDispatcher = null;
         if (client != null) {
             this.client.stop();
             this.publisher.publishEvent(new GlobalSeedStoppedEvent());
@@ -149,6 +192,7 @@ public class SeedManager {
             this.bandwidthDispatcher = null;
         }
     }
+
 
     public static class JoalFoldersPath {
         private final Path confPath;
