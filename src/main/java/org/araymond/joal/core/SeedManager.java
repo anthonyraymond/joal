@@ -180,7 +180,6 @@ public class SeedManager {
 
     public void stop() {
         this.isSeeding = false;
-        this.bandwidthDispatcher = null;
         if (client != null) {
             this.client.stop();
             this.publisher.publishEvent(new GlobalSeedStoppedEvent());

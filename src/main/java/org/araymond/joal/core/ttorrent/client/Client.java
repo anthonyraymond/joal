@@ -66,6 +66,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                     this.announcerExecutor.execute(req, this.announceResponseCallback);
                     try {
                         this.lock.writeLock().lock();
+                        this.currentlySeedingAnnouncer.removeIf(an -> an.equals(req.getAnnouncer())); // remove the last recorded event
                         this.currentlySeedingAnnouncer.add(req.getAnnouncer());
                     } finally {
                         this.lock.writeLock().unlock();

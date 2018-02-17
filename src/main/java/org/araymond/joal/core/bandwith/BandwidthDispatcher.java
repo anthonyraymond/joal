@@ -85,6 +85,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 // refresh bandwidth every 1200000 milliseconds (20 minutes)
                 if (this.threadLoopCounter == 1200000 / this.threadPauseInterval) {
                     this.refreshCurrentBandwidth();
+                    this.threadLoopCounter = 0;
                 }
 
                 // This method as to run as fast as possible to avoid blocking other ones. Because we wan't this loop

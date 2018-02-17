@@ -3,12 +3,14 @@ package org.araymond.joal.web.resources;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.codec.binary.Base64;
 import org.araymond.joal.core.SeedManager;
+import org.araymond.joal.core.bandwith.Speed;
 import org.araymond.joal.core.config.AppConfigurationIntegrityException;
 import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.core.events.speed.SeedingSpeedsHasChangedEvent;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
@@ -34,6 +36,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by raymo on 28/07/2017.
@@ -126,7 +129,10 @@ public class WebSocketController {
         }
 
         // speeds
-        events.addFirst(StompMessage.wrap(new SeedingSpeedHasChangedPayload(new SeedingSpeedsHasChangedEvent(this.seedManager.getSpeedMap()))));
+        final Map<InfoHash, Speed> speedMap = this.seedManager.getSpeedMap();
+        if (!speedMap.isEmpty()) {
+            events.addFirst(StompMessage.wrap(new SeedingSpeedHasChangedPayload(new SeedingSpeedsHasChangedEvent(speedMap))));
+        }
 
         // Announcers are the most likely to change due to a concurrent access, so we gather them as late as possible, and we put them at the top of the list.
         for (final AnnouncerFacade announcerFacade : this.seedManager.getCurrentlySeedingAnnouncer()) {

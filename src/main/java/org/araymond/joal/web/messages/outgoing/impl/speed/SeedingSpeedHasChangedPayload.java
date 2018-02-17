@@ -12,7 +12,7 @@ public class SeedingSpeedHasChangedPayload implements MessagePayload {
 
     public SeedingSpeedHasChangedPayload(final SeedingSpeedsHasChangedEvent event) {
         this.speeds = event.getSpeeds().entrySet().stream()
-                .map(entry -> new SpeedPayload(entry.getKey(), String.valueOf(entry.getValue().getBytesPerSeconds())))
+                .map(entry -> new SpeedPayload(entry.getKey(), Long.valueOf(entry.getValue().getBytesPerSeconds())))
                 .collect(Collectors.toList());
     }
 
@@ -22,9 +22,9 @@ public class SeedingSpeedHasChangedPayload implements MessagePayload {
 
     public static final class SpeedPayload {
         private final InfoHash infoHash;
-        private final String bytesPerSeconds;
+        private final Long bytesPerSeconds;
 
-        public SpeedPayload(final InfoHash infoHash, final String bytesPerSeconds) {
+        public SpeedPayload(final InfoHash infoHash, final Long bytesPerSeconds) {
             this.infoHash = infoHash;
             this.bytesPerSeconds = bytesPerSeconds;
         }
@@ -33,7 +33,7 @@ public class SeedingSpeedHasChangedPayload implements MessagePayload {
             return infoHash;
         }
 
-        public String getBytesPerSeconds() {
+        public Long getBytesPerSeconds() {
             return bytesPerSeconds;
         }
     }

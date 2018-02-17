@@ -8,7 +8,7 @@ import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
-import org.araymond.joal.core.ttorrent.client.announcer.tracker.NewTrackerClient;
+import org.araymond.joal.core.ttorrent.client.announcer.tracker.TrackerClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,12 +24,12 @@ public class Announcer implements AnnouncerFacade {
     private Integer lastKnownSeeders = null;
     private LocalDateTime lastAnnouncedAt = null;
     private final MockedTorrent torrent;
-    private final NewTrackerClient trackerClient;
+    private final TrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
 
     public Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor) {
         this.torrent = torrent;
-        this.trackerClient = new NewTrackerClient(torrent);
+        this.trackerClient = new TrackerClient(torrent);
         this.announceDataAccessor = announceDataAccessor;
     }
 
@@ -102,6 +102,11 @@ public class Announcer implements AnnouncerFacade {
     @Override
     public String getTorrentName() {
         return this.torrent.getName();
+    }
+
+    @Override
+    public long getTorrentSize() {
+        return this.torrent.getSize();
     }
 
     @Override

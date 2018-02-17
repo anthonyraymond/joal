@@ -144,7 +144,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     public void moveToArchiveFolder(final String torrentInfoHash) {
         final Optional<File> first = this.torrentFiles.entrySet().stream()
-                .filter(entry -> entry.getValue().getHexInfoHash().equals(torrentInfoHash))
+                .filter(entry -> entry.getValue().getTorrentInfoHash().value().equals(torrentInfoHash))
                 .map(Map.Entry::getKey)
                 .findFirst();
         if (first.isPresent()) {

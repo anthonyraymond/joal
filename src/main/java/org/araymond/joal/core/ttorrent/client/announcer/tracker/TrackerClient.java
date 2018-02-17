@@ -25,12 +25,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class NewTrackerClient {
-    private static final Logger logger = LoggerFactory.getLogger(NewTrackerClient.class);
+public class TrackerClient {
+    private static final Logger logger = LoggerFactory.getLogger(TrackerClient.class);
 
     private final TrackerClientUriProvider trackerClientUriProvider;
 
-    public NewTrackerClient(final MockedTorrent torrent) {
+    public TrackerClient(final MockedTorrent torrent) {
         final List<URI> trackerURIs = torrent.getAnnounceList().stream() // Use a list to keep it ordered
                 .sequential()
                 .flatMap(Collection::stream)
@@ -55,7 +55,7 @@ public class NewTrackerClient {
 
             if (responseMessage instanceof ErrorMessage) {
                 final ErrorMessage error = (ErrorMessage) responseMessage;
-                throw new AnnounceException(error.getReason());
+                throw new AnnounceException(baseUri + ": " + error.getReason());
             }
         } catch (final AnnounceException e) {
             // If the request has failed we need to move to the next tracker.

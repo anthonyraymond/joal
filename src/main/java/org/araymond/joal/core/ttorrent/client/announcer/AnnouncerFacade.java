@@ -12,5 +12,6 @@ public interface AnnouncerFacade {
     Optional<Integer> getLastKnownSeeders();
     Optional<LocalDateTime> getLastAnnouncedAt();
     String getTorrentName();
+    long getTorrentSize();
     InfoHash getTorrentInfoHash();
 }

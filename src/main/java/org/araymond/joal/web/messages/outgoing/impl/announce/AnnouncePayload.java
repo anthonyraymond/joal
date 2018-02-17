@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 public abstract class AnnouncePayload implements MessagePayload {
     private final InfoHash infoHash;
     private final String torrentName;
+    private final long torrentSize;
     private final int lastKnownInterval;
     private final int consecutiveFails;
     private final LocalDateTime lastAnnouncedAt;
@@ -18,6 +19,7 @@ public abstract class AnnouncePayload implements MessagePayload {
     protected AnnouncePayload(final AnnouncerFacade announcerFacade) {
         this.infoHash = announcerFacade.getTorrentInfoHash();
         this.torrentName = announcerFacade.getTorrentName();
+        this.torrentSize = announcerFacade.getTorrentSize();
         this.lastKnownInterval = announcerFacade.getLastKnownInterval();
         this.consecutiveFails = announcerFacade.getConsecutiveFails();
         this.lastAnnouncedAt = announcerFacade.getLastAnnouncedAt().orElse(null);
@@ -30,6 +32,9 @@ public abstract class AnnouncePayload implements MessagePayload {
     }
     public String getTorrentName() {
         return torrentName;
+    }
+    public long getTorrentSize() {
+        return torrentSize;
     }
     public int getLastKnownInterval() {
         return lastKnownInterval;
