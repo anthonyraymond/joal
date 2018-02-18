@@ -106,9 +106,9 @@ The application configuration belongs in `joal-conf/config.json`.
 | ![Mozilla Firefox][browser-firefox] | ![yes][support-yes]     |                                                      |
 | ![Opera][browser-opera]             | ![yes][support-yes]     |                                                      |
 | ![Opera mini][browser-opera-mini]   | ![no][support-no]       | Lack of `referrer-policy` & No support for WebSocket |
-| ![Safari][browser-safari]           | ![no][support-danger]   | Lack of `referrer-policy`                            |
-| ![Edge][browser-edge]               | ![no][support-danger]   | Lack of `referrer-policy`                            |
-| ![Internet explorer][browser-ie]    | ![no][support-danger]   | Not enough space to explain...                       |
+| ![Safari][browser-safari]           | ![no][support-no]       | Lack of `referrer-policy`                            |
+| ![Edge][browser-edge]               | ![no][support-no]       | Lack of `referrer-policy`                            |
+| ![Internet explorer][browser-ie]    | ![no][support-never]    | Not enough space to explain...                       |
 
 Some non-supported browser might works, but they may be unsafe due to the lack of support for `referrer-policy`.
 
