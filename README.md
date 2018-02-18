@@ -117,7 +117,7 @@ This project use a modified version of the awesome [mpetazzoni/ttorrent](http://
 Also this project has benefited from the help of several peoples, see [Thanks.md](THANKS.md)
 
 
-[support-danger]:readme-assets/warning.png
+[support-never]:readme-assets/warning.png
 [support-no]:readme-assets/cross-mark.png
 [support-yes]:readme-assets/check-mark.png
 [joal-conf-folder]:readme-assets/joal-conf-folder.png
