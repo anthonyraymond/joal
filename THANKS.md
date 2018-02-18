@@ -1,5 +1,5 @@
 ### Special Thanks
-People that had help to improve JOAL.
+People who helped improving JOAL.
 
 - [*donator*] [**Lucius**](https://www.sb-innovation.de/members/47799-lucius): Helped to improve JOAL security, a lot.
 - [*donator*] **An anonymous user** @[sb-innovation](**http://www.sb-innovation.de**): Gave-away an IPTorrent invite.
