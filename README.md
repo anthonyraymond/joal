@@ -116,8 +116,6 @@ Some non-supported browser might works, but they may be unsafe due to the lack o
 This project use a modified version of the awesome [mpetazzoni/ttorrent](http://mpetazzoni.github.com/ttorrent/) library. Thanks to **mpetazzoni** for this.
 Also this project has benefited from the help of several peoples, see [Thanks.md](THANKS.md)
 
-[![Analytics](https://ga-beacon.appspot.com/UA-97530761-1/joal/readme?pixel)](https://github.com/igrigorik/ga-beacon)
-
 
 [support-danger]:readme-assets/warning.png
 [support-no]:readme-assets/cross-mark.png
