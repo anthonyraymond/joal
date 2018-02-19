@@ -18,7 +18,7 @@ import java.util.Optional;
 public class Announcer implements AnnouncerFacade {
     private static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
-    private int lastKnownInterval = 10;
+    private int lastKnownInterval = 5;
     private int consecutiveFails = 0;
     private Integer lastKnownLeechers = null;
     private Integer lastKnownSeeders = null;
@@ -60,7 +60,7 @@ public class Announcer implements AnnouncerFacade {
             }
 
             ++this.consecutiveFails;
-            if (this.consecutiveFails == 5) {
+            if (this.consecutiveFails >= 5) {
                 if (logger.isInfoEnabled()) {
                     logger.info("{} has failed to announce 5 times in a raw", this.torrent.getTorrentInfoHash().humanReadableValue());
                 }

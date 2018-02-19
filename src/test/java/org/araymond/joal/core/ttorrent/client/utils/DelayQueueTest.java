@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorrent.client.utils;
 
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.junit.Test;
 
@@ -16,30 +17,33 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DelayQueueTest {
 
+    DelayQueue.InfoHashAble createInfoHashAble(final String str) {
+        return () -> new InfoHash(str.getBytes());
+    }
 
     @Test
     public void shouldSort() {
-        final DelayQueue<String> queue = new DelayQueue<>();
-        queue.addOrReplace("two", 20, ChronoUnit.SECONDS);
-        queue.addOrReplace("one", 10, ChronoUnit.MILLIS);
-        queue.addOrReplace("four", 1801, ChronoUnit.SECONDS);
-        queue.addOrReplace("three", 30, ChronoUnit.MINUTES);
+        final DelayQueue<DelayQueue.InfoHashAble> queue = new DelayQueue<>();
+        queue.addOrReplace(createInfoHashAble("two"), 20, ChronoUnit.SECONDS);
+        queue.addOrReplace(createInfoHashAble("one"), 10, ChronoUnit.MILLIS);
+        queue.addOrReplace(createInfoHashAble("four"), 1801, ChronoUnit.SECONDS);
+        queue.addOrReplace(createInfoHashAble("three"), 30, ChronoUnit.MINUTES);
 
-        final List<String> announcers = queue.drainAll();
+        final List<String> announcers = queue.drainAll().stream().map(i -> i.getInfoHash().value()).collect(Collectors.toList());;
         assertThat(announcers).containsExactly("one", "two", "three", "four");
         assertThat(queue.drainAll()).isEmpty();
     }
 
     @Test
     public void shouldNotBeAvailableBeforeIntervalTimeout() {
-        final DelayQueue<String> queue = new DelayQueue<>();
+        final DelayQueue<DelayQueue.InfoHashAble> queue = new DelayQueue<>();
 
-        queue.addOrReplace("one", -2, ChronoUnit.MILLIS);
-        queue.addOrReplace("two", -1, ChronoUnit.MILLIS);
-        queue.addOrReplace("three", 30, ChronoUnit.MINUTES);
-        queue.addOrReplace("four", 1801, ChronoUnit.SECONDS);
+        queue.addOrReplace(createInfoHashAble("one"), -2, ChronoUnit.MILLIS);
+        queue.addOrReplace(createInfoHashAble("two"), -1, ChronoUnit.MILLIS);
+        queue.addOrReplace(createInfoHashAble("three"), 30, ChronoUnit.MINUTES);
+        queue.addOrReplace(createInfoHashAble("four"), 1801, ChronoUnit.SECONDS);
 
-        final List<String> announcers = queue.getAvailables();
+        final List<String> announcers = queue.getAvailables().stream().map(i -> i.getInfoHash().value()).collect(Collectors.toList());
         assertThat(announcers).hasSize(2);
         assertThat(announcers).containsExactly("one", "two");
     }
@@ -47,15 +51,15 @@ public class DelayQueueTest {
     @Test
     public void shouldBeAbleToRemoveOneElement() {
 
-        final DelayQueue<String> queue = new DelayQueue<>();
+        final DelayQueue<DelayQueue.InfoHashAble> queue = new DelayQueue<>();
 
-        queue.addOrReplace("one", 20, ChronoUnit.MILLIS);
-        queue.addOrReplace("two", 50, ChronoUnit.SECONDS);
-        queue.addOrReplace("three", 30, ChronoUnit.MINUTES);
+        queue.addOrReplace(createInfoHashAble("one"), 20, ChronoUnit.MILLIS);
+        queue.addOrReplace(createInfoHashAble("two"), 50, ChronoUnit.SECONDS);
+        queue.addOrReplace(createInfoHashAble("three"), 30, ChronoUnit.MINUTES);
 
-        queue.remove("two");
+        queue.remove(createInfoHashAble("two"));
 
-        final List<String> announcers = queue.drainAll();
+        final List<String> announcers = queue.drainAll().stream().map(i -> i.getInfoHash().value()).collect(Collectors.toList());
         assertThat(announcers)
                 .hasSize(2)
                 .containsExactly("one", "three");
@@ -63,16 +67,16 @@ public class DelayQueueTest {
 
     @Test
     public void shouldBeThreadSafe() throws InterruptedException {
-        final int threadCount = 100;
-        final DelayQueue<String> queue = new DelayQueue<>();
-        IntStream.range(0, threadCount).forEach(i -> queue.addOrReplace(String.valueOf(i), -50, ChronoUnit.MILLIS));
+        final int announcerCount = 100;
+        final DelayQueue<DelayQueue.InfoHashAble> queue = new DelayQueue<>();
+        IntStream.range(0, announcerCount).forEach(i -> queue.addOrReplace(createInfoHashAble(String.valueOf(i)), -50, ChronoUnit.MILLIS));
 
-        final List<Callable<List<String>>> callables = IntStream.range(0, threadCount)
-                .mapToObj(i -> (Callable<List<String>>) queue::getAvailables)
+        final List<Callable<List<DelayQueue.InfoHashAble>>> callables = IntStream.range(0, 5)
+                .mapToObj(i -> (Callable<List<DelayQueue.InfoHashAble>>) queue::getAvailables)
                 .collect(Collectors.toList());
         final ExecutorService executor = Executors.newFixedThreadPool(7);
-        final List<Future<List<String>>> futures = executor.invokeAll(callables);
-        final List<String> results = futures.stream()
+        final List<Future<List<DelayQueue.InfoHashAble>>> futures = executor.invokeAll(callables);
+        final List<DelayQueue.InfoHashAble> results = futures.stream()
                 .map(f -> {
                     try {
                         return f.get();
@@ -83,7 +87,7 @@ public class DelayQueueTest {
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
 
-        assertThat(results).hasSize(threadCount);
+        assertThat(results).hasSize(announcerCount);
     }
 
 }

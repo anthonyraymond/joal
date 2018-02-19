@@ -1,6 +1,7 @@
 package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.base.Objects;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalUnit;
@@ -12,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @param <T> element held by the list (MUST IMPLEMENT equals AND hashcode).
  */
-public class DelayQueue<T> {
+public class DelayQueue<T extends DelayQueue.InfoHashAble> {
     private final ReentrantLock lock = new ReentrantLock();
     private final Queue<IntervalAware<T>> queue = new PriorityQueue<>();
 
@@ -31,7 +32,7 @@ public class DelayQueue<T> {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            this.queue.removeIf(i -> i.getItem().equals(item)); // Ensure no double will be present in the queue (don't ant to have two announce type for a torrent)
+            this.queue.removeIf(i -> i.getItem().getInfoHash().equals(item.getInfoHash())); // Ensure no double will be present in the queue (don't ant to have two announce type for a torrent)
             this.queue.add(intervalAware);
         } finally {
             lock.unlock();
@@ -63,7 +64,7 @@ public class DelayQueue<T> {
         final ReentrantLock lock = this.lock;
         lock.lock();
         try {
-            this.queue.removeIf(item -> item.getItem().equals(itemToRemove));
+            this.queue.removeIf(item -> item.getItem().getInfoHash().equals(itemToRemove.getInfoHash()));
         } finally {
             lock.unlock();
         }
@@ -116,5 +117,9 @@ public class DelayQueue<T> {
         public int hashCode() {
             return Objects.hashCode(releaseAt, item);
         }
+    }
+
+    public interface InfoHashAble {
+        InfoHash getInfoHash();
     }
 }

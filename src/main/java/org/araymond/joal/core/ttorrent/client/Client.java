@@ -38,7 +38,6 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     private Thread thread;
     private volatile boolean stop = false;
 
-
     Client(final JoalConfigProvider configProvider, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnounceResponseCallback announceResponseCallback, final AnnounceDataAccessor announceDataAccessor) {
         Preconditions.checkNotNull(configProvider, "JoalConfigProvider must not be null");
         Preconditions.checkNotNull(torrentFileProvider, "TorrentFileProvider must not be null");
@@ -80,17 +79,10 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             }
         });
         for (int i = 0; i < this.configProvider.get().getSimultaneousSeed(); i++) {
-            final MockedTorrent torrent;
             try {
                 this.lock.writeLock().lock();
-                torrent = this.torrentFileProvider.getTorrentNotIn(
-                        this.currentlySeedingAnnouncer.stream()
-                                .map(Announcer::getTorrent)
-                                .collect(Collectors.toList())
-                );
-                final Announcer announcer = new Announcer(torrent, this.announceDataAccessor);
-                this.currentlySeedingAnnouncer.add(announcer);
-                this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 0, ChronoUnit.SECONDS);
+
+                this.addTorrent();
             } catch (final NoMoreTorrentsFileAvailableException ignored) {
                 break;
             } finally {
@@ -103,6 +95,17 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
         this.thread.start();
         this.torrentFileProvider.registerListener(this);
+    }
+
+    private void addTorrent() throws NoMoreTorrentsFileAvailableException {
+        final MockedTorrent torrent = this.torrentFileProvider.getTorrentNotIn(
+                this.currentlySeedingAnnouncer.stream()
+                        .map(Announcer::getTorrent)
+                        .collect(Collectors.toList())
+        );
+        final Announcer announcer = new Announcer(torrent, this.announceDataAccessor);
+        this.currentlySeedingAnnouncer.add(announcer);
+        this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 0, ChronoUnit.SECONDS);
     }
 
     @Override
@@ -128,6 +131,12 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             this.lock.writeLock().lock();
             this.currentlySeedingAnnouncer.remove(announcer);
             this.torrentFileProvider.moveToArchiveFolder(announcer.getTorrent());
+            if (this.stop) {
+                return;
+            }
+
+            this.addTorrent();
+        } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -142,24 +151,14 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     public void onTorrentHasStopped(final Announcer stoppedAnnouncer) {
         try {
             this.lock.writeLock().lock();
-            this.currentlySeedingAnnouncer.remove(stoppedAnnouncer);
-
             if (this.stop) {
                 return;
             }
-            final List<Announcer> currentlySeedingCopy = Lists.newArrayList(this.currentlySeedingAnnouncer);
-            currentlySeedingCopy.add(stoppedAnnouncer);
 
-            final MockedTorrent nextTorrent = this.torrentFileProvider.getTorrentNotIn(
-                    this.currentlySeedingAnnouncer.stream()
-                            .map(Announcer::getTorrent)
-                            .collect(Collectors.toList())
-            );
-            final Announcer announcer = new Announcer(nextTorrent, this.announceDataAccessor);
-            this.currentlySeedingAnnouncer.add(announcer);
-            this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 1, ChronoUnit.SECONDS);
+            this.addTorrent();
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
+            this.currentlySeedingAnnouncer.remove(stoppedAnnouncer);
             this.lock.writeLock().unlock();
         }
     }
@@ -187,7 +186,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         try {
             this.lock.writeLock().lock();
             this.currentlySeedingAnnouncer.stream()
-                    .filter(announcer -> announcer.getTorrent().equals(torrent))
+                    .filter(announcer -> announcer.getTorrentInfoHash().equals(torrent.getTorrentInfoHash()))
                     .findFirst()
                     .ifPresent(announcer ->
                             this.delayQueue.addOrReplace(AnnounceRequest.createStop(announcer), 1, ChronoUnit.SECONDS)

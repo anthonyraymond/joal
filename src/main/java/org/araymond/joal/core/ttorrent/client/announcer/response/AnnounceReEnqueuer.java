@@ -38,7 +38,7 @@ public class AnnounceReEnqueuer implements AnnounceResponseHandlerChainElement {
         if (logger.isDebugEnabled()) {
             logger.debug("Enqueue torrent {} in start queue once again (because it failed).", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 5, ChronoUnit.SECONDS);
+        this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), announcer.getLastKnownInterval(), ChronoUnit.SECONDS);
     }
 
     @Override
