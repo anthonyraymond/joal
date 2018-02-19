@@ -1,10 +1,9 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.ttorrent.client.Client;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.slf4j.Logger;
 
