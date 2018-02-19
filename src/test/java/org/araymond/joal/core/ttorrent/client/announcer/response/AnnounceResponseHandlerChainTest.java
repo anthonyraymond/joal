@@ -1,12 +1,17 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
+import org.mockito.Matchers;
+import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 public class AnnounceResponseHandlerChainTest {
 
@@ -20,7 +25,7 @@ public class AnnounceResponseHandlerChainTest {
             final int handlerPosition = i;
             chain.appendHandler(new DefaultResponseHandler() {
                 @Override
-                public void onAnnouncerWillAnnounce(final Announcer announcer, TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+                public void onAnnouncerWillAnnounce(final Announcer announcer, RequestEvent event) {
                     builder.append(handlerPosition);
                 }
             });
@@ -33,29 +38,183 @@ public class AnnounceResponseHandlerChainTest {
         assertThat(builder.toString()).matches("(0123456789){50}");
     }
 
+    @Test
+    public void shouldDispatchOnWillAnnounce() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+
+        announceResponseHandlerChain.onAnnounceWillAnnounce(RequestEvent.STARTED, announcer);
+
+        Mockito.verify(e1, times(1)).onAnnouncerWillAnnounce(Matchers.eq(announcer), Matchers.eq(RequestEvent.STARTED));
+        Mockito.verify(e2, times(1)).onAnnouncerWillAnnounce(Matchers.eq(announcer), Matchers.eq(RequestEvent.STARTED));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
+    @Test
+    public void shouldDispatchSuccessAnnounceStart() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+        final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
+
+        announceResponseHandlerChain.onAnnounceSuccess(RequestEvent.STARTED, announcer, successAnnounceResponse);
+
+        Mockito.verify(e1, times(1)).onAnnounceStartSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verify(e2, times(1)).onAnnounceStartSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
+    @Test
+    public void shouldDispatchSuccessAnnounceRegular() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+        final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
+
+        announceResponseHandlerChain.onAnnounceSuccess(RequestEvent.NONE, announcer, successAnnounceResponse);
+
+        Mockito.verify(e1, times(1)).onAnnounceRegularSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verify(e2, times(1)).onAnnounceRegularSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
+    @Test
+    public void shouldDispatchSuccessAnnounceStop() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+        final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
+
+        announceResponseHandlerChain.onAnnounceSuccess(RequestEvent.STOPPED, announcer, successAnnounceResponse);
+
+        Mockito.verify(e1, times(1)).onAnnounceStopSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verify(e2, times(1)).onAnnounceStopSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
+    @Test
+    public void shouldDispatchFailAnnounceStart() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+
+        announceResponseHandlerChain.onAnnounceFailure(RequestEvent.STARTED, announcer, new Exception("oops"));
+
+        Mockito.verify(e1, times(1)).onAnnounceStartFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verify(e2, times(1)).onAnnounceStartFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
+    @Test
+    public void shouldDispatchFailAnnounceRegular() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+
+        announceResponseHandlerChain.onAnnounceFailure(RequestEvent.NONE, announcer, new Exception("oops"));
+
+        Mockito.verify(e1, times(1)).onAnnounceRegularFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verify(e2, times(1)).onAnnounceRegularFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
+    @Test
+    public void shouldDispatchFailAnnounceStop() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+
+        announceResponseHandlerChain.onAnnounceFailure(RequestEvent.STOPPED, announcer, new Exception("oops"));
+
+        Mockito.verify(e1, times(1)).onAnnounceStopFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verify(e2, times(1)).onAnnounceStopFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
+    @Test
+    public void shouldDispatchTooManyFails() {
+        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+
+        final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
+        announceResponseHandlerChain.appendHandler(e1);
+        announceResponseHandlerChain.appendHandler(e2);
+
+        final Announcer announcer = mock(Announcer.class);
+
+        announceResponseHandlerChain.onTooManyAnnounceFailedInARaw(RequestEvent.STARTED, announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
+
+        Mockito.verify(e1, times(1)).onTooManyAnnounceFailedInARaw(Matchers.eq(announcer), Matchers.any(TooMuchAnnouncesFailedInARawException.class));
+        Mockito.verify(e2, times(1)).onTooManyAnnounceFailedInARaw(Matchers.eq(announcer), Matchers.any(TooMuchAnnouncesFailedInARawException.class));
+        Mockito.verifyNoMoreInteractions(e1, e2);
+    }
+
 
     private static class DefaultResponseHandler implements AnnounceResponseHandlerChainElement {
         @Override
-        public void onAnnouncerWillAnnounce(final Announcer announcer, TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+        public void onAnnouncerWillAnnounce(final Announcer announcer, final RequestEvent event) {
         }
+
         @Override
         public void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         }
+
         @Override
         public void onAnnounceStartFails(final Announcer announcer, final Throwable throwable) {
         }
+
         @Override
         public void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         }
+
         @Override
         public void onAnnounceRegularFails(final Announcer announcer, final Throwable throwable) {
         }
+
         @Override
         public void onAnnounceStopSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         }
+
         @Override
         public void onAnnounceStopFails(final Announcer announcer, final Throwable throwable) {
         }
+
         @Override
         public void onTooManyAnnounceFailedInARaw(final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
         }

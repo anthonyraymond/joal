@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class DelayQueueTest {
 
-    DelayQueue.InfoHashAble createInfoHashAble(final String str) {
+    public static DelayQueue.InfoHashAble createInfoHashAble(final String str) {
         return () -> new InfoHash(str.getBytes());
     }
 

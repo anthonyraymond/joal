@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,27 +143,15 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         }
     }
 
-    public void moveToArchiveFolder(final String torrentInfoHash) {
+    public void moveToArchiveFolder(final InfoHash infoHash) {
         final Optional<File> first = this.torrentFiles.entrySet().stream()
-                .filter(entry -> entry.getValue().getTorrentInfoHash().value().equals(torrentInfoHash))
+                .filter(entry -> entry.getValue().getTorrentInfoHash().equals(infoHash))
                 .map(Map.Entry::getKey)
                 .findFirst();
         if (first.isPresent()) {
             this.moveToArchiveFolder(first.get());
         } else {
-            logger.warn("Cannot find torrent for infohash {}, therefore we can't remove it. Torrent file seems not to be registered in TorrentFileProvider.", torrentInfoHash);
-        }
-    }
-
-    public void moveToArchiveFolder(final MockedTorrent torrent) {
-        final Optional<File> first = this.torrentFiles.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(torrent))
-                .map(Map.Entry::getKey)
-                .findFirst();
-        if (first.isPresent()) {
-            this.moveToArchiveFolder(first.get());
-        } else {
-            logger.warn("Cannot move torrent {} to archive folder. Torrent file seems not to be registered in TorrentFileProvider.", torrent.getName());
+            logger.warn("Cannot move torrent {} to archive folder. Torrent file seems not to be registered in TorrentFileProvider.", infoHash);
         }
     }
 

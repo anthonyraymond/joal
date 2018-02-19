@@ -1,6 +1,7 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage;
+import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
@@ -24,14 +25,14 @@ public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
     }
 
     @Override
-    public void onAnnounceWillAnnounce(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer) {
+    public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
         for (final AnnounceResponseHandlerChainElement element : chainElements) {
             element.onAnnouncerWillAnnounce(announcer, event);
         }
     }
 
     @Override
-    public void onAnnounceSuccess(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
+    public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
         for (final AnnounceResponseHandlerChainElement element : chainElements) {
             switch (event) {
                 case STARTED: {
@@ -55,7 +56,7 @@ public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
     }
 
     @Override
-    public void onAnnounceFailure(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer, final Throwable throwable) {
+    public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
         for (final AnnounceResponseHandlerChainElement element : chainElements) {
             switch (event) {
                 case STARTED: {
@@ -79,7 +80,7 @@ public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
     }
 
     @Override
-    public void onTooManyAnnounceFailedInARaw(final TrackerMessage.AnnounceRequestMessage.RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
+    public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
         for (final AnnounceResponseHandlerChainElement chainElement : chainElements) {
             chainElement.onTooManyAnnounceFailedInARaw(announcer, e);
         }
