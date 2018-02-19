@@ -32,7 +32,7 @@ public class AnnouncerExecutor {
     }
 
     public void execute(final AnnounceRequest request, final AnnounceResponseCallback callback) {
-        final Callable<Void> callbable = () -> {
+        final Callable<Void> callable = () -> {
             try {
                 callback.onAnnounceWillAnnounce(request.getEvent(), request.getAnnouncer());
                 final SuccessAnnounceResponse result = request.getAnnouncer().announce(request.getEvent());
@@ -47,7 +47,7 @@ public class AnnouncerExecutor {
             return null;
         };
 
-        final Future<Void> future = this.executorService.submit(callbable);
+        final Future<Void> future = this.executorService.submit(callable);
 
         this.currentlyRunning.put(
                 request.getAnnouncer().getTorrentInfoHash(),
