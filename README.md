@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/anthonyraymond/joal.svg?branch=master)](https://travis-ci.org/anthonyraymond/joal)
+[![Coverage Status](https://coveralls.io/repos/github/anthonyraymond/joal/badge.svg?branch=master)](https://coveralls.io/github/anthonyraymond/joal?branch=master)
 
 # JOAL
 This is the server application (with an **optional** webui), if you are interested in the desktop app look at [here](https://github.com/anthonyraymond/joal-desktop).
