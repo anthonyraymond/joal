@@ -45,6 +45,7 @@
         <junit.version>4.12</junit.version>
         <mockito.version>1.10.19</mockito.version>
         <org-assertj.version>3.8.0</org-assertj.version>
+        <coveralls.plugin.version>4.3.0</coveralls.plugin.version>
     </properties>
 
     <dependencies>
@@ -204,6 +205,13 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            
+            
+			<plugin>
+				<groupId>org.eluder.coveralls</groupId>
+				<artifactId>coveralls-maven-plugin</artifactId>
+				<version>${coveralls.plugin.version}</version>
+			</plugin>
         </plugins>
     </build>
 
