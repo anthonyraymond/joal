@@ -45,6 +45,7 @@
         <junit.version>4.12</junit.version>
         <mockito.version>1.10.19</mockito.version>
         <org-assertj.version>3.8.0</org-assertj.version>
+	<jacoco.plugin.version>0.8.0</jacoco.plugin.version>
         <coveralls.plugin.version>4.3.0</coveralls.plugin.version>
     </properties>
 
