@@ -9,11 +9,17 @@ import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnoun
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.TrackerClient;
+import org.araymond.joal.core.ttorrent.client.announcer.tracker.TrackerClientUriProvider;
+import org.araymond.joal.core.ttorrent.client.announcer.tracker.TrackerResponseHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.URI;
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class Announcer implements AnnouncerFacade {
     private static final Logger logger = LoggerFactory.getLogger(Announcer.class);
@@ -29,7 +35,11 @@ public class Announcer implements AnnouncerFacade {
 
     public Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor) {
         this.torrent = torrent;
-        this.trackerClient = new TrackerClient(torrent);
+        final List<URI> trackerURIs = torrent.getAnnounceList().stream() // Use a list to keep it ordered
+                .sequential()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        this.trackerClient = new TrackerClient(new TrackerClientUriProvider(trackerURIs), new TrackerResponseHandler());
         this.announceDataAccessor = announceDataAccessor;
     }
 

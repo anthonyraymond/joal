@@ -8,13 +8,13 @@ import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 
-class TrackerClientUriProvider {
+public class TrackerClientUriProvider {
     private static final Logger logger = LoggerFactory.getLogger(TrackerClientUriProvider.class);
 
     private final Iterator<URI> addressIterator;
     private URI currentURI = null;
 
-    TrackerClientUriProvider(@SuppressWarnings("TypeMayBeWeakened") final List<URI> trackersURI) {
+    public TrackerClientUriProvider(@SuppressWarnings("TypeMayBeWeakened") final List<URI> trackersURI) {
         // TODO: sorted(new PreferHTTPSComparator())
         this.addressIterator = Iterators.cycle(trackersURI);
     }

@@ -1,13 +1,10 @@
 package org.araymond.joal.core.ttorrent.client.announcer.tracker;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.ErrorMessage;
-import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
-import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
@@ -19,7 +16,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -29,13 +25,11 @@ public class TrackerClient {
     private static final Logger logger = LoggerFactory.getLogger(TrackerClient.class);
 
     private final TrackerClientUriProvider trackerClientUriProvider;
+    private final ResponseHandler<TrackerMessage> trackerResponseHandler;
 
-    public TrackerClient(final MockedTorrent torrent) {
-        final List<URI> trackerURIs = torrent.getAnnounceList().stream() // Use a list to keep it ordered
-                .sequential()
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
-        this.trackerClientUriProvider = new TrackerClientUriProvider(trackerURIs);
+    public TrackerClient(final TrackerClientUriProvider trackerClientUriProvider, final ResponseHandler<TrackerMessage> trackerResponseHandler) {
+        this.trackerResponseHandler = trackerResponseHandler;
+        this.trackerClientUriProvider = trackerClientUriProvider;
     }
 
     public final SuccessAnnounceResponse announce(final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
@@ -80,7 +74,8 @@ public class TrackerClient {
         return new SuccessAnnounceResponse(interval, seeders, leechers);
     }
 
-    private TrackerMessage makeCallAndGetResponseAsByteBuffer(final URI announceUri, final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
+    @VisibleForTesting
+    TrackerMessage makeCallAndGetResponseAsByteBuffer(final URI announceUri, final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
         final String base = announceUri + (announceUri.toString().contains("?") ? "&": "?");
         final Request request = Request.Get(base + requestQuery);
 
@@ -101,46 +96,9 @@ public class TrackerClient {
         }
 
         try {
-            return response.handleResponse(new TrackerResponseHandler());
+            return response.handleResponse(this.trackerResponseHandler);
         } catch (final IOException e) {
             throw new AnnounceException("Failed to handle tracker response: " + e.getMessage(), e);
-        }
-    }
-
-
-    static final class TrackerResponseHandler implements ResponseHandler<TrackerMessage> {
-        @Override
-        public TrackerMessage handleResponse(final HttpResponse response) throws IOException {
-            final HttpEntity entity = response.getEntity();
-            if (entity == null) {
-                final String message = "No response from tracker";
-                throw new IOException(message, new AnnounceException(message));
-            }
-
-            final int contentLength = entity.getContentLength() < 1 ? 1024 : (int) entity.getContentLength();
-            try(final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(contentLength)) {
-                if (response.getStatusLine().getStatusCode() >= 300) {
-                    logger.warn("Tracker response is an error.");
-                }
-
-                try {
-                    entity.writeTo(outputStream);
-                } catch (final IOException e) {
-                    final String message = "Failed to read tracker http response";
-                    throw new IOException(message, new AnnounceException(message, e));
-                }
-
-                try {
-                    // Parse and handle the response
-                    return HTTPTrackerMessage.parse(ByteBuffer.wrap(outputStream.toByteArray()));
-                } catch (final IOException ioe) {
-                    final String message = "Error reading tracker response!";
-                    throw new IOException(message, new AnnounceException(message, ioe));
-                } catch (final TrackerMessage.MessageValidationException mve) {
-                    final String message = "Tracker message violates expected protocol (" + mve.getMessage() + ")";
-                    throw new IOException(message, new AnnounceException(message, mve));
-                }
-            }
         }
     }
 
