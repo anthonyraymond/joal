@@ -27,6 +27,9 @@ public class TrackerClientUriProvider {
     }
 
     void deleteCurrentAndMoveToNext() throws NoMoreUriAvailableException {
+        if (this.currentURI == null) {
+            this.currentURI = this.addressIterator.next();
+        }
         this.addressIterator.remove();
         this.moveToNext();
     }
