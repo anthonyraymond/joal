@@ -117,6 +117,41 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
+    public void shouldCallTooManyFailsWhenAnnounceThrownTooManyFails() throws InterruptedException {
+        final AnnouncerExecutor executor = new AnnouncerExecutor();
+        final CountDownLatch countDown = new CountDownLatch(100);
+
+        for (int i = 0; i < 100; i++) {
+            executor.execute(
+                    AnnounceRequest.createRegular(new FakeAnnouncer() {
+                        @Override
+                        public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {
+                            throw new TooMuchAnnouncesFailedInARawException(Mockito.mock(MockedTorrent.class));
+                        }
+                    }),
+                    new AnnounceResponseCallback() {
+                        @Override
+                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
+                        }
+                        @Override
+                        public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
+                        }
+                        @Override
+                        public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
+                        }
+                        @Override
+                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
+                            countDown.countDown();
+                        }
+                    }
+            );
+        }
+
+        countDown.await(10, TimeUnit.SECONDS);
+        assertThat(countDown.getCount()).isEqualTo(0L);
+    }
+
+    @Test
     public void shouldDenyAThread() throws InterruptedException {
         final AnnouncerExecutor executor = new AnnouncerExecutor();
         final AtomicInteger atomicInteger = new AtomicInteger(0);
@@ -278,7 +313,7 @@ public class AnnouncerExecutorTest {
         }
 
         @Override
-        public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException {
+        public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {
             return null;
         }
     }
