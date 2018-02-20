@@ -30,4 +30,4 @@ after_deploy:
   - rm -rf packager-tmp
   
 after_success:
-  - mvn coveralls:report
+  - mvn clean test jacoco:report coveralls:report
