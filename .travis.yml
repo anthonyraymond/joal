@@ -28,3 +28,6 @@ deploy:
 
 after_deploy:
   - rm -rf packager-tmp
+  
+after_success:
+  - mvn coveralls:report
