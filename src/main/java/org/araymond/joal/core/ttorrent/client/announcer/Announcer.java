@@ -1,5 +1,6 @@
 package org.araymond.joal.core.ttorrent.client.announcer;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
@@ -30,17 +31,26 @@ public class Announcer implements AnnouncerFacade {
     private Integer lastKnownSeeders = null;
     private LocalDateTime lastAnnouncedAt = null;
     private final MockedTorrent torrent;
-    private final TrackerClient trackerClient;
+    private TrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
 
     public Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor) {
         this.torrent = torrent;
+        this.trackerClient = this.buildTrackerClient(torrent);
+        this.announceDataAccessor = announceDataAccessor;
+    }
+
+    private TrackerClient buildTrackerClient(final MockedTorrent torrent) {
         final List<URI> trackerURIs = torrent.getAnnounceList().stream() // Use a list to keep it ordered
                 .sequential()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());
-        this.trackerClient = new TrackerClient(new TrackerClientUriProvider(trackerURIs), new TrackerResponseHandler());
-        this.announceDataAccessor = announceDataAccessor;
+        return new TrackerClient(new TrackerClientUriProvider(trackerURIs), new TrackerResponseHandler());
+    }
+
+    @VisibleForTesting
+    void setTrackerClient(final TrackerClient trackerClient) {
+        this.trackerClient = trackerClient;
     }
 
     public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {

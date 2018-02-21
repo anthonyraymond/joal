@@ -32,7 +32,7 @@ public class TrackerClient {
         this.trackerClientUriProvider = trackerClientUriProvider;
     }
 
-    public final SuccessAnnounceResponse announce(final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
+    public SuccessAnnounceResponse announce(final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
         final URI baseUri;
         try {
             while (!this.trackerClientUriProvider.get().getScheme().startsWith("http")) {
