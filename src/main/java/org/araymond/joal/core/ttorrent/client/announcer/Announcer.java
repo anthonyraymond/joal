@@ -74,7 +74,7 @@ public class Announcer implements AnnouncerFacade {
             this.consecutiveFails = 0;
 
             return responseMessage;
-        } catch (final AnnounceException e) {
+        } catch (final Exception e) {
             if (logger.isWarnEnabled()) {
                 logger.warn("{} has failed to announce", this.torrent.getTorrentInfoHash().humanReadableValue(), e);
             }

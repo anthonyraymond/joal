@@ -23,9 +23,7 @@ import java.io.IOException;
 public class CoreEventListener {
     private static final Logger logger = LoggerFactory.getLogger(CoreEventListener.class);
 
-    @Inject
     public CoreEventListener() {
-
     }
 
 

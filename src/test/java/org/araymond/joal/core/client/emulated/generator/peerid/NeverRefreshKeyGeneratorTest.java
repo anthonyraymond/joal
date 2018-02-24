@@ -16,7 +16,7 @@ public class NeverRefreshKeyGeneratorTest {
     @Test
     public void shouldNeverRefresh() {
         final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
-        Mockito.when(algo.generate()).thenReturn("do-not-care");
+        Mockito.when(algo.generate()).thenReturn("do-not-care-too-much");
         final PeerIdGenerator generator = new NeverRefreshPeerIdGenerator(algo, false);
 
         for (int i = 0; i < 50; ++i) {

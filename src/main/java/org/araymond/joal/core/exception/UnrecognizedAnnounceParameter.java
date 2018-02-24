@@ -10,7 +10,4 @@ public class UnrecognizedAnnounceParameter extends RuntimeException {
         super(message);
     }
 
-    public UnrecognizedAnnounceParameter(final String message, final Throwable cause) {
-        super(message, cause);
-    }
 }

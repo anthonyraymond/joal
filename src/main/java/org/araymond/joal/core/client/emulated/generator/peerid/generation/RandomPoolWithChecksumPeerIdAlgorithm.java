@@ -1,6 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
@@ -57,7 +58,8 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
         return base;
     }
 
-    private byte[] createSecureRandomSeed() {
+    @VisibleForTesting
+    byte[] createSecureRandomSeed() {
         return Instant.now().toString().getBytes();
     }
 
@@ -68,8 +70,8 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
         return (randNumber + 10);
     }
 
-    @Override
-    public String generate() {
+    @VisibleForTesting
+    byte[] generateRandomBytes(final int length) {
         // This test is subject to multi-thread issues, but in this case it's actually a good news
         if (this.generationCount >= this.refreshSeedAfter) {
             // Times to times we reset the seed to enforce randomness
@@ -80,21 +82,26 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
 
         this.generationCount += 1;
 
+        final byte[] bytes = new byte[length];
+        this.random.nextBytes(bytes);
+        return bytes;
+    }
+
+    @Override
+    public String generate() {
         final int suffixLength = PeerIdGenerator.PEER_ID_LENGTH - this.prefix.length();
-        final byte[] randomBytes = new byte[suffixLength - 1];
+        final byte[] randomBytes = this.generateRandomBytes(suffixLength - 1);
         final char[] buf = new char[suffixLength];
         int val, total = 0;
 
-        this.random.nextBytes(randomBytes);
-
-        for (int i = 0; i < 11; ++i)
-        {
-            val = (randomBytes[i] + 128) % this.base;
+        for (int i = 0; i < suffixLength - 1; ++i) {
+            val = randomBytes[i] < 0 ? randomBytes[i] + 256 : randomBytes[i];
+            val %= base;
             total += val;
             buf[i] = this.charactersPool.charAt(val);
         }
         val = (total % this.base) != 0 ? this.base - (total % this.base) : 0;
-        buf[11] = this.charactersPool.charAt(val);
+        buf[suffixLength - 1] = this.charactersPool.charAt(val);
         return this.prefix + new String(buf);
     }
 

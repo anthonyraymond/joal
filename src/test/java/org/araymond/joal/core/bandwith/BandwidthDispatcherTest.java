@@ -6,6 +6,7 @@ import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -14,9 +15,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 
 public class BandwidthDispatcherTest {
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
+    @Test
+    public void shouldRefreshRandomSpeedProviderAndRecomputeSpeed() {
+        final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
+        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+
+        final BandwidthDispatcher bandwidthDispatcher = spy(new BandwidthDispatcher(2, speedProvider));
+
+        bandwidthDispatcher.refreshCurrentBandwidth();
+
+        Mockito.verify(speedProvider, Mockito.times(1)).refresh();
+        Mockito.verify(bandwidthDispatcher, times(1)).recomputeSpeeds();
+    }
+
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void shouldReturnZeroIfInfoHashIsNotRegistered() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -34,6 +52,7 @@ public class BandwidthDispatcherTest {
         assertThat(seedStats.getLeft()).isEqualTo(0);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void shouldNotIncrementRegisteredTorrentsBeforePeersHaveBeenAdded() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -54,6 +73,7 @@ public class BandwidthDispatcherTest {
         assertThat(seedStats.getLeft()).isEqualTo(0);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void shouldNotIncrementRegisteredTorrentsWithZeroSeeders() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -75,6 +95,7 @@ public class BandwidthDispatcherTest {
         assertThat(seedStats.getLeft()).isEqualTo(0);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void shouldNotIncrementRegisteredTorrentsWithZeroLeechers() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -96,6 +117,7 @@ public class BandwidthDispatcherTest {
         assertThat(seedStats.getLeft()).isEqualTo(0);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void shouldRemoveUnregisteredTorrent() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -119,6 +141,7 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.stop();
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void shouldIncrementRegisteredTorrent() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -143,6 +166,7 @@ public class BandwidthDispatcherTest {
         assertThat(seedStats2.getUploaded()).isGreaterThan(1);
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     public void shouldBeSafeToUpdateTorrentSeedsStatsWhileRegisteringTorrents() throws ExecutionException, InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -153,7 +177,7 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.start();
 
         final ExecutorService executorService = Executors.newFixedThreadPool(5);
-        final List<Future<?>> futures = new ArrayList<>();
+        final Collection<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < 100; ++i) {
             final InfoHash infoHash = new InfoHash((i + "").getBytes());
             futures.add(executorService.submit(() -> {
@@ -180,6 +204,7 @@ public class BandwidthDispatcherTest {
         bandwidthDispatcher.stop();
     }
 
+    @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
     @Test
     public void shouldNotifyThatSpeedHasChangedAfterRegisteringTorrent() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
@@ -188,7 +213,7 @@ public class BandwidthDispatcherTest {
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
         bandwidthDispatcher.start();
 
-        final SpeedChangedListener speedListener = Mockito.spy(new VoidSpeedChangedListener());
+        final SpeedChangedListener speedListener = spy(new VoidSpeedChangedListener());
         bandwidthDispatcher.setSpeedListener(speedListener);
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});

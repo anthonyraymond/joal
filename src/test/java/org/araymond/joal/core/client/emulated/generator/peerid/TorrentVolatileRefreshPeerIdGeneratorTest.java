@@ -17,7 +17,7 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
     @Test
     public void shouldHaveOneKeyPerTorrent() {
         final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
-        Mockito.when(algo.generate()).thenReturn("do-not-care");
+        Mockito.when(algo.generate()).thenReturn("do-not-care-too-much");
         final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator(algo, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);
@@ -33,7 +33,7 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
                 .isEqualTo(generator.getPeerId(t1.getTorrentInfoHash(), RequestEvent.STOPPED));
 
         Mockito.verify(algo, Mockito.times(1)).generate();
-        Mockito.when(algo.generate()).thenReturn("do-not-care2");
+        Mockito.when(algo.generate()).thenReturn("!!-not-care-too-much");
 
         final String keyTwo = generator.getPeerId(t2.getTorrentInfoHash(), RequestEvent.STARTED);
         assertThat(keyTwo)
@@ -49,7 +49,7 @@ public class TorrentVolatileRefreshPeerIdGeneratorTest {
     @Test
     public void shouldRefreshKeyWhenTorrentHasStopped() {
         final PeerIdAlgorithm algo = Mockito.mock(PeerIdAlgorithm.class);
-        Mockito.when(algo.generate()).thenReturn("do-not-care");
+        Mockito.when(algo.generate()).thenReturn("do-not-care-too-much");
         final PeerIdGenerator generator = new TorrentVolatileRefreshPeerIdGenerator(algo, false);
 
         final MockedTorrent t1 = Mockito.mock(MockedTorrent.class);

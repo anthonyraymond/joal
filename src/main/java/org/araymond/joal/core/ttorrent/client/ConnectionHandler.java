@@ -7,11 +7,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Collections;
 import java.util.List;
@@ -38,7 +36,6 @@ public class ConnectionHandler {
             "http://bot.whatismyipaddress.com/",
             "https://tnx.nl/ip"
     };
-
 
     public ConnectionHandler() {
     }
@@ -78,11 +75,16 @@ public class ConnectionHandler {
 
         for (final String ipProvider : shuffledList) {
             final String ip;
+            logger.info("Fetching ip from: " + ipProvider);
+            final URLConnection urlConnection;
             try {
-                logger.info("Fetching ip from: " + ipProvider);
-                final URL url = new URL(ipProvider);
-
-                final BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+                urlConnection = new URL(ipProvider).openConnection();
+                urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36");
+            } catch (final IOException e) {
+                logger.warn("Failed to fetch Ip from \"" + ipProvider + "\"", e);
+                return Optional.empty();
+            }
+            try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))){
                 ip = in.readLine();
 
                 return Optional.of(InetAddress.getByName(ip));

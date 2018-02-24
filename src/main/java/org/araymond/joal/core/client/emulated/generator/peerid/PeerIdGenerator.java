@@ -47,7 +47,11 @@ public abstract class PeerIdGenerator {
     public abstract String getPeerId(final InfoHash infoHash, RequestEvent event);
 
     protected String generatePeerId() {
-        return this.algorithm.generate();
+        final String peerId = this.algorithm.generate();
+        if (peerId.length() != PEER_ID_LENGTH) {
+            throw new IllegalStateException("PeerId length was supposed to be 20. But a PeerId of " + peerId.length() + " was generated. Throw exception to prevent sending invalid PeerId to tracker.");
+        }
+        return peerId;
     }
 
     @Override

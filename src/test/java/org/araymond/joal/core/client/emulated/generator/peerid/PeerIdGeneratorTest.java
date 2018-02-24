@@ -46,7 +46,7 @@ public class PeerIdGeneratorTest {
 
     @Test
     public void shouldGeneratePeerIdAndBeUpperCase() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[A-Z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[A-Z]{12}", false);
 
         for (int i = 0; i < 30; i++) {
             assertThat(peerIdGenerator.generatePeerId())
@@ -57,7 +57,7 @@ public class PeerIdGeneratorTest {
 
     @Test
     public void shouldGeneratePeerIdAndBeLowerCase() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-z]{12}", false);
 
         for (int i = 0; i < 30; i++) {
             assertThat(peerIdGenerator.generatePeerId())
@@ -68,15 +68,15 @@ public class PeerIdGeneratorTest {
 
     @Test
     public void shouldBeEqualsByProperties() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
-        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
+        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
         assertThat(peerIdGenerator).isEqualTo(peerIdGenerator2);
     }
 
     @Test
     public void shouldHaveSameHashCodeWithSameProperties() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
-        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
+        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
         assertThat(peerIdGenerator.hashCode()).isEqualTo(peerIdGenerator2.hashCode());
     }
     

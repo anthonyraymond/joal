@@ -26,6 +26,18 @@ import static org.mockito.Mockito.*;
 public class AnnouncerTest {
 
     @Test
+    public void shouldProvideRequiredInfoForAnnouncerFacade() {
+        final MockedTorrent torrent = MockedTorrentTest.createOneMock();
+        final AnnouncerFacade facade = new Announcer(torrent, null);
+
+        assertThat(facade.getConsecutiveFails()).isEqualTo(0);
+        assertThat(facade.getLastKnownInterval()).isEqualTo(5);
+        assertThat(facade.getTorrentName()).isEqualTo(torrent.getName());
+        assertThat(facade.getTorrentSize()).isEqualTo(torrent.getSize());
+        assertThat(facade.getTorrentInfoHash()).isEqualTo(torrent.getTorrentInfoHash());
+    }
+
+    @Test
     public void shouldThrowTooManyFailsExceptionIfFailsFiveTimesInARaw() throws AnnounceException {
         final MockedTorrent torrent = MockedTorrentTest.createOneMock("abcd");
 

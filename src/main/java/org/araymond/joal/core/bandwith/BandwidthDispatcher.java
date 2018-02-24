@@ -1,5 +1,6 @@
 package org.araymond.joal.core.bandwith;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.apache.commons.io.FileUtils;
@@ -147,7 +148,8 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         }
     }
 
-    private void refreshCurrentBandwidth() {
+    @VisibleForTesting
+    void refreshCurrentBandwidth() {
         if (logger.isDebugEnabled()) {
             logger.debug("Refreshing global bandwidth");
         }
@@ -163,7 +165,8 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         }
     }
 
-    private void recomputeSpeeds() {
+    @VisibleForTesting
+    void recomputeSpeeds() {
         if (logger.isDebugEnabled()) {
             logger.debug("Refreshing all torrents speeds");
         }
@@ -183,25 +186,29 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         if (speedChangedListener != null) {
             this.speedChangedListener.speedsHasChanged(Maps.newHashMap(this.speedMap));
         }
-        if (logger.isDebugEnabled()) {
-            final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
-            final double totalWeight = this.weightHolder.getTotalWeight();
-            this.speedMap.forEach((infoHash, speed) -> {
-                final String humanReadableSpeed = FileUtils.byteCountToDisplaySize(speed.getBytesPerSeconds());
-                final double torrentWeight = this.weightHolder.getWeightFor(infoHash);
-                final double weightInPercent = torrentWeight > 0.0
-                        ? totalWeight / torrentWeight * 100
-                        : 0;
-                sb.append("      ")
-                        .append(infoHash.humanReadableValue())
-                        .append(":")
-                        .append("\n          ").append("current speed: ").append(humanReadableSpeed).append("/s")
-                        .append("\n          ").append("overall upload: ").append(FileUtils.byteCountToDisplaySize(this.torrentsSeedStats.get(infoHash).getUploaded()))
-                        .append("\n          ").append("weight: ").append(weightInPercent).append("% (").append(torrentWeight).append(" out of ").append(totalWeight).append(")")
-                        .append("\n");
-            });
-            sb.setLength(sb.length() - 1); // remove last \n
-            logger.debug(sb.toString());
+        try {
+            if (logger.isDebugEnabled()) {
+                final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
+                final double totalWeight = this.weightHolder.getTotalWeight();
+                this.speedMap.forEach((infoHash, speed) -> {
+                    final String humanReadableSpeed = FileUtils.byteCountToDisplaySize(speed.getBytesPerSeconds());
+                    final double torrentWeight = this.weightHolder.getWeightFor(infoHash);
+                    final double weightInPercent = torrentWeight > 0.0
+                            ? totalWeight / torrentWeight * 100
+                            : 0;
+                    sb.append("      ")
+                            .append(infoHash.humanReadableValue())
+                            .append(":")
+                            .append("\n          ").append("current speed: ").append(humanReadableSpeed).append("/s")
+                            .append("\n          ").append("overall upload: ").append(FileUtils.byteCountToDisplaySize(this.torrentsSeedStats.get(infoHash).getUploaded()))
+                            .append("\n          ").append("weight: ").append(weightInPercent).append("% (").append(torrentWeight).append(" out of ").append(totalWeight).append(")")
+                            .append("\n");
+                });
+                sb.setLength(sb.length() - 1); // remove last \n
+                logger.debug(sb.toString());
+            }
+        } catch (final Exception e) {
+            logger.debug("Error while printing debug message for speed.", e);
         }
     }
 
