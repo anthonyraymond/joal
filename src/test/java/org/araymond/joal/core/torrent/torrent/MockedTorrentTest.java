@@ -2,13 +2,15 @@ package org.araymond.joal.core.torrent.torrent;
 
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.Torrent;
+import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -35,6 +37,21 @@ public class MockedTorrentTest {
         doReturn(2).when(torrent).getTrackerCount();
 
         return torrent;
+    }
+
+    @Test
+    public void shouldBeEqualByInfoHash() throws IOException, NoSuchAlgorithmException {
+        final MockedTorrent torrent1 = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.UBUNTU).toFile());
+        final MockedTorrent torrent2 = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.UBUNTU).toFile());
+        final MockedTorrent torrent3 = MockedTorrent.fromFile(TorrentFileCreator.getTorrentPath(TorrentFileCreator.TorrentType.AUDIO).toFile());
+
+        assertThat(torrent1)
+                .isEqualTo(torrent2)
+                .isNotEqualTo(torrent3);
+
+        assertThat(torrent1.hashCode())
+                .isEqualTo(torrent2.hashCode())
+                .isNotEqualTo(torrent3.hashCode());
     }
 
 }

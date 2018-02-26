@@ -1,11 +1,18 @@
 package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 
+import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RegexPatternPeerIdAlgorithmTest {
+
+    @Test
+    public void shouldNotBuildWithoutPattern() {
+        assertThatThrownBy(() -> new RegexPatternPeerIdAlgorithm(null))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class);
+    }
 
     @Test
     public void shouldGeneratePeerIdMatchingPattern() {

@@ -1,5 +1,6 @@
 package org.araymond.joal.core.client.emulated.generator.key.algorithm;
 
+import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.junit.Test;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
@@ -8,6 +9,12 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class HashNoLeadingZeroKeyAlgorithmTest {
+
+    @Test
+    public void shouldNotBuildWithNullLength() {
+        assertThatThrownBy(() -> new HashNoLeadingZeroKeyAlgorithm(null))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class);
+    }
 
     @Test
     public void shouldGenerateValidHash() {

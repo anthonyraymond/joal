@@ -45,7 +45,8 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
         return key;
     }
 
-    private void evictOldEntries() {
+    @VisibleForTesting
+    void evictOldEntries() {
         Sets.newHashSet(this.peerIdPerTorrent.entrySet()).stream()
                 .filter(this::shouldEvictEntry)
                 .forEach(entry -> this.peerIdPerTorrent.remove(entry.getKey()));

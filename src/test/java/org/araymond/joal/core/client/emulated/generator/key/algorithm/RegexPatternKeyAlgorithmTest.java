@@ -1,10 +1,21 @@
 package org.araymond.joal.core.client.emulated.generator.key.algorithm;
 
+import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RegexPatternKeyAlgorithmTest {
+
+    @Test
+    public void shouldNotBuildWithNullLength() {
+        assertThatThrownBy(() -> new RegexPatternKeyAlgorithm(null))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class);
+
+        assertThatThrownBy(() -> new RegexPatternKeyAlgorithm(""))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class);
+    }
 
     @Test
     public void shouldGeneratePeerIdMatchingPattern() {

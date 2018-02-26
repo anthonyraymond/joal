@@ -71,7 +71,7 @@ public class WebSocketController {
 
         try {
             seedManager.saveNewConfiguration(message.toAppConfiguration());
-        } catch (final AppConfigurationIntegrityException e) {
+        } catch (final Exception e) {
             logger.warn("Failed to save conf {}", message.toString(), e);
             messageSendingTemplate.convertAndSend("/config", new InvalidConfigPayload(e));
         }

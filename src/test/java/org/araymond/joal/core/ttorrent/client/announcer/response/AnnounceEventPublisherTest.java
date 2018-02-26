@@ -1,11 +1,11 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.events.announce.FailedToAnnounceEvent;
 import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
 import org.araymond.joal.core.events.announce.TooManyAnnouncesFailedEvent;
 import org.araymond.joal.core.events.announce.WillAnnounceEvent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
@@ -28,6 +28,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
 
         notifier.onAnnouncerWillAnnounce(announcer, RequestEvent.STARTED);
 
@@ -47,6 +48,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
         final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
         notifier.onAnnounceStartSuccess(announcer, successAnnounceResponse);
 
@@ -66,6 +68,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
         notifier.onAnnounceStartFails(announcer, new Exception("oops"));
 
         final ArgumentCaptor<FailedToAnnounceEvent> captor = ArgumentCaptor.forClass(FailedToAnnounceEvent.class);
@@ -85,6 +88,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
         final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
         notifier.onAnnounceRegularSuccess(announcer, successAnnounceResponse);
 
@@ -104,6 +108,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
         notifier.onAnnounceRegularFails(announcer, new Exception("oops"));
 
         final ArgumentCaptor<FailedToAnnounceEvent> captor = ArgumentCaptor.forClass(FailedToAnnounceEvent.class);
@@ -123,6 +128,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
         final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
         notifier.onAnnounceStopSuccess(announcer, successAnnounceResponse);
 
@@ -142,6 +148,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
         notifier.onAnnounceStopFails(announcer, new Exception("oops"));
 
         final ArgumentCaptor<FailedToAnnounceEvent> captor = ArgumentCaptor.forClass(FailedToAnnounceEvent.class);
@@ -161,6 +168,7 @@ public class AnnounceEventPublisherTest {
 
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
+        Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
         notifier.onTooManyAnnounceFailedInARaw(announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
 
         final ArgumentCaptor<TooManyAnnouncesFailedEvent> captor = ArgumentCaptor.forClass(TooManyAnnouncesFailedEvent.class);

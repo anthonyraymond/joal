@@ -1,10 +1,18 @@
 package org.araymond.joal.core.client.emulated.generator.key.algorithm;
 
+import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class HashKeyAlgorithmTest {
+
+    @Test
+    public void shouldNotBuildWithNullLength() {
+        assertThatThrownBy(() -> new HashKeyAlgorithm(null))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class);
+    }
 
     @Test
     public void shouldGenerateValidHash() {

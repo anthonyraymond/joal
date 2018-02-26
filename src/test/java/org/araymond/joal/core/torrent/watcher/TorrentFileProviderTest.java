@@ -47,7 +47,7 @@ public class TorrentFileProviderTest {
     }
 
     @Test
-    public void shouldNotBuildIfFolderDoesNotExists() throws FileNotFoundException {
+    public void shouldNotBuildIfFolderDoesNotExists() {
         assertThatThrownBy(() -> new TorrentFileProvider(new SeedManager.JoalFoldersPath(Paths.get("nop"))))
                 .isInstanceOf(FileNotFoundException.class)
                 .hasMessageStartingWith("Torrent folder '")
@@ -117,10 +117,8 @@ public class TorrentFileProviderTest {
         assertThat(provider.getTorrentCount()).isEqualTo(1);
     }
 
-    // TODO
-    /*
     @Test
-    public void shouldMoveTorrentFileToArchivedFolderFromMockedTorrent() throws IOException, NoMoreTorrentsFileAvailableException {
+    public void shouldMoveTorrentFileToArchivedFolderFromInfoHash() throws IOException, NoMoreTorrentsFileAvailableException {
         TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
         final TorrentFileProvider provider = new TorrentFileProvider(joalFoldersPath);
@@ -129,12 +127,12 @@ public class TorrentFileProviderTest {
         assertThat(provider.getTorrentCount()).isEqualTo(1);
 
         assertThat(joalFoldersPath.getTorrentArchivedPath().resolve("ubuntu.torrent")).doesNotExist();
-        provider.moveToArchiveFolder(provider.getTorrentNotIn(new ArrayList<>()));
+        provider.moveToArchiveFolder(provider.getTorrentFiles().get(0).getTorrentInfoHash());
         assertThat(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent")).doesNotExist();
 
         assertThat(joalFoldersPath.getTorrentArchivedPath().resolve("ubuntu.torrent")).exists();
     }
-*/
+
     @Test
     public void shouldMoveTorrentFileToArchivedFolder() throws IOException {
         final Path torrentFile = TorrentFileCreator.create(joalFoldersPath.getTorrentFilesPath().resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);

@@ -9,7 +9,7 @@ import org.araymond.joal.web.messages.outgoing.MessagePayload;
 public class InvalidConfigPayload implements MessagePayload {
     private final String error;
 
-    public InvalidConfigPayload(final AppConfigurationIntegrityException e) {
+    public InvalidConfigPayload(final Exception e) {
         this.error = e.getMessage();
     }
 

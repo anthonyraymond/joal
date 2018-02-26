@@ -3,6 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.numwant;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.junit.Test;
 
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -59,6 +60,24 @@ public class NumwantProviderTest {
 
         assertThat(numwantProvider.get(RequestEvent.STARTED)).isEqualTo(200);
         assertThat(numwantProvider.get(RequestEvent.STOPPED)).isEqualTo(0);
+    }
+
+    @Test
+    public void shouldBeEqualsByProperties() {
+        final NumwantProvider numwant1 = new NumwantProvider(10, 20);
+        final NumwantProvider numwant2 = new NumwantProvider(10, 20);
+        final NumwantProvider numwant3 = new NumwantProvider(2, 20);
+        final NumwantProvider numwant4 = new NumwantProvider(10, 2);
+
+        assertThat(numwant1)
+                .isEqualTo(numwant2)
+                .isNotEqualTo(numwant3)
+                .isNotEqualTo(numwant4);
+
+        assertThat(numwant1.hashCode())
+                .isEqualTo(numwant2.hashCode())
+                .isNotEqualTo(numwant3.hashCode())
+                .isNotEqualTo(numwant4.hashCode());
     }
 
 }

@@ -1,5 +1,6 @@
 package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 
+import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.junit.Test;
 import org.mockito.Matchers;
@@ -9,6 +10,33 @@ import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RandomPoolWithChecksumPeerIdAlgorithmTest {
+
+    @Test
+    public void shouldNotBuildWithoutPrefix() {
+        assertThatThrownBy(() -> new RandomPoolWithChecksumPeerIdAlgorithm(null, "abcdefg", 7))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class)
+                .hasMessageContaining("prefix");
+        assertThatThrownBy(() -> new RandomPoolWithChecksumPeerIdAlgorithm("", "abcdefg", 7))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class)
+                .hasMessageContaining("prefix");
+    }
+
+    @Test
+    public void shouldNotBuildWithoutCharPool() {
+        assertThatThrownBy(() -> new RandomPoolWithChecksumPeerIdAlgorithm("a", null, 7))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class)
+                .hasMessageContaining("charactersPool");
+        assertThatThrownBy(() -> new RandomPoolWithChecksumPeerIdAlgorithm("a", "", 7))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class)
+                .hasMessageContaining("charactersPool");
+    }
+
+    @Test
+    public void shouldNotBuildWithoutBase() {
+        assertThatThrownBy(() -> new RandomPoolWithChecksumPeerIdAlgorithm("a", "abcdefg", null))
+                .isInstanceOf(TorrentClientConfigIntegrityException.class)
+                .hasMessageContaining("base");
+    }
 
     @Test
     public void shouldGenerateProperPeerIds() {
@@ -59,6 +87,21 @@ public class RandomPoolWithChecksumPeerIdAlgorithmTest {
         }
 
         Mockito.verify(algo, Mockito.atLeast(1)).createSecureRandomSeed();
+    }
+
+    @Test
+    public void shouldBeEqualsByProeprty() {
+        final RandomPoolWithChecksumPeerIdAlgorithm algo1 = new RandomPoolWithChecksumPeerIdAlgorithm("a", "abcd", 4);
+        final RandomPoolWithChecksumPeerIdAlgorithm algo2 = new RandomPoolWithChecksumPeerIdAlgorithm("a", "abcd", 4);
+        final RandomPoolWithChecksumPeerIdAlgorithm algo3 = new RandomPoolWithChecksumPeerIdAlgorithm("ab", "abcd", 4);
+
+        assertThat(algo1)
+                .isEqualTo(algo2)
+                .isNotEqualTo(algo3);
+
+        assertThat(algo1.hashCode())
+                .isEqualTo(algo2.hashCode())
+                .isNotEqualTo(algo3.hashCode());
     }
 
 }

@@ -66,11 +66,11 @@ public class MockedTorrent extends Torrent {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         final MockedTorrent that = (MockedTorrent) o;
-        return Objects.equal(getHexInfoHash(), that.getHexInfoHash());
+        return Objects.equal(this.infoHash, that.infoHash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(getHexInfoHash());
+        return Objects.hashCode(this.infoHash);
     }
 }

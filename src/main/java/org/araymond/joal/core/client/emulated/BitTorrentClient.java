@@ -6,19 +6,17 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.fluent.Request;
 import org.araymond.joal.core.bandwith.TorrentSeedStats;
 import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
-import org.araymond.joal.core.exception.UnrecognizedAnnounceParameter;
+import org.araymond.joal.core.exception.UnrecognizedClientPlaceholder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
-import java.net.URL;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -114,11 +112,20 @@ public class BitTorrentClient {
             emulatedClientQuery = emulatedClientQuery.replaceAll("\\{key}", urlEncoder.encode(key));
         }
 
-        final Matcher matcher = Pattern.compile("(\\{.*?})").matcher(emulatedClientQuery);
+        final Matcher matcher = Pattern.compile("(.*?\\{.*?})").matcher(emulatedClientQuery);
         if (matcher.find()) {
             final String unrecognizedPlaceHolder = matcher.group();
-            throw new UnrecognizedAnnounceParameter("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
+            throw new UnrecognizedClientPlaceholder("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
         }
+
+        // we might have removed event, ipv6 or ipv6, some '&' might have remains, lets remove them.
+        if (emulatedClientQuery.endsWith("&")) {
+            emulatedClientQuery = emulatedClientQuery.substring(0, emulatedClientQuery.length() - 1);
+        }
+        if (emulatedClientQuery.startsWith("&")) {
+            emulatedClientQuery = emulatedClientQuery.substring(1, emulatedClientQuery.length());
+        }
+        emulatedClientQuery = emulatedClientQuery.replaceAll("&{2,}", "&");
         return emulatedClientQuery;
     }
 
@@ -132,34 +139,15 @@ public class BitTorrentClient {
                     .replaceAll("\\{os}", System.getProperty("os.name"))
                     .replaceAll("\\{locale}", Locale.getDefault().toLanguageTag());
 
+            final Matcher matcher = Pattern.compile("(\\{.*?})").matcher(value);
+            if (matcher.find()) {
+                final String unrecognizedPlaceHolder = matcher.group();
+                throw new UnrecognizedClientPlaceholder("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building client Headers.");
+            }
+
             headers.add(new AbstractMap.SimpleImmutableEntry<>(name, value));
         });
         return headers;
-    }
-
-    @VisibleForTesting
-    void addHeadersToRequest(final Request request, final URL trackerAnnounceURI) {
-        final int port = trackerAnnounceURI.getPort();
-        // Add Host header first to prevent Request appending it at the end
-        request.addHeader("Host", trackerAnnounceURI.getHost() + (port == -1 ? "" : ":" + port));
-
-        //noinspection SimplifyStreamApiCallChains
-        this.headers.stream().forEachOrdered(header -> {
-            final String name = header.getKey();
-            final String value = header.getValue()
-                    .replaceAll("\\{java}", System.getProperty("java.version"))
-                    .replaceAll("\\{os}", System.getProperty("os.name"))
-                    .replaceAll("\\{locale}", Locale.getDefault().toLanguageTag());
-
-            request.addHeader(name, value);
-        });
-
-        // if Connection header was not set, we append it. Apache HttpClient will add it what so ever, so prefer "Close" over "keep-alive"
-        final boolean hasConnectionHeader = this.headers.stream()
-                .anyMatch(header -> "Connection".equalsIgnoreCase(header.getKey()));
-        if (!hasConnectionHeader) {
-            request.addHeader("Connection", "Close");
-        }
     }
 
     @Override

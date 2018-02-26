@@ -34,6 +34,14 @@ public class PeerIdGeneratorTest {
     }
 
     @Test
+    public void shouldFailIfLengthIsNot20() {
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{2}", false);
+
+        assertThatThrownBy(peerIdGenerator::generatePeerId)
+                .isInstanceOf(IllegalStateException.class);
+    }
+
+    @Test
     public void shouldGeneratePeerIdWithProperLength() {
         final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
 

@@ -6,6 +6,7 @@ import org.mockito.Mockito;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
+import java.net.UnknownHostException;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Optional;
 
@@ -15,6 +16,30 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Created by raymo on 16/07/2017.
  */
 public class ConnectionHandlerTest {
+
+    public static ConnectionHandler createMockedIpv4(final int port) {
+        try {
+            final InetAddress inetAddress = InetAddress.getByName("123.123.123.123");
+            final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
+            Mockito.when(connectionHandler.getPort()).thenReturn(port);
+            Mockito.when(connectionHandler.getIpAddress()).thenReturn(inetAddress);
+            return connectionHandler;
+        } catch (final UnknownHostException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static ConnectionHandler createMockedIpv6(final int port) {
+        try {
+            final InetAddress inetAddress = InetAddress.getByName("fd2d:7212:4cd5:2f14:ffff:ffff:ffff:ffff");;
+            final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
+            Mockito.when(connectionHandler.getPort()).thenReturn(46582);
+            Mockito.when(connectionHandler.getIpAddress()).thenReturn(inetAddress);
+            return connectionHandler;
+        } catch (final UnknownHostException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 
     private static ServerSocketChannel createMockedServerSocketChannel(final int port) throws IOException {
         final ServerSocket serverSocket = Mockito.mock(ServerSocket.class);
