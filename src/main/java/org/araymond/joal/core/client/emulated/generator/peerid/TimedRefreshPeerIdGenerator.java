@@ -2,6 +2,7 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.annotations.VisibleForTesting;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
@@ -15,7 +16,8 @@ import java.time.temporal.ChronoUnit;
  */
 public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
 
-    private LocalDateTime lastGeneration;
+    @VisibleForTesting
+    LocalDateTime lastGeneration;
     private String peerId;
     private final Integer refreshEvery;
 

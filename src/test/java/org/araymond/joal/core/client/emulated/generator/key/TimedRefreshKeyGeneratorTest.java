@@ -8,6 +8,10 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -50,22 +54,18 @@ public class TimedRefreshKeyGeneratorTest {
         final TimedRefreshKeyGenerator generator = new TimedRefreshKeyGenerator(1, algo, Casing.NONE);
 
         final InfoHash infoHash = new InfoHash(new byte[] { 22 });
-        final String firstKey = generator.getKey(infoHash, RequestEvent.STARTED);
-        assertThat(generator.getKey(null, RequestEvent.STARTED))
+        assertThat(generator.getKey(infoHash, RequestEvent.STARTED))
                 .isEqualTo(generator.getKey(infoHash, RequestEvent.STARTED))
                 .isEqualTo(generator.getKey(infoHash, RequestEvent.STARTED))
                 .isEqualTo(generator.getKey(infoHash, RequestEvent.STARTED))
-                .isEqualTo(firstKey);
+                .isEqualTo(generator.getKey(infoHash, RequestEvent.STARTED));
 
         Mockito.verify(algo, Mockito.times(1)).generate();
-        Mockito.when(algo.generate()).thenReturn("do-not-care2");
 
-        Thread.sleep(500);
+        generator.lastGeneration = LocalDateTime.now().minus(10, ChronoUnit.SECONDS);
+
         generator.getKey(infoHash, RequestEvent.STARTED);
-        Thread.sleep(510);
-
-        Mockito.verify(algo, Mockito.times(1)).generate();
-        assertThat(generator.getKey(infoHash, RequestEvent.STARTED)).isNotEqualTo(firstKey);
+        Mockito.verify(algo, Mockito.times(2)).generate();
     }
 
 }

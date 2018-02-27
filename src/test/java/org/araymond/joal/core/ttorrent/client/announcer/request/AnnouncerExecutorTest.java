@@ -264,7 +264,7 @@ public class AnnouncerExecutorTest {
         final Lock lock = new ReentrantLock();
         lock.lock(); //acquire lock to create deadlock in other threads
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 15; i++) {
             final int currentid = i;
             executor.execute(
                     AnnounceRequest.createRegular(new FakeAnnouncer() {
@@ -274,9 +274,9 @@ public class AnnouncerExecutorTest {
                         }
 
                         @Override
-                        public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException {
+                        public SuccessAnnounceResponse announce(final RequestEvent event) {
                             try {
-                                Thread.sleep(30);
+                                Thread.sleep(10);
                                 Thread.yield();
                             } catch (final InterruptedException e) {
                                 throw new RuntimeException("Relay exception to the thread");
@@ -303,7 +303,7 @@ public class AnnouncerExecutorTest {
         }
 
         executor.awaitForRunningTasks();
-        assertThat(atomicInteger.get()).isEqualTo(100);
+        assertThat(atomicInteger.get()).isEqualTo(15);
     }
 
 

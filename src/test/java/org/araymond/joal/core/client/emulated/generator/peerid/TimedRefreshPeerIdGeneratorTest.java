@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -44,17 +46,15 @@ public class TimedRefreshPeerIdGeneratorTest {
         Mockito.when(algo.generate()).thenReturn("do-not-care-too-much");
         final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(1, algo, false);
 
+        final InfoHash infoHash = new InfoHash(new byte[] { 22 });
         for( int i = 0; i < 10; ++i) {
-            generator.getPeerId(new InfoHash(ByteBuffer.allocate(4).putInt(i).array()), RequestEvent.STARTED);
+            generator.getPeerId(infoHash, RequestEvent.STARTED);
         }
         Mockito.verify(algo, Mockito.times(1)).generate();
 
-        Thread.sleep(500);
-        generator.getPeerId(new InfoHash(ByteBuffer.allocate(4).putInt(1).array()), RequestEvent.STARTED);
-        Mockito.verify(algo, Mockito.times(1)).generate();
-        Thread.sleep(510);
+        generator.lastGeneration = LocalDateTime.now().minus(10, ChronoUnit.SECONDS);
 
-        generator.getPeerId(new InfoHash(ByteBuffer.allocate(4).putInt(1).array()), RequestEvent.STARTED);
+        generator.getPeerId(infoHash, RequestEvent.STARTED);
         Mockito.verify(algo, Mockito.times(2)).generate();
     }
 

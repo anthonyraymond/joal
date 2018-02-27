@@ -177,23 +177,11 @@ public class BandwidthDispatcherTest {
 
         final ExecutorService executorService = Executors.newFixedThreadPool(5);
         final Collection<Future<?>> futures = new ArrayList<>();
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 25; ++i) {
             final InfoHash infoHash = new InfoHash((i + "").getBytes());
             futures.add(executorService.submit(() -> {
                 bandwidthDispatcher.registerTorrent(infoHash);
                 bandwidthDispatcher.updateTorrentPeers(infoHash, 20, 50);
-            }));
-        }
-        for (final Future<?> future : futures) {
-            future.get();
-        }
-
-        futures.clear();
-
-        for (int i = 0; i < 100; ++i) {
-            final InfoHash infoHash = new InfoHash((i + "").getBytes());
-            futures.add(executorService.submit(() -> {
-                bandwidthDispatcher.unregisterTorrent(infoHash);
             }));
         }
         for (final Future<?> future : futures) {
