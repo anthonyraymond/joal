@@ -113,19 +113,6 @@ public class AnnouncerExecutor {
         public Future<?> getFuture() {
             return future;
         }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            final AnnouncerWithFuture that = (AnnouncerWithFuture) o;
-            return Objects.equal(announcer, that.announcer);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(announcer);
-        }
     }
 
 }
