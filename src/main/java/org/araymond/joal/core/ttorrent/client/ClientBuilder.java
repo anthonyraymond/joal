@@ -2,8 +2,8 @@ package org.araymond.joal.core.ttorrent.client;
 
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.config.AppConfiguration;
-import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
@@ -14,7 +14,7 @@ public final class ClientBuilder {
     private AppConfiguration appConfiguration;
     private TorrentFileProvider torrentFileProvider;
     private BandwidthDispatcher bandwidthDispatcher;
-    private AnnounceDataAccessor announceDataAccessor;
+    private AnnouncerFactory announcerFactory;
     private ApplicationEventPublisher eventPublisher;
 
     private ClientBuilder() {
@@ -39,8 +39,8 @@ public final class ClientBuilder {
         return this;
     }
 
-    public ClientBuilder withAnnounceDataAccessor(final AnnounceDataAccessor announceDataAccessor) {
-        this.announceDataAccessor = announceDataAccessor;
+    public ClientBuilder withAnnouncerFactory(final AnnouncerFactory announcerFactory) {
+        this.announcerFactory = announcerFactory;
         return this;
     }
 
@@ -60,7 +60,7 @@ public final class ClientBuilder {
         final ClientNotifier clientNotifier = new ClientNotifier();
         announceResponseCallback.appendHandler(clientNotifier);
 
-        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, delayQueue, announceResponseCallback, this.announceDataAccessor);
+        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, delayQueue, announceResponseCallback, this.announcerFactory);
         clientNotifier.setClient(client);
 
         return client;

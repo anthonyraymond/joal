@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
-import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
@@ -12,6 +11,7 @@ import org.araymond.joal.core.torrent.watcher.TorrentFileChangeAware;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
@@ -35,23 +35,23 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     private final List<Announcer> currentlySeedingAnnouncer;
     private final DelayQueue<AnnounceRequest> delayQueue;
     private final AnnounceResponseCallback announceResponseCallback;
-    private final AnnounceDataAccessor announceDataAccessor;
+    private final AnnouncerFactory announcerFactory;
     private final ReentrantReadWriteLock lock;
     private Thread thread;
     private volatile boolean stop = false;
 
-    Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnounceResponseCallback announceResponseCallback, final AnnounceDataAccessor announceDataAccessor) {
+    Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnounceResponseCallback announceResponseCallback, final AnnouncerFactory announcerFactory) {
         Preconditions.checkNotNull(appConfiguration, "AppConfiguration must not be null");
         Preconditions.checkNotNull(torrentFileProvider, "TorrentFileProvider must not be null");
         Preconditions.checkNotNull(delayQueue, "DelayQueue must not be null");
         Preconditions.checkNotNull(announceResponseCallback, "AnnounceResponseCallback must not be null");
-        Preconditions.checkNotNull(announceDataAccessor, "AnnounceDataAccessor must not be null");
+        Preconditions.checkNotNull(announcerFactory, "AnnouncerFactory must not be null");
         this.appConfiguration = appConfiguration;
         this.torrentFileProvider = torrentFileProvider;
         this.announcerExecutor = announcerExecutor;
         this.delayQueue = delayQueue;
         this.announceResponseCallback = announceResponseCallback;
-        this.announceDataAccessor = announceDataAccessor;
+        this.announcerFactory = announcerFactory;
         this.currentlySeedingAnnouncer = new ArrayList<>();
         this.lock = new ReentrantReadWriteLock();
     }
@@ -105,7 +105,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                         .map(Announcer::getTorrent)
                         .collect(Collectors.toList())
         );
-        final Announcer announcer = new Announcer(torrent, this.announceDataAccessor);
+        final Announcer announcer = this.announcerFactory.create(torrent);
         this.currentlySeedingAnnouncer.add(announcer);
         this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 0, ChronoUnit.SECONDS);
     }
@@ -175,7 +175,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             if (this.currentlySeedingAnnouncer.size() >= this.appConfiguration.getSimultaneousSeed()) {
                 return;
             }
-            final Announcer announcer = new Announcer(torrent, this.announceDataAccessor);
+            final Announcer announcer = this.announcerFactory.create(torrent);
             this.currentlySeedingAnnouncer.add(announcer);
             this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 1, ChronoUnit.SECONDS);
         } finally {

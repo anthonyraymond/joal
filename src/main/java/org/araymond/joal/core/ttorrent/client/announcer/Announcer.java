@@ -34,7 +34,7 @@ public class Announcer implements AnnouncerFacade {
     private TrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
 
-    public Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor) {
+    Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor) {
         this.torrent = torrent;
         this.trackerClient = this.buildTrackerClient(torrent);
         this.announceDataAccessor = announceDataAccessor;
