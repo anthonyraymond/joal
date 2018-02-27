@@ -1,6 +1,7 @@
 package org.araymond.joal.core.ttorrent.client;
 
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
+import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
@@ -10,7 +11,7 @@ import org.araymond.joal.core.ttorrent.client.announcer.response.*;
 import org.springframework.context.ApplicationEventPublisher;
 
 public final class ClientBuilder {
-    private JoalConfigProvider configProvider;
+    private AppConfiguration appConfiguration;
     private TorrentFileProvider torrentFileProvider;
     private BandwidthDispatcher bandwidthDispatcher;
     private AnnounceDataAccessor announceDataAccessor;
@@ -23,8 +24,8 @@ public final class ClientBuilder {
         return new ClientBuilder();
     }
 
-    public ClientBuilder withConfigProvider(final JoalConfigProvider configProvider) {
-        this.configProvider = configProvider;
+    public ClientBuilder withConfigProvider(final AppConfiguration appConfiguration) {
+        this.appConfiguration = appConfiguration;
         return this;
     }
 
@@ -59,7 +60,7 @@ public final class ClientBuilder {
         final ClientNotifier clientNotifier = new ClientNotifier();
         announceResponseCallback.appendHandler(clientNotifier);
 
-        final Client client = new Client(this.configProvider, this.torrentFileProvider, announcerExecutor, delayQueue, announceResponseCallback, this.announceDataAccessor);
+        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, delayQueue, announceResponseCallback, this.announceDataAccessor);
         clientNotifier.setClient(client);
 
         return client;

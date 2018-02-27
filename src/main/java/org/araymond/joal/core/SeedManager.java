@@ -82,12 +82,13 @@ public class SeedManager {
         this.isSeeding = true;
 
         this.configProvider.init();
+        final AppConfiguration appConfiguration = this.configProvider.get();
         final List<String> clientFiles = this.bitTorrentClientProvider.listClientFiles();
         this.publisher.publishEvent(new ListOfClientFilesEvent(clientFiles));
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
-        final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(this.configProvider);
+        final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(appConfiguration);
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
         this.bandwidthDispatcher.setSpeedListener((speeds -> {
             this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
@@ -97,7 +98,7 @@ public class SeedManager {
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
 
         this.client = ClientBuilder.builder()
-                .withConfigProvider(this.configProvider)
+                .withConfigProvider(appConfiguration)
                 .withTorrentFileProvider(this.torrentFileProvider)
                 .withBandwidthDispatcher(this.bandwidthDispatcher)
                 .withAnnounceDataAccessor(announceDataAccessor)
