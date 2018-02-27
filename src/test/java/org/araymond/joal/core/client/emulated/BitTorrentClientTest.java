@@ -1,6 +1,5 @@
 package org.araymond.joal.core.client.emulated;
 
-import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.bandwith.TorrentSeedStats;
 import org.araymond.joal.core.bandwith.TorrentSeedStatsTest;
@@ -10,7 +9,6 @@ import org.araymond.joal.core.client.emulated.generator.UrlEncoderTest;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
-import org.araymond.joal.core.client.emulated.generator.peerid.NeverRefreshPeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
@@ -19,12 +17,10 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandlerTest;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.util.*;
 
 import static java.lang.System.getProperty;
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.doReturn;

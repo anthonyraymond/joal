@@ -3,8 +3,8 @@ package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class RegexPatternPeerIdAlgorithmTest {
 

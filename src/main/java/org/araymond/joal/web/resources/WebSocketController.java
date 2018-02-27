@@ -4,7 +4,6 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.apache.commons.codec.binary.Base64;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.bandwith.Speed;
-import org.araymond.joal.core.config.AppConfigurationIntegrityException;
 import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.core.events.config.ListOfClientFilesEvent;

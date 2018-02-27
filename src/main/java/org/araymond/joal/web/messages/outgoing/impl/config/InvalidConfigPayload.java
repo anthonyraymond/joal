@@ -1,6 +1,5 @@
 package org.araymond.joal.web.messages.outgoing.impl.config;
 
-import org.araymond.joal.core.config.AppConfigurationIntegrityException;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
 /**

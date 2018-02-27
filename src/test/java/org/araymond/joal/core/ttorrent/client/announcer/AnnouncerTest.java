@@ -2,7 +2,6 @@ package org.araymond.joal.core.ttorrent.client.announcer;
 
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
@@ -16,11 +15,8 @@ import org.junit.Test;
 import org.mockito.Matchers;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 public class AnnouncerTest {
