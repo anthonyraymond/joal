@@ -98,20 +98,6 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
         public int compareTo(final IntervalAware o) {
             return this.releaseAt.compareTo(o.releaseAt);
         }
-
-        @Override
-        public boolean equals(final Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            final IntervalAware<?> that = (IntervalAware<?>) o;
-            return Objects.equal(releaseAt, that.releaseAt) &&
-                    Objects.equal(item, that.item);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hashCode(releaseAt, item);
-        }
     }
 
     public interface InfoHashAble {
