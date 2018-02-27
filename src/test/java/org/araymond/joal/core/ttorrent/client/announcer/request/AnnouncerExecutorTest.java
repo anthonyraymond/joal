@@ -29,7 +29,7 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldNotExecuteMoreThanThreeConcurentThreads() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
+        final AnnouncerExecutor executor = new AnnouncerExecutor(new DefaultCallback());
         final AtomicInteger atomicInteger = new AtomicInteger(0);
 
         for (int i = 0; i < 100; i++) {
@@ -44,10 +44,7 @@ public class AnnouncerExecutorTest {
                 }
                 return null;
             }).when(announcer).announce(Mockito.any());
-            executor.execute(
-                    AnnounceRequest.createRegular(announcer),
-                    new DefaultCallback()
-            );
+            executor.execute(AnnounceRequest.createRegular(announcer));
         }
         Thread.yield();
         Thread.sleep(50);
@@ -57,31 +54,20 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldCallCallbackAfterExecution() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
         final CountDownLatch countDown = new CountDownLatch(100);
+        final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
+            @Override
+            public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
+                countDown.countDown();
+            }
+        };
+        final AnnouncerExecutor executor = new AnnouncerExecutor(announceResponseCallback);
 
         for (int i = 0; i < 100; i++) {
             final Announcer announcer = mock(Announcer.class);
             Mockito.doReturn(new InfoHash(ByteBuffer.allocate(4).putInt(i).array())).when(announcer).getTorrentInfoHash();
             Mockito.doReturn(null).when(announcer).announce(Mockito.any());
-            executor.execute(
-                    AnnounceRequest.createRegular(announcer),
-                    new AnnounceResponseCallback() {
-                        @Override
-                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
-                        }
-                        @Override
-                        public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
-                            countDown.countDown();
-                        }
-                        @Override
-                        public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
-                        }
-                        @Override
-                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-                        }
-                    }
-            );
+            executor.execute(AnnounceRequest.createRegular(announcer));
         }
 
         countDown.await(10, TimeUnit.SECONDS);
@@ -90,31 +76,20 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldCallOnAnnounceFailureWhenAnnounceThrownException() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
         final CountDownLatch countDown = new CountDownLatch(100);
+        final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
+            @Override
+            public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
+                countDown.countDown();
+            }
+        };
+        final AnnouncerExecutor executor = new AnnouncerExecutor(announceResponseCallback);
 
         for (int i = 0; i < 100; i++) {
             final Announcer announcer = mock(Announcer.class);
             Mockito.doReturn(new InfoHash(ByteBuffer.allocate(4).putInt(i).array())).when(announcer).getTorrentInfoHash();
             Mockito.doThrow(new RuntimeException("whoops")).when(announcer).announce(Mockito.any());
-            executor.execute(
-                    AnnounceRequest.createRegular(announcer),
-                    new AnnounceResponseCallback() {
-                        @Override
-                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
-                        }
-                        @Override
-                        public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
-                        }
-                        @Override
-                        public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
-                            countDown.countDown();
-                        }
-                        @Override
-                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-                        }
-                    }
-            );
+            executor.execute(AnnounceRequest.createRegular(announcer));
         }
 
         countDown.await(10, TimeUnit.SECONDS);
@@ -123,31 +98,20 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldCallTooManyFailsWhenAnnounceThrownTooManyFails() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
         final CountDownLatch countDown = new CountDownLatch(100);
+        final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
+            @Override
+            public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
+                countDown.countDown();
+            }
+        };
+        final AnnouncerExecutor executor = new AnnouncerExecutor(announceResponseCallback);
 
         for (int i = 0; i < 100; i++) {
             final Announcer announcer = mock(Announcer.class);
             Mockito.doReturn(new InfoHash(ByteBuffer.allocate(4).putInt(i).array())).when(announcer).getTorrentInfoHash();
             Mockito.doThrow(new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class))).when(announcer).announce(Mockito.any());
-            executor.execute(
-                    AnnounceRequest.createRegular(announcer),
-                    new AnnounceResponseCallback() {
-                        @Override
-                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
-                        }
-                        @Override
-                        public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
-                        }
-                        @Override
-                        public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
-                        }
-                        @Override
-                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-                            countDown.countDown();
-                        }
-                    }
-            );
+            executor.execute(AnnounceRequest.createRegular(announcer));
         }
 
         countDown.await(10, TimeUnit.SECONDS);
@@ -156,8 +120,18 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldDenyAThread() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
         final AtomicInteger atomicInteger = new AtomicInteger(0);
+        final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
+            @Override
+            public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
+                atomicInteger.incrementAndGet();
+            }
+            @Override
+            public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
+                atomicInteger.incrementAndGet();
+            }
+        };
+        final AnnouncerExecutor executor = new AnnouncerExecutor(announceResponseCallback);
         final Lock lock = new ReentrantLock();
         lock.lock(); //acquire lock to create deadlock in other threads
 
@@ -167,25 +141,7 @@ public class AnnouncerExecutorTest {
             lock.lock();
             return null;
         }).when(announcer).announce(Mockito.any());
-        executor.execute(
-                AnnounceRequest.createRegular(announcer),
-                new AnnounceResponseCallback() {
-                    @Override
-                    public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
-                    }
-                    @Override
-                    public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
-                        atomicInteger.incrementAndGet();
-                    }
-                    @Override
-                    public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
-                        atomicInteger.incrementAndGet();
-                    }
-                    @Override
-                    public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-                    }
-                }
-        );
+        executor.execute(AnnounceRequest.createRegular(announcer));
         Thread.yield();
         Thread.sleep(50);
 
@@ -200,7 +156,7 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldReturnEmptyOptionalIfInfoHashDoesNotExists() {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
+        final AnnouncerExecutor executor = new AnnouncerExecutor(new DefaultCallback());
         final Optional<Announcer> denied = executor.deny(new InfoHash(new byte[]{0x22, 0x22, 0x23}));
 
         assertThat(denied).isEmpty();
@@ -208,8 +164,18 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldDenyAll() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
         final AtomicInteger atomicInteger = new AtomicInteger(0);
+        final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
+            @Override
+            public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
+                atomicInteger.incrementAndGet();
+            }
+            @Override
+            public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
+                atomicInteger.incrementAndGet();
+            }
+        };
+        final AnnouncerExecutor executor = new AnnouncerExecutor(announceResponseCallback);
         final Lock lock = new ReentrantLock();
         lock.lock(); //acquire lock to create deadlock in other threads
 
@@ -220,25 +186,7 @@ public class AnnouncerExecutorTest {
                 lock.lock();
                 return null;
             }).when(announcer).announce(Mockito.any());
-            executor.execute(
-                    AnnounceRequest.createRegular(announcer),
-                    new AnnounceResponseCallback() {
-                        @Override
-                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
-                        }
-                        @Override
-                        public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
-                            atomicInteger.incrementAndGet();
-                        }
-                        @Override
-                        public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
-                            atomicInteger.incrementAndGet();
-                        }
-                        @Override
-                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-                        }
-                    }
-            );
+            executor.execute(AnnounceRequest.createRegular(announcer));
         }
         Thread.yield();
         Thread.sleep(50);
@@ -251,8 +199,17 @@ public class AnnouncerExecutorTest {
 
     @Test
     public void shouldAwaitAllThreadToFinishBeforeReturningFromAwait() throws AnnounceException, TooMuchAnnouncesFailedInARawException {
-        final AnnouncerExecutor executor = new AnnouncerExecutor();
         final AtomicInteger atomicInteger = new AtomicInteger(0);
+
+        final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
+
+            @Override
+            public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
+                atomicInteger.incrementAndGet();
+            }
+        };
+
+        final AnnouncerExecutor executor = new AnnouncerExecutor(announceResponseCallback);
         final Lock lock = new ReentrantLock();
         lock.lock(); //acquire lock to create deadlock in other threads
 
@@ -268,24 +225,7 @@ public class AnnouncerExecutorTest {
                 }
                 return null;
             }).when(announcer).announce(Mockito.any());
-            executor.execute(
-                    AnnounceRequest.createRegular(announcer),
-                    new AnnounceResponseCallback() {
-                        @Override
-                        public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
-                        }
-                        @Override
-                        public void onAnnounceSuccess(final RequestEvent event, final Announcer announcer, final SuccessAnnounceResponse result) {
-                            atomicInteger.incrementAndGet();
-                        }
-                        @Override
-                        public void onAnnounceFailure(final RequestEvent event, final Announcer announcer, final Throwable throwable) {
-                        }
-                        @Override
-                        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-                        }
-                    }
-            );
+            executor.execute(AnnounceRequest.createRegular(announcer));
         }
 
         executor.awaitForRunningTasks();
@@ -293,7 +233,7 @@ public class AnnouncerExecutorTest {
     }
 
 
-    private static final class DefaultCallback implements AnnounceResponseCallback {
+    private static class DefaultCallback implements AnnounceResponseCallback {
         @Override
         public void onAnnounceWillAnnounce(final RequestEvent event, final Announcer announcer) {
         }

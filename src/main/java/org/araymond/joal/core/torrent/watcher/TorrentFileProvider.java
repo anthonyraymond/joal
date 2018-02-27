@@ -115,11 +115,11 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         this.torrentFileChangeListener.remove(listener);
     }
 
-    public MockedTorrent getTorrentNotIn(final List<MockedTorrent> unwantedTorrents) throws NoMoreTorrentsFileAvailableException {
+    public MockedTorrent getTorrentNotIn(final List<InfoHash> unwantedTorrents) throws NoMoreTorrentsFileAvailableException {
         Preconditions.checkNotNull(unwantedTorrents, "List of unwantedTorrents cannot be null.");
 
         return this.torrentFiles.values().stream()
-                .filter(torrent -> !unwantedTorrents.contains(torrent))
+                .filter(torrent -> !unwantedTorrents.contains(torrent.getTorrentInfoHash()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
                     Collections.shuffle(collected);
                     return collected.stream();

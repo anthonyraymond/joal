@@ -16,10 +16,13 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class AnnouncerExecutor {
     private static final Logger logger = getLogger(AnnouncerExecutor.class);
+
+    private final AnnounceResponseCallback announceResponseCallback;
     private final ThreadPoolExecutor executorService;
     private final Map<InfoHash, AnnouncerWithFuture> currentlyRunning;
 
-    public AnnouncerExecutor() {
+    public AnnouncerExecutor(final AnnounceResponseCallback announceResponseCallback) {
+        this.announceResponseCallback = announceResponseCallback;
         // From javadoc :
         //   Unbounded queues. Using an unbounded queue (for example a LinkedBlockingQueue without a predefined capacity) will cause new tasks to wait in
         //   the queue when all corePoolSize threads are busy. Thus, no more than corePoolSize threads will ever be created. (And the value of the
@@ -31,16 +34,16 @@ public class AnnouncerExecutor {
         this.currentlyRunning = new HashMap<>(corePoolSize);
     }
 
-    public void execute(final AnnounceRequest request, final AnnounceResponseCallback callback) {
+    public void execute(final AnnounceRequest request) {
         final Callable<Void> callable = () -> {
             try {
-                callback.onAnnounceWillAnnounce(request.getEvent(), request.getAnnouncer());
+                announceResponseCallback.onAnnounceWillAnnounce(request.getEvent(), request.getAnnouncer());
                 final SuccessAnnounceResponse result = request.getAnnouncer().announce(request.getEvent());
-                callback.onAnnounceSuccess(request.getEvent(), request.getAnnouncer(), result);
+                announceResponseCallback.onAnnounceSuccess(request.getEvent(), request.getAnnouncer(), result);
             } catch (final TooMuchAnnouncesFailedInARawException e) {
-                callback.onTooManyAnnounceFailedInARaw(request.getEvent(), request.getAnnouncer(), e);
+                announceResponseCallback.onTooManyAnnounceFailedInARaw(request.getEvent(), request.getAnnouncer(), e);
             } catch (final Throwable throwable) {
-                callback.onAnnounceFailure(request.getEvent(), request.getAnnouncer(), throwable);
+                announceResponseCallback.onAnnounceFailure(request.getEvent(), request.getAnnouncer(), throwable);
             } finally {
                 this.currentlyRunning.remove(request.getAnnouncer().getTorrentInfoHash());
             }

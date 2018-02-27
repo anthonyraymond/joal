@@ -20,6 +20,7 @@ import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.ClientBuilder;
 import org.araymond.joal.core.ttorrent.client.ClientFacade;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
+import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
@@ -99,11 +100,12 @@ public class SeedManager {
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
 
         this.client = ClientBuilder.builder()
-                .withConfigProvider(appConfiguration)
+                .withAppConfiguration(appConfiguration)
                 .withTorrentFileProvider(this.torrentFileProvider)
                 .withBandwidthDispatcher(this.bandwidthDispatcher)
                 .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor))
                 .withEventPublisher(this.publisher)
+                .withDelayQueue(new DelayQueue<>())
                 .build();
 
         this.client.start();

@@ -16,6 +16,7 @@ public final class ClientBuilder {
     private BandwidthDispatcher bandwidthDispatcher;
     private AnnouncerFactory announcerFactory;
     private ApplicationEventPublisher eventPublisher;
+    private DelayQueue<AnnounceRequest> delayQueue;
 
     private ClientBuilder() {
     }
@@ -24,7 +25,7 @@ public final class ClientBuilder {
         return new ClientBuilder();
     }
 
-    public ClientBuilder withConfigProvider(final AppConfiguration appConfiguration) {
+    public ClientBuilder withAppConfiguration(final AppConfiguration appConfiguration) {
         this.appConfiguration = appConfiguration;
         return this;
     }
@@ -49,18 +50,22 @@ public final class ClientBuilder {
         return this;
     }
 
-    public ClientFacade build() {
-        final AnnouncerExecutor announcerExecutor = new AnnouncerExecutor();
-        final DelayQueue<AnnounceRequest> delayQueue = new DelayQueue<>();
+    public ClientBuilder withDelayQueue(final DelayQueue<AnnounceRequest> delayQueue) {
+        this.delayQueue = delayQueue;
+        return this;
+    }
 
+    public ClientFacade build() {
         final AnnounceResponseHandlerChain announceResponseCallback = new AnnounceResponseHandlerChain();
         announceResponseCallback.appendHandler(new AnnounceEventPublisher(this.eventPublisher));
-        announceResponseCallback.appendHandler(new AnnounceReEnqueuer(delayQueue));
+        announceResponseCallback.appendHandler(new AnnounceReEnqueuer(this.delayQueue));
         announceResponseCallback.appendHandler(new BandwidthDispatcherNotifier(bandwidthDispatcher));
         final ClientNotifier clientNotifier = new ClientNotifier();
         announceResponseCallback.appendHandler(clientNotifier);
 
-        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, delayQueue, announceResponseCallback, this.announcerFactory);
+        final AnnouncerExecutor announcerExecutor = new AnnouncerExecutor(announceResponseCallback);
+
+        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, this.delayQueue, this.announcerFactory);
         clientNotifier.setClient(client);
 
         return client;

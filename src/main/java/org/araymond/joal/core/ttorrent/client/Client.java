@@ -34,23 +34,20 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     private final AnnouncerExecutor announcerExecutor;
     private final List<Announcer> currentlySeedingAnnouncer;
     private final DelayQueue<AnnounceRequest> delayQueue;
-    private final AnnounceResponseCallback announceResponseCallback;
     private final AnnouncerFactory announcerFactory;
     private final ReentrantReadWriteLock lock;
     private Thread thread;
     private volatile boolean stop = false;
 
-    Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnounceResponseCallback announceResponseCallback, final AnnouncerFactory announcerFactory) {
+    Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnouncerFactory announcerFactory) {
         Preconditions.checkNotNull(appConfiguration, "AppConfiguration must not be null");
         Preconditions.checkNotNull(torrentFileProvider, "TorrentFileProvider must not be null");
         Preconditions.checkNotNull(delayQueue, "DelayQueue must not be null");
-        Preconditions.checkNotNull(announceResponseCallback, "AnnounceResponseCallback must not be null");
         Preconditions.checkNotNull(announcerFactory, "AnnouncerFactory must not be null");
         this.appConfiguration = appConfiguration;
         this.torrentFileProvider = torrentFileProvider;
         this.announcerExecutor = announcerExecutor;
         this.delayQueue = delayQueue;
-        this.announceResponseCallback = announceResponseCallback;
         this.announcerFactory = announcerFactory;
         this.currentlySeedingAnnouncer = new ArrayList<>();
         this.lock = new ReentrantReadWriteLock();
@@ -64,7 +61,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             while (!this.stop) {
                 final List<AnnounceRequest> availables = this.delayQueue.getAvailables();
                 availables.forEach(req -> {
-                    this.announcerExecutor.execute(req, this.announceResponseCallback);
+                    this.announcerExecutor.execute(req);
                     try {
                         this.lock.writeLock().lock();
                         this.currentlySeedingAnnouncer.removeIf(an -> an.equals(req.getAnnouncer())); // remove the last recorded event
@@ -90,7 +87,6 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             } finally {
                 this.lock.writeLock().unlock();
             }
-
         }
 
         this.thread.setName("client-orchestrator-thread");
@@ -99,10 +95,11 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         this.torrentFileProvider.registerListener(this);
     }
 
+    // TODO : make it @VisibleForTesting
     private void addTorrent() throws NoMoreTorrentsFileAvailableException {
         final MockedTorrent torrent = this.torrentFileProvider.getTorrentNotIn(
                 this.currentlySeedingAnnouncer.stream()
-                        .map(Announcer::getTorrent)
+                        .map(Announcer::getTorrentInfoHash)
                         .collect(Collectors.toList())
         );
         final Announcer announcer = this.announcerFactory.create(torrent);
@@ -123,7 +120,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                 .filter(req -> req.getEvent() != RequestEvent.STARTED)
                 .map(AnnounceRequest::getAnnouncer)
                 .map(AnnounceRequest::createStop)
-                .forEach(req -> this.announcerExecutor.execute(req, this.announceResponseCallback));
+                .forEach(this.announcerExecutor::execute);
 
         this.announcerExecutor.awaitForRunningTasks();
     }
