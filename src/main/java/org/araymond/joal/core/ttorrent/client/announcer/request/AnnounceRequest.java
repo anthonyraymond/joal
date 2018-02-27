@@ -41,16 +41,4 @@ public final class AnnounceRequest implements DelayQueue.InfoHashAble {
         return this.announcer.getTorrentInfoHash();
     }
 
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final AnnounceRequest that = (AnnounceRequest) o;
-        return Objects.equal(announcer, that.announcer);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(announcer);
-    }
 }

@@ -8,11 +8,6 @@ import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.locks.ReentrantLock;
 
-/**
- *
- *
- * @param <T> element held by the list (MUST IMPLEMENT equals AND hashcode).
- */
 public class DelayQueue<T extends DelayQueue.InfoHashAble> {
     private final ReentrantLock lock = new ReentrantLock();
     private final Queue<IntervalAware<T>> queue = new PriorityQueue<>();
