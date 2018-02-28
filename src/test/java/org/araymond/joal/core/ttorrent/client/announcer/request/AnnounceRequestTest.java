@@ -5,7 +5,6 @@ import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AnnounceRequestTest {

@@ -1,7 +1,6 @@
 package org.araymond.joal.core.bandwith;
 
 import org.araymond.joal.core.config.AppConfiguration;
-import org.araymond.joal.core.config.JoalConfigProvider;
 import org.junit.Test;
 import org.mockito.Mockito;
 

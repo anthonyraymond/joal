@@ -3,7 +3,6 @@ package org.araymond.joal.core.ttorrent.client;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
-import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
@@ -14,10 +13,8 @@ import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
-import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
-import org.araymond.joal.core.ttorrent.client.announcer.response.AnnounceResponseCallback;
 import org.slf4j.Logger;
 
 import java.time.temporal.ChronoUnit;

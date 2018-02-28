@@ -2,7 +2,6 @@ package org.araymond.joal.core.torrent.torrent;
 
 import org.junit.Test;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class InfoHashTest {

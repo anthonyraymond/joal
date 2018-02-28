@@ -1,6 +1,5 @@
 package org.araymond.joal.core.ttorrent.client;
 
-import com.google.common.base.Objects;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.time.LocalDateTime;

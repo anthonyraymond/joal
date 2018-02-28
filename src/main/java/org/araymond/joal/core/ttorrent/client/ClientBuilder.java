@@ -4,7 +4,6 @@ import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
-import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
 import org.araymond.joal.core.ttorrent.client.announcer.response.*;

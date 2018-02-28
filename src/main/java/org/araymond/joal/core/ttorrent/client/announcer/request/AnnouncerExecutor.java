@@ -1,6 +1,5 @@
 package org.araymond.joal.core.ttorrent.client.announcer.request;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;

@@ -2,7 +2,6 @@ package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.client.announce.AnnounceException;
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.config.AppConfiguration;
@@ -15,11 +14,9 @@ import org.araymond.joal.core.torrent.torrent.MockedTorrentTest;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
-import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerTest;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
-import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
@@ -29,11 +26,8 @@ import org.mockito.stubbing.Stubber;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.temporal.TemporalUnit;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.*;
