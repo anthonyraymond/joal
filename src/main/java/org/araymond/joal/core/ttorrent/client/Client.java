@@ -1,7 +1,9 @@
 package org.araymond.joal.core.ttorrent.client;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
@@ -37,7 +39,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     private final AnnouncerFactory announcerFactory;
     private final ReentrantReadWriteLock lock;
     private Thread thread;
-    private volatile boolean stop = false;
+    private volatile boolean stop = true;
 
     Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnouncerFactory announcerFactory) {
         Preconditions.checkNotNull(appConfiguration, "AppConfiguration must not be null");
