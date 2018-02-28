@@ -33,7 +33,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
     private final AppConfiguration appConfiguration;
     private final TorrentFileProvider torrentFileProvider;
-    private final AnnouncerExecutor announcerExecutor;
+    private AnnouncerExecutor announcerExecutor;
     private final List<Announcer> currentlySeedingAnnouncer;
     private final DelayQueue<AnnounceRequest> delayQueue;
     private final AnnouncerFactory announcerFactory;
@@ -53,6 +53,11 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         this.announcerFactory = announcerFactory;
         this.currentlySeedingAnnouncer = new ArrayList<>();
         this.lock = new ReentrantReadWriteLock();
+    }
+
+    @VisibleForTesting
+    void setAnnouncerExecutor(final AnnouncerExecutor announcerExecutor) {
+        this.announcerExecutor = announcerExecutor;
     }
 
     @Override
@@ -97,7 +102,6 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         this.torrentFileProvider.registerListener(this);
     }
 
-    // TODO : make it @VisibleForTesting
     private void addTorrent() throws NoMoreTorrentsFileAvailableException {
         final MockedTorrent torrent = this.torrentFileProvider.getTorrentNotIn(
                 this.currentlySeedingAnnouncer.stream()
@@ -111,20 +115,25 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
     @Override
     public void stop() {
-        this.stop = true;
-        this.torrentFileProvider.unRegisterListener(this);
-        this.thread.interrupt();
         try {
-            this.thread.join();
-        } catch (final InterruptedException ignored) {
-        }
-        this.delayQueue.drainAll().stream()
-                .filter(req -> req.getEvent() != RequestEvent.STARTED)
-                .map(AnnounceRequest::getAnnouncer)
-                .map(AnnounceRequest::createStop)
-                .forEach(this.announcerExecutor::execute);
+            this.lock.writeLock().lock();
+            this.stop = true;
+            this.torrentFileProvider.unRegisterListener(this);
+            this.thread.interrupt();
+            try {
+                this.thread.join();
+            } catch (final InterruptedException ignored) {
+            }
+            this.delayQueue.drainAll().stream()
+                    .filter(req -> req.getEvent() != RequestEvent.STARTED)
+                    .map(AnnounceRequest::getAnnouncer)
+                    .map(AnnounceRequest::createStop)
+                    .forEach(this.announcerExecutor::execute);
 
-        this.announcerExecutor.awaitForRunningTasks();
+            this.announcerExecutor.awaitForRunningTasks();
+        } finally {
+            this.lock.writeLock().unlock();
+        }
     }
 
     public void onTooManyFailedInARaw(final Announcer announcer) {
