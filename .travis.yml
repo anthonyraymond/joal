@@ -10,9 +10,6 @@ cache:
 script:
   - mvn package
 
-before_deploy:
-  - mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
-  - cd ./packager-tmp && tar -czvf joal.tar.gz * && cd ..
 
 deploy:
   provider: releases
@@ -30,4 +27,6 @@ after_deploy:
   - rm -rf packager-tmp
   
 after_success:
+  - mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
+  - cd ./packager-tmp && tar -czvf joal.tar.gz * && cd ..
   - mvn clean test jacoco:report coveralls:report
