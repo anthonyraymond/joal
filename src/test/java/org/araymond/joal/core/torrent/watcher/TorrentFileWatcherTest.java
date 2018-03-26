@@ -120,7 +120,7 @@ public class TorrentFileWatcherTest {
 
         TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
 
-        assertThat(createLock.await(10, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(createLock.await(100, TimeUnit.MILLISECONDS)).isTrue();
         watcher.stop();
 
         assertThat(createLock.getCount()).isEqualTo(0);
@@ -141,12 +141,12 @@ public class TorrentFileWatcherTest {
         watcher.start();
 
         final Path torrent = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        assertThat(createLock.await(10, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(createLock.await(100, TimeUnit.MILLISECONDS)).isTrue();
 
         if (!torrent.toFile().setLastModified(100)) {
             fail("failed to modify file date");
         }
-        assertThat(changeLock.await(10, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(changeLock.await(100, TimeUnit.MILLISECONDS)).isTrue();
         watcher.stop();
 
         assertThat(createLock.getCount()).isEqualTo(0);
@@ -167,10 +167,10 @@ public class TorrentFileWatcherTest {
         watcher.start();
 
         final Path torrent = TorrentFileCreator.create(torrentsPath.resolve("ubuntu.torrent"), TorrentFileCreator.TorrentType.UBUNTU);
-        assertThat(createLock.await(10, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(createLock.await(100, TimeUnit.MILLISECONDS)).isTrue();
 
         Files.delete(torrent);
-        assertThat(deleteLock.await(10, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(deleteLock.await(100, TimeUnit.MILLISECONDS)).isTrue();
         watcher.stop();
 
         assertThat(createLock.getCount()).isEqualTo(0);
@@ -192,7 +192,7 @@ public class TorrentFileWatcherTest {
                 5
         );
         watcher.start();
-        assertThat(createLock.await(10, TimeUnit.MILLISECONDS)).isTrue();
+        assertThat(createLock.await(100, TimeUnit.MILLISECONDS)).isTrue();
         watcher.stop();
 
         assertThat(createLock.getCount()).isEqualTo(0);
