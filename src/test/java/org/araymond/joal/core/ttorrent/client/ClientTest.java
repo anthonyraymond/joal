@@ -311,36 +311,211 @@ public class ClientTest {
         final Announcer firstAnnouncer = argumentCaptor.getValue().getAnnouncer();
 
         client.onTooManyFailedInARaw(firstAnnouncer);
-        verify(torrentFileProvider,times(1)).moveToArchiveFolder(Matchers.eq(firstAnnouncer.getTorrentInfoHash()));
+        verify(torrentFileProvider, times(1)).moveToArchiveFolder(Matchers.eq(firstAnnouncer.getTorrentInfoHash()));
         verify(delayQueue, times(2)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
         assertThat(argumentCaptor.getValue().getInfoHash()).isNotEqualTo(firstAnnouncer.getTorrentInfoHash());
         assertThat(argumentCaptor.getValue().getInfoHash().value()).isEqualTo("def");
         assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
     }
 
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
     @Test
     public void shouldTryToAddAnotherTorrentAfterAnAnnouncerHasStopped() {
-        
+        final AppConfiguration appConfiguration = this.createMockedConf();
+        doReturn(1).when(appConfiguration).getSimultaneousSeed();
+
+        final MockedTorrent torrent = MockedTorrentTest.createOneMock("abc");
+        final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("abc");
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+                torrent,
+                torrent2
+        ));
+
+        final DelayQueue<AnnounceRequest> delayQueue = mock(DelayQueue.class);
+        final AnnouncerFactory mockedAnnouncerFactory = createMockedAnnouncerFactory();
+
+        final Client client = (Client) ClientBuilder.builder()
+                .withAnnouncerFactory(mockedAnnouncerFactory)
+                .withBandwidthDispatcher(mock(BandwidthDispatcher.class))
+                .withAppConfiguration(appConfiguration)
+                .withTorrentFileProvider(torrentFileProvider)
+                .withEventPublisher(mock(ApplicationEventPublisher.class))
+                .withDelayQueue(delayQueue)
+                .build();
+
+        final AnnouncerExecutor announcerExecutor = mock(AnnouncerExecutor.class);
+        client.setAnnouncerExecutor(announcerExecutor);
+
+        client.start();
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+
+        Mockito.reset(delayQueue);
+        client.onTorrentHasStopped(argumentCaptor.getValue().getAnnouncer());
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+
+        final AnnounceRequest announceRequest = argumentCaptor.getValue();
+        assertThat(announceRequest.getInfoHash()).isEqualTo(torrent2.getTorrentInfoHash());
+        assertThat(announceRequest.getEvent()).isEqualTo(RequestEvent.STARTED);
     }
 
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
     @Test
     public void shouldAddTorrentWhenATorrentFileIsCreatedAnClientNotAlreadySeedingOnMaxSimultaneousSeed() {
+        final AppConfiguration appConfiguration = this.createMockedConf();
+        doReturn(2).when(appConfiguration).getSimultaneousSeed();
 
+        final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("def");
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+                MockedTorrentTest.createOneMock("abc")
+        ));
+
+        final DelayQueue<AnnounceRequest> delayQueue = mock(DelayQueue.class);
+        final AnnouncerFactory mockedAnnouncerFactory = createMockedAnnouncerFactory();
+
+        final Client client = (Client) ClientBuilder.builder()
+                .withAnnouncerFactory(mockedAnnouncerFactory)
+                .withBandwidthDispatcher(mock(BandwidthDispatcher.class))
+                .withAppConfiguration(appConfiguration)
+                .withTorrentFileProvider(torrentFileProvider)
+                .withEventPublisher(mock(ApplicationEventPublisher.class))
+                .withDelayQueue(delayQueue)
+                .build();
+
+        final AnnouncerExecutor announcerExecutor = mock(AnnouncerExecutor.class);
+        client.setAnnouncerExecutor(announcerExecutor);
+
+        client.start();
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+
+
+        final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
+
+        Mockito.reset(delayQueue);
+        client.onTorrentFileAdded(torrent2);
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+
+        final AnnounceRequest announceRequest = argumentCaptor.getValue();
+        assertThat(announceRequest.getInfoHash()).isEqualTo(torrent2.getTorrentInfoHash());
+        assertThat(announceRequest.getEvent()).isEqualTo(RequestEvent.STARTED);
+
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(2);
     }
 
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
     @Test
     public void shouldNotAddTorrentWhenATorrentFileIsCreatedAnClientAlreadySeedingOnMaxSimultaneousSeed() {
+        final AppConfiguration appConfiguration = this.createMockedConf();
+        doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
+        final MockedTorrent torrent3 = MockedTorrentTest.createOneMock("ghi");
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+                MockedTorrentTest.createOneMock("abc"),
+                MockedTorrentTest.createOneMock("def")
+        ));
+
+        final DelayQueue<AnnounceRequest> delayQueue = mock(DelayQueue.class);
+        final AnnouncerFactory mockedAnnouncerFactory = createMockedAnnouncerFactory();
+
+        final Client client = (Client) ClientBuilder.builder()
+                .withAnnouncerFactory(mockedAnnouncerFactory)
+                .withBandwidthDispatcher(mock(BandwidthDispatcher.class))
+                .withAppConfiguration(appConfiguration)
+                .withTorrentFileProvider(torrentFileProvider)
+                .withEventPublisher(mock(ApplicationEventPublisher.class))
+                .withDelayQueue(delayQueue)
+                .build();
+
+        final AnnouncerExecutor announcerExecutor = mock(AnnouncerExecutor.class);
+        client.setAnnouncerExecutor(announcerExecutor);
+
+        client.start();
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+
+        Mockito.reset(delayQueue);
+        client.onTorrentFileAdded(torrent3);
+        verify(delayQueue, times(0)).addOrReplace(Matchers.any(AnnounceRequest.class), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
     }
 
+
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
     @Test
     public void shouldTryToStopAnnouncerWhenTorrentFileIsDeleted() {
+        final AppConfiguration appConfiguration = this.createMockedConf();
+        doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
+        final MockedTorrent torrent = MockedTorrentTest.createOneMock("abc");
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+                torrent
+        ));
+
+        final DelayQueue<AnnounceRequest> delayQueue = mock(DelayQueue.class);
+        final AnnouncerFactory mockedAnnouncerFactory = createMockedAnnouncerFactory();
+
+        final Client client = (Client) ClientBuilder.builder()
+                .withAnnouncerFactory(mockedAnnouncerFactory)
+                .withBandwidthDispatcher(mock(BandwidthDispatcher.class))
+                .withAppConfiguration(appConfiguration)
+                .withTorrentFileProvider(torrentFileProvider)
+                .withEventPublisher(mock(ApplicationEventPublisher.class))
+                .withDelayQueue(delayQueue)
+                .build();
+
+        final AnnouncerExecutor announcerExecutor = mock(AnnouncerExecutor.class);
+        client.setAnnouncerExecutor(announcerExecutor);
+
+        client.start();
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+
+
+        final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
+
+        Mockito.reset(delayQueue);
+        client.onTorrentFileRemoved(torrent);
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+
+        final AnnounceRequest announceRequest = argumentCaptor.getValue();
+        assertThat(announceRequest.getInfoHash()).isEqualTo(torrent.getTorrentInfoHash());
+        assertThat(announceRequest.getEvent()).isEqualTo(RequestEvent.STOPPED);
     }
 
+    @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
     @Test
     public void shouldNotFailWhenATorrentFileIsRemovedButNoAnnouncerIsStartedForThisFile() {
+        final AppConfiguration appConfiguration = this.createMockedConf();
+        doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+                MockedTorrentTest.createOneMock("abc")
+        ));
+
+        final DelayQueue<AnnounceRequest> delayQueue = mock(DelayQueue.class);
+        final AnnouncerFactory mockedAnnouncerFactory = createMockedAnnouncerFactory();
+
+        final Client client = (Client) ClientBuilder.builder()
+                .withAnnouncerFactory(mockedAnnouncerFactory)
+                .withBandwidthDispatcher(mock(BandwidthDispatcher.class))
+                .withAppConfiguration(appConfiguration)
+                .withTorrentFileProvider(torrentFileProvider)
+                .withEventPublisher(mock(ApplicationEventPublisher.class))
+                .withDelayQueue(delayQueue)
+                .build();
+
+        final AnnouncerExecutor announcerExecutor = mock(AnnouncerExecutor.class);
+        client.setAnnouncerExecutor(announcerExecutor);
+
+        client.start();
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+
+        try {
+            client.onTorrentFileRemoved(MockedTorrentTest.createOneMock("def"));
+        } catch (final Throwable t) {
+            fail("Should not have thrown");
+        }
+        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
     }
 
 

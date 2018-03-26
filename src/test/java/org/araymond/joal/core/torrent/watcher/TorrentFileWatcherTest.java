@@ -229,6 +229,21 @@ public class TorrentFileWatcherTest {
         watcher.stop();
     }
 
+    @Test
+    public void shouldFaiToStartWithNonExistingPath() throws IOException {
+        final Path directory = Files.createDirectory(torrentsPath.resolve("sub-folder"));
+        final TorrentFileWatcher torrentFileWatcher = new TorrentFileWatcher(
+                new FileAlterationListenerAdaptor(),
+                directory,
+                10
+        );
+
+        Files.delete(directory);
+
+        assertThatThrownBy(torrentFileWatcher::start)
+                .isInstanceOf(IllegalStateException.class);
+    }
+
     private static final class FailOnTriggerListener extends FileAlterationListenerAdaptor {
 
         @Override

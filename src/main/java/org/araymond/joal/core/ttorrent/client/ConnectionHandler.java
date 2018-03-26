@@ -55,6 +55,7 @@ public class ConnectionHandler {
         this.ipAddress = fetchIp();
         logger.info("Ip reported to tracker will be: {}", this.getIpAddress().getHostAddress());
 
+        // FIXME: the thread needs to be started somewhere
         this.ipFetcherThread = new Thread(() -> {
             try {
                 // Sleep for one hour and a half.
