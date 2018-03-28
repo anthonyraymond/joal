@@ -62,6 +62,7 @@ public class SeedManager {
 
     public void tearDown() {
         this.connectionHandler.close();
+        this.torrentFileProvider.stop();
         if (this.client != null) {
             this.client.stop();
         }

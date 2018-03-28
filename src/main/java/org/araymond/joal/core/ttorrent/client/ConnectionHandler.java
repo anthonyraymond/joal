@@ -73,25 +73,23 @@ public class ConnectionHandler {
     }
 
     @VisibleForTesting
+    InetAddress readIpFromProvider(final String providerUrl) throws IOException {
+        final URLConnection urlConnection = new URL(providerUrl).openConnection();
+        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+            return InetAddress.getByName(in.readLine());
+        }
+    }
+
+    @VisibleForTesting
     Optional<InetAddress> tryToFetchFromProviders() {
         final List<String> shuffledList = Lists.newArrayList(IP_PROVIDERS);
         Collections.shuffle(shuffledList);
 
         for (final String ipProvider : shuffledList) {
-            final String ip;
             logger.info("Fetching ip from: " + ipProvider);
-            final URLConnection urlConnection;
             try {
-                urlConnection = new URL(ipProvider).openConnection();
-                urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.167 Safari/537.36");
-            } catch (final IOException e) {
-                logger.warn("Failed to fetch Ip from \"" + ipProvider + "\"", e);
-                return Optional.empty();
-            }
-            try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
-                ip = in.readLine();
-
-                return Optional.of(InetAddress.getByName(ip));
+                return Optional.of(this.readIpFromProvider(ipProvider));
             } catch (final IOException e) {
                 logger.warn("Failed to fetch Ip from \"" + ipProvider + "\"", e);
             }
@@ -151,7 +149,7 @@ public class ConnectionHandler {
             if (this.channel != null) {
                 this.channel.close();
             }
-        } catch (final IOException e) {
+        } catch (final Exception e) {
             logger.warn("ConnectionHandler channel has failed to release channel, but the shutdown will proceed.", e);
         } finally {
             this.channel = null;
