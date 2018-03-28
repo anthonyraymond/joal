@@ -56,7 +56,7 @@ public class ConnectionHandler {
         logger.info("Ip reported to tracker will be: {}", this.getIpAddress().getHostAddress());
 
         this.ipFetcherThread = new Thread(() -> {
-            while (!this.ipFetcherThread.isInterrupted()) {
+            while (this.ipFetcherThread == null || !this.ipFetcherThread.isInterrupted()) {
                 try {
                     // Sleep for one hour and a half.
                     Thread.sleep(1000 * 5400);
