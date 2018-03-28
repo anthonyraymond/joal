@@ -56,11 +56,11 @@ public class SeedManager {
     private ClientFacade client;
 
     public void init() throws IOException {
-        this.connectionHandler.init();
+        this.connectionHandler.start();
         this.torrentFileProvider.start();
     }
 
-    public void tearDown() throws IOException {
+    public void tearDown() {
         this.connectionHandler.close();
         if (this.client != null) {
             this.client.stop();

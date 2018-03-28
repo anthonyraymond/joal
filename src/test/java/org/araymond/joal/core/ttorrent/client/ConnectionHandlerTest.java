@@ -57,7 +57,7 @@ public class ConnectionHandlerTest {
         Mockito.doReturn(Optional.empty()).when(handler).tryToFetchFromProviders();
         Mockito.doReturn(channel).when(handler).bindToPort();
 
-        handler.init();
+        handler.start();
         assertThat(handler.getIpAddress().isSiteLocalAddress()).isTrue();
     }
 
@@ -70,7 +70,7 @@ public class ConnectionHandlerTest {
 
         // emulate successful call
         Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).tryToFetchFromProviders();
-        handler.init();
+        handler.start();
 
         // emulate failed call
         Mockito.doReturn(Optional.empty()).when(handler).tryToFetchFromProviders();
@@ -86,7 +86,7 @@ public class ConnectionHandlerTest {
         Mockito.doReturn(channel).when(handler).bindToPort();
         Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).tryToFetchFromProviders();
 
-        handler.init();
+        handler.start();
 
         assertThat(handler.getIpAddress().getHostAddress()).isEqualTo("168.168.168.168");
     }
@@ -98,7 +98,7 @@ public class ConnectionHandlerTest {
         Mockito.doReturn(channel).when(handler).bindToPort();
         Mockito.doReturn(Optional.of(InetAddress.getByName("168.168.168.168"))).when(handler).tryToFetchFromProviders();
 
-        handler.init();
+        handler.start();
 
         assertThat(handler.getIpAddress().getHostAddress()).isEqualTo("168.168.168.168");
         assertThat(handler.getPort()).isEqualTo(65534);

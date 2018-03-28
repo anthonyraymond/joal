@@ -27,7 +27,7 @@ public class ConnectionHandler {
     private ServerSocketChannel channel;
     private InetAddress ipAddress;
     private Thread ipFetcherThread;
-    private static final String[] IP_PROVIDERS = new String[] {
+    private static final String[] IP_PROVIDERS = new String[]{
             "http://ip.tyk.nu/",
             "http://l2.io/ip",
             "http://ident.me/",
@@ -47,7 +47,7 @@ public class ConnectionHandler {
         return this.channel.socket().getLocalPort();
     }
 
-    public void init() throws IOException {
+    public void start() throws IOException {
         this.channel = this.bindToPort();
         final int port = this.channel.socket().getLocalPort();
         logger.info("Listening for incoming peer connections on port {}.", port);
@@ -55,17 +55,21 @@ public class ConnectionHandler {
         this.ipAddress = fetchIp();
         logger.info("Ip reported to tracker will be: {}", this.getIpAddress().getHostAddress());
 
-        // FIXME: the thread needs to be started somewhere
         this.ipFetcherThread = new Thread(() -> {
-            try {
-                // Sleep for one hour and a half.
-                Thread.sleep(1000 * 5400);
-                this.ipAddress = this.fetchIp();
-            } catch (final UnknownHostException ignored) {
-            } catch (final InterruptedException e) {
-                logger.info("Ip fetcher thread has been stopped.");
+            while (!this.ipFetcherThread.isInterrupted()) {
+                try {
+                    // Sleep for one hour and a half.
+                    Thread.sleep(1000 * 5400);
+                    this.ipAddress = this.fetchIp();
+                } catch (final UnknownHostException e) {
+                    logger.warn("Faield to fetch Ip", e);
+                } catch (final InterruptedException e) {
+                    logger.info("Ip fetcher thread has been stopped.");
+                }
             }
         });
+
+        this.ipFetcherThread.start();
     }
 
     @VisibleForTesting
@@ -84,7 +88,7 @@ public class ConnectionHandler {
                 logger.warn("Failed to fetch Ip from \"" + ipProvider + "\"", e);
                 return Optional.empty();
             }
-            try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))){
+            try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
                 ip = in.readLine();
 
                 return Optional.of(InetAddress.getByName(ip));
@@ -141,14 +145,22 @@ public class ConnectionHandler {
         return channel;
     }
 
-    public void close() throws IOException {
+    public void close() {
         logger.debug("Call to close ConnectionHandler.");
-        if (this.channel != null) {
-            this.channel.close();
+        try {
+            if (this.channel != null) {
+                this.channel.close();
+            }
+        } catch (final IOException e) {
+            logger.warn("ConnectionHandler channel has failed to release channel, but the shutdown will proceed.", e);
+        } finally {
             this.channel = null;
         }
-        if (this.ipFetcherThread != null) {
-            this.ipFetcherThread.interrupt();
+        try {
+            if (this.ipFetcherThread != null) {
+                this.ipFetcherThread.interrupt();
+            }
+        } finally {
             this.ipFetcherThread = null;
         }
         logger.debug("ConnectionHandler closed.");
