@@ -212,6 +212,14 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org/araymond/joal/JackOfAllTradesApplication.class</exclude>
+                        <exclude>org/araymond/joal/ApplicationReadyListener.class</exclude>
+                        <exclude>org/araymond/joal/ApplicationClosingListener.class</exclude>
+                        <exclude>org/araymond/joal/web/config/</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
