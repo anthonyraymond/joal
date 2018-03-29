@@ -33,7 +33,7 @@ public class WebSocketAuthenticationSecurityConfig extends AbstractWebSocketMess
 
     @Override
     public void configureClientInboundChannel(final ChannelRegistration registration) {
-        registration.setInterceptors(new AuthChannelInterceptorAdapter(this.webSocketAuthenticatorService));
+        registration.interceptors(new AuthChannelInterceptorAdapter(this.webSocketAuthenticatorService));
     }
 
 }
