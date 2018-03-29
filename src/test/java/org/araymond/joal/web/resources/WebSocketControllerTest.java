@@ -114,7 +114,7 @@ public class WebSocketControllerTest {
     }
 
     @Test
-    public void shouldProvideInitializationListOfEvent() {
+    public void shouldProvideInitializationListOfEventWhenStarted() {
         final SeedManager seedManager = mock(SeedManager.class);
         final JoalMessageSendingTemplate sendingTemplate = mock(JoalMessageSendingTemplate.class);
         final AnnouncerFacade announcerFacade = mock(AnnouncerFacade.class);
@@ -142,6 +142,34 @@ public class WebSocketControllerTest {
         verify(seedManager, times(1)).getSpeedMap();
         verify(seedManager, times(1)).getCurrentlySeedingAnnouncer();
         verifyNoMoreInteractions(seedManager);
+    }
 
+    @Test
+    public void shouldProvideInitializationListOfEventWhenNotStarted() {
+        final SeedManager seedManager = mock(SeedManager.class);
+        final JoalMessageSendingTemplate sendingTemplate = mock(JoalMessageSendingTemplate.class);
+        final AnnouncerFacade announcerFacade = mock(AnnouncerFacade.class);
+        doReturn(Optional.empty()).when(announcerFacade).getLastAnnouncedAt();
+        doReturn(Optional.empty()).when(announcerFacade).getLastKnownLeechers();
+        doReturn(Optional.empty()).when(announcerFacade).getLastKnownSeeders();
+
+        final WebSocketController controller = new WebSocketController(seedManager, sendingTemplate);
+
+        doReturn(Lists.newArrayList("utorrent")).when(seedManager).listClientFiles();
+        doReturn(AppConfigurationTest.createOne()).when(seedManager).getCurrentConfig();
+        doReturn(Lists.newArrayList(MockedTorrentTest.createOneMock("abc"), MockedTorrentTest.createOneMock("def"))).when(seedManager).getTorrentFiles();
+        doReturn(false).when(seedManager).isSeeding();
+        doReturn(Maps.newHashMap(InfoHashTest.createOne("abc"), mock(Speed.class))).when(seedManager).getSpeedMap();
+        doReturn(Lists.newArrayList(announcerFacade)).when(seedManager).getCurrentlySeedingAnnouncer();
+
+        controller.list();
+
+        verify(seedManager, times(1)).listClientFiles();
+        verify(seedManager, times(1)).getCurrentConfig();
+        verify(seedManager, times(1)).getTorrentFiles();
+        verify(seedManager, times(1)).isSeeding();
+        verify(seedManager, times(1)).getSpeedMap();
+        verify(seedManager, times(1)).getCurrentlySeedingAnnouncer();
+        verifyNoMoreInteractions(seedManager);
     }
 }
