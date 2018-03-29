@@ -4,11 +4,16 @@ jdk:
  - oraclejdk8
 
 cache:
+  apt: true
   directories:
   - "$HOME/.cache"
+  - ~/.m2
+
+install:
+ -
 
 script:
-  - mvn package
+  - mvn clean test jacoco:report coveralls:report
 
 
 deploy:
@@ -27,6 +32,7 @@ after_deploy:
   - rm -rf packager-tmp
   
 after_success:
+  - mvn clean package -DskipTests=true
   - mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
   - cd ./packager-tmp && tar -czvf joal.tar.gz * && cd ..
-  - mvn clean test jacoco:report coveralls:report
+
