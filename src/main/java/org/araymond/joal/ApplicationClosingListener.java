@@ -7,6 +7,7 @@ import org.araymond.joal.core.SeedManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,7 @@ import java.io.IOException;
 /**
  * Created by raymo on 08/07/2017.
  */
+@Profile("!test")
 @Component
 public class ApplicationClosingListener implements ApplicationListener<ContextClosedEvent> {
     private static final Logger logger = LoggerFactory.getLogger(ApplicationClosingListener.class);
