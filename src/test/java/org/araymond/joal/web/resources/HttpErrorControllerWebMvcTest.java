@@ -47,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         secure = false, excludeAutoConfiguration = { BasicErrorController.class, ErrorMvcAutoConfiguration.class }
 )
 @TestPropertySource(properties = "spring.main.web-environment=true")
-public class HttpErrorControllerIntegrationTest {
+public class HttpErrorControllerWebMvcTest {
 
     @Inject
     private MockMvc mvc;
