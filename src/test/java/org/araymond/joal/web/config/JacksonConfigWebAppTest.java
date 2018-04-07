@@ -9,18 +9,20 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.inject.Inject;
-
 import java.time.LocalDate;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {
         JacksonConfig.class,
-        org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration.class
-})
-public class JacksonConfigTest {
+               org.springframework.boot.autoconfigure.jackson.JacksonAutoConfiguration.class
+        },
+        properties = {
+                "spring.main.web-environment=true"
+        }
+)
+public class JacksonConfigWebAppTest {
 
     @Inject
     private ObjectMapper mapper;
