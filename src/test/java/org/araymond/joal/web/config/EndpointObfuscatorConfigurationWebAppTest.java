@@ -1,7 +1,6 @@
 package org.araymond.joal.web.config;
 
 import org.araymond.joal.TestConstant;
-import org.araymond.joal.web.config.security.WebSecurityConfig;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.context.embedded.LocalServerPort;
@@ -9,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -17,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.inject.Inject;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -42,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
                 "joal.ui.secret-token=" + TestConstant.UI_SECRET_TOKEN
         }
 )
-@Import({EndpointObfuscatorConfigurationTest.TestController.class})
-public class EndpointObfuscatorConfigurationTest {
+@Import({EndpointObfuscatorConfigurationWebAppTest.TestController.class})
+public class EndpointObfuscatorConfigurationWebAppTest {
 
     @LocalServerPort
     private int port;
