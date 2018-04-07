@@ -30,7 +30,7 @@ public class JacksonConfig {
 
     public static final class InfoHashSerializer extends JsonSerializer<InfoHash> {
         @Override
-        public void serialize(final InfoHash value, final JsonGenerator gen, final SerializerProvider serializers) throws IOException, JsonProcessingException {
+        public void serialize(final InfoHash value, final JsonGenerator gen, final SerializerProvider serializers) throws IOException {
             gen.writeString(value.value());
         }
 

@@ -53,8 +53,8 @@ import static org.assertj.core.api.Assertions.assertThat;
                 "joal.ui.secret-token=" + TestConstant.UI_SECRET_TOKEN
         }
 )
-@Import({WebSecurityConfigTest.TestWebUiController.class})
-public class WebSecurityConfigTest /*extends TestConstant*/ {
+@Import({WebSecurityConfigWebAppTest.TestWebUiController.class})
+public class WebSecurityConfigWebAppTest {
 
     @LocalServerPort
     private int port;
