@@ -13,7 +13,6 @@ import java.io.IOException;
 /**
  * Created by raymo on 24/07/2017.
  */
-@Profile("!test")
 @Configuration
 public class BeanConfig {
 
