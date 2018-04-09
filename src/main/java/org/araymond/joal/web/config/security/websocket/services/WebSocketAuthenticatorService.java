@@ -37,7 +37,7 @@ public class WebSocketAuthenticatorService {
             throw new BadCredentialsException("Authentication token does not match the expected token");
         }
 
-        // Everithing is fine, return an authenticated Authentication. (the constructor with grantedAuthorities auto set authenticated = true)
+        // Everything is fine, return an authenticated Authentication. (the constructor with grantedAuthorities auto set authenticated = true)
         // null credentials, we do not pass the password along to prevent security flaw
         return new UsernamePasswordAuthenticationToken(
                 username,
