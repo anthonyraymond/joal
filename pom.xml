@@ -217,7 +217,7 @@
                         <exclude>org/araymond/joal/JackOfAllTradesApplication.class</exclude>
                         <exclude>org/araymond/joal/ApplicationReadyListener.class</exclude>
                         <exclude>org/araymond/joal/ApplicationClosingListener.class</exclude>
-                        <exclude>org/araymond/joal/web/config/</exclude>
+                        <exclude>org/araymond/joal/web/config/BeanConfig.class</exclude>
                         <exclude>org/araymond/joal/web/messages/</exclude>
                         <exclude>org/araymond/joal/web/services/corelistener/</exclude>
                     </excludes>

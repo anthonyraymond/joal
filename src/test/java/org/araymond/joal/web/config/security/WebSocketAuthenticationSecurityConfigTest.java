@@ -26,4 +26,12 @@ public class WebSocketAuthenticationSecurityConfigTest {
         verify(registration, times(1)).interceptors(Matchers.any());
         verify(webSocketAuthenticationSecurityConfig, times(1)).createChannelInterceptors();
     }
+
+    @Test
+    public void uselessTestButForCoverage() {
+        final AuthChannelInterceptorAdapter authAdaptor = mock(AuthChannelInterceptorAdapter.class);
+        final WebSocketAuthenticationSecurityConfig webSocketAuthenticationSecurityConfig = spy(new WebSocketAuthenticationSecurityConfig(authAdaptor));
+
+        webSocketAuthenticationSecurityConfig.registerStompEndpoints(null);
+    }
 }
