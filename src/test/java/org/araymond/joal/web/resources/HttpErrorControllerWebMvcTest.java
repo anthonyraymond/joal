@@ -32,18 +32,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 @WebMvcTest(
         controllers = { HttpErrorController.class },
-        excludeFilters = {
-                @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = {
-                        WebSecurityConfig.class,
-                        WebSocketAuthorizationSecurityConfig.class,
-                        WebSocketAuthenticationSecurityConfig.class,
-                        AuthChannelInterceptorAdapter.class,
-                        WebSocketAuthenticatorService.class,
-                        EndpointObfuscatorConfiguration.class,
-                        WebMvcConfiguration.class,
-                        WebSocketConfig.class
-                })
-        },
         secure = false, excludeAutoConfiguration = { BasicErrorController.class, ErrorMvcAutoConfiguration.class }
 )
 @TestPropertySource(properties = "spring.main.web-environment=true")

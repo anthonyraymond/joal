@@ -1,5 +1,6 @@
 package org.araymond.joal.web.config.security;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.config.security.websocket.interceptor.AuthChannelInterceptorAdapter;
 import org.araymond.joal.web.config.security.websocket.services.WebSocketAuthenticatorService;
@@ -7,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.simp.config.ChannelRegistration;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 
@@ -33,7 +35,12 @@ public class WebSocketAuthenticationSecurityConfig extends AbstractWebSocketMess
 
     @Override
     public void configureClientInboundChannel(final ChannelRegistration registration) {
-        registration.interceptors(new AuthChannelInterceptorAdapter(this.webSocketAuthenticatorService));
+        registration.interceptors(this.createChannelInterceptors());
+    }
+
+    @VisibleForTesting
+    ChannelInterceptor[] createChannelInterceptors() {
+        return new ChannelInterceptor[]{new AuthChannelInterceptorAdapter(this.webSocketAuthenticatorService)};
     }
 
 }
