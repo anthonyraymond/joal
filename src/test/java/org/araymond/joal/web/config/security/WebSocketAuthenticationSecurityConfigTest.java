@@ -1,5 +1,6 @@
 package org.araymond.joal.web.config.security;
 
+import org.araymond.joal.web.config.security.websocket.interceptor.AuthChannelInterceptorAdapter;
 import org.araymond.joal.web.config.security.websocket.services.WebSocketAuthenticatorService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -16,8 +17,8 @@ public class WebSocketAuthenticationSecurityConfigTest {
 
     @Test
     public void shouldRegisterInterceptors() {
-        final WebSocketAuthenticatorService authService = mock(WebSocketAuthenticatorService.class);
-        final WebSocketAuthenticationSecurityConfig webSocketAuthenticationSecurityConfig = spy(new WebSocketAuthenticationSecurityConfig(authService));
+        final AuthChannelInterceptorAdapter authAdaptor = mock(AuthChannelInterceptorAdapter.class);
+        final WebSocketAuthenticationSecurityConfig webSocketAuthenticationSecurityConfig = spy(new WebSocketAuthenticationSecurityConfig(authAdaptor));
 
         final ChannelRegistration registration = mock(ChannelRegistration.class);
         webSocketAuthenticationSecurityConfig.configureClientInboundChannel(registration);

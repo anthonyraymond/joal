@@ -33,7 +33,7 @@ public class WebSocketAuthenticatorService {
         if (StringUtils.isBlank(authToken)) {
             throw new AuthenticationCredentialsNotFoundException("Authentication token was null or empty.");
         }
-        if (!appSecretToken.equals(authToken)) {
+        if (!appSecretToken.contentEquals(authToken)) {
             throw new BadCredentialsException("Authentication token does not match the expected token");
         }
 

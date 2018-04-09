@@ -3,7 +3,6 @@ package org.araymond.joal.web.config.security;
 import com.google.common.annotations.VisibleForTesting;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.config.security.websocket.interceptor.AuthChannelInterceptorAdapter;
-import org.araymond.joal.web.config.security.websocket.services.WebSocketAuthenticatorService;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -21,11 +20,11 @@ import javax.inject.Inject;
 @Configuration
 @Order(Ordered.HIGHEST_PRECEDENCE + 99)
 public class WebSocketAuthenticationSecurityConfig extends AbstractWebSocketMessageBrokerConfigurer {
-    private final WebSocketAuthenticatorService webSocketAuthenticatorService;
+    private final AuthChannelInterceptorAdapter authChannelInterceptorAdapter;
 
     @Inject
-    public WebSocketAuthenticationSecurityConfig(final WebSocketAuthenticatorService webSocketAuthenticatorService) {
-        this.webSocketAuthenticatorService = webSocketAuthenticatorService;
+    public WebSocketAuthenticationSecurityConfig(final AuthChannelInterceptorAdapter authChannelInterceptorAdapter) {
+        this.authChannelInterceptorAdapter = authChannelInterceptorAdapter;
     }
 
     @Override
@@ -40,7 +39,7 @@ public class WebSocketAuthenticationSecurityConfig extends AbstractWebSocketMess
 
     @VisibleForTesting
     ChannelInterceptor[] createChannelInterceptors() {
-        return new ChannelInterceptor[]{new AuthChannelInterceptorAdapter(this.webSocketAuthenticatorService)};
+        return new ChannelInterceptor[]{this.authChannelInterceptorAdapter};
     }
 
 }

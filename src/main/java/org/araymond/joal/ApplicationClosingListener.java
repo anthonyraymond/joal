@@ -12,7 +12,6 @@ import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
-import java.io.IOException;
 
 /**
  * Created by raymo on 08/07/2017.
