@@ -28,7 +28,7 @@ public class AnnouncerExecutor {
         //   maximumPoolSize therefore doesn't have any effect.) This may be appropriate when each task is completely independent of others, so tasks
         //   cannot affect each others execution
         final int corePoolSize = 3;
-        final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("announce-thread-%d").build();
+        final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("annnouncer-%d").build();
         this.executorService = new ThreadPoolExecutor(corePoolSize, 3, 40, TimeUnit.MINUTES, new LinkedBlockingQueue<>(), threadFactory);
         this.currentlyRunning = new HashMap<>(corePoolSize);
     }

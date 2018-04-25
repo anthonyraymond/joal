@@ -134,17 +134,18 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     }
 
     public void onTooManyFailedInARaw(final Announcer announcer) {
+        if (this.stop) {
+            this.currentlySeedingAnnouncer.remove(announcer);
+            return;
+        }
+
         try {
             this.lock.writeLock().lock();
-            this.currentlySeedingAnnouncer.remove(announcer);
             this.torrentFileProvider.moveToArchiveFolder(announcer.getTorrentInfoHash());
-            if (this.stop) {
-                return;
-            }
-
             this.addTorrent();
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
+            this.currentlySeedingAnnouncer.remove(announcer);
             this.lock.writeLock().unlock();
         }
     }
@@ -156,11 +157,12 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     }
 
     public void onTorrentHasStopped(final Announcer stoppedAnnouncer) {
+        if (this.stop) {
+            this.currentlySeedingAnnouncer.remove(stoppedAnnouncer);
+            return;
+        }
         try {
             this.lock.writeLock().lock();
-            if (this.stop) {
-                return;
-            }
 
             this.addTorrent();
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
