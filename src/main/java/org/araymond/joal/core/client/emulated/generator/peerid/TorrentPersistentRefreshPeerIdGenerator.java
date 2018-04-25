@@ -10,8 +10,8 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by raymo on 16/07/2017.
@@ -27,7 +27,7 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
             @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
         super(algorithm, isUrlEncoded);
-        peerIdPerTorrent = new HashMap<>();
+        peerIdPerTorrent = new ConcurrentHashMap<>();
     }
 
     @Override

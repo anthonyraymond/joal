@@ -9,6 +9,7 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by raymo on 16/07/2017.
@@ -22,7 +23,7 @@ public class TorrentVolatileRefreshKeyGenerator extends KeyGenerator {
             @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {
         super(algorithm, keyCase);
-        keyPerTorrent = new HashMap<>();
+        keyPerTorrent = new ConcurrentHashMap<>();
     }
 
     @Override
