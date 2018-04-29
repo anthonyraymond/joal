@@ -141,11 +141,11 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
         try {
             this.lock.writeLock().lock();
+            this.currentlySeedingAnnouncer.remove(announcer); // Remove from announcers list asap, otherwise the deletion will trigger a announce stop event.
             this.torrentFileProvider.moveToArchiveFolder(announcer.getTorrentInfoHash());
             this.addTorrent();
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
-            this.currentlySeedingAnnouncer.remove(announcer);
             this.lock.writeLock().unlock();
         }
     }
