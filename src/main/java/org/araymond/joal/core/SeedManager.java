@@ -132,8 +132,8 @@ public class SeedManager {
         }
     }
 
-    public void deleteTorrent(final String torrentInfoHash) {
-        this.torrentFileProvider.moveToArchiveFolder(new InfoHash(torrentInfoHash.getBytes()));
+    public void deleteTorrent(final InfoHash torrentInfoHash) {
+        this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
     }
 
     public boolean isSeeding() {

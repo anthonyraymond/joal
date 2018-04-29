@@ -94,7 +94,7 @@ public class WebSocketController {
 
     @MessageMapping("/torrents/delete")
     public void deleteTorrent(final String torrentInfoHash) {
-        this.seedManager.deleteTorrent(torrentInfoHash);
+        this.seedManager.deleteTorrent(new InfoHash(torrentInfoHash.getBytes(MockedTorrent.BYTE_ENCODING)));
     }
 
     /**

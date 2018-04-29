@@ -6,6 +6,7 @@ import org.araymond.joal.core.bandwith.Speed;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.AppConfigurationTest;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.InfoHashTest;
 import org.araymond.joal.core.torrent.torrent.MockedTorrentTest;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
@@ -107,10 +108,10 @@ public class WebSocketControllerTest {
         final JoalMessageSendingTemplate sendingTemplate = mock(JoalMessageSendingTemplate.class);
 
         final WebSocketController controller = new WebSocketController(seedManager, sendingTemplate);
+        final InfoHash infoHash = InfoHashTest.createOne("aaa");
+        controller.deleteTorrent("aaa");
 
-        controller.deleteTorrent("abcd");
-
-        verify(seedManager, times(1)).deleteTorrent("abcd");
+        verify(seedManager, times(1)).deleteTorrent(infoHash);
     }
 
     @Test
