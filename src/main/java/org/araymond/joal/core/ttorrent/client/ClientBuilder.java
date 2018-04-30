@@ -64,7 +64,7 @@ public final class ClientBuilder {
 
         final AnnouncerExecutor announcerExecutor = new AnnouncerExecutor(announceResponseCallback);
 
-        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, this.delayQueue, this.announcerFactory);
+        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, this.delayQueue, this.announcerFactory, this.eventPublisher);
         clientNotifier.setClient(client);
 
         return client;

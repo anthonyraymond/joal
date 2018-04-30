@@ -5,6 +5,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
+import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
+import org.araymond.joal.core.events.torrent.files.TorrentFileDeletedEvent;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
@@ -16,6 +18,7 @@ import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
 import org.slf4j.Logger;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -30,6 +33,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
     private final AppConfiguration appConfiguration;
     private final TorrentFileProvider torrentFileProvider;
+    private final ApplicationEventPublisher eventPublisher;
     private AnnouncerExecutor announcerExecutor;
     private final List<Announcer> currentlySeedingAnnouncer;
     private final DelayQueue<AnnounceRequest> delayQueue;
@@ -38,11 +42,12 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     private Thread thread;
     private volatile boolean stop = true;
 
-    Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnouncerFactory announcerFactory) {
+    Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor, final DelayQueue<AnnounceRequest> delayQueue, final AnnouncerFactory announcerFactory, final ApplicationEventPublisher eventPublisher) {
         Preconditions.checkNotNull(appConfiguration, "AppConfiguration must not be null");
         Preconditions.checkNotNull(torrentFileProvider, "TorrentFileProvider must not be null");
         Preconditions.checkNotNull(delayQueue, "DelayQueue must not be null");
         Preconditions.checkNotNull(announcerFactory, "AnnouncerFactory must not be null");
+        this.eventPublisher = eventPublisher;
         this.appConfiguration = appConfiguration;
         this.torrentFileProvider = torrentFileProvider;
         this.announcerExecutor = announcerExecutor;
@@ -174,6 +179,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
     @Override
     public void onTorrentFileAdded(final MockedTorrent torrent) {
+        this.eventPublisher.publishEvent(new TorrentFileAddedEvent(torrent));
         if (this.stop) {
             return;
         }
@@ -192,6 +198,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
     @Override
     public void onTorrentFileRemoved(final MockedTorrent torrent) {
+        this.eventPublisher.publishEvent(new TorrentFileDeletedEvent(torrent));
         try {
             this.lock.writeLock().lock();
             this.currentlySeedingAnnouncer.stream()
