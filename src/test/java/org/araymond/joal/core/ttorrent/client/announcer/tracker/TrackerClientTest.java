@@ -52,7 +52,21 @@ public class TrackerClientTest {
 
     @Test
     public void shouldIterateOverUriProviderUntilHttpSchemeIsFound() throws AnnounceException, NoMoreUriAvailableException {
-        final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("udp://localhost", "udp://127.0.0.1", "http://localhost"));
+        final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne(
+                "udp://tracker.coppersurfer.tk:80/announce",
+                "udp://tracker.coppersurfer.tk:6969/announce",
+                "udp://tracker.opentrackr.org:1337/announce",
+                "udp://9.rarbg.me:2750/announce",
+                "udp://9.rarbg.com:2730/announce",
+                "udp://9.rarbg.to:2770/announce",
+                "udp://tracker.pirateparty.gr:6969/announce",
+                "udp://public.popcorn-tracker.org:6969/announce",
+                "udp://tracker.internetwarriors.net:1337/announce",
+                "udp://tracker.vanitycore.co:6969/announce",
+                "udp://tracker.zer0day.to:1337/announce",
+                "udp://open.stealth.si:80/announce",
+                "http://localhost"
+        ));
 
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
         Mockito.doReturn(
@@ -61,7 +75,7 @@ public class TrackerClientTest {
 
         trackerClient.announce("param=val&dd=q", this.createHeaders());
 
-        Mockito.verify(uriProvider, times(2)).deleteCurrentAndMoveToNext();
+        Mockito.verify(uriProvider, times(12)).deleteCurrentAndMoveToNext();
     }
 
     @Test
