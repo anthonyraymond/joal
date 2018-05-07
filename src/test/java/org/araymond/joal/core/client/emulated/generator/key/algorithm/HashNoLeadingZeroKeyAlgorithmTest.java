@@ -2,7 +2,7 @@ package org.araymond.joal.core.client.emulated.generator.key.algorithm;
 
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,7 +33,7 @@ public class HashNoLeadingZeroKeyAlgorithmTest {
 
         algo.generate();
 
-        Mockito.verify(algo, Mockito.times(1)).removeLeadingZeroes(Matchers.anyString());
+        Mockito.verify(algo, Mockito.times(1)).removeLeadingZeroes(ArgumentMatchers.anyString());
     }
 
     @Test

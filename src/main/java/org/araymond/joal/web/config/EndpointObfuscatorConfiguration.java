@@ -2,7 +2,7 @@ package org.araymond.joal.web.config;
 
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

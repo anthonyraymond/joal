@@ -3,10 +3,10 @@ package org.araymond.joal.web.config.security;
 import org.araymond.joal.TestConstant;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import javax.inject.Inject;
@@ -34,17 +34,14 @@ import static org.assertj.core.api.Assertions.assertThat;
                 org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.HttpEncodingAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.HttpMessageConvertersAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.WebClientAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.security.FallbackWebSecurityAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
@@ -72,7 +69,7 @@ public class WebSecurityConfigWebAppTest {
 
     @TestConfiguration
     @EnableWebSocketMessageBroker
-    public static class TestWebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+    public static class TestWebSocketConfig implements WebSocketMessageBrokerConfigurer {
         @Override
         public void registerStompEndpoints(final StompEndpointRegistry registry) {
             registry.addEndpoint(TestConstant.UI_PATH_PREFIX).setAllowedOrigins("*");

@@ -10,12 +10,12 @@ import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AnnounceReEnqueuerTest {
@@ -34,7 +34,7 @@ public class AnnounceReEnqueuerTest {
 
         final ArgumentCaptor<AnnounceRequest> captor = ArgumentCaptor.forClass(AnnounceRequest.class);
 
-        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), Matchers.eq(17), Matchers.eq(ChronoUnit.SECONDS));
+        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), eq(17), eq(ChronoUnit.SECONDS));
         assertThat(captor.getValue().getEvent()).isEqualTo(RequestEvent.NONE);
     }
 
@@ -52,7 +52,7 @@ public class AnnounceReEnqueuerTest {
 
         final ArgumentCaptor<AnnounceRequest> captor = ArgumentCaptor.forClass(AnnounceRequest.class);
 
-        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), Matchers.eq(17), Matchers.eq(ChronoUnit.SECONDS));
+        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), eq(17), eq(ChronoUnit.SECONDS));
         assertThat(captor.getValue().getEvent()).isEqualTo(RequestEvent.STARTED);
     }
 
@@ -70,7 +70,7 @@ public class AnnounceReEnqueuerTest {
 
         final ArgumentCaptor<AnnounceRequest> captor = ArgumentCaptor.forClass(AnnounceRequest.class);
 
-        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), Matchers.eq(0), Matchers.eq(ChronoUnit.SECONDS));
+        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), eq(0), eq(ChronoUnit.SECONDS));
         assertThat(captor.getValue().getEvent()).isEqualTo(RequestEvent.STOPPED);
     }
 
@@ -90,7 +90,7 @@ public class AnnounceReEnqueuerTest {
 
         final ArgumentCaptor<AnnounceRequest> captor = ArgumentCaptor.forClass(AnnounceRequest.class);
 
-        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), Matchers.eq(150), Matchers.eq(ChronoUnit.SECONDS));
+        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), eq(150), eq(ChronoUnit.SECONDS));
         assertThat(captor.getValue().getEvent()).isEqualTo(RequestEvent.NONE);
     }
 
@@ -110,7 +110,7 @@ public class AnnounceReEnqueuerTest {
 
         final ArgumentCaptor<AnnounceRequest> captor = ArgumentCaptor.forClass(AnnounceRequest.class);
 
-        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), Matchers.eq(150), Matchers.eq(ChronoUnit.SECONDS));
+        Mockito.verify(delayQueue, times(1)).addOrReplace(captor.capture(), eq(150), eq(ChronoUnit.SECONDS));
         assertThat(captor.getValue().getEvent()).isEqualTo(RequestEvent.NONE);
     }
 

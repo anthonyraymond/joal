@@ -3,9 +3,10 @@ package org.araymond.joal.web.config;
 import org.araymond.joal.TestConstant;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.context.embedded.LocalServerPort;
+import org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -24,13 +25,11 @@ import static org.assertj.core.api.Assertions.assertThat;
                 org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.HttpEncodingAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.HttpMessageConvertersAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.WebClientAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {

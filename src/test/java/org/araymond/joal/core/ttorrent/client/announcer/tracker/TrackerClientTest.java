@@ -6,11 +6,9 @@ import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +16,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
@@ -71,7 +71,7 @@ public class TrackerClientTest {
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
-        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(Matchers.any(URI.class), Matchers.anyString(), Matchers.any());
+        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
 
         trackerClient.announce("param=val&dd=q", this.createHeaders());
 
@@ -85,7 +85,7 @@ public class TrackerClientTest {
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
-        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(Matchers.any(URI.class), Matchers.anyString(), Matchers.any());
+        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
 
         trackerClient.announce("param=val&dd=q", this.createHeaders());
 
@@ -106,13 +106,13 @@ public class TrackerClientTest {
     }
 
     @Test
-    public void shouldThrowAnnounceExceptionAndMoveToNextUriWhenResponseIsError() throws AnnounceException, NoMoreUriAvailableException, URISyntaxException {
+    public void shouldThrowAnnounceExceptionAndMoveToNextUriWhenResponseIsError() throws AnnounceException, NoMoreUriAvailableException {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("http://localhost", "https://localhost"));
 
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
         Mockito.doReturn(
                 this.createMockedTrackerErrorMessage()
-        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(Matchers.any(URI.class), Matchers.anyString(), Matchers.any());
+        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
 
         assertThatThrownBy(() -> trackerClient.announce("http://localhost", this.createHeaders()))
                 .isInstanceOf(AnnounceException.class);
@@ -129,7 +129,7 @@ public class TrackerClientTest {
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
-        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(Matchers.any(URI.class), Matchers.anyString(), Matchers.any());
+        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
 
         final SuccessAnnounceResponse announceResponse = trackerClient.announce("param=val&dd=q", this.createHeaders());
 
@@ -147,7 +147,7 @@ public class TrackerClientTest {
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage(0)
-        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(Matchers.any(URI.class), Matchers.anyString(), Matchers.any());
+        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
 
         final SuccessAnnounceResponse announceResponse = trackerClient.announce("param=val&dd=q", this.createHeaders());
 

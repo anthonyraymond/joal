@@ -17,14 +17,12 @@ import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.assertj.core.util.Maps;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.security.crypto.codec.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 import java.io.IOException;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class WebSocketControllerTest {
@@ -96,10 +94,10 @@ public class WebSocketControllerTest {
 
         final WebSocketController controller = new WebSocketController(seedManager, sendingTemplate);
 
-        final byte[] b64 = Base64.encode("hello".getBytes());
+        final byte[] b64 = org.apache.commons.codec.binary.Base64.encodeBase64("hello".getBytes());
         controller.uploadTorrent(new Base64TorrentIncomingMessage("d", new String(b64)));
 
-        verify(seedManager, times(1)).saveTorrentToDisk(eq("d"), eq(Base64.decode(b64)));
+        verify(seedManager, times(1)).saveTorrentToDisk(eq("d"), eq(Base64.decodeBase64(b64)));
     }
 
     @Test

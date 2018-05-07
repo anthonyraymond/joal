@@ -7,7 +7,7 @@ import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
@@ -77,8 +77,8 @@ public class BandwidthDispatcherNotifierTest {
         doReturn(15).when(successAnnounceResponse).getSeeders();
         notifier.onAnnounceStartSuccess(announcer, successAnnounceResponse);
 
-        Mockito.verify(dispatcher, times(1)).registerTorrent(Matchers.eq(infoHash));
-        Mockito.verify(dispatcher, times(1)).updateTorrentPeers(Matchers.eq(infoHash), Matchers.eq(15), Matchers.eq(10));
+        Mockito.verify(dispatcher, times(1)).registerTorrent(ArgumentMatchers.eq(infoHash));
+        Mockito.verify(dispatcher, times(1)).updateTorrentPeers(ArgumentMatchers.eq(infoHash), ArgumentMatchers.eq(15), ArgumentMatchers.eq(10));
         Mockito.verifyNoMoreInteractions(dispatcher);
     }
 
@@ -97,7 +97,7 @@ public class BandwidthDispatcherNotifierTest {
         doReturn(15).when(successAnnounceResponse).getSeeders();
         notifier.onAnnounceRegularSuccess(announcer, successAnnounceResponse);
 
-        Mockito.verify(dispatcher, times(1)).updateTorrentPeers(Matchers.eq(infoHash), Matchers.eq(15), Matchers.eq(10));
+        Mockito.verify(dispatcher, times(1)).updateTorrentPeers(ArgumentMatchers.eq(infoHash), ArgumentMatchers.eq(15), ArgumentMatchers.eq(10));
         Mockito.verifyNoMoreInteractions(dispatcher);
     }
 
@@ -114,7 +114,7 @@ public class BandwidthDispatcherNotifierTest {
         final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
         notifier.onAnnounceStopSuccess(announcer, successAnnounceResponse);
 
-        Mockito.verify(dispatcher, times(1)).unregisterTorrent(Matchers.eq(infoHash));
+        Mockito.verify(dispatcher, times(1)).unregisterTorrent(ArgumentMatchers.eq(infoHash));
         Mockito.verifyNoMoreInteractions(dispatcher);
     }
 
@@ -130,7 +130,7 @@ public class BandwidthDispatcherNotifierTest {
         doReturn(infoHash).when(announcer).getTorrentInfoHash();
         notifier.onTooManyAnnounceFailedInARaw(announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
 
-        Mockito.verify(dispatcher, times(1)).unregisterTorrent(Matchers.eq(infoHash));
+        Mockito.verify(dispatcher, times(1)).unregisterTorrent(ArgumentMatchers.eq(infoHash));
         Mockito.verifyNoMoreInteractions(dispatcher);
     }
 

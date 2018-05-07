@@ -20,7 +20,6 @@ import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecuto
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Stubber;
 import org.springframework.context.ApplicationEventPublisher;
@@ -30,6 +29,11 @@ import java.util.Collections;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class ClientTest {
@@ -46,7 +50,7 @@ public class ClientTest {
             final InfoHash infoHash = ((MockedTorrent) invocation.getArguments()[0]).getTorrentInfoHash();
             doReturn(infoHash).when(announcer).getTorrentInfoHash();
             return announcer;
-        }).when(announcerFactory).create(Matchers.any(MockedTorrent.class));
+        }).when(announcerFactory).create(any(MockedTorrent.class));
 
         return announcerFactory;
     }
@@ -63,11 +67,11 @@ public class ClientTest {
         }
         try {
             if (stubber == null) {
-                Mockito.doThrow(new NoMoreTorrentsFileAvailableException("no more")).when(torrentFileProvider).getTorrentNotIn(Matchers.anyListOf(InfoHash.class));
+                Mockito.doThrow(new NoMoreTorrentsFileAvailableException("no more")).when(torrentFileProvider).getTorrentNotIn(anyList());
             } else {
                 stubber
                         .doThrow(new NoMoreTorrentsFileAvailableException("no more"))
-                        .when(torrentFileProvider).getTorrentNotIn(Matchers.anyListOf(InfoHash.class));
+                        .when(torrentFileProvider).getTorrentNotIn(anyList());
             }
         } catch (final NoMoreTorrentsFileAvailableException ignore) {
         }
@@ -95,13 +99,13 @@ public class ClientTest {
         final InfoHash infoHash = InfoHashTest.createOne("abcd");
         client.onNoMorePeers(infoHash);
 
-        verify(torrentFileProvider, times(1)).moveToArchiveFolder(Matchers.eq(infoHash));
+        verify(torrentFileProvider, times(1)).moveToArchiveFolder(eq(infoHash));
 
         final InfoHash infoHash2 = InfoHashTest.createOne("abcd");
         doReturn(true).when(appConfiguration).shouldKeepTorrentWithZeroLeechers();
         client.onNoMorePeers(infoHash);
 
-        verify(torrentFileProvider, times(1)).moveToArchiveFolder(Matchers.eq(infoHash2));
+        verify(torrentFileProvider, times(1)).moveToArchiveFolder(eq(infoHash2));
     }
 
     @SuppressWarnings({"unchecked", "TypeMayBeWeakened", "ResultOfMethodCallIgnored", "ConstantConditions"})
@@ -133,7 +137,7 @@ public class ClientTest {
         client.start();
 
         Mockito.verify(delayQueue, times(appConfiguration.getSimultaneousSeed()))
-                .addOrReplace(Mockito.any(AnnounceRequest.class), Mockito.anyInt(), Mockito.any(TemporalUnit.class));
+                .addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
         assertThat(client.getCurrentlySeedingAnnouncer().stream()
                 .map(announcer -> announcer.getTorrentInfoHash().value())
                 .reduce((o, t) -> o + t).get()
@@ -193,16 +197,15 @@ public class ClientTest {
         client.setAnnouncerExecutor(announcerExecutor);
 
         client.start();
-        verify(delayQueue, times(1)).addOrReplace(Matchers.any(AnnounceRequest.class), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(1)).addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
         Thread.yield();
 
         client.stop();
         verify(delayQueue, times(1)).drainAll();
-        verify(announcerExecutor, times(1)).execute(Matchers.argThat(new ArgumentMatcher<AnnounceRequest>() {
+        verify(announcerExecutor, times(1)).execute(argThat(new ArgumentMatcher<AnnounceRequest>() {
             @Override
-            public boolean matches(final Object argument) {
-                final AnnounceRequest announceRequest = (AnnounceRequest) argument;
-                return announceRequest.getEvent() == RequestEvent.STOPPED;
+            public boolean matches(final AnnounceRequest argument) {
+                return argument.getEvent() == RequestEvent.STOPPED;
             }
         }));
     }
@@ -232,16 +235,15 @@ public class ClientTest {
         client.setAnnouncerExecutor(announcerExecutor);
 
         client.start();
-        verify(delayQueue, times(1)).addOrReplace(Matchers.any(AnnounceRequest.class), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(1)).addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
         Thread.yield();
 
         client.stop();
         verify(delayQueue, times(1)).drainAll();
-        verify(announcerExecutor, times(0)).execute(Matchers.argThat(new ArgumentMatcher<AnnounceRequest>() {
+        verify(announcerExecutor, times(0)).execute(argThat(new ArgumentMatcher<AnnounceRequest>() {
             @Override
-            public boolean matches(final Object argument) {
-                final AnnounceRequest announceRequest = (AnnounceRequest) argument;
-                return announceRequest.getEvent() == RequestEvent.STOPPED;
+            public boolean matches(final AnnounceRequest argument) {
+                return argument.getEvent() == RequestEvent.STOPPED;
             }
         }));
     }
@@ -305,14 +307,14 @@ public class ClientTest {
         final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
 
         client.start();
-        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
         assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
 
         final Announcer firstAnnouncer = argumentCaptor.getValue().getAnnouncer();
 
         client.onTooManyFailedInARaw(firstAnnouncer);
-        verify(torrentFileProvider, times(1)).moveToArchiveFolder(Matchers.eq(firstAnnouncer.getTorrentInfoHash()));
-        verify(delayQueue, times(2)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(torrentFileProvider, times(1)).moveToArchiveFolder(eq(firstAnnouncer.getTorrentInfoHash()));
+        verify(delayQueue, times(2)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
         assertThat(argumentCaptor.getValue().getInfoHash()).isNotEqualTo(firstAnnouncer.getTorrentInfoHash());
         assertThat(argumentCaptor.getValue().getInfoHash().value()).isEqualTo("def");
         assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
@@ -349,11 +351,11 @@ public class ClientTest {
         client.start();
         assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
         final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
-        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
 
         Mockito.reset(delayQueue);
         client.onTorrentHasStopped(argumentCaptor.getValue().getAnnouncer());
-        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
 
         final AnnounceRequest announceRequest = argumentCaptor.getValue();
         assertThat(announceRequest.getInfoHash()).isEqualTo(torrent2.getTorrentInfoHash());
@@ -394,7 +396,7 @@ public class ClientTest {
 
         Mockito.reset(delayQueue);
         client.onTorrentFileAdded(torrent2);
-        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
 
         final AnnounceRequest announceRequest = argumentCaptor.getValue();
         assertThat(announceRequest.getInfoHash()).isEqualTo(torrent2.getTorrentInfoHash());
@@ -435,7 +437,7 @@ public class ClientTest {
 
         Mockito.reset(delayQueue);
         client.onTorrentFileAdded(torrent3);
-        verify(delayQueue, times(0)).addOrReplace(Matchers.any(AnnounceRequest.class), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(0)).addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
 
         assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
     }
@@ -475,7 +477,7 @@ public class ClientTest {
 
         Mockito.reset(delayQueue);
         client.onTorrentFileRemoved(torrent);
-        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), Matchers.anyInt(), Matchers.any(TemporalUnit.class));
+        verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
 
         final AnnounceRequest announceRequest = argumentCaptor.getValue();
         assertThat(announceRequest.getInfoHash()).isEqualTo(torrent.getTorrentInfoHash());
@@ -541,11 +543,11 @@ public class ClientTest {
 
         client.start();
         Mockito.verify(torrentFileProvider, times(1))
-                .registerListener(Matchers.eq(client));
+                .registerListener(eq(client));
 
         client.stop();
         Mockito.verify(torrentFileProvider, times(1))
-                .unRegisterListener(Matchers.eq(client));
+                .unRegisterListener(eq(client));
     }
 
 }

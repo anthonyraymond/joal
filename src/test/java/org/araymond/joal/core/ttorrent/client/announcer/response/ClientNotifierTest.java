@@ -7,7 +7,7 @@ import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
@@ -146,7 +146,7 @@ public class ClientNotifierTest {
 
         clientNotifier.onAnnounceStopSuccess(announcer, mock(SuccessAnnounceResponse.class));
 
-        Mockito.verify(client, times(1)).onTorrentHasStopped(Matchers.eq(announcer));
+        Mockito.verify(client, times(1)).onTorrentHasStopped(ArgumentMatchers.eq(announcer));
         Mockito.verifyNoMoreInteractions(client);
     }
 
@@ -161,7 +161,7 @@ public class ClientNotifierTest {
 
         clientNotifier.onTooManyAnnounceFailedInARaw(announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
 
-        Mockito.verify(client, times(1)).onTooManyFailedInARaw(Matchers.eq(announcer));
+        Mockito.verify(client, times(1)).onTooManyFailedInARaw(ArgumentMatchers.eq(announcer));
         Mockito.verifyNoMoreInteractions(client);
     }
 

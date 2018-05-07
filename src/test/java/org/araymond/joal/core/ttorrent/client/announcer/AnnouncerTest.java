@@ -12,11 +12,13 @@ import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceR
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponseTest;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.TrackerClient;
 import org.junit.Test;
-import org.mockito.Matchers;
 
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AnnouncerTest {
@@ -38,9 +40,9 @@ public class AnnouncerTest {
         final MockedTorrent torrent = MockedTorrentTest.createOneMock("abcd");
 
         final TrackerClient trackerClient = mock(TrackerClient.class);
-        doThrow(new AnnounceException("yeah ! :)")).when(trackerClient).announce(Matchers.anyString(), Matchers.any());
+        doThrow(new AnnounceException("yeah ! :)")).when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
-        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(Matchers.any(InfoHash.class), Matchers.eq(RequestEvent.STARTED));
+        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor);
@@ -71,9 +73,9 @@ public class AnnouncerTest {
                 .doThrow(new AnnounceException("yeah ! :)"))
                 .doThrow(new AnnounceException("yeah ! :)"))
                 .doReturn(SuccessAnnounceResponseTest.createOne())
-                .when(trackerClient).announce(Matchers.anyString(), Matchers.any());
+                .when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
-        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(Matchers.any(InfoHash.class), Matchers.eq(RequestEvent.STARTED));
+        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor);
@@ -107,9 +109,9 @@ public class AnnouncerTest {
         final TrackerClient trackerClient = mock(TrackerClient.class);
         doThrow(new AnnounceException("yeah ! :)"))
                 .doReturn(SuccessAnnounceResponseTest.createOne())
-                .when(trackerClient).announce(Matchers.anyString(), Matchers.any());
+                .when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
-        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(Matchers.any(InfoHash.class), Matchers.eq(RequestEvent.STARTED));
+        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor);
@@ -119,7 +121,7 @@ public class AnnouncerTest {
         try {
             announcer.announce(RequestEvent.STARTED);
             fail("should have failed");
-        } catch (TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
         }
         //noinspection ConstantConditions
         final LocalDateTime lastDateTime = announcer.getLastAnnouncedAt().get();
@@ -130,7 +132,7 @@ public class AnnouncerTest {
 
         try {
             announcer.announce(RequestEvent.STARTED);
-        } catch (TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
             fail("should not have failed");
         }
         //noinspection ConstantConditions
@@ -146,9 +148,9 @@ public class AnnouncerTest {
         doReturn(new SuccessAnnounceResponse(1800, 164, 12))
                 .doThrow(new AnnounceException("yeah ! :)"))
                 .doReturn(new SuccessAnnounceResponse(900, 180, 30))
-                .when(trackerClient).announce(Matchers.anyString(), Matchers.any());
+                .when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
-        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(Matchers.any(InfoHash.class), Matchers.eq(RequestEvent.STARTED));
+        doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor);
@@ -159,7 +161,7 @@ public class AnnouncerTest {
         assertThat(announcer.getLastKnownLeechers()).isEmpty();
         try {
             announcer.announce(RequestEvent.STARTED);
-        } catch (TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
             fail("should not have failed");
         }
         assertThat(announcer.getLastKnownInterval()).isEqualTo(1800);
@@ -169,7 +171,7 @@ public class AnnouncerTest {
         try {
             announcer.announce(RequestEvent.STARTED);
             fail("should have failed");
-        } catch (TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
         }
         // same after a fail
         assertThat(announcer.getLastKnownInterval()).isEqualTo(1800);
@@ -178,7 +180,7 @@ public class AnnouncerTest {
 
         try {
             announcer.announce(RequestEvent.STARTED);
-        } catch (TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
             fail("should not have failed");
         }
         assertThat(announcer.getLastKnownInterval()).isEqualTo(900);

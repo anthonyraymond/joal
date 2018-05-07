@@ -6,10 +6,11 @@ import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 
@@ -25,7 +26,7 @@ public class AnnounceResponseHandlerChainTest {
             final int handlerPosition = i;
             chain.appendHandler(new DefaultResponseHandler() {
                 @Override
-                public void onAnnouncerWillAnnounce(final Announcer announcer, RequestEvent event) {
+                public void onAnnouncerWillAnnounce(final Announcer announcer, final RequestEvent event) {
                     builder.append(handlerPosition);
                 }
             });
@@ -51,8 +52,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onAnnounceWillAnnounce(RequestEvent.STARTED, announcer);
 
-        Mockito.verify(e1, times(1)).onAnnouncerWillAnnounce(Matchers.eq(announcer), Matchers.eq(RequestEvent.STARTED));
-        Mockito.verify(e2, times(1)).onAnnouncerWillAnnounce(Matchers.eq(announcer), Matchers.eq(RequestEvent.STARTED));
+        Mockito.verify(e1, times(1)).onAnnouncerWillAnnounce(eq(announcer), eq(RequestEvent.STARTED));
+        Mockito.verify(e2, times(1)).onAnnouncerWillAnnounce(eq(announcer), eq(RequestEvent.STARTED));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
@@ -70,8 +71,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onAnnounceSuccess(RequestEvent.STARTED, announcer, successAnnounceResponse);
 
-        Mockito.verify(e1, times(1)).onAnnounceStartSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
-        Mockito.verify(e2, times(1)).onAnnounceStartSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verify(e1, times(1)).onAnnounceStartSuccess(eq(announcer), eq(successAnnounceResponse));
+        Mockito.verify(e2, times(1)).onAnnounceStartSuccess(eq(announcer), eq(successAnnounceResponse));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
@@ -89,8 +90,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onAnnounceSuccess(RequestEvent.NONE, announcer, successAnnounceResponse);
 
-        Mockito.verify(e1, times(1)).onAnnounceRegularSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
-        Mockito.verify(e2, times(1)).onAnnounceRegularSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verify(e1, times(1)).onAnnounceRegularSuccess(eq(announcer), eq(successAnnounceResponse));
+        Mockito.verify(e2, times(1)).onAnnounceRegularSuccess(eq(announcer), eq(successAnnounceResponse));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
@@ -108,8 +109,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onAnnounceSuccess(RequestEvent.STOPPED, announcer, successAnnounceResponse);
 
-        Mockito.verify(e1, times(1)).onAnnounceStopSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
-        Mockito.verify(e2, times(1)).onAnnounceStopSuccess(Matchers.eq(announcer), Matchers.eq(successAnnounceResponse));
+        Mockito.verify(e1, times(1)).onAnnounceStopSuccess(eq(announcer), eq(successAnnounceResponse));
+        Mockito.verify(e2, times(1)).onAnnounceStopSuccess(eq(announcer), eq(successAnnounceResponse));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
@@ -126,8 +127,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onAnnounceFailure(RequestEvent.STARTED, announcer, new Exception("oops"));
 
-        Mockito.verify(e1, times(1)).onAnnounceStartFails(Matchers.eq(announcer), Matchers.any(Exception.class));
-        Mockito.verify(e2, times(1)).onAnnounceStartFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verify(e1, times(1)).onAnnounceStartFails(eq(announcer), any(Exception.class));
+        Mockito.verify(e2, times(1)).onAnnounceStartFails(eq(announcer), any(Exception.class));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
@@ -144,8 +145,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onAnnounceFailure(RequestEvent.NONE, announcer, new Exception("oops"));
 
-        Mockito.verify(e1, times(1)).onAnnounceRegularFails(Matchers.eq(announcer), Matchers.any(Exception.class));
-        Mockito.verify(e2, times(1)).onAnnounceRegularFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verify(e1, times(1)).onAnnounceRegularFails(eq(announcer), any(Exception.class));
+        Mockito.verify(e2, times(1)).onAnnounceRegularFails(eq(announcer), any(Exception.class));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
@@ -162,8 +163,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onAnnounceFailure(RequestEvent.STOPPED, announcer, new Exception("oops"));
 
-        Mockito.verify(e1, times(1)).onAnnounceStopFails(Matchers.eq(announcer), Matchers.any(Exception.class));
-        Mockito.verify(e2, times(1)).onAnnounceStopFails(Matchers.eq(announcer), Matchers.any(Exception.class));
+        Mockito.verify(e1, times(1)).onAnnounceStopFails(eq(announcer), any(Exception.class));
+        Mockito.verify(e2, times(1)).onAnnounceStopFails(eq(announcer), any(Exception.class));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
@@ -180,8 +181,8 @@ public class AnnounceResponseHandlerChainTest {
 
         announceResponseHandlerChain.onTooManyAnnounceFailedInARaw(RequestEvent.STARTED, announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
 
-        Mockito.verify(e1, times(1)).onTooManyAnnounceFailedInARaw(Matchers.eq(announcer), Matchers.any(TooMuchAnnouncesFailedInARawException.class));
-        Mockito.verify(e2, times(1)).onTooManyAnnounceFailedInARaw(Matchers.eq(announcer), Matchers.any(TooMuchAnnouncesFailedInARawException.class));
+        Mockito.verify(e1, times(1)).onTooManyAnnounceFailedInARaw(eq(announcer), any(TooMuchAnnouncesFailedInARawException.class));
+        Mockito.verify(e2, times(1)).onTooManyAnnounceFailedInARaw(eq(announcer), any(TooMuchAnnouncesFailedInARawException.class));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 

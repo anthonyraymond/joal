@@ -1,7 +1,7 @@
 package org.araymond.joal.core.ttorrent.client;
 
 import org.junit.Test;
-import org.mockito.Matchers;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -134,33 +134,33 @@ public class ConnectionHandlerTest {
         final ConnectionHandler handler = Mockito.spy(new ConnectionHandler());
         doThrow(new IOException("hehe :) you won't get it on first try"))
                 .doReturn(InetAddress.getByName("168.168.168.168"))
-                .when(handler).readIpFromProvider(Matchers.anyString());
+                .when(handler).readIpFromProvider(ArgumentMatchers.anyString());
 
         handler.fetchIp();
 
-        Mockito.verify(handler, Mockito.times(2)).readIpFromProvider(Matchers.anyString());
+        Mockito.verify(handler, Mockito.times(2)).readIpFromProvider(ArgumentMatchers.anyString());
     }
 
     @Test
     public void shouldFallBackToLocalHostIfNoProviderAreReachable() throws IOException {
         final ConnectionHandler handler = Mockito.spy(new ConnectionHandler());
         doThrow(new IOException("hehe :) you won't get it on first try"))
-                .when(handler).readIpFromProvider(Matchers.anyString());
+                .when(handler).readIpFromProvider(ArgumentMatchers.anyString());
 
         assertThat(handler.fetchIp()).isEqualTo(InetAddress.getLocalHost());
-        Mockito.verify(handler, Mockito.atLeast(1)).readIpFromProvider(Matchers.anyString());
+        Mockito.verify(handler, Mockito.atLeast(1)).readIpFromProvider(ArgumentMatchers.anyString());
     }
 
     @Test
     public void shouldReuseLastKnownAddressIfOneWasAlreadyGotAndNoProviderAreReachable() throws IOException {
         final ConnectionHandler handler = Mockito.spy(new ConnectionHandler());
         doReturn(InetAddress.getByName("168.168.168.168"))
-                .when(handler).readIpFromProvider(Matchers.anyString());
+                .when(handler).readIpFromProvider(ArgumentMatchers.anyString());
         handler.start();
-        Mockito.verify(handler, Mockito.atLeast(1)).readIpFromProvider(Matchers.anyString());
+        Mockito.verify(handler, Mockito.atLeast(1)).readIpFromProvider(ArgumentMatchers.anyString());
 
         doThrow(new IOException("hehe :) you won't get it on first try"))
-                .when(handler).readIpFromProvider(Matchers.anyString());
+                .when(handler).readIpFromProvider(ArgumentMatchers.anyString());
         assertThat(handler.fetchIp()).isEqualTo(InetAddress.getByName("168.168.168.168"));
     }
 

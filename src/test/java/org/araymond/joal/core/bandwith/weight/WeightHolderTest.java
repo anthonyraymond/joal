@@ -2,10 +2,11 @@ package org.araymond.joal.core.bandwith.weight;
 
 import org.araymond.joal.core.bandwith.Peers;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class WeightHolderTest {
 
@@ -16,7 +17,7 @@ public class WeightHolderTest {
         final WeightHolder<String> weightHolder = new WeightHolder<>(calculator);
 
         weightHolder.addOrUpdate("a", new Peers(5, 10));
-        Mockito.verify(calculator, Mockito.times(1)).calculate(Matchers.eq(new Peers(5, 10)));
+        Mockito.verify(calculator, Mockito.times(1)).calculate(eq(new Peers(5, 10)));
     }
 
     @Test
@@ -24,7 +25,7 @@ public class WeightHolderTest {
         final PeersAwareWeightCalculator calculator = Mockito.spy(PeersAwareWeightCalculator.class);
         Mockito
                 .doReturn(22.0)
-                .when(calculator).calculate(Matchers.any());
+                .when(calculator).calculate(any());
 
         final WeightHolder<String> weightHolder = new WeightHolder<>(calculator);
 
@@ -39,7 +40,7 @@ public class WeightHolderTest {
                 .doReturn(22.0)
                 .doReturn(55.3)
                 .doReturn(90.0)
-                .when(calculator).calculate(Matchers.any());
+                .when(calculator).calculate(any());
 
         final WeightHolder<String> weightHolder = new WeightHolder<>(calculator);
 

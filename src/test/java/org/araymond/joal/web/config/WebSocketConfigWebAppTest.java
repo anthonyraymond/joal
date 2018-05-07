@@ -5,9 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -19,7 +19,9 @@ import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import javax.inject.Inject;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -32,15 +34,13 @@ import static org.mockito.Mockito.*;
                 org.springframework.boot.autoconfigure.context.PropertyPlaceholderAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.context.ConfigurationPropertiesAutoConfiguration.class,
                 org.springframework.boot.autoconfigure.context.MessageSourceAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.DispatcherServletAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.EmbeddedServletContainerAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.HttpEncodingAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.HttpMessageConvertersAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.ServerPropertiesAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.WebClientAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.web.WebMvcAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.websocket.WebSocketAutoConfiguration.class,
-                org.springframework.boot.autoconfigure.websocket.WebSocketMessagingAutoConfiguration.class
+                org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.ServletWebServerFactoryAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.HttpEncodingAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.http.HttpMessageConvertersAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.web.servlet.WebMvcAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.websocket.servlet.WebSocketServletAutoConfiguration.class,
+                org.springframework.boot.autoconfigure.websocket.servlet.WebSocketMessagingAutoConfiguration.class
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
@@ -114,7 +114,7 @@ public class WebSocketConfigWebAppTest {
     }
 
     @Test
-    public void shouldNotBeAbleToConnectWithoutAppPrefix() throws InterruptedException, ExecutionException, TimeoutException {
+    public void shouldNotBeAbleToConnectWithoutAppPrefix() {
         final WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
 
         assertThatThrownBy(() ->
@@ -122,7 +122,7 @@ public class WebSocketConfigWebAppTest {
                 }).get(1000, TimeUnit.SECONDS)
         )
                 .isInstanceOf(ExecutionException.class)
-                .hasMessageContaining("did not permit");
+                .hasMessageContaining("Invalid response code 404");
     }
 
     @Test

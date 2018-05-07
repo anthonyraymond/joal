@@ -9,8 +9,9 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.InfoHashTest;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.junit.Test;
-import org.mockito.Matchers;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 public class AnnounceDataAccessorTest {
@@ -22,7 +23,7 @@ public class AnnounceDataAccessorTest {
 
         final BitTorrentClient bitTorrentClient = mock(BitTorrentClient.class);
         final BandwidthDispatcher bandwidthDispatcher = mock(BandwidthDispatcher.class);
-        doReturn(new TorrentSeedStats()).when(bandwidthDispatcher).getSeedStatForTorrent(Matchers.eq(infoHash));
+        doReturn(new TorrentSeedStats()).when(bandwidthDispatcher).getSeedStatForTorrent(eq(infoHash));
         final ConnectionHandler connectionHandler = mock(ConnectionHandler.class);
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, connectionHandler);
@@ -30,10 +31,10 @@ public class AnnounceDataAccessorTest {
         announceDataAccessor.getHttpRequestQueryForTorrent(infoHash, event);
 
         verify(bitTorrentClient, times(1)).createRequestQuery(
-                Matchers.eq(event),
-                Matchers.eq(infoHash),
-                Matchers.any(TorrentSeedStats.class),
-                Matchers.eq(connectionHandler)
+                eq(event),
+                eq(infoHash),
+                any(TorrentSeedStats.class),
+                eq(connectionHandler)
         );
     }
 

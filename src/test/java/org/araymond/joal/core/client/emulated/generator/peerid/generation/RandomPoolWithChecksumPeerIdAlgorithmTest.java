@@ -3,11 +3,11 @@ package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.eq;
 
 public class RandomPoolWithChecksumPeerIdAlgorithmTest {
 
@@ -49,7 +49,7 @@ public class RandomPoolWithChecksumPeerIdAlgorithmTest {
                 .doReturn(new byte[]{(byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 128, (byte) 128})
                 .doReturn(new byte[]{(byte) 1, (byte) 1, (byte) 1, (byte) 1, (byte) 1, (byte) 1, (byte) 1, (byte) 1, (byte) 1, (byte) 1, (byte) 1})
                 .doReturn(new byte[]{(byte) 26, (byte) 200, (byte) 124, (byte) 39, (byte) 84, (byte) 248, (byte) 3, (byte) 159, (byte) 64, (byte) 239, (byte) 0})
-                .when(algo).generateRandomBytes(Matchers.eq(PeerIdGenerator.PEER_ID_LENGTH - prefix.length() - 1));
+                .when(algo).generateRandomBytes(eq(PeerIdGenerator.PEER_ID_LENGTH - prefix.length() - 1));
 
         assertThat(algo.generate()).isEqualTo("-TR2820-yyyyyyyyyyym");
         assertThat(algo.generate()).isEqualTo("-TR2820-000000000000");

@@ -2,7 +2,6 @@ package org.araymond.joal.core.bandwith;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.Test;
-import org.mockito.Matchers;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
@@ -14,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 
@@ -210,7 +210,7 @@ public class BandwidthDispatcherTest {
 
         bandwidthDispatcher.stop();
 
-        Mockito.verify(speedListener, Mockito.times(1)).speedsHasChanged(Matchers.anyMap());
+        Mockito.verify(speedListener, Mockito.times(1)).speedsHasChanged(anyMap());
     }
 
     private static class VoidSpeedChangedListener implements SpeedChangedListener {
