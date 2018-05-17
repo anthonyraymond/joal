@@ -7,7 +7,7 @@ import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -39,7 +39,7 @@ public class BitTorrentClientConfigTest {
 
         final BitTorrentClientConfig config = new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, defaultUrlEncoder, requestHeaders, 200, 0);
 
-        assertThat(config.createClient().getKey(Mockito.mock(MockedTorrent.class), RequestEvent.STARTED)).isEmpty();
+        assertThat(config.createClient().getKey(Mockito.mock(InfoHash.class), RequestEvent.STARTED)).isEmpty();
     }
 
     @Test

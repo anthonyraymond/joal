@@ -1,7 +1,7 @@
 package org.araymond.joal.web.resources;
 
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.springframework.boot.autoconfigure.web.ErrorController;
+import org.springframework.boot.web.servlet.error.ErrorController;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * Created by raymo on 25/07/2017.
  */
 @ConditionalOnWebUi
-@RestController
+@RestController //Use @RestController over @Controller because it allow to return String. @Controller interpret Strings as view to resolve.
 public class HttpErrorController implements ErrorController {
 
     private static final String PATH = "/error";

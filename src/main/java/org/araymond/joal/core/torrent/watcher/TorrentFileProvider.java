@@ -2,25 +2,20 @@ package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
-import org.apache.commons.lang3.StringUtils;
-import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.Lifecycle;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +23,7 @@ import java.util.stream.Collectors;
 /**
  * Created by raymo on 28/01/2017.
  */
-public class TorrentFileProvider extends FileAlterationListenerAdaptor implements Lifecycle {
+public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     private static final Logger logger = LoggerFactory.getLogger(TorrentFileProvider.class);
 
     private final TorrentFileWatcher watcher;
@@ -36,9 +31,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     private final Set<TorrentFileChangeAware> torrentFileChangeListener;
     private final Path torrentFolder;
     private final Path archiveFolder;
-    private final ApplicationEventPublisher publisher;
-    private boolean isInitOver = false;
-    private boolean isRunning;
 
     @VisibleForTesting
     void init() {
@@ -55,33 +47,21 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
     public void start() {
         this.init();
         this.watcher.start();
-        this.isInitOver = true;
-        this.isRunning = true;
     }
 
     public void stop() {
         this.watcher.stop();
         this.torrentFiles.clear();
-        this.isInitOver = false;
-        this.isRunning = false;
     }
 
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public TorrentFileProvider(final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
-        if (StringUtils.isBlank(confFolder)) {
-            throw new IllegalArgumentException("A config path is required.");
-        }
-        this.torrentFolder = Paths.get(confFolder).resolve("torrents");
+    public TorrentFileProvider(final SeedManager.JoalFoldersPath joalFoldersPath) throws FileNotFoundException {
+        this.torrentFolder = joalFoldersPath.getTorrentFilesPath();
         if (!Files.exists(torrentFolder)) {
             logger.error("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
             throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
         }
 
-        this.publisher = publisher;
-        this.archiveFolder = torrentFolder.resolve("archived");
+        this.archiveFolder = joalFoldersPath.getTorrentArchivedPath();
         this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
         this.torrentFileChangeListener = new HashSet<>();
@@ -100,8 +80,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
 
         logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
         this.torrentFiles.remove(file);
-        this.torrentFileChangeListener.forEach(listener -> listener.onTorrentRemoved(torrent));
-        this.publisher.publishEvent(new TorrentFileDeletedEvent(torrent));
+        this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileRemoved(torrent));
     }
 
     @Override
@@ -110,10 +89,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         try {
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
-            if (this.isInitOver) {
-                this.torrentFileChangeListener.forEach(listener -> listener.onTorrentAdded(torrent));
-            }
-            this.publisher.publishEvent(new TorrentFileAddedEvent(torrent));
+            this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileAdded(torrent));
         } catch (final IOException | NoSuchAlgorithmException e) {
             logger.warn("Failed to read file '{}', moved to archive folder.", file.getAbsolutePath(), e);
             this.moveToArchiveFolder(file);
@@ -139,11 +115,11 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         this.torrentFileChangeListener.remove(listener);
     }
 
-    public MockedTorrent getTorrentNotIn(final List<MockedTorrent> unwantedTorrents) throws NoMoreTorrentsFileAvailableException {
+    public MockedTorrent getTorrentNotIn(final List<InfoHash> unwantedTorrents) throws NoMoreTorrentsFileAvailableException {
         Preconditions.checkNotNull(unwantedTorrents, "List of unwantedTorrents cannot be null.");
 
         return this.torrentFiles.values().stream()
-                .filter(torrent -> !unwantedTorrents.contains(torrent))
+                .filter(torrent -> !unwantedTorrents.contains(torrent.getTorrentInfoHash()))
                 .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
                     Collections.shuffle(collected);
                     return collected.stream();
@@ -167,47 +143,24 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor implement
         }
     }
 
-    public void saveTorrentFileToDisk(final String name, final byte[] bytes) {
-        try {
-            // try if the torrent file is safe or not.
-            MockedTorrent.fromBytes(bytes);
-
-            final String torrentName = name.endsWith(".torrent") ? name : name + ".torrent";
-            Files.write(this.torrentFolder.resolve(torrentName), bytes, StandardOpenOption.CREATE);
-        } catch (final Exception e) {
-            logger.warn("Failed to save torrent file", e);
-            // If NullPointerException occurs (when the file is an empty file) there is no message.
-            final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
-            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
-        }
-    }
-
-    public void moveToArchiveFolder(final String torrentInfoHash) {
+    public void moveToArchiveFolder(final InfoHash infoHash) {
         final Optional<File> first = this.torrentFiles.entrySet().stream()
-                .filter(entry -> entry.getValue().getHexInfoHash().equals(torrentInfoHash))
+                .filter(entry -> entry.getValue().getTorrentInfoHash().equals(infoHash))
                 .map(Map.Entry::getKey)
                 .findFirst();
         if (first.isPresent()) {
             this.moveToArchiveFolder(first.get());
         } else {
-            logger.warn("Cannot find torrent for infohash {}, therefore we can't remove it. Torrent file seems not to be registered in TorrentFileProvider.", torrentInfoHash);
-        }
-    }
-
-    public void moveToArchiveFolder(final MockedTorrent torrent) {
-        final Optional<File> first = this.torrentFiles.entrySet().stream()
-                .filter(entry -> entry.getValue().equals(torrent))
-                .map(Map.Entry::getKey)
-                .findFirst();
-        if (first.isPresent()) {
-            this.moveToArchiveFolder(first.get());
-        } else {
-            logger.warn("Cannot move torrent {} to archive folder. Torrent file seems not to be registered in TorrentFileProvider.", torrent.getName());
+            logger.warn("Cannot move torrent {} to archive folder. Torrent file seems not to be registered in TorrentFileProvider.", infoHash);
         }
     }
 
     public int getTorrentCount() {
         return this.torrentFiles.size();
+    }
+
+    public List<MockedTorrent> getTorrentFiles() {
+        return Lists.newArrayList(this.torrentFiles.values());
     }
 
 }

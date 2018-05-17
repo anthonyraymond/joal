@@ -3,6 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.key.algorithm;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.base.Objects;
 import com.mifmif.common.regex.Generex;
+import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 
 public class RegexPatternKeyAlgorithm implements KeyAlgorithm {
@@ -13,7 +14,7 @@ public class RegexPatternKeyAlgorithm implements KeyAlgorithm {
     public RegexPatternKeyAlgorithm(
             @JsonProperty(value = "pattern", required = true) final String pattern
     ) {
-        if (pattern == null) {
+        if (StringUtils.isBlank(pattern)) {
             throw new TorrentClientConfigIntegrityException("peerId algorithm pattern must not be null.");
         }
         this.pattern = pattern;

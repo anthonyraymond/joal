@@ -3,7 +3,7 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.RegexPatternPeerIdAlgorithm;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,12 +25,20 @@ public class PeerIdGeneratorTest {
     public void shouldNotBuildWithoutAlgorithm() {
         assertThatThrownBy(() -> new PeerIdGenerator(null, false) {
             @Override
-            public String getPeerId(final MockedTorrent torrent, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+            public String getPeerId(final InfoHash infoHash, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
                 return null;
             }
         })
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
                 .hasMessage("peerId algorithm must not be null.");
+    }
+
+    @Test
+    public void shouldFailIfLengthIsNot20() {
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{2}", false);
+
+        assertThatThrownBy(peerIdGenerator::generatePeerId)
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
@@ -46,7 +54,7 @@ public class PeerIdGeneratorTest {
 
     @Test
     public void shouldGeneratePeerIdAndBeUpperCase() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[A-Z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[A-Z]{12}", false);
 
         for (int i = 0; i < 30; i++) {
             assertThat(peerIdGenerator.generatePeerId())
@@ -57,7 +65,7 @@ public class PeerIdGeneratorTest {
 
     @Test
     public void shouldGeneratePeerIdAndBeLowerCase() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-z]{12}", false);
 
         for (int i = 0; i < 30; i++) {
             assertThat(peerIdGenerator.generatePeerId())
@@ -68,15 +76,15 @@ public class PeerIdGeneratorTest {
 
     @Test
     public void shouldBeEqualsByProperties() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
-        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
+        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
         assertThat(peerIdGenerator).isEqualTo(peerIdGenerator2);
     }
 
     @Test
     public void shouldHaveSameHashCodeWithSameProperties() {
-        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
-        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]", false);
+        final PeerIdGenerator peerIdGenerator = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
+        final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
         assertThat(peerIdGenerator.hashCode()).isEqualTo(peerIdGenerator2.hashCode());
     }
     
@@ -87,7 +95,7 @@ public class PeerIdGeneratorTest {
         }
 
         @Override
-        public String getPeerId(final MockedTorrent torrent, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
+        public String getPeerId(final InfoHash infoHash, final TrackerMessage.AnnounceRequestMessage.RequestEvent event) {
             return "";
         }
     }

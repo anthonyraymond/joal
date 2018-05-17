@@ -2,9 +2,9 @@ package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang3.StringUtils;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
-import org.araymond.joal.core.events.config.ConfigHasChangedEvent;
+import org.araymond.joal.core.events.config.ConfigurationIsInDirtyStateEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Created by raymo on 18/04/2017.
@@ -28,14 +27,11 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     private AppConfiguration config = null;
     private final ApplicationEventPublisher publisher;
 
-    public JoalConfigProvider(final ObjectMapper objectMapper, final String confFolder, final ApplicationEventPublisher publisher) throws FileNotFoundException {
+    public JoalConfigProvider(final ObjectMapper objectMapper, final SeedManager.JoalFoldersPath joalFoldersPath, final ApplicationEventPublisher publisher) throws FileNotFoundException {
         this.objectMapper = objectMapper;
         this.publisher = publisher;
 
-        if (StringUtils.isBlank(confFolder)) {
-            throw new IllegalArgumentException("A config path is required.");
-        }
-        this.joalConfPath = Paths.get(confFolder).resolve(CONF_FILE_NAME);
+        this.joalConfPath = joalFoldersPath.getConfPath().resolve(CONF_FILE_NAME);
         if (!Files.exists(joalConfPath)) {
             throw new FileNotFoundException(String.format("App configuration file '%s' not found.", joalConfPath));
         }
@@ -79,7 +75,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     public void saveNewConf(final AppConfiguration conf) {
         try {
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(joalConfPath.toFile(), conf);
-            publisher.publishEvent(new ConfigHasChangedEvent(conf));
+            publisher.publishEvent(new ConfigurationIsInDirtyStateEvent(conf));
         } catch (final IOException e) {
             logger.error("Failed to write new configuration file", e);
             throw new IllegalStateException(e);

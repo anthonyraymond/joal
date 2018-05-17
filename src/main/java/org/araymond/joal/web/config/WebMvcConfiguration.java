@@ -5,12 +5,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @ConditionalOnWebUi
 // Do not use @EnableWebMvc as it will remove all the default springboot config.
 @Configuration
-public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
+public class WebMvcConfiguration implements WebMvcConfigurer {
     private final String[] RESOURCE_LOCATIONS = new String[]{"classpath:/public/"};
 
     @Override
@@ -26,7 +26,7 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
         registry.addViewController("/ui").setViewName("redirect:ui/");
         registry.addViewController("/ui/").setViewName("forward:index.html");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
-        super.addViewControllers(registry);
+        //super.addViewControllers(registry);
     }
 
 }

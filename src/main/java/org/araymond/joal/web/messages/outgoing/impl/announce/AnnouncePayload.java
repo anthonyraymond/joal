@@ -1,49 +1,54 @@
 package org.araymond.joal.web.messages.outgoing.impl.announce;
 
-import com.google.common.base.Preconditions;
-import org.araymond.joal.core.events.announce.AnnouncerEvent;
-import org.araymond.joal.core.ttorent.client.announce.AnnounceResult;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.web.messages.outgoing.MessagePayload;
 
-import java.util.Collection;
+import java.time.LocalDateTime;
 
-/**
- * Created by raymo on 26/06/2017.
- */
 public abstract class AnnouncePayload implements MessagePayload {
-    private final String id;
-    private final String name;
-    private final Long size;
-    private final Long currentSpeed;
-    private final Collection<AnnounceResult> announceHistory;
+    private final InfoHash infoHash;
+    private final String torrentName;
+    private final long torrentSize;
+    private final int lastKnownInterval;
+    private final int consecutiveFails;
+    private final LocalDateTime lastAnnouncedAt;
+    private final Integer lastKnownLeechers;
+    private final Integer lastKnownSeeders;
 
-    protected AnnouncePayload(final AnnouncerEvent event) {
-        Preconditions.checkNotNull(event, "AnnouncerEvent must not be null.");
-
-        this.id = event.getTorrent().getTorrent().getHexInfoHash();
-        this.name = event.getTorrent().getTorrent().getName();
-        this.size = event.getTorrent().getTorrent().getSize();
-        this.currentSpeed = event.getTorrent().getCurrentRandomSpeedInBytes();
-        this.announceHistory = event.getAnnounceHistory();
+    protected AnnouncePayload(final AnnouncerFacade announcerFacade) {
+        this.infoHash = announcerFacade.getTorrentInfoHash();
+        this.torrentName = announcerFacade.getTorrentName();
+        this.torrentSize = announcerFacade.getTorrentSize();
+        this.lastKnownInterval = announcerFacade.getLastKnownInterval();
+        this.consecutiveFails = announcerFacade.getConsecutiveFails();
+        this.lastAnnouncedAt = announcerFacade.getLastAnnouncedAt().orElse(null);
+        this.lastKnownLeechers = announcerFacade.getLastKnownLeechers().orElse(null);
+        this.lastKnownSeeders = announcerFacade.getLastKnownSeeders().orElse(null);
     }
 
-    public String getId() {
-        return id;
+    public InfoHash getInfoHash() {
+        return infoHash;
     }
-
-    public String getName() {
-        return name;
+    public String getTorrentName() {
+        return torrentName;
     }
-
-    public Long getSize() {
-        return size;
+    public long getTorrentSize() {
+        return torrentSize;
     }
-
-    public Long getCurrentSpeed() {
-        return currentSpeed;
+    public int getLastKnownInterval() {
+        return lastKnownInterval;
     }
-
-    public Collection<AnnounceResult> getAnnounceHistory() {
-        return announceHistory;
+    public int getConsecutiveFails() {
+        return consecutiveFails;
+    }
+    public LocalDateTime getLastAnnouncedAt() {
+        return lastAnnouncedAt;
+    }
+    public Integer getLastKnownLeechers() {
+        return lastKnownLeechers;
+    }
+    public Integer getLastKnownSeeders() {
+        return lastKnownSeeders;
     }
 }

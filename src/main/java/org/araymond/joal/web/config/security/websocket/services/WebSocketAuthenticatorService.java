@@ -24,6 +24,8 @@ public class WebSocketAuthenticatorService {
         this.appSecretToken = appSecretToken;
     }
 
+    // This method must return a UsernamePasswordAuthenticationToken, another component in the security chain is testing it with 'instanceof'
+    @SuppressWarnings("TypeMayBeWeakened")
     public UsernamePasswordAuthenticationToken getAuthenticatedOrFail(final CharSequence username, final CharSequence authToken) throws AuthenticationException {
         if (StringUtils.isBlank(username)) {
             throw new AuthenticationCredentialsNotFoundException("Username was null or empty.");
@@ -31,11 +33,11 @@ public class WebSocketAuthenticatorService {
         if (StringUtils.isBlank(authToken)) {
             throw new AuthenticationCredentialsNotFoundException("Authentication token was null or empty.");
         }
-        if (!appSecretToken.equals(authToken)) {
+        if (!appSecretToken.contentEquals(authToken)) {
             throw new BadCredentialsException("Authentication token does not match the expected token");
         }
 
-        // Everithing is fine, return an authenticated Authentication. (the constructor with grantedAuthorities auto set authenticated = true)
+        // Everything is fine, return an authenticated Authentication. (the constructor with grantedAuthorities auto set authenticated = true)
         // null credentials, we do not pass the password along to prevent security flaw
         return new UsernamePasswordAuthenticationToken(
                 username,

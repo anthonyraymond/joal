@@ -10,6 +10,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
  */
 public class AppConfigurationTest {
 
+    public static AppConfiguration createOne() {
+        return new AppConfiguration(30L, 150L, 2, "azureus", true);
+    }
+
     @Test
     public void shouldNotBuildIfMinUploadRateIsLessThanZero() {
         assertThatThrownBy(() -> new AppConfiguration(-1L, 190L, 2, "azureus.client", false))

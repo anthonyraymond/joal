@@ -1,8 +1,8 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.filechange.FailedToAddTorrentFileEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileAddedEvent;
-import org.araymond.joal.core.events.filechange.TorrentFileDeletedEvent;
+import org.araymond.joal.core.events.torrent.files.FailedToAddTorrentFileEvent;
+import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
+import org.araymond.joal.core.events.torrent.files.TorrentFileDeletedEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.outgoing.impl.files.FailedToAddTorrentFilePayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
@@ -32,7 +32,7 @@ public class WebTorrentFileEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleTorrentFileAdded(final TorrentFileAddedEvent event) {
+    void torrentFileAdded(final TorrentFileAddedEvent event) {
         logger.debug("Send TorrentFileAddedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/torrents", new TorrentFileAddedPayload(event));
@@ -40,7 +40,7 @@ public class WebTorrentFileEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleTorrentFileDeleted(final TorrentFileDeletedEvent event) {
+    void torrentFileDeleted(final TorrentFileDeletedEvent event) {
         logger.debug("Send TorrentFileDeletedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/torrents", new TorrentFileDeletedPayload(event));
@@ -48,7 +48,7 @@ public class WebTorrentFileEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleFailedToAddTorrentFile(final FailedToAddTorrentFileEvent event) {
+    void failedToAddTorrentFile(final FailedToAddTorrentFileEvent event) {
         logger.debug("Send FailedToAddTorrentFilePayload to clients.");
 
         this.messagingTemplate.convertAndSend("/torrents", new FailedToAddTorrentFilePayload(event));

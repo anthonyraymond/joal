@@ -1,10 +1,10 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.global.SeedSessionHasEndedEvent;
-import org.araymond.joal.core.events.global.SeedSessionHasStartedEvent;
+import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
+import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasEndedPayload;
-import org.araymond.joal.web.messages.outgoing.impl.global.SeedSessionHasStartedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.global.state.GlobalSeedStartedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.global.state.GlobalSeedStoppedPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,8 +31,8 @@ public class WebGlobalEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasStarted(final SeedSessionHasStartedEvent event) {
-        logger.debug("Send SeedSessionHasStartedPayload to clients.");
+    void globalSeedStarted(final GlobalSeedStartedEvent event) {
+        logger.debug("Send GlobalSeedStartedPayload to clients.");
 
         final String client = event.getBitTorrentClient().getHeaders().stream()
                 .filter(entry -> "User-Agent".equalsIgnoreCase(entry.getKey()))
@@ -40,15 +40,15 @@ public class WebGlobalEventListener extends WebEventListener {
                 .findFirst()
                 .orElse("Unknown");
 
-        this.messagingTemplate.convertAndSend("/global", new SeedSessionHasStartedPayload(client));
+        this.messagingTemplate.convertAndSend("/global", new GlobalSeedStartedPayload(client));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasEnded(final SeedSessionHasEndedEvent event) {
-        logger.debug("Send SeedSessionHasEndedPayload to clients.");
+    void globalSeedStopped(@SuppressWarnings("unused") final GlobalSeedStoppedEvent event) {
+        logger.debug("Send GlobalSeedStoppedPayload to clients.");
 
-        this.messagingTemplate.convertAndSend("/global", new SeedSessionHasEndedPayload());
+        this.messagingTemplate.convertAndSend("/global", new GlobalSeedStoppedPayload());
     }
 
 }

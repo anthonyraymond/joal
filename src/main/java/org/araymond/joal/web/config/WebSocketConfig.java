@@ -4,9 +4,9 @@ import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
-import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 import javax.inject.Inject;
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 @ConditionalOnWebUi
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final String webSocketPathPrefix;
 
     @Inject
@@ -38,11 +38,14 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
                 "/global",
                 "/announce",
                 "/config",
-                "/torrents"
+                "/torrents",
+                "/speed"
         );
+        // Message received with one of those destinationPrefixes will be automatically router to controllers @MessageMapping
         config.setApplicationDestinationPrefixes("/joal");
     }
 
+    // Handshake endpoint
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry.addEndpoint(this.webSocketPathPrefix)

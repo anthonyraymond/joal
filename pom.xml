@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.araymond.joal</groupId>
@@ -21,7 +21,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>1.5.7.RELEASE</version>
+        <version>2.0.1.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -32,33 +32,59 @@
         <java.version>1.8</java.version>
 
         <!-- COMPILE  -->
-        <commons-io.version>2.5</commons-io.version>
-        <commons-lang3.version>3.6</commons-lang3.version>
-        <commons-codec.version>1.10</commons-codec.version>
-        <fluent-hc.version>4.5.3</fluent-hc.version>
-        <google.guava.version>23.0</google.guava.version>
-        <log4j.version>2.9.1</log4j.version>
-        <slf4j-api.version>1.7.25</slf4j-api.version>
+        <commons-io.version>2.6</commons-io.version>
+        <commons-lang3.version>3.7</commons-lang3.version>
+        <commons-codec.version>1.11</commons-codec.version>
+        <fluent-hc.version>4.5.5</fluent-hc.version>
+        <generex.version>1.0.2</generex.version>
+        <google.guava.version>25.0-jre</google.guava.version>
         <ttorrent-core.version>1.5</ttorrent-core.version>
 
         <!-- TESTS -->
-        <junit.version>4.12</junit.version>
-        <mockito.version>1.10.19</mockito.version>
-        <org-assertj.version>3.8.0</org-assertj.version>
-	<jacoco.plugin.version>0.8.0</jacoco.plugin.version>
+        <org-assertj.version>3.9.1</org-assertj.version>
+
+        <!-- Plugins -->
+        <maven-compiler-plugin.version>3.7.0</maven-compiler-plugin.version>
+        <jacoco.plugin.version>0.8.1</jacoco.plugin.version>
         <coveralls.plugin.version>4.3.0</coveralls.plugin.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-websocket</artifactId>
+            <artifactId>spring-boot-starter</artifactId>
             <exclusions>
                 <exclusion>
-                    <groupId>ch.qos.logback</groupId>
-                    <artifactId>logback-classic</artifactId>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
                 </exclusion>
             </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-log4j2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-tomcat</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.hibernate.validator</groupId>
+                    <artifactId>hibernate-validator</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-undertow</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -85,31 +111,6 @@
             <version>1</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>${slf4j-api.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-jcl</artifactId>
-            <version>${log4j.version}</version>
-        </dependency>
-        <dependency>
             <groupId>com.turn</groupId>
             <artifactId>ttorrent-core</artifactId>
             <version>${ttorrent-core.version}</version>
@@ -117,7 +118,7 @@
         <dependency>
             <groupId>com.github.mifmif</groupId>
             <artifactId>generex</artifactId>
-            <version>1.0.2</version>
+            <version>${generex.version}</version>
         </dependency>
 
         <dependency>
@@ -162,19 +163,19 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <!-- Version inherited from spring-boot-starter-test -->
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <!-- Version inherited from spring-boot-starter-test -->
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
             <version>${org-assertj.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.mockito</groupId>
-            <artifactId>mockito-all</artifactId>
-            <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -195,7 +196,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>${maven-compiler-plugin.version}</version>
                 <configuration>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
@@ -208,10 +209,20 @@
             </plugin>
 
             <plugin>
-		<groupId>org.jacoco</groupId>
-		<artifactId>jacoco-maven-plugin</artifactId>
-		<version>${jacoco.plugin.version}</version>
-		<executions>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.plugin.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>org/araymond/joal/JackOfAllTradesApplication.class</exclude>
+                        <exclude>org/araymond/joal/ApplicationReadyListener.class</exclude>
+                        <exclude>org/araymond/joal/ApplicationClosingListener.class</exclude>
+                        <exclude>org/araymond/joal/web/config/BeanConfig.class</exclude>
+                        <exclude>org/araymond/joal/web/messages/</exclude>
+                        <exclude>org/araymond/joal/web/services/corelistener/</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
                     <execution>
                         <id>prepare-agent</id>
                         <goals>
@@ -221,9 +232,9 @@
                 </executions>
             </plugin>
             <plugin>
-		<groupId>org.eluder.coveralls</groupId>
-		<artifactId>coveralls-maven-plugin</artifactId>
-		<version>${coveralls.plugin.version}</version>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+                <version>${coveralls.plugin.version}</version>
             </plugin>
         </plugins>
     </build>

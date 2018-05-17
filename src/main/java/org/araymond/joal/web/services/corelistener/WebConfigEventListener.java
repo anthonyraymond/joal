@@ -1,12 +1,12 @@
 package org.araymond.joal.web.services.corelistener;
 
-import org.araymond.joal.core.events.config.ClientFilesDiscoveredEvent;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
-import org.araymond.joal.core.events.config.ConfigHasChangedEvent;
+import org.araymond.joal.core.events.config.ConfigurationIsInDirtyStateEvent;
+import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.araymond.joal.web.messages.outgoing.impl.config.ClientFilesDiscoveredPayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPayload;
-import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasChangedPayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ConfigIsInDirtyStatePayload;
+import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,26 +32,26 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleConfigHasChanged(final ConfigHasChangedEvent event) {
-        logger.debug("Send ConfigHasChangedEvent to clients.");
-
-        this.messagingTemplate.convertAndSend("/config", new ConfigHasChangedPayload(event));
-    }
-
-    @Order(Ordered.LOWEST_PRECEDENCE)
-    @EventListener
-    void handleConfigHasBeenLoaded(final ConfigHasBeenLoadedEvent event) {
-        logger.debug("Send ConfigHasBeenLoadedEvent to clients.");
+    void configHasBeenLoaded(final ConfigHasBeenLoadedEvent event) {
+        logger.debug("Send ConfigHasBeenLoadedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ConfigHasBeenLoadedPayload(event));
     }
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void handleClientFilesDiscovered(final ClientFilesDiscoveredEvent event) {
-        logger.debug("Send ClientFilesDiscoveredEvent to clients.");
+    void configIsInDirtyState(final ConfigurationIsInDirtyStateEvent event) {
+        logger.debug("Send ConfigIsInDirtyStatePayload to clients.");
 
-        this.messagingTemplate.convertAndSend("/config", new ClientFilesDiscoveredPayload(event));
+        this.messagingTemplate.convertAndSend("/config", new ConfigIsInDirtyStatePayload(event));
+    }
+
+    @Order(Ordered.LOWEST_PRECEDENCE)
+    @EventListener
+    void clientFilesDiscovered(final ListOfClientFilesEvent event) {
+        logger.debug("Send ListOfClientFilesPayload to clients.");
+
+        this.messagingTemplate.convertAndSend("/config", new ListOfClientFilesPayload(event));
     }
 
 }

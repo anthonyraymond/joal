@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
-import org.araymond.joal.core.ttorent.client.MockedTorrent;
+import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 /**
  * Created by raymo on 16/07/2017.
@@ -44,10 +44,14 @@ public abstract class PeerIdGenerator {
     }
 
     @JsonIgnore
-    public abstract String getPeerId(final MockedTorrent torrent, RequestEvent event);
+    public abstract String getPeerId(final InfoHash infoHash, RequestEvent event);
 
     protected String generatePeerId() {
-        return this.algorithm.generate();
+        final String peerId = this.algorithm.generate();
+        if (peerId.length() != PEER_ID_LENGTH) {
+            throw new IllegalStateException("PeerId length was supposed to be 20. But a PeerId of " + peerId.length() + " was generated. Throw exception to prevent sending invalid PeerId to tracker.");
+        }
+        return peerId;
     }
 
     @Override
