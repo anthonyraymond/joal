@@ -6,10 +6,11 @@ import org.araymond.joal.core.torrent.torrent.InfoHashTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cglib.core.Local;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.inject.Inject;
-import java.time.LocalDate;
+import java.time.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,6 +33,15 @@ public class JacksonConfigWebAppTest {
         final String dateValue = this.mapper.writeValueAsString(LocalDate.of(2010, 12, 30));
 
         assertThat(dateValue).isEqualTo("\"2010-12-30\"");
+    }
+
+    @Test
+    public void shouldSerializeDateTimeWithTimeZone() throws JsonProcessingException {
+        // Because of the serializer that transforms LocalDateTime into ZonedDateTime
+        final LocalDateTime dateTime = LocalDateTime.of(2010, 12, 30, 23, 59);
+        final String dateValue = this.mapper.writeValueAsString(dateTime);
+
+        assertThat(dateValue).isEqualTo("\"2010-12-30T23:59:00+01:00\"");
     }
 
     @Test
