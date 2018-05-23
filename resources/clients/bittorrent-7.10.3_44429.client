@@ -1,0 +1,31 @@
+{
+    "keyGenerator": {
+        "algorithm": {
+            "type": "HASH",
+            "length": 8
+        },
+        "refreshOn": "TIMED_OR_AFTER_STARTED_ANNOUNCE",
+        "refreshEvery": 10,
+        "keyCase": "upper"
+    },
+    "peerIdGenerator": {
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "-BT7a3S-(\u008d)(\u00ad)[\u0001-\u00ff]{10}"
+        },
+        "refreshOn": "NEVER",
+        "shouldUrlEncode": true
+    },
+    "urlEncoder": {
+        "encodingExclusionPattern": "[A-Za-z0-9-]",
+        "encodedHexCase": "lower"
+    },
+    "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1",
+    "numwant": 200,
+    "numwantOnStop": 0,
+    "requestHeaders": [
+        { "name": "User-Agent", "value": "BitTorrent/7103(256355725)(44429)" },
+        { "name": "Accept-Encoding", "value": "gzip" },
+        { "name": "Connection", "value": "Close" }
+    ]
+}
