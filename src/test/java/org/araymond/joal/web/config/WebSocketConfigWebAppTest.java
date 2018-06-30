@@ -122,7 +122,7 @@ public class WebSocketConfigWebAppTest {
                 }).get(1000, TimeUnit.SECONDS)
         )
                 .isInstanceOf(ExecutionException.class)
-                .hasMessageContaining("Invalid response code 404");
+                .hasMessageContaining("The HTTP response from the server [404]");
     }
 
     @Test
