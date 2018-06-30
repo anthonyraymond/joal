@@ -62,7 +62,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         }
 
         this.archiveFolder = joalFoldersPath.getTorrentArchivedPath();
-        this.torrentFiles = Collections.synchronizedMap(new HashMap<File, MockedTorrent>());
+        this.torrentFiles = Collections.synchronizedMap(new HashMap<>());
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
         this.torrentFileChangeListener = new HashSet<>();
     }

@@ -28,7 +28,7 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleTorrentFileAddedForSeed(final TorrentFileAddedEvent event) throws IOException {
+    public void handleTorrentFileAddedForSeed(final TorrentFileAddedEvent event) throws IOException {
         logger.debug("Event TorrentFileAddedEvent caught.");
     }
 
@@ -44,7 +44,7 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    void handleSeedSessionHasEnded(final GlobalSeedStoppedEvent event) {
+    public void handleSeedSessionHasEnded(final GlobalSeedStoppedEvent event) {
         logger.debug("Event GlobalSeedStoppedEvent caught.");
         // TODO : log that the seed session is over
     }

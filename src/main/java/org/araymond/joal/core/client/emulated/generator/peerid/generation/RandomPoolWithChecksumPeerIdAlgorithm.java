@@ -2,6 +2,7 @@ package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import com.google.common.base.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
@@ -60,7 +61,7 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
 
     @VisibleForTesting
     byte[] createSecureRandomSeed() {
-        return Instant.now().toString().getBytes();
+        return Instant.now().toString().getBytes(Charsets.UTF_8);
     }
 
     private Integer getRandomIntBetween10And50() {

@@ -31,7 +31,7 @@ public class WebGlobalEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void globalSeedStarted(final GlobalSeedStartedEvent event) {
+    public void globalSeedStarted(final GlobalSeedStartedEvent event) {
         logger.debug("Send GlobalSeedStartedPayload to clients.");
 
         final String client = event.getBitTorrentClient().getHeaders().stream()
@@ -45,7 +45,7 @@ public class WebGlobalEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void globalSeedStopped(@SuppressWarnings("unused") final GlobalSeedStoppedEvent event) {
+    public void globalSeedStopped(@SuppressWarnings("unused") final GlobalSeedStoppedEvent event) {
         logger.debug("Send GlobalSeedStoppedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/global", new GlobalSeedStoppedPayload());

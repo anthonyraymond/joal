@@ -5,6 +5,7 @@ import com.google.common.collect.Maps;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.bandwith.Speed;
+import org.araymond.joal.core.bandwith.SpeedChangedListener;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
@@ -93,9 +94,7 @@ public class SeedManager {
 
         final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(appConfiguration);
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
-        this.bandwidthDispatcher.setSpeedListener((speeds -> {
-            this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
-        }));
+        this.bandwidthDispatcher.setSpeedListener(new SeedManagerSpeedChangeListener(this.publisher));
         this.bandwidthDispatcher.start();
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
@@ -232,6 +231,19 @@ public class SeedManager {
         }
         public Path getClientsFilesPath() {
             return clientsFilesPath;
+        }
+    }
+
+    private static final class SeedManagerSpeedChangeListener implements SpeedChangedListener {
+        private final ApplicationEventPublisher publisher;
+
+        private SeedManagerSpeedChangeListener(final ApplicationEventPublisher publisher) {
+            this.publisher = publisher;
+        }
+
+        @Override
+        public void speedsHasChanged(final Map<InfoHash, Speed> speeds) {
+            this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
         }
     }
 

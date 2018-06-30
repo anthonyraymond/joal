@@ -34,7 +34,7 @@ public class WebAnnounceEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void failedToAnnounce(final FailedToAnnounceEvent event) {
+    public void failedToAnnounce(final FailedToAnnounceEvent event) {
         logger.debug("Send FailedToAnnouncePayload to clients.");
 
         this.messagingTemplate.convertAndSend("/announce", new FailedToAnnouncePayload(event));
@@ -42,7 +42,7 @@ public class WebAnnounceEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void successfullyAnnounce(final SuccessfullyAnnounceEvent event) {
+    public void successfullyAnnounce(final SuccessfullyAnnounceEvent event) {
         logger.debug("Send SuccessfullyAnnouncePayload to clients.");
 
         this.messagingTemplate.convertAndSend("/announce", new SuccessfullyAnnouncePayload(event));
@@ -50,7 +50,7 @@ public class WebAnnounceEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void tooManyAnnouncesFailed(final TooManyAnnouncesFailedEvent event) {
+    public void tooManyAnnouncesFailed(final TooManyAnnouncesFailedEvent event) {
         logger.debug("Send TooManyAnnouncesFailedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/announce", new TooManyAnnouncesFailedPayload(event));
@@ -58,7 +58,7 @@ public class WebAnnounceEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void willAnnounce(final WillAnnounceEvent event) {
+    public void willAnnounce(final WillAnnounceEvent event) {
         logger.debug("Send WillAnnouncePayload to clients.");
 
         this.messagingTemplate.convertAndSend("/announce", new WillAnnouncePayload(event));

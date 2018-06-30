@@ -32,7 +32,7 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void configHasBeenLoaded(final ConfigHasBeenLoadedEvent event) {
+    public void configHasBeenLoaded(final ConfigHasBeenLoadedEvent event) {
         logger.debug("Send ConfigHasBeenLoadedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ConfigHasBeenLoadedPayload(event));
@@ -40,7 +40,7 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void configIsInDirtyState(final ConfigurationIsInDirtyStateEvent event) {
+    public void configIsInDirtyState(final ConfigurationIsInDirtyStateEvent event) {
         logger.debug("Send ConfigIsInDirtyStatePayload to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ConfigIsInDirtyStatePayload(event));
@@ -48,7 +48,7 @@ public class WebConfigEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void clientFilesDiscovered(final ListOfClientFilesEvent event) {
+    public void clientFilesDiscovered(final ListOfClientFilesEvent event) {
         logger.debug("Send ListOfClientFilesPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ListOfClientFilesPayload(event));

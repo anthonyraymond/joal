@@ -49,13 +49,14 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
      * And even if it happens, we returns 0 by default.
      */
     public TorrentSeedStats getSeedStatForTorrent(final InfoHash infoHash) {
-        return this.torrentsSeedStats.getOrDefault(infoHash, new TorrentSeedStats());
+        final TorrentSeedStats torrentSeedStats = this.torrentsSeedStats.get(infoHash);
+        return torrentSeedStats == null ? new TorrentSeedStats() : torrentSeedStats;
     }
 
     public Map<InfoHash, Speed> getSpeedMap() {
         try {
             this.lock.readLock().lock();
-            return speedMap;
+            return Maps.newHashMap(speedMap);
         } finally {
             this.lock.readLock().unlock();
         }
@@ -97,7 +98,8 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 this.lock.readLock().unlock();
 
                 for (final Map.Entry<InfoHash, TorrentSeedStats> entry : entrySet) {
-                    final long speedInBytesPerSecond = this.speedMap.getOrDefault(entry.getKey(), new Speed(0)).getBytesPerSeconds();
+                    final Speed speed = this.speedMap.get(entry.getKey());
+                    final long speedInBytesPerSecond = speed == null ? 0: speed.getBytesPerSeconds(); // avoid Map#getOrDefault as it will trigger a lot of Speed object instantiation for nothing.
                     // Divide by 1000 because of the thread pause interval being in milliseconds
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
                     entry.getValue().addUploaded((speedInBytesPerSecond * this.threadPauseInterval) / 1000);

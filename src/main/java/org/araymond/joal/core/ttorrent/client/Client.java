@@ -69,7 +69,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         this.thread = new Thread(() -> {
             while (!this.stop) {
                 final List<AnnounceRequest> availables = this.delayQueue.getAvailables();
-                availables.forEach(req -> {
+                for (final AnnounceRequest req : availables) {
                     this.announcerExecutor.execute(req);
                     try {
                         this.lock.writeLock().lock();
@@ -78,7 +78,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                     } finally {
                         this.lock.writeLock().unlock();
                     }
-                });
+                }
 
                 try {
                     Thread.sleep(1000);

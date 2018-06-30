@@ -5,7 +5,6 @@ import org.araymond.joal.core.events.announce.FailedToAnnounceEvent;
 import org.araymond.joal.core.events.announce.SuccessfullyAnnounceEvent;
 import org.araymond.joal.core.events.announce.TooManyAnnouncesFailedEvent;
 import org.araymond.joal.core.events.announce.WillAnnounceEvent;
-import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
@@ -75,7 +74,6 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
         if(logger.isDebugEnabled()) {
             logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         }
-        final InfoHash infoHash = announcer.getTorrentInfoHash();
         this.eventPublisher.publishEvent(new FailedToAnnounceEvent(announcer, RequestEvent.STOPPED, throwable.getMessage()));
     }
 

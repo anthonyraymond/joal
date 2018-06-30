@@ -1,12 +1,14 @@
 package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.channels.ServerSocketChannel;
@@ -76,8 +78,13 @@ public class ConnectionHandler {
     InetAddress readIpFromProvider(final String providerUrl) throws IOException {
         final URLConnection urlConnection = new URL(providerUrl).openConnection();
         urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-        try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream()))) {
+        try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), Charsets.UTF_8))) {
             return InetAddress.getByName(in.readLine());
+        }finally {
+            // Ensure all streams associated with http connection are closed
+            final InputStream err = ((HttpURLConnection) urlConnection).getErrorStream();
+            try { if (err != null) err.close(); }
+            catch (final IOException ignored) {}
         }
     }
 

@@ -80,7 +80,9 @@ public class TrackerClient {
             host += ":" + announceUri.getPort();
         }
         request.addHeader("Host", host);
-        headers.forEach(entry -> request.addHeader(entry.getKey(), entry.getValue()));
+        for (final Map.Entry<String, String> entry : headers) {
+            request.addHeader(entry.getKey(), entry.getValue());
+        }
 
         final Response response;
         try {

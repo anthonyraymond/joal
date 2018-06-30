@@ -28,7 +28,7 @@ public class WebSpeedEventListener extends WebEventListener {
 
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
-    void failedToAnnounce(final SeedingSpeedsHasChangedEvent event) {
+    public void failedToAnnounce(final SeedingSpeedsHasChangedEvent event) {
         logger.debug("Send SeedingSpeedHasChangedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/speed", new SeedingSpeedHasChangedPayload(event));

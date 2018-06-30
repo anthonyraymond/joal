@@ -132,7 +132,7 @@ public class BitTorrentClient {
     public List<Map.Entry<String, String>> createRequestHeaders() {
         final List<Map.Entry<String, String>> headers = new ArrayList<>(this.headers.size() + 1);
 
-        this.headers.stream().forEachOrdered(header -> {
+        for (final Map.Entry<String, String> header : this.headers) {
             final String name = header.getKey();
             final String value = header.getValue()
                     .replaceAll("\\{java}", System.getProperty("java.version"))
@@ -146,7 +146,7 @@ public class BitTorrentClient {
             }
 
             headers.add(new AbstractMap.SimpleImmutableEntry<>(name, value));
-        });
+        }
         return headers;
     }
 

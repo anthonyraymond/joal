@@ -12,7 +12,7 @@ public class SeedingSpeedHasChangedPayload implements MessagePayload {
 
     public SeedingSpeedHasChangedPayload(final SeedingSpeedsHasChangedEvent event) {
         this.speeds = event.getSpeeds().entrySet().stream()
-                .map(entry -> new SpeedPayload(entry.getKey(), Long.valueOf(entry.getValue().getBytesPerSeconds())))
+                .map(entry -> new SpeedPayload(entry.getKey(), entry.getValue().getBytesPerSeconds()))
                 .collect(Collectors.toList());
     }
 
