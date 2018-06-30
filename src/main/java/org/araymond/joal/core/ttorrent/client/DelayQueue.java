@@ -5,10 +5,11 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 import java.time.LocalDateTime;
 import java.time.temporal.TemporalUnit;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class DelayQueue<T extends DelayQueue.InfoHashAble> {
-    private final ReentrantLock lock = new ReentrantLock();
+    private final Lock lock = new ReentrantLock();
     private final Queue<IntervalAware<T>> queue = new PriorityQueue<>();
 
     /**
@@ -23,19 +24,17 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
                 item,
                 LocalDateTime.now().plus(interval, unit)
         );
-        final ReentrantLock lock = this.lock;
-        lock.lock();
+        this.lock.lock();
         try {
             this.queue.removeIf(i -> i.getItem().getInfoHash().equals(item.getInfoHash())); // Ensure no double will be present in the queue (don't ant to have two announce type for a torrent)
             this.queue.add(intervalAware);
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
     }
 
     public List<T> getAvailables() {
-        final ReentrantLock lock = this.lock;
-        lock.lock();
+        this.lock.lock();
         try {
             final IntervalAware<T> first = queue.peek();
             final LocalDateTime now = LocalDateTime.now();
@@ -50,23 +49,21 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
 
             return timedOutItems;
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
     }
 
     public void remove(final T itemToRemove) {
-        final ReentrantLock lock = this.lock;
-        lock.lock();
+        this.lock.lock();
         try {
             this.queue.removeIf(item -> item.getItem().getInfoHash().equals(itemToRemove.getInfoHash()));
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
     }
 
     public List<T> drainAll() {
-        final ReentrantLock lock = this.lock;
-        lock.lock();
+        this.lock.lock();
         try {
             final List<T> items = new ArrayList<>(queue.size());
             while (queue.size() > 0) {
@@ -74,7 +71,7 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
             }
             return items;
         } finally {
-            lock.unlock();
+            this.lock.unlock();
         }
     }
 

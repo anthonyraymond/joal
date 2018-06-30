@@ -68,8 +68,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
         this.thread = new Thread(() -> {
             while (!this.stop) {
-                final List<AnnounceRequest> availables = this.delayQueue.getAvailables();
-                for (final AnnounceRequest req : availables) {
+                for (final AnnounceRequest req : this.delayQueue.getAvailables()) {
                     this.announcerExecutor.execute(req);
                     try {
                         this.lock.writeLock().lock();
@@ -121,10 +120,13 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             this.lock.writeLock().lock();
             this.stop = true;
             this.torrentFileProvider.unRegisterListener(this);
-            this.thread.interrupt();
-            try {
-                this.thread.join();
-            } catch (final InterruptedException ignored) {
+            if (this.thread != null) {
+                this.thread.interrupt();
+                try {
+                    this.thread.join();
+                } catch (final InterruptedException ignored) {
+                }
+                this.thread = null;
             }
             this.delayQueue.drainAll().stream()
                     .filter(req -> req.getEvent() != RequestEvent.STARTED)
