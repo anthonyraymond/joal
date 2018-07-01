@@ -1,4 +1,4 @@
-FROM resin/raspberry-pi-openjdk:8-jre
+FROM arm32v7/openjdk:10.0.1-10-jre-slim
 
 
 WORKDIR /joal/

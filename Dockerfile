@@ -1,4 +1,4 @@
-FROM openjdk:8-jre
+FROM openjdk:10.0.1-10-jre-slim
 
 
 WORKDIR /joal/
