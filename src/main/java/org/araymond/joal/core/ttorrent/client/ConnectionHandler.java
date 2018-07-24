@@ -126,7 +126,7 @@ public class ConnectionHandler {
         ServerSocketChannel channel = null;
 
         for (int port = ConnectionHandler.PORT_RANGE_START; port <= ConnectionHandler.PORT_RANGE_END; port++) {
-            final InetSocketAddress tryAddress = new InetSocketAddress(InetAddress.getLocalHost(), port);
+            final InetSocketAddress tryAddress = new InetSocketAddress(port);
 
 
             try {
@@ -136,7 +136,7 @@ public class ConnectionHandler {
                 break;
             } catch (final IOException ioe) {
                 // Ignore, try next port
-                logger.warn("Could not bind to {}, trying next port...", tryAddress);
+                logger.warn("Could not bind to port {}: {}, trying next port...", tryAddress.getPort(), ioe.getMessage());
                 try {
                     if (channel != null) channel.close();
                 } catch (final IOException ignored) {
