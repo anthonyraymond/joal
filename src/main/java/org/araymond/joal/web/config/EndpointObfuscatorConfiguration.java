@@ -3,6 +3,8 @@ package org.araymond.joal.web.config;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletPath;
+import org.springframework.boot.autoconfigure.web.servlet.DispatcherServletRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,12 +29,17 @@ public class EndpointObfuscatorConfiguration {
     }
 
     @Bean
+    public DispatcherServletPath dispatcherServletPath() {
+        return new DispatcherServletRegistrationBean(dispatcherServlet(), "/" + pathPrefix + "/*");
+    }
+    /*
+    @Bean
     public ServletRegistrationBean dispatcherServletRegistration() {
-        final ServletRegistrationBean registration = new ServletRegistrationBean(
+        final ServletRegistrationBean<DispatcherServlet> registration = new ServletRegistrationBean<>(
                 dispatcherServlet(),
                 "/" + this.pathPrefix + "/*"
         );
         registration.setName(DispatcherServletAutoConfiguration.DEFAULT_DISPATCHER_SERVLET_REGISTRATION_BEAN_NAME);
         return registration;
-    }
+    }*/
 }
