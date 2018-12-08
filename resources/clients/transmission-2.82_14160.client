@@ -1,8 +1,9 @@
 {
     "keyGenerator": {
         "algorithm": {
-            "type": "HASH",
-            "length": 8
+            "type": "DIGIT_RANGE_TRANSFORMED_TO_HEX",
+            "inclusiveLowerBound": 1,
+            "inclusiveUpperBound": 190946470
         },
         "refreshOn": "NEVER",
         "keyCase": "lower"

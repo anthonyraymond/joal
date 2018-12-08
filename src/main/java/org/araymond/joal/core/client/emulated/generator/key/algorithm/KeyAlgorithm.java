@@ -7,7 +7,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = HashKeyAlgorithm.class, name = "HASH"),
         @JsonSubTypes.Type(value = HashNoLeadingZeroKeyAlgorithm.class, name = "HASH_NO_LEADING_ZERO"),
-        @JsonSubTypes.Type(value = RegexPatternKeyAlgorithm.class, name = "REGEX")
+        @JsonSubTypes.Type(value = RegexPatternKeyAlgorithm.class, name = "REGEX"),
+        @JsonSubTypes.Type(value = DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm.class, name = "DIGIT_RANGE_TRANSFORMED_TO_HEX")
 })
 public interface KeyAlgorithm {
 
