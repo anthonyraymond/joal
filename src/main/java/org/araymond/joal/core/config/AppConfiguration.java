@@ -58,14 +58,23 @@ public class AppConfiguration {
     }
 
     private void validate() {
+        if (java.util.Objects.isNull(minUploadRate)) {
+            throw new AppConfigurationIntegrityException("minUploadRate must not be null");
+        }
         if (minUploadRate < 0L) {
             throw new AppConfigurationIntegrityException("minUploadRate must be at least 0.");
+        }
+        if (java.util.Objects.isNull(maxUploadRate)) {
+            throw new AppConfigurationIntegrityException("maxUploadRate must not be null");
         }
         if (maxUploadRate < 0L) {
             throw new AppConfigurationIntegrityException("maxUploadRate must greater or equal to 0.");
         }
         if (maxUploadRate < minUploadRate) {
             throw new AppConfigurationIntegrityException("maxUploadRate must be greater or equal to minUploadRate.");
+        }
+        if (java.util.Objects.isNull(simultaneousSeed)) {
+            throw new AppConfigurationIntegrityException("simultaneousSeed must not be null");
         }
         if (simultaneousSeed < 1) {
             throw new AppConfigurationIntegrityException("simultaneousSeed must be greater than 0.");
