@@ -13,6 +13,11 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @ConditionalOnWebUi
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private final String pathPrefix;
+
+    public WebSecurityConfig(@Value("${joal.ui.path.prefix}") final String pathPrefix) {
+        this.pathPrefix = pathPrefix;
+    }
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
@@ -20,8 +25,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/").permitAll()
-                .antMatchers("/ui/**").permitAll()
+                .antMatchers("/" + this.pathPrefix).permitAll()
+                .antMatchers("/" + this.pathPrefix + "/ui/**").permitAll()
                 .anyRequest().denyAll();
     }
 
