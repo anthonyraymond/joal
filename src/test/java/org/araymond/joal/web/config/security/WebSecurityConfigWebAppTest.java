@@ -45,12 +45,10 @@ import static org.assertj.core.api.Assertions.assertThat;
         },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = {
-                "spring.main.web-environment=true",
-                "joal.ui.path.prefix=" + TestConstant.UI_PATH_PREFIX,
-                "joal.ui.secret-token=" + TestConstant.UI_SECRET_TOKEN
+                "spring.main.web-environment=true"
         }
 )
-@Import({WebSecurityConfigWebAppTest.TestWebUiController.class})
+@Import({WebSecurityConfigWebAppTest.TestWebUiController.class, WebSecurityConfigWebAppTest.TestWebSocketConfig.class})
 public class WebSecurityConfigWebAppTest {
 
     @LocalServerPort
@@ -61,7 +59,7 @@ public class WebSecurityConfigWebAppTest {
 
     @RestController
     public static class TestWebUiController {
-        @RequestMapping(path = TestConstant.UI_PATH_PREFIX + "/ui/", method = RequestMethod.GET)
+        @RequestMapping(path = "/ui/", method = RequestMethod.GET)
         public String mockedCtrl() {
             return "";
         }
@@ -72,31 +70,24 @@ public class WebSecurityConfigWebAppTest {
     public static class TestWebSocketConfig implements WebSocketMessageBrokerConfigurer {
         @Override
         public void registerStompEndpoints(final StompEndpointRegistry registry) {
-            registry.addEndpoint(TestConstant.UI_PATH_PREFIX).setAllowedOrigins("*");
+            registry.addEndpoint("/").setAllowedOrigins("*");
         }
     }
 
     @Test
-    public void shouldForbidNonPrefixedUri() {
-        assertThat(this.restTemplate.getForEntity("http://localhost:" + port + "", String.class).getStatusCodeValue()).isEqualTo(403);
-        assertThat(this.restTemplate.getForEntity("http://localhost:" + port + "/ui/", String.class).getStatusCodeValue()).isEqualTo(403);
-        assertThat(this.restTemplate.getForEntity("http://localhost:" + port + "/bla", String.class).getStatusCodeValue()).isEqualTo(403);
-    }
-
-    @Test
-    public void shouldPermitOnPrefixedUriForWebsocketHandshakeEndpoint() throws InterruptedException, ExecutionException, TimeoutException {
+    public void shouldPermitWebsocketHandshakeEndpoint() throws InterruptedException, ExecutionException, TimeoutException {
         final WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
 
-        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX, new StompSessionHandlerAdapter() {
+        final StompSession stompSession = stompClient.connect("ws://localhost:" + port + "/", new StompSessionHandlerAdapter() {
         }).get(10, TimeUnit.SECONDS);
 
         assertThat(stompSession.isConnected()).isTrue();
     }
 
     @Test
-    public void shouldPermitPrefixedUriOnWebUiEndpoint() {
+    public void shouldPermitWebUiEndpoint() {
         assertThat(this.restTemplate.getForEntity(
-                "http://localhost:" + port + "/" + TestConstant.UI_PATH_PREFIX + "/ui/",
+                "http://localhost:" + port + "/ui/",
                 String.class
         ).getStatusCodeValue()).isEqualTo(200);
     }

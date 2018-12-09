@@ -14,20 +14,14 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private final String webSocketPathPrefix;
-
-    public WebSecurityConfig(@Value("${joal.ui.path.prefix}") final String webSocketPathPrefix) {
-        this.webSocketPathPrefix = webSocketPathPrefix;
-    }
-
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
         http
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/" + this.webSocketPathPrefix).permitAll()
-                .antMatchers("/" + this.webSocketPathPrefix + "/ui/**").permitAll()
+                .antMatchers("/").permitAll()
+                .antMatchers("/ui/**").permitAll()
                 .anyRequest().denyAll();
     }
 

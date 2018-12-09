@@ -18,12 +18,6 @@ import javax.inject.Inject;
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    private final String webSocketPathPrefix;
-
-    @Inject
-    public WebSocketConfig(@Value("${joal.ui.path.prefix}") final String webSocketPathPrefix) {
-        this.webSocketPathPrefix = webSocketPathPrefix;
-    }
 
     @Override
     public void configureWebSocketTransport(final WebSocketTransportRegistration registration) {
@@ -48,7 +42,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     // Handshake endpoint
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
-        registry.addEndpoint(this.webSocketPathPrefix)
+        registry.addEndpoint("/")
                 .setAllowedOrigins("*");
     }
 
