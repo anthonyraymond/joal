@@ -1,6 +1,9 @@
 [![Build Status](https://travis-ci.org/anthonyraymond/joal.svg?branch=master)](https://travis-ci.org/anthonyraymond/joal)
 [![Coverage Status](https://coveralls.io/repos/github/anthonyraymond/joal/badge.svg?branch=master)](https://coveralls.io/github/anthonyraymond/joal?branch=master)
 
+# Disclamer
+JOAL is not designed to help you download illegal materials ! Don't break your country's law. I couldn't be held responsible for illegal activities performed by your usage of JOAL.
+
 # JOAL
 This is the server application (with an **optional** webui), if you are interested in the desktop app look at [here](https://github.com/anthonyraymond/joal-desktop).
 
