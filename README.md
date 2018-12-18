@@ -37,7 +37,6 @@ The folder should look like this:<br/>
 java -jar ./jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
 ```
 
-- `-Djava.net.preferIPv6Addresses=true`: is for instruct the JVM to prefer ipv6, if you ISP does not support ipv6 don't prepend this parameter.
 - `--joal-conf=PATH_TO_CONF` is a **required** argument: path to the joal-conf folder (ie: /home/anthony/joal-conf).
 
 <br />
