@@ -62,7 +62,7 @@ public class ConnectionHandlerTest {
         doReturn(channel).when(handler).bindToPort();
 
         handler.start();
-        assertThat(handler.getIpAddress().isSiteLocalAddress()).isTrue();
+        assertThat(handler.getIpAddress()).isEqualTo(InetAddress.getLocalHost());
     }
 
     @Test
