@@ -34,7 +34,7 @@ The folder should look like this:<br/>
 ## How to run
 
 ```
-java -Djava.net.preferIPv6Addresses=true -jar ./jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
+java -jar ./jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
 ```
 
 - `-Djava.net.preferIPv6Addresses=true`: is for instruct the JVM to prefer ipv6, if you ISP does not support ipv6 don't prepend this parameter.
@@ -69,7 +69,6 @@ In next command you have to replace `PATH_TO_CONF`, `PORT`, `SECRET_OBFUSCATION_
 ```
 docker run -d \
     -p PORT:PORT \
-    -e _JAVA_OPTIONS='-Djava.net.preferIPv6Addresses=true' \
     -v PATH_TO_CONF:/data \
     --name="joal" araymond/joal \
     --joal-conf="/data" \
