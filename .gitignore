@@ -4,6 +4,7 @@ dependency-reduced-pom.xml
 jack-of-all-trades.iml
 resources/torrents/*.torrent
 deploy.sh
+scripts/bittorrent-client-update-detector/tempSource/**
 
 ### STS ###
 .apt_generated
