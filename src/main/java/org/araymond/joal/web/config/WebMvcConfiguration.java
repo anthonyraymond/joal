@@ -23,7 +23,8 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Override
     public void addViewControllers(final ViewControllerRegistry registry) {
-        registry.addViewController("/ui").setViewName("redirect:ui/");
+        // The webui passes the credentials alongs with ui call, redirect them as well
+        registry.addRedirectViewController("/ui", "ui/").setKeepQueryParams(true);
         registry.addViewController("/ui/").setViewName("forward:index.html");
         registry.setOrder(Ordered.HIGHEST_PRECEDENCE);
         //super.addViewControllers(registry);
