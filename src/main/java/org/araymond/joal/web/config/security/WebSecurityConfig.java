@@ -14,13 +14,21 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final String pathPrefix;
+    private final boolean shouldDisableFrameOptions;
 
-    public WebSecurityConfig(@Value("${joal.ui.path.prefix}") final String pathPrefix) {
+    public WebSecurityConfig(
+            @Value("${joal.ui.path.prefix}") final String pathPrefix,
+            @Value("${joal.iframe.enabled:false}") final boolean shouldDisableFrameOptions
+    ) {
         this.pathPrefix = pathPrefix;
+        this.shouldDisableFrameOptions = shouldDisableFrameOptions;
     }
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
+        if (this.shouldDisableFrameOptions) {
+            http.headers().frameOptions().disable();
+        }
         http
                 .httpBasic().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()

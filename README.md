@@ -50,6 +50,7 @@ By default the web-ui is disabled, you can enable it with some more arguments:
 Once joal is started head to: `http://localhost:port/SECRET_OBFUSCATION_PATH/ui/` (obviously, replace `SECRET_OBFUSCATION_PATH`) by the value you had chosen
 The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to set it as complex as possible to prevent peoples to know that joal is running on your server.
 
+If you want to use iframe you may also pass the `joal.iframe.enabled=true` argument. If you don't known what that is just ignore it.
 
 ## Start seeding
 Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no need to restart JOAL to add more torrents, add it to the folder and JOAL will be aware of after few seconds.
