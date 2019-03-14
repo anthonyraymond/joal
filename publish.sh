@@ -16,13 +16,7 @@ if ! grep -Fq "JOAL_VERSION=\"$tagName\"" ./Dockerfile; then
   echo -e "$(tput setaf 1)WOW, wait! The provided tag does not match the Dockerfile version$(tput sgr0)"
   exit 1
 fi
-if ! grep -Fq "JOAL_VERSION=\"$tagName\"" ./Dockerfile.arm32v7; then
-  echo -e "$(tput setaf 1)WOW, wait! The provided tag does not match the Dockerfile.arm32v7 version$(tput sgr0)"
-  exit 1
-fi
 
-# REDEFINE THE TAG NAME (prefixed with 'v')
-tagName=v$tagName
 
 if GIT_DIR=./.git git rev-parse $tagName >/dev/null 2>&1
 then

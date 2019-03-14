@@ -1,7 +1,23 @@
-sudo: false
+# binfmt_misc seems to act a bit weirdly on precise
+dist: xenial
+# sudo for docker
+sudo: true
 language: java
 jdk:
- - oraclejdk8
+ - openjdk8
+
+services:
+  - docker
+
+# force update docker-ce since the manifest is still experimental
+addons:
+  apt:
+    packages:
+      - docker-ce
+
+# Only clone the most recent commit.
+git:
+  depth: 1
 
 cache:
   apt: true
@@ -9,30 +25,40 @@ cache:
   - "$HOME/.cache"
   - ~/.m2
 
-install:
- -
 
-script:
-  - mvn clean test jacoco:report coveralls:report
+jobs:
+  include:
+    - stage: Tests
+      script: mvn --batch-mode clean test jacoco:report coveralls:report
 
+    - stage: Github release
+      if: tag IS present
+      script:
+        - mvn --batch-mode --quiet clean package -DskipTests=true
+        - mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
+        - cd ./packager-tmp && tar -czvf joal.tar.gz * && cd ..
+      deploy:
+        on:
+          tags: true
+        provider: releases
+        api_key:
+          secure: A8CP4TfBauQBjN+VCwmIcxNFqufS4WMRXNWoQpaUCbH6tgsbo0dLUZBddc/8KkxyFp4XwDL/64YbbRMwu/qP+smtaRYZE8IfLq//Rib2utGAWUxAswau5r7NEJXWCM5gF50+nbGc5uho0fDlbCAGMMVh6DCCO01vBy64ebf1+gH65b9GJs9LoWV+wzUrR9ZonXow0WIMYPNMzQhFf2Qo+lz5LbCZtQMpkLFsOddjSO31gHFLiRDDBclUq2wWyqK/q3FTkw6rT64iY/o9C26sCwvzDQjM2+OKk8nj/st9842NRipiTIyTuaYwMb30eynVnHmEQpDZnLjRZlWmJIWaFfiu2az8J6aNg29VDBxr2fuYXDK8c2OcfVA2e/hT8ZZeJdFb1E5dWyXyrMtVdmL1Oji254x3d/NzM+PvVdt6fboMLoJMQ6akYe3dBSGNs4A9MCdL8Nw/41rT4t6wotNvIl9LFBQnjlNxYLemnksCff7bnE5mlMutO9nbt8UEw9WMPAbQzBlqVqJ2tzRQfiCF1KvHUl1OcGwMoJwGlnr81dhY4LfNp1Ta+ja/aIcYDj38eMlibY5xI6Z0wV/llnl1Nm50RBFFpA6jJ55VqeckUvHnUrEeD+85ncXY9fmCn+bJ3AKfEW9rtBxdYiNSOvCx7i8IGUCfROWnxCKXt/ikgOE=
+        file: packager-tmp/joal.tar.gz
+        skip_cleanup: true
+        draft: true
+        name: $TRAVIS_TAG
+        tag_name: $TRAVIS_TAG
+      after_deploy:
+        - rm -rf packager-tmp
 
-deploy:
-  provider: releases
-  api_key:
-      secure: A8CP4TfBauQBjN+VCwmIcxNFqufS4WMRXNWoQpaUCbH6tgsbo0dLUZBddc/8KkxyFp4XwDL/64YbbRMwu/qP+smtaRYZE8IfLq//Rib2utGAWUxAswau5r7NEJXWCM5gF50+nbGc5uho0fDlbCAGMMVh6DCCO01vBy64ebf1+gH65b9GJs9LoWV+wzUrR9ZonXow0WIMYPNMzQhFf2Qo+lz5LbCZtQMpkLFsOddjSO31gHFLiRDDBclUq2wWyqK/q3FTkw6rT64iY/o9C26sCwvzDQjM2+OKk8nj/st9842NRipiTIyTuaYwMb30eynVnHmEQpDZnLjRZlWmJIWaFfiu2az8J6aNg29VDBxr2fuYXDK8c2OcfVA2e/hT8ZZeJdFb1E5dWyXyrMtVdmL1Oji254x3d/NzM+PvVdt6fboMLoJMQ6akYe3dBSGNs4A9MCdL8Nw/41rT4t6wotNvIl9LFBQnjlNxYLemnksCff7bnE5mlMutO9nbt8UEw9WMPAbQzBlqVqJ2tzRQfiCF1KvHUl1OcGwMoJwGlnr81dhY4LfNp1Ta+ja/aIcYDj38eMlibY5xI6Z0wV/llnl1Nm50RBFFpA6jJ55VqeckUvHnUrEeD+85ncXY9fmCn+bJ3AKfEW9rtBxdYiNSOvCx7i8IGUCfROWnxCKXt/ikgOE=
-  file: packager-tmp/joal.tar.gz
-  skip_cleanup: true
-  draft: true
-  name: $TRAVIS_TAG
-  tag_name: $TRAVIS_TAG
-  on:
-    tags: true
-
-after_deploy:
-  - rm -rf packager-tmp
-  
-after_success:
-  - mvn clean package -DskipTests=true
-  - mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
-  - cd ./packager-tmp && tar -czvf joal.tar.gz * && cd ..
-
+    - stage: Docker release
+      if: tag IS present
+      # install binfmt to allow arm build on x86 (see https://dev.to/zeerorg/build-multi-arch-docker-images-on-travis-5428)
+      before_install:
+        - sudo docker run --privileged linuxkit/binfmt:v0.6
+        - sudo docker run -d --privileged -p 1234:1234 --name buildkit moby/buildkit:latest --addr tcp://0.0.0.0:1234 --oci-worker-platform linux/amd64 --oci-worker-platform linux/armhf
+        - sudo docker cp buildkit:/usr/bin/buildctl /usr/bin/
+        - export BUILDKIT_HOST=tcp://0.0.0.0:1234
+      # skill install step
+      install: true
+      script: bash ./travis/docker_deploy.sh

@@ -1,19 +1,25 @@
-FROM openjdk:10.0.1-10-jre-slim
+# Builder image with jdk
+FROM --platform=$BUILDPLATFORM maven:3.6-jdk-8 AS build
 
+
+RUN apt-get update \
+    && apt-get install -y git \
+    && JOAL_VERSION="2.1.14" \
+    && git clone https://github.com/anthonyraymond/joal.git --branch "$JOAL_VERSION" --depth=1 \
+    && cd joal \
+    && mvn --batch-mode --quiet package -DskipTests=true \
+    && mkdir /artifact \
+    && mv "/joal/target/jack-of-all-trades-$JOAL_VERSION.jar" /artifact/joal.jar \
+    && apt-get remove -y git \
+    && rm -rf /var/lib/apt/lists/*
+
+
+# Actual joal image with jre only
+FROM openjdk:8u181-jre
 
 WORKDIR /joal/
 
-RUN apt-get update \
-        && apt-get install -y ca-certificates curl \
-        && JOAL_VERSION="2.1.13" \
-        && curl -LO "https://github.com/anthonyraymond/joal/releases/download/v$JOAL_VERSION/joal.tar.gz" \
-        && tar --wildcards -zxvf joal.tar.gz "jack-of-all-trades-$JOAL_VERSION.jar" \
-        && mv "jack-of-all-trades-$JOAL_VERSION.jar" joal.jar \
-        && rm joal.tar.gz \
-        && apt-get remove -y curl \
-        && rm -rf /var/lib/apt/lists/*
-
-EXPOSE 5081 49152-65534
+COPY --from=build /artifact/joal.jar /joal/joal.jar
 
 VOLUME /data
 
