@@ -58,27 +58,22 @@ Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no n
 If WebUi is enabled you can also drag and drop torrents in the joal ui.
 
 ## Docker
-Build it:
-```
-docker build -f Dockerfile -t araymond/joal .
-```
-If you want to build the **raspberry** docker image replace `Dockerfile` with `Dockerfile.arm`.
 
-Then run it:
-In next command you have to replace `PATH_TO_CONF`, `PORT`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN`.
+In next command you have to replace `PATH_TO_CONF`, `PORT`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN` with your desired values.
 ```
 docker run -d \
     -p PORT:PORT \
     -v PATH_TO_CONF:/data \
-    --name="joal" araymond/joal \
+    --name="joal" \
+    anthonyraymond/joal \
     --joal-conf="/data" \
     --spring.main.web-environment=true \
     --server.port="PORT" \
     --joal.ui.path.prefix="SECRET_OBFUSCATION_PATH" \
     --joal.ui.secret-token="SECRET_TOKEN"
 ```
-You can pass along all the CLI argument to customize JOAL.
-
+Multiple architectures are available at https://hub.docker.com/r/anthonyraymond/joal.
+If you want to run on arm (raspberry) replace `anthonyraymond/joal` with `anthonyraymond/joal:X.X.X-arm` where X.X.X are the desired version of joal.
 
 
 ## Configuration file
