@@ -24,7 +24,7 @@ Ask for it in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal
 ![preview](readme-assets/webui-preview.png?raw=true)
 
 
-## Getting started
+# Getting started
 Download the [latest tar.gz release](https://github.com/anthonyraymond/joal/releases/latest).
 Put `config.json`, `clients`, and `torrents` folder into the location of your choice (this will be your configuration folder). For the rest of this README, it will be named `joal-conf`.
 
