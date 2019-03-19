@@ -17,6 +17,11 @@ RUN apt-get update \
 # Actual joal image with jre only
 FROM openjdk:8u181-jre
 
+LABEL name="joal"
+LABEL maintainer="joal.contact@gmail.com"
+LABEL url="https://github.com/anthonyraymond/joal"
+LABEL vcs-url="https://github.com/anthonyraymond/joal"
+
 WORKDIR /joal/
 
 COPY --from=build /artifact/joal.jar /joal/joal.jar
