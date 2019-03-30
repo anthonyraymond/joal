@@ -24,14 +24,14 @@ Ask for it in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal
 ![preview](readme-assets/webui-preview.png?raw=true)
 
 
-# Getting started
-Download the [latest tar.gz release](https://github.com/anthonyraymond/joal/releases/latest).
-Put `config.json`, `clients`, and `torrents` folder into the location of your choice (this will be your configuration folder). For the rest of this README, it will be named `joal-conf`.
+# HOW TO USE
+## 1. Setting up configuration
+In the folder of your choice (ie: /home/anthony/joal-conf), download the [latest tar.gz release](https://github.com/anthonyraymond/joal/releases/latest) and extract `config.json` `clients` and `torrents`, this folder will be our `joal-conf`.
 
-The folder should look like this:<br/>
+It must look similar to this:<br/>
 ![joal-conf][joal-conf-folder]
 
-## How to run
+## Run with Java
 
 ```
 java -jar ./jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
@@ -52,12 +52,7 @@ The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to s
 
 If you want to use iframe you may also pass the `joal.iframe.enabled=true` argument. If you don't known what that is just ignore it.
 
-## Start seeding
-Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no need to restart JOAL to add more torrents, add it to the folder and JOAL will be aware of after few seconds.
-
-If WebUi is enabled you can also drag and drop torrents in the joal ui.
-
-## Docker
+## 2. Run with Docker
 
 In next command you have to replace `PATH_TO_CONF`, `PORT`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN` with your desired values.
 ```
@@ -74,6 +69,12 @@ docker run -d \
 ```
 Multiple architectures are available at https://hub.docker.com/r/anthonyraymond/joal.
 If you want to run on arm (raspberry) replace `anthonyraymond/joal` with `anthonyraymond/joal:X.X.X-arm` where X.X.X are the desired version of joal.
+
+
+## 3. Start seeding
+Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no need to restart JOAL to add more torrents, add it to the folder and JOAL will be aware of after few seconds.
+
+If WebUi is enabled you can also drag and drop torrents in the joal ui.
 
 
 ## Configuration file
