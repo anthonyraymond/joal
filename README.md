@@ -31,7 +31,7 @@ In the folder of your choice (ie: /home/anthony/joal-conf), download the [latest
 It must look similar to this:<br/>
 ![joal-conf][joal-conf-folder]
 
-## Run with Java
+## 2. Run with Java
 
 ```
 java -jar ./jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
