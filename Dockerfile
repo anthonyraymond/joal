@@ -4,7 +4,7 @@ FROM --platform=$BUILDPLATFORM maven:3.6-jdk-8 AS build
 
 RUN apt-get update \
     && apt-get install -y git \
-    && JOAL_VERSION="2.1.18" \
+    && JOAL_VERSION="2.1.19" \
     && git clone https://github.com/anthonyraymond/joal.git --branch "$JOAL_VERSION" --depth=1 \
     && cd joal \
     && mvn --batch-mode --quiet package -DskipTests=true \
