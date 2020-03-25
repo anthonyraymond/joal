@@ -5,7 +5,7 @@
 
     <groupId>org.araymond.joal</groupId>
     <artifactId>jack-of-all-trades</artifactId>
-    <version>2.1.19</version>
+    <version>2.1.20</version>
     <packaging>jar</packaging>
 
     <name>jack-of-all-trades</name>
