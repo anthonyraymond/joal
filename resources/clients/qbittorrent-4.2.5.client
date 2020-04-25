@@ -10,7 +10,7 @@
     "peerIdGenerator": {
         "algorithm": {
             "type": "REGEX",
-            "pattern": "-qB4230-[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}"
+            "pattern": "-qB4250-[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}"
         },
         "refreshOn": "NEVER",
         "shouldUrlEncode": false
