@@ -118,6 +118,11 @@ Also this project has benefited from the help of several peoples, see [Thanks.md
 ## Official Docker Hub page:
 https://hub.docker.com/r/anthonyraymond/joal
 
+## Supporters
+[![Thanks for providing Jetbrain license](readme-assets/jetbrains.svg)](https://www.jetbrains.com/?from=joal)
+
+
+
 [support-never]:readme-assets/warning.png
 [support-no]:readme-assets/cross-mark.png
 [support-yes]:readme-assets/check-mark.png
@@ -129,3 +134,4 @@ https://hub.docker.com/r/anthonyraymond/joal
 [browser-safari]:readme-assets/browsers/safari.png
 [browser-ie]:readme-assets/browsers/ie.png
 [browser-edge]:readme-assets/browsers/edge.png
+[jetbrain-logo]:readme-assets/jetbrains.svg
