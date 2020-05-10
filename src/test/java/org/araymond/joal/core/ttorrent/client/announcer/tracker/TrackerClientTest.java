@@ -68,7 +68,7 @@ public class TrackerClientTest {
                 "http://localhost"
         ));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -82,7 +82,7 @@ public class TrackerClientTest {
     public void shouldAlsoAcceptHttps() throws AnnounceException, NoMoreUriAvailableException {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -96,7 +96,7 @@ public class TrackerClientTest {
     public void shouldThrowExceptionIfNoHTTPUriAreFound() throws NoMoreUriAvailableException {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("udp://localhost", "udp://127.0.0.1"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
 
         assertThatThrownBy(() -> trackerClient.announce("param=val&dd=q", this.createHeaders()))
                 .isInstanceOf(AnnounceException.class)
@@ -109,7 +109,7 @@ public class TrackerClientTest {
     public void shouldThrowAnnounceExceptionAndMoveToNextUriWhenResponseIsError() throws AnnounceException, NoMoreUriAvailableException {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("http://localhost", "https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
         Mockito.doReturn(
                 this.createMockedTrackerErrorMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -126,7 +126,7 @@ public class TrackerClientTest {
         // should remove one seeder because we are one of them
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -144,7 +144,7 @@ public class TrackerClientTest {
         // should remove one seeder because we are one of them
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class)));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage(0)
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());

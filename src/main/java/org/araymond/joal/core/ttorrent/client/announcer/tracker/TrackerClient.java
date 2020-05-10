@@ -5,15 +5,22 @@ import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.ErrorMessage;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.fluent.Request;
 import org.apache.http.client.fluent.Response;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 
@@ -21,11 +28,13 @@ public class TrackerClient {
     private static final Logger logger = LoggerFactory.getLogger(TrackerClient.class);
 
     private final TrackerClientUriProvider trackerClientUriProvider;
+    private final HttpClient httpClient;
     private final ResponseHandler<TrackerMessage> trackerResponseHandler;
 
-    public TrackerClient(final TrackerClientUriProvider trackerClientUriProvider, final ResponseHandler<TrackerMessage> trackerResponseHandler) {
+    public TrackerClient(final TrackerClientUriProvider trackerClientUriProvider, final ResponseHandler<TrackerMessage> trackerResponseHandler, final HttpClient httpClient) {
         this.trackerResponseHandler = trackerResponseHandler;
         this.trackerClientUriProvider = trackerClientUriProvider;
+        this.httpClient = httpClient;
     }
 
     public SuccessAnnounceResponse announce(final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
@@ -73,7 +82,7 @@ public class TrackerClient {
     @VisibleForTesting
     TrackerMessage makeCallAndGetResponseAsByteBuffer(final URI announceUri, final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
         final String base = announceUri + (announceUri.toString().contains("?") ? "&": "?");
-        final Request request = Request.Get(base + requestQuery);
+        final HttpUriRequest request = new HttpGet(base + requestQuery);
 
         String host = announceUri.getHost();
         if (announceUri.getPort() != -1) {
@@ -84,9 +93,9 @@ public class TrackerClient {
             request.addHeader(entry.getKey(), entry.getValue());
         }
 
-        final Response response;
+        final HttpResponse response;
         try {
-            response = request.execute();
+            response = httpClient.execute(request);
         } catch (final ClientProtocolException e) {
             throw new AnnounceException("Failed to announce: protocol mismatch.", e);
         } catch (final IOException e) {
@@ -94,10 +103,24 @@ public class TrackerClient {
         }
 
         try {
-            return response.handleResponse(this.trackerResponseHandler);
+            return handleResponse(response, this.trackerResponseHandler);
         } catch (final IOException e) {
             throw new AnnounceException("Failed to handle tracker response: " + e.getMessage(), e);
         }
     }
 
+    private <T> T handleResponse(final HttpResponse response, final ResponseHandler<T> handler) throws ClientProtocolException, IOException {
+        try {
+            return handler.handleResponse(response);
+        } finally {
+            try {
+                final HttpEntity entity = response.getEntity();
+                final InputStream content = entity.getContent();
+                if (content != null) {
+                    content.close();
+                }
+            } catch (final Exception ignore) {
+            }
+        }
+    }
 }

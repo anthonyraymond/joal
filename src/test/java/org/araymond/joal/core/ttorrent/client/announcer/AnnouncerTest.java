@@ -26,7 +26,7 @@ public class AnnouncerTest {
     @Test
     public void shouldProvideRequiredInfoForAnnouncerFacade() {
         final MockedTorrent torrent = MockedTorrentTest.createOneMock();
-        final AnnouncerFacade facade = new Announcer(torrent, null);
+        final AnnouncerFacade facade = new Announcer(torrent, null, httpClient);
 
         assertThat(facade.getConsecutiveFails()).isEqualTo(0);
         assertThat(facade.getLastKnownInterval()).isEqualTo(5);
@@ -45,7 +45,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor);
+        final Announcer announcer = new Announcer(torrent, dataAccessor, httpClient);
         announcer.setTrackerClient(trackerClient);
 
         //noinspection Duplicates
@@ -78,7 +78,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor);
+        final Announcer announcer = new Announcer(torrent, dataAccessor, httpClient);
         announcer.setTrackerClient(trackerClient);
 
         //noinspection Duplicates
@@ -114,7 +114,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor);
+        final Announcer announcer = new Announcer(torrent, dataAccessor, httpClient);
         announcer.setTrackerClient(trackerClient);
 
         assertThat(announcer.getLastAnnouncedAt()).isEmpty();
@@ -153,7 +153,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor);
+        final Announcer announcer = new Announcer(torrent, dataAccessor, httpClient);
         announcer.setTrackerClient(trackerClient);
 
         assertThat(announcer.getLastKnownInterval()).isEqualTo(5);
@@ -192,11 +192,11 @@ public class AnnouncerTest {
     @Test
     public void shouldBeEqualsByInfoHash() {
         final MockedTorrent torrent1 = MockedTorrentTest.createOneMock("abcd");
-        final Announcer announcer1 = new Announcer(torrent1, null);
+        final Announcer announcer1 = new Announcer(torrent1, null, httpClient);
 
 
         final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("abcd");
-        final Announcer announcer2 = new Announcer(torrent2, null);
+        final Announcer announcer2 = new Announcer(torrent2, null, httpClient);
 
         assertThat(announcer1).isEqualTo(announcer2);
     }
@@ -205,11 +205,11 @@ public class AnnouncerTest {
     @Test
     public void shouldNotBeEqualsWithDifferentInfoHash() {
         final MockedTorrent torrent1 = MockedTorrentTest.createOneMock("abcd");
-        final Announcer announcer1 = new Announcer(torrent1, null);
+        final Announcer announcer1 = new Announcer(torrent1, null, httpClient);
 
 
         final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("abcdefgh");
-        final Announcer announcer2 = new Announcer(torrent2, null);
+        final Announcer announcer2 = new Announcer(torrent2, null, httpClient);
 
         assertThat(announcer1).isNotEqualTo(announcer2);
     }

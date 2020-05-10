@@ -2,6 +2,10 @@ package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Maps;
+import org.apache.http.config.SocketConfig;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.bandwith.Speed;
@@ -38,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by raymo on 27/01/2017.
@@ -45,7 +50,7 @@ import java.util.Optional;
 public class SeedManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
-
+    private final CloseableHttpClient httpClient;
     private boolean isSeeding;
     private final JoalFoldersPath joalFoldersPath;
     private final JoalConfigProvider configProvider;
@@ -77,6 +82,21 @@ public class SeedManager {
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath);
         this.publisher = publisher;
         this.connectionHandler = new ConnectionHandler();
+
+
+        final SocketConfig sc = SocketConfig.custom()
+                .setSoTimeout(30000)
+                .build();
+        final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+        connManager.setDefaultMaxPerRoute(100);
+        connManager.setMaxTotal(200);
+        connManager.setValidateAfterInactivity(1000);
+        connManager.setDefaultSocketConfig(sc);
+        this.httpClient = HttpClients.custom()
+                .setConnectionTimeToLive(1, TimeUnit.MINUTES)
+                .setConnectionManager(connManager)
+                .setConnectionManagerShared(true)
+                .build();
     }
 
     public void startSeeding() throws IOException {
@@ -103,7 +123,7 @@ public class SeedManager {
                 .withAppConfiguration(appConfiguration)
                 .withTorrentFileProvider(this.torrentFileProvider)
                 .withBandwidthDispatcher(this.bandwidthDispatcher)
-                .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor))
+                .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor, httpClient))
                 .withEventPublisher(this.publisher)
                 .withDelayQueue(new DelayQueue<>())
                 .build();
