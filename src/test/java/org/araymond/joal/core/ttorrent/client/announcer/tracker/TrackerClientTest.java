@@ -4,6 +4,7 @@ import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPAnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerErrorMessage;
+import org.apache.http.client.HttpClient;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -68,7 +69,7 @@ public class TrackerClientTest {
                 "http://localhost"
         ));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -82,7 +83,7 @@ public class TrackerClientTest {
     public void shouldAlsoAcceptHttps() throws AnnounceException, NoMoreUriAvailableException {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -96,7 +97,7 @@ public class TrackerClientTest {
     public void shouldThrowExceptionIfNoHTTPUriAreFound() throws NoMoreUriAvailableException {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("udp://localhost", "udp://127.0.0.1"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
 
         assertThatThrownBy(() -> trackerClient.announce("param=val&dd=q", this.createHeaders()))
                 .isInstanceOf(AnnounceException.class)
@@ -109,7 +110,7 @@ public class TrackerClientTest {
     public void shouldThrowAnnounceExceptionAndMoveToNextUriWhenResponseIsError() throws AnnounceException, NoMoreUriAvailableException {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("http://localhost", "https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
         Mockito.doReturn(
                 this.createMockedTrackerErrorMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -126,7 +127,7 @@ public class TrackerClientTest {
         // should remove one seeder because we are one of them
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage()
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
@@ -144,7 +145,7 @@ public class TrackerClientTest {
         // should remove one seeder because we are one of them
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), httpClient));
+        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
         Mockito.doReturn(
                 this.createMockedTrackerSuccessMessage(0)
         ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
