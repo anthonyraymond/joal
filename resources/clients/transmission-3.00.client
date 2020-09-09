@@ -28,6 +28,6 @@
     "requestHeaders": [
         { "name": "User-Agent", "value": "Transmission/3.00" },
         { "name": "Accept", "value": "*/*" },
-        { "name": "Accept-Encoding", "value": "deflate, gzip, br" }
+        { "name": "Accept-Encoding", "value": "deflate, gzip" }
     ]
 }
