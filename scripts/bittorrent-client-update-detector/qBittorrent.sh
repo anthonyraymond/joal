@@ -54,7 +54,7 @@ echo "User-Agent is: $user_agent"
 # extract beginning of peer_id
 bt_peer_id_small_name=$(grep "PEER_ID\[\] =" $qBittorrentTempFolder/src/base/bittorrent/session.cpp | cut -d '=' -f 2 | tr -d '[:space:]' | tr -d '[";]')
 
-if [ $(grep -c "libt::generate_fingerprint(PEER_ID, QBT_VERSION_MAJOR, QBT_VERSION_MINOR, QBT_VERSION_BUGFIX, QBT_VERSION_BUILD);" $qBittorrentTempFolder/src/base/bittorrent/session.cpp) -lt 1 ]; then
+if [ $(grep -c "lt::generate_fingerprint(PEER_ID, QBT_VERSION_MAJOR, QBT_VERSION_MINOR, QBT_VERSION_BUGFIX, QBT_VERSION_BUILD);" $qBittorrentTempFolder/src/base/bittorrent/session.cpp) -lt 1 ]; then
   echo "WHHHHHOOOOPS, the peerid prefix generator might have changed."
   exit 1
 fi
