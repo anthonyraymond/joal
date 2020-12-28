@@ -67,6 +67,21 @@ docker run -d \
     --joal.ui.path.prefix="SECRET_OBFUSCATION_PATH" \
     --joal.ui.secret-token="SECRET_TOKEN"
 ```
+Or the equivalent docker-compose service.
+```
+version: "2"
+services:
+  joal:
+    image: anthonyraymond/joal
+    container_name: joal
+    restart: unless-stopped
+    volumes:
+      - PATH_TO_CONF:/data
+    ports:
+      - PORT:PORT
+    command: ["--joal-conf=/data", "--spring.main.web-environment=true", "--server.port=PORT", "--joal.ui.path.prefix=SECRET_OBFUSCATION_PATH", "--joal.ui.secret-token=SECRET_TOKEN"]
+```
+
 Multiple architectures are available at https://hub.docker.com/r/anthonyraymond/joal.
 If you want to run on arm (raspberry) replace `anthonyraymond/joal` with `anthonyraymond/joal:X.X.X-arm` where X.X.X are the desired version of joal.
 
