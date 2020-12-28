@@ -71,7 +71,7 @@ Compatible with docker-compose v2 schemas.
 ```
 version: "2"
 services:
-  youtube-dl:
+  joal:
     image: anthonyraymond/joal
     container_name: joal
     environment:
