@@ -26,11 +26,11 @@ curl -L $tarballUrl --output $qBittorrentTempFolder/qBittorrent.tar.gz
 tar -xzf $qBittorrentTempFolder/qBittorrent.tar.gz -C $qBittorrentTempFolder/ --strip 1
 
 # seach for qBittorent versions
-VER_MAJOR=$(grep "VER_MAJOR =" $qBittorrentTempFolder/version.pri | cut -d '=' -f 2 | tr -d '[:space:]')
-VER_MINOR=$(grep "VER_MINOR =" $qBittorrentTempFolder/version.pri | cut -d '=' -f 2 | tr -d '[:space:]')
-VER_BUGFIX=$(grep "VER_BUGFIX =" $qBittorrentTempFolder/version.pri | cut -d '=' -f 2 | tr -d '[:space:]')
-VER_BUILD=$(grep "VER_BUILD =" $qBittorrentTempFolder/version.pri | cut -d '=' -f 2 | tr -d '[:space:]')
-VER_STATUS=$(grep "VER_STATUS =" $qBittorrentTempFolder/version.pri | cut -d '=' -f 2 | cut -d '#' -f 1 | tr -d '[:space:]')
+VER_MAJOR=$(grep "#define QBT_VERSION_MAJOR " $qBittorrentTempFolder/src/base/version.h.in | cut -d ' ' -f 3 | tr -d '[:space:]')
+VER_MINOR=$(grep "#define QBT_VERSION_MINOR " $qBittorrentTempFolder/src/base/version.h.in | cut -d ' ' -f 3 | tr -d '[:space:]')
+VER_BUGFIX=$(grep "#define QBT_VERSION_BUGFIX " $qBittorrentTempFolder/src/base/version.h.in | cut -d ' ' -f 3 | tr -d '[:space:]')
+VER_BUILD=$(grep "#define QBT_VERSION_BUILD " $qBittorrentTempFolder/src/base/version.h.in | cut -d ' ' -f 3 | tr -d '[:space:]')
+VER_STATUS=$(grep "#define QBT_VERSION_STATUS " $qBittorrentTempFolder/src/base/version.h.in | cut -d ' ' -f 3 | cut -d '"' -f 1 | tr -d '[:space:]')
 
 PROJECT_VERSION="${VER_MAJOR}.${VER_MINOR}.${VER_BUGFIX}"
 if [ $VER_BUILD -ne '0' ]; then
