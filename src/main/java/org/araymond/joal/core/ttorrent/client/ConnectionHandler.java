@@ -34,8 +34,7 @@ public class ConnectionHandler {
             "http://l2.io/ip",
             "http://ident.me/",
             "http://icanhazip.com/",
-            "http://bot.whatismyipaddress.com/",
-            "https://tnx.nl/ip"
+            "http://bot.whatismyipaddress.com/"
     };
 
     public ConnectionHandler() {
