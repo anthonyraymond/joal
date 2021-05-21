@@ -4,6 +4,9 @@
 # Disclamer
 JOAL is not designed to help or encourage you downloading illegal materials ! You must respect the law applicable in your country. I couldn't be held responsible for illegal activities performed by your usage of JOAL.
 
+## Official Docker Hub page:
+https://hub.docker.com/r/anthonyraymond/joal
+
 # JOAL
 This is the server application (with an **optional** webui), if you are interested in the desktop app look at [here](https://github.com/anthonyraymond/joal-desktop).
 
@@ -126,12 +129,15 @@ The application configuration belongs in `joal-conf/config.json`.
 
 Some non-supported browser might works, but they may be unsafe due to the lack of support for `referrer-policy`.
 
+
+## Community projects
+Those projects are maintained by their individual authors, if you have any question on how to use it use the corresponding repository to ask questions.
+- [Addon for Home Assistant](https://github.com/alexbelgium/hassio-addons/tree/master/joal) by [alexbelgium](https://github.com/alexbelgium) 
+
+
 # Thanks:
 This project use a modified version of the awesome [mpetazzoni/ttorrent](http://mpetazzoni.github.com/ttorrent/) library. Thanks to **mpetazzoni** for this.
 Also this project has benefited from the help of several peoples, see [Thanks.md](THANKS.md)
-
-## Official Docker Hub page:
-https://hub.docker.com/r/anthonyraymond/joal
 
 ## Supporters
 [![Thanks for providing Jetbrain license](readme-assets/jetbrains.svg)](https://www.jetbrains.com/?from=joal)
