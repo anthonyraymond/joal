@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/anthonyraymond/joal.svg?branch=master)](https://travis-ci.org/anthonyraymond/joal)
+[![Build Status](https://travis-ci.com/anthonyraymond/joal.svg?branch=master)](https://travis-ci.org/anthonyraymond/joal)
 [![Coverage Status](https://coveralls.io/repos/github/anthonyraymond/joal/badge.svg?branch=master)](https://coveralls.io/github/anthonyraymond/joal?branch=master)
 
 # Disclamer
