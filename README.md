@@ -1,6 +1,3 @@
-[![Build Status](https://travis-ci.com/anthonyraymond/joal.svg?branch=master)](https://travis-ci.com/anthonyraymond/joal)
-[![Coverage Status](https://coveralls.io/repos/github/anthonyraymond/joal/badge.svg?branch=master)](https://coveralls.io/github/anthonyraymond/joal?branch=master)
-
 # Disclamer
 JOAL is not designed to help or encourage you downloading illegal materials ! You must respect the law applicable in your country. I couldn't be held responsible for illegal activities performed by your usage of JOAL.
 
