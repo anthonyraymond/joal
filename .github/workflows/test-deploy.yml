@@ -19,6 +19,11 @@ jobs:
       with:
         java-version: '11'
         distribution: 'adopt'
+    - name: Cache
+      uses: actions/cache@v2.1.6
+      with:
+        path: /home/runner/.m2/repository
+        key: ${{ runner.os }}-${{ hashFiles('pom.xml') }}
     - name: Build with Maven
       run: mvn -B test --file pom.xml
   github-release:
