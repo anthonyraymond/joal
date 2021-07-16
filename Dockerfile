@@ -2,16 +2,9 @@
 FROM maven:3.8.1-adoptopenjdk-11 AS build
 
 
-RUN apt-get update \
-    && apt-get install -y git \
-    && JOAL_VERSION="2.1.25" \
-    && git clone https://github.com/anthonyraymond/joal.git --branch "$JOAL_VERSION" --depth=1 \
-    && cd joal \
-    && mvn --batch-mode --quiet package -DskipTests=true \
+RUN mvn -B --quiet package -DskipTests=true \
     && mkdir /artifact \
-    && mv "/joal/target/jack-of-all-trades-$JOAL_VERSION.jar" /artifact/joal.jar \
-    && apt-get remove -y git \
-    && rm -rf /var/lib/apt/lists/*
+    && mv "target/jack-of-all-trades-*.jar" /artifact/joal.jar
 
 
 # Actual joal image with jre only
