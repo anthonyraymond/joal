@@ -54,13 +54,13 @@ jobs:
     - name: Create release archive
       run: |
         mkdir packager-tmp && cp -r resources/* ./packager-tmp && cp target/*.jar ./packager-tmp
-        cd ./packager-tmp && tar -czvf joal.tar.gz * && cd .. && pwd && ls -la
+        cd ./packager-tmp && tar -czvf joal.tar.gz * && mv ./joal.tar.gz ../ && cd ..
 
     - name: Create Github release
       uses: ncipollo/release-action@v1.8.6
       with:
         allowUpdates: true
         artifactErrorsFailBuild: true
-        artifacts: joal.tar.gz
+        artifacts: "joal.tar.gz"
         draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
