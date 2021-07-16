@@ -1,5 +1,5 @@
 # Builder image with jdk
-FROM --platform=$BUILDPLATFORM maven:3.6-jdk-8 AS build
+FROM maven:3.8.1-adoptopenjdk-11 AS build
 
 
 RUN apt-get update \
@@ -15,7 +15,7 @@ RUN apt-get update \
 
 
 # Actual joal image with jre only
-FROM openjdk:8u181-jre
+FROM adoptopenjdk:11.0.11_9-jre-hotspot
 
 LABEL name="joal"
 LABEL maintainer="joal.contact@gmail.com"
