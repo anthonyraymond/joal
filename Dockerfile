@@ -1,11 +1,13 @@
 # Builder image with jdk
 FROM maven:3.8.1-adoptopenjdk-11 AS build
 
-COPY src/ pom.xml ./
+WORKDIR /build
+
+COPY src/ pom.xml /build/
 
 RUN ls -la && mvn -B --quiet package -DskipTests=true \
     && mkdir /artifact \
-    && mv "target/jack-of-all-trades-*.jar" /artifact/joal.jar
+    && mv "/build/target/jack-of-all-trades-*.jar" /artifact/joal.jar
 
 
 # Actual joal image with jre only
