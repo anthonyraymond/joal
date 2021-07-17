@@ -3,7 +3,7 @@ FROM maven:3.8.1-adoptopenjdk-11 AS build
 
 COPY src/ pom.xml .
 
-RUN mvn -B --quiet package -DskipTests=true \
+RUN ls -la && mvn -B --quiet package -DskipTests=true \
     && mkdir /artifact \
     && mv "target/jack-of-all-trades-*.jar" /artifact/joal.jar
 
