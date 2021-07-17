@@ -68,7 +68,6 @@ jobs:
 
   docker-release:
     needs: test
-    if: startsWith(github.ref, 'refs/tags/') # run this step only when tagged
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -83,7 +82,7 @@ jobs:
         if [[ $GITHUB_REF == refs/tags/* ]]; then
           VERSION=${GITHUB_REF#refs/tags/}
         fi
-        TAGS="${DOCKER_IMAGE}:${VERSION},${DOCKER_IMAGE}:${SHORTREF}"
+        TAGS="${DOCKER_IMAGE}:${VERSION}"
 
         # If the VERSION looks like a version number, assume that
         # this is the most recent version of the image and also
@@ -106,7 +105,7 @@ jobs:
       uses: docker/setup-buildx-action@master
 
     - name: Login to DockerHub
-      if: github.event_name != 'pull_request'
+      if: ${{ github.event_name != 'pull_request' && startsWith(github.ref, 'refs/tags/') }}
       uses: docker/login-action@v1
       with:
         username: ${{ secrets.DOCKER_USERNAME }}
@@ -119,5 +118,5 @@ jobs:
         context: .
         file: ./Dockerfile
         platforms: linux/amd64,linux/arm64,linux/arm/v7
-        push: true
+        push: ${{ startsWith(github.ref, 'refs/tags/') }}
         tags: ${{ steps.prep.outputs.tags }}
