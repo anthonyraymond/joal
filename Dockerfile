@@ -5,8 +5,8 @@ WORKDIR /build
 
 COPY . /build/
 
-RUN ls -la && mvn -B --quiet package -DskipTests=true \
-    && mkdir /artifact && ls /build/target \
+RUN mvn -B --quiet package -DskipTests=true \
+    && mkdir /artifact \
     && mv /build/target/jack-of-all-trades-*.jar /artifact/joal.jar
 
 
