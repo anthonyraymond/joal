@@ -173,17 +173,6 @@
         </dependency>
     </dependencies>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-            <id>bintray-cy6ergn0m-maven</id>
-            <name>bintray-plugins</name>
-            <url>http://dl.bintray.com/cy6ergn0m/maven</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <build>
         <plugins>
             <plugin>
@@ -199,35 +188,6 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>
-
-            <plugin>
-                <groupId>org.jacoco</groupId>
-                <artifactId>jacoco-maven-plugin</artifactId>
-                <version>${jacoco.plugin.version}</version>
-                <configuration>
-                    <excludes>
-                        <exclude>org/araymond/joal/JackOfAllTradesApplication.class</exclude>
-                        <exclude>org/araymond/joal/ApplicationReadyListener.class</exclude>
-                        <exclude>org/araymond/joal/ApplicationClosingListener.class</exclude>
-                        <exclude>org/araymond/joal/web/config/BeanConfig.class</exclude>
-                        <exclude>org/araymond/joal/web/messages/</exclude>
-                        <exclude>org/araymond/joal/web/services/corelistener/</exclude>
-                    </excludes>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>prepare-agent</id>
-                        <goals>
-                            <goal>prepare-agent</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
-                <version>${coveralls.plugin.version}</version>
             </plugin>
         </plugins>
     </build>
