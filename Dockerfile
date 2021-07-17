@@ -3,7 +3,7 @@ FROM maven:3.8.1-adoptopenjdk-11 AS build
 
 WORKDIR /build
 
-COPY src/ pom.xml /build/
+COPY src pom.xml /build/
 
 RUN ls -la && mvn -B --quiet package -DskipTests=true \
     && mkdir /artifact \
