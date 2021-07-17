@@ -66,7 +66,7 @@ jobs:
         draft: true
         token: ${{ secrets.GITHUB_TOKEN }}
 
-  docker-release:
+  docker:
     needs: test
     runs-on: ubuntu-latest
     steps:
