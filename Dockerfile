@@ -1,7 +1,7 @@
 # Builder image with jdk
 FROM maven:3.8.1-adoptopenjdk-11 AS build
 
-COPY src pom.xml .
+COPY src/ pom.xml .
 
 RUN mvn -B --quiet package -DskipTests=true \
     && mkdir /artifact \
