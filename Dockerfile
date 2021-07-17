@@ -7,7 +7,7 @@ COPY . /build/
 
 RUN ls -la && mvn -B --quiet package -DskipTests=true \
     && mkdir /artifact && ls /build/target \
-    && mv "/build/target/jack-of-all-trades-*.jar" /artifact/joal.jar
+    && mv /build/target/jack-of-all-trades-*.jar /artifact/joal.jar
 
 
 # Actual joal image with jre only
