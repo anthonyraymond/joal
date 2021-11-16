@@ -1,5 +1,5 @@
 # Builder image with jdk
-FROM maven:3.8.1-adoptopenjdk-11 AS build
+FROM maven:3.8.3-eclipse-temurin-11 AS build
 
 WORKDIR /build
 
@@ -11,7 +11,7 @@ RUN mvn -B --quiet package -DskipTests=true \
 
 
 # Actual joal image with jre only
-FROM adoptopenjdk:11.0.11_9-jre-hotspot
+FROM eclipse-temurin:11.0.13_8-jre
 
 LABEL name="joal"
 LABEL maintainer="joal.contact@gmail.com"
