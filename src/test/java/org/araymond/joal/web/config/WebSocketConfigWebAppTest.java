@@ -122,7 +122,7 @@ public class WebSocketConfigWebAppTest {
                 }).get(1000, TimeUnit.SECONDS)
         )
                 .isInstanceOf(ExecutionException.class)
-                .hasMessageContaining("The HTTP response from the server [404]");
+                .hasMessageContaining("did not permit the HTTP upgrade to WebSocket");
     }
 
     @Test
