@@ -33,8 +33,7 @@ public class ConnectionHandler {
             "http://ip.tyk.nu/",
             "http://l2.io/ip",
             "http://ident.me/",
-            "http://icanhazip.com/",
-            "http://bot.whatismyipaddress.com/"
+            "http://icanhazip.com/"
     };
 
     public ConnectionHandler() {
