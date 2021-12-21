@@ -1,6 +1,6 @@
 package org.araymond.joal.core.events.global.state;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class GlobalSeedStoppedEventTest {
 

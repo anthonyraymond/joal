@@ -2,7 +2,7 @@ package org.araymond.joal.core.ttorrent.client.utils;
 
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.DelayQueue;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.temporal.ChronoUnit;
 import java.util.List;

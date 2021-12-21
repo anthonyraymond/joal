@@ -1,7 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator.peerid;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 

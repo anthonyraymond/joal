@@ -11,7 +11,7 @@ import org.araymond.joal.core.client.emulated.BitTorrentClientConfig;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandlerTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.Files;

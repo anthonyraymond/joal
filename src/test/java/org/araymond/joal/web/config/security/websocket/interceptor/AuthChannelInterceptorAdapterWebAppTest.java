@@ -3,8 +3,7 @@ package org.araymond.joal.web.config.security.websocket.interceptor;
 import org.araymond.joal.TestConstant;
 import org.araymond.joal.web.config.WebSocketConfig;
 import org.araymond.joal.web.config.security.websocket.services.WebSocketAuthenticatorService;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,7 +28,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(
         classes = {
                 AuthChannelInterceptorAdapter.class,

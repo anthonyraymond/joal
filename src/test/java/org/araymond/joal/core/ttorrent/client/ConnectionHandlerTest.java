@@ -1,6 +1,6 @@
 package org.araymond.joal.core.ttorrent.client;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 

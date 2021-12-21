@@ -12,7 +12,7 @@ import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAcce
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponseTest;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.TrackerClient;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;

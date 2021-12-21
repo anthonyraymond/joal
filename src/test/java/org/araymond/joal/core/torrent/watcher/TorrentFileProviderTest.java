@@ -4,9 +4,9 @@ import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.utils.TorrentFileCreator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.File;
@@ -40,8 +40,8 @@ public class TorrentFileProviderTest {
         Files.createDirectory(joalFoldersPath.getTorrentFilesPath());
     }
 
-    @After
-    @Before
+    @AfterEach
+    @BeforeEach
     public void setUpAndTearDown() throws IOException {
         resetDirectories();
     }

@@ -5,7 +5,7 @@ import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityExcept
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;

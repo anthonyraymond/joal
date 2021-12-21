@@ -3,7 +3,7 @@ package org.araymond.joal.core.ttorrent.client.announcer;
 import org.apache.http.client.HttpClient;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;

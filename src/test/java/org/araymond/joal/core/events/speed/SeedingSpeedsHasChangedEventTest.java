@@ -3,7 +3,7 @@ package org.araymond.joal.core.events.speed;
 import com.google.common.collect.Maps;
 import org.araymond.joal.core.bandwith.Speed;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 

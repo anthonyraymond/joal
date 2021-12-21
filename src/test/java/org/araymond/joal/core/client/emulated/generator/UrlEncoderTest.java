@@ -1,7 +1,7 @@
 package org.araymond.joal.core.client.emulated.generator;
 
 import org.araymond.joal.core.client.emulated.utils.Casing;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

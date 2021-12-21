@@ -3,7 +3,7 @@ package org.araymond.joal.web.services;
 import org.araymond.joal.web.messages.outgoing.StompMessage;
 import org.araymond.joal.web.messages.outgoing.StompMessageTypes;
 import org.araymond.joal.web.messages.outgoing.impl.global.state.GlobalSeedStoppedPayload;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 

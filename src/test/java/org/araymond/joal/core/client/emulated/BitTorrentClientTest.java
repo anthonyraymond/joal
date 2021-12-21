@@ -16,7 +16,7 @@ import org.araymond.joal.core.exception.UnrecognizedClientPlaceholder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandlerTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 

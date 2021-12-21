@@ -5,7 +5,7 @@
 
     <groupId>org.araymond.joal</groupId>
     <artifactId>jack-of-all-trades</artifactId>
-    <version>2.1.28</version>
+    <version>2.1.29</version>
     <packaging>jar</packaging>
 
     <name>jack-of-all-trades</name>
@@ -143,12 +143,6 @@
         <dependency>
             <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <!-- Version inherited from spring-boot-starter-test -->
             <scope>test</scope>
         </dependency>
         <dependency>

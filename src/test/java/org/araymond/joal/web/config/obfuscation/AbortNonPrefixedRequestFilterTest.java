@@ -2,8 +2,7 @@ package org.araymond.joal.web.config.obfuscation;
 
 import org.apache.http.NoHttpResponseException;
 import org.araymond.joal.TestConstant;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -17,11 +16,9 @@ import org.springframework.web.client.ResourceAccessException;
 
 import javax.inject.Inject;
 
-import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(
         classes = {
                 AbortNonPrefixedRequestFilter.class,

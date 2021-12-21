@@ -3,7 +3,7 @@ package org.araymond.joal.core.torrent.torrent;
 import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.utils.TorrentFileCreator;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URI;

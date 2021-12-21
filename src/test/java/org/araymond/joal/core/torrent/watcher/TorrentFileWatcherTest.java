@@ -2,9 +2,9 @@ package org.araymond.joal.core.torrent.watcher;
 
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.araymond.joal.core.utils.TorrentFileCreator;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,8 +35,8 @@ public class TorrentFileWatcherTest {
         Files.createDirectory(torrentsPath);
     }
 
-    @After
-    @Before
+    @AfterEach
+    @BeforeEach
     public void setUpAndTearDown() throws IOException {
         resetDirectories();
     }

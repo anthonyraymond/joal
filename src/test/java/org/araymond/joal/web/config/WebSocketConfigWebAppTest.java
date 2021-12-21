@@ -1,9 +1,8 @@
 package org.araymond.joal.web.config;
 
 import org.araymond.joal.TestConstant;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -14,7 +13,6 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.stereotype.Controller;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
 
@@ -27,7 +25,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
 @SpringBootTest(
         classes = {
                 WebSocketConfig.class,
@@ -57,23 +54,34 @@ public class WebSocketConfigWebAppTest {
     @Inject
     private MessagingCallback messagingCallback;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         reset(this.messagingCallback);
     }
 
     static class MessagingCallback {
-        void global() {}
-        void announce() {}
-        void config() {}
-        void torrents() {}
-        void speed() {}
+        void global() {
+        }
+
+        void announce() {
+        }
+
+        void config() {
+        }
+
+        void torrents() {
+        }
+
+        void speed() {
+        }
     }
 
     @TestConfiguration
     public static class Dd {
         @Bean
-        public MessagingCallback callback() { return Mockito.spy(new MessagingCallback()); }
+        public MessagingCallback callback() {
+            return Mockito.spy(new MessagingCallback());
+        }
     }
 
     @Controller
@@ -81,22 +89,27 @@ public class WebSocketConfigWebAppTest {
         @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
         @Inject
         private MessagingCallback messagingCallback;
+
         @MessageMapping("/global")
         public void global() {
             messagingCallback.global();
         }
+
         @MessageMapping("/announce")
         public void announce() {
             messagingCallback.announce();
         }
+
         @MessageMapping("/config")
         public void config() {
             messagingCallback.config();
         }
+
         @MessageMapping("/torrents")
         public void torrents() {
             messagingCallback.torrents();
         }
+
         @MessageMapping("/speed")
         public void speed() {
             messagingCallback.speed();

@@ -1,7 +1,7 @@
 package org.araymond.joal.core.bandwith.weight;
 
 import org.araymond.joal.core.bandwith.Peers;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -1,7 +1,7 @@
 package org.araymond.joal.core.events.config;
 
 import com.google.common.collect.Lists;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 

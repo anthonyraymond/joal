@@ -2,7 +2,7 @@ package org.araymond.joal.core.bandwith.weight;
 
 import org.araymond.joal.core.bandwith.Peers;
 import org.assertj.core.data.Offset;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

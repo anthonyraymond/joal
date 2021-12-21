@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -50,7 +50,7 @@ public class HttpHeaderSerializationTest {
     @Test
     public void shouldSerializeAndDeserialize() throws IOException {
         final HttpHeader header = new HttpHeader("Connection", "close");
-        assertThat(mapper.readValue(mapper.writeValueAsString(header), HttpHeader.class)).isEqualToComparingFieldByField(header);
+        assertThat(mapper.readValue(mapper.writeValueAsString(header), HttpHeader.class)).usingRecursiveComparison().isEqualTo(header);
     }
 
 }

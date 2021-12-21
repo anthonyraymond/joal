@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.config.JoalConfigProviderTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.io.FileNotFoundException;
@@ -47,10 +47,11 @@ public class BitTorrentClientProviderTest {
         final BitTorrentClientProvider provider = createProvider();
 
         assertThat(provider.get())
-                .isEqualToComparingFieldByField(provider.get())
-                .isEqualToComparingFieldByField(provider.get())
-                .isEqualToComparingFieldByField(provider.get())
-                .isEqualToComparingFieldByField(provider.get());
+                .usingRecursiveComparison()
+                .isEqualTo(provider.get())
+                .isEqualTo(provider.get())
+                .isEqualTo(provider.get())
+                .isEqualTo(provider.get());
     }
 
     @Test
@@ -58,10 +59,11 @@ public class BitTorrentClientProviderTest {
         final BitTorrentClientProvider provider = createProvider();
 
         assertThat(provider.get())
-                .isEqualToComparingFieldByField(provider.get())
-                .isEqualToComparingFieldByField(provider.get())
-                .isEqualToComparingFieldByField(provider.get())
-                .isEqualToComparingFieldByField(provider.get());
+                .usingRecursiveComparison()
+                .isEqualTo(provider.get())
+                .isEqualTo(provider.get())
+                .isEqualTo(provider.get())
+                .isEqualTo(provider.get());
     }
 
     @Test

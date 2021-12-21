@@ -15,7 +15,7 @@ import org.araymond.joal.web.messages.incoming.config.ConfigIncomingMessage;
 import org.araymond.joal.web.messages.outgoing.impl.config.InvalidConfigPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
 import org.assertj.core.util.Maps;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.apache.commons.codec.binary.Base64;
 

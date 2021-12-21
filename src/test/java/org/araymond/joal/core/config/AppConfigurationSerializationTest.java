@@ -3,7 +3,7 @@ package org.araymond.joal.core.config;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
@@ -78,7 +78,7 @@ public class AppConfigurationSerializationTest {
                 AppConfiguration.class
         );
 
-        assertThat(mapper.readValue(mapper.writeValueAsString(config), AppConfiguration.class)).isEqualToComparingFieldByField(config);
+        assertThat(mapper.readValue(mapper.writeValueAsString(config), AppConfiguration.class)).usingRecursiveComparison().isEqualTo(config);
     }
 
     @Test

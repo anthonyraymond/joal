@@ -1,15 +1,13 @@
 package org.araymond.joal.web.config.security;
 
 import org.araymond.joal.web.config.security.websocket.interceptor.AuthChannelInterceptorAdapter;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@RunWith(SpringRunner.class)
 public class WebSocketAuthenticationSecurityConfigTest {
 
     @Test
