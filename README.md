@@ -129,7 +129,8 @@ Some non-supported browser might works, but they may be unsafe due to the lack o
 
 ## Community projects
 Those projects are maintained by their individual authors, if you have any question on how to use it use the corresponding repository to ask questions.
-- [Addon for Home Assistant](https://github.com/alexbelgium/hassio-addons/tree/master/joal) by [alexbelgium](https://github.com/alexbelgium) 
+- [Addon for Home Assistant](https://github.com/alexbelgium/hassio-addons/tree/master/joal) by [alexbelgium](https://github.com/alexbelgium)
+- [Ansible deployment](https://github.com/slundi/ansible-joal) by [slundi](https://github.com/slundi)
 
 
 # Thanks:
