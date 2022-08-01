@@ -35,7 +35,7 @@ shopt -s nullglob
 # Update version in all pom.xml
 mvn versions:set -DnewVersion="$release_version" -DprocessAllModules=true -DgenerateBackupPoms=false
 # create a commit that will hold the tag
-git add pom.xml ./*/pom.xml && git commit -m "Prepare release $release_version" && git push origin main
+git add pom.xml ./*/pom.xml && git commit -m "Prepare release $release_version" && git push origin master
 
 # Tag and push the tag
 git tag "$release_version"
@@ -43,7 +43,7 @@ git push --tags origin
 
 # prepare next iteration and push
 mvn versions:set -DnextSnapshot=true -DprocessAllModules=true -DgenerateBackupPoms=false
-git add pom.xml ./*/pom.xml && git commit -m "Prepare next iteration" && git push origin main
+git add pom.xml ./*/pom.xml && git commit -m "Prepare next iteration" && git push origin master
 
 shopt -u nullglob
 
