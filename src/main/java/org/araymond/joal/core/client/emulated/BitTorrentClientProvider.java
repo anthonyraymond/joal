@@ -64,14 +64,13 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
             throw new FileNotFoundException(String.format("BitTorrent client configuration file '%s' not found.", clientConfigPath.toAbsolutePath()));
         }
 
-        final BitTorrentClientConfig config;
         try {
-            config = objectMapper.readValue(clientConfigPath.toFile(), BitTorrentClientConfig.class);
+            BitTorrentClientConfig config = objectMapper.readValue(clientConfigPath.toFile(), BitTorrentClientConfig.class);
+            this.bitTorrentClient = config.createClient();
+            logger.debug("New client successfully generated.");
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
-        this.bitTorrentClient = config.createClient();
-        logger.debug("New client successfully generated.");
     }
 
     static final class SemanticVersionFilenameComparator implements Comparator<String> {

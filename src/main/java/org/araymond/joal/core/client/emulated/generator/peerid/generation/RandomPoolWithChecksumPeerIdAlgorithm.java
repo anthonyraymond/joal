@@ -68,7 +68,7 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
         // Using the current random to generate another random would be completely useless because if the SecureRandom appears to be predictable we will be able to predict the next int as well
         int randNumber = new SecureRandom(createSecureRandomSeed()).nextInt();
         randNumber = Math.abs(randNumber % 40);
-        return (randNumber + 10);
+        return randNumber + 10;
     }
 
     @VisibleForTesting

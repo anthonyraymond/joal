@@ -45,9 +45,7 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onAnnounceStopSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Notify client that a torrent has stopped.");
-        }
+        logger.debug("Notify client that a torrent has stopped.");
         this.client.onTorrentHasStopped(announcer);
     }
 
@@ -57,9 +55,7 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onTooManyAnnounceFailedInARaw(final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Notify client that a torrent has failed too many times.");
-        }
+        logger.debug("Notify client that a torrent has failed too many times.");
         this.client.onTooManyFailedInARaw(announcer);
     }
 }

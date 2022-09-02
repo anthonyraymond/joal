@@ -19,7 +19,6 @@ public class NeverRefreshKeyGenerator extends KeyGenerator {
             @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {
         super(algorithm, keyCase);
-
         this.key = generateKey();
     }
 

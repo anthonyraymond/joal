@@ -44,7 +44,7 @@ public class UrlEncoder {
      */
     public String encode(final String toBeEncoded) {
         final StringBuilder sb = new StringBuilder();
-        for(final char ch: toBeEncoded.toCharArray()) {
+        for (final char ch : toBeEncoded.toCharArray()) {
             sb.append(this.urlEncodeChar(ch));
         }
         return sb.toString();

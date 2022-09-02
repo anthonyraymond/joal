@@ -23,65 +23,49 @@ public class AnnounceEventPublisher implements AnnounceResponseHandlerChainEleme
 
     @Override
     public void onAnnouncerWillAnnounce(final Announcer announcer, final RequestEvent event) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish WillAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish WillAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new WillAnnounceEvent(announcer, event));
     }
 
     @Override
     public void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(announcer, RequestEvent.STARTED));
     }
 
     @Override
     public void onAnnounceStartFails(final Announcer announcer, final Throwable throwable) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new FailedToAnnounceEvent(announcer, RequestEvent.STARTED, throwable.getMessage()));
     }
 
     @Override
     public void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(announcer, RequestEvent.NONE));
     }
 
     @Override
     public void onAnnounceRegularFails(final Announcer announcer, final Throwable throwable) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new FailedToAnnounceEvent(announcer, RequestEvent.NONE, throwable.getMessage()));
     }
 
     @Override
     public void onAnnounceStopSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish SuccessfullyAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new SuccessfullyAnnounceEvent(announcer, RequestEvent.STOPPED));
     }
 
     @Override
     public void onAnnounceStopFails(final Announcer announcer, final Throwable throwable) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish FailedToAnnounceEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new FailedToAnnounceEvent(announcer, RequestEvent.STOPPED, throwable.getMessage()));
     }
 
     @Override
     public void onTooManyAnnounceFailedInARaw(final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-        if(logger.isDebugEnabled()) {
-            logger.debug("Publish TooManyAnnouncesFailedEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
-        }
+        logger.debug("Publish TooManyAnnouncesFailedEvent event for {}.", announcer.getTorrentInfoHash().humanReadableValue());
         this.eventPublisher.publishEvent(new TooManyAnnouncesFailedEvent(announcer));
     }
 

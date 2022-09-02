@@ -17,20 +17,16 @@ import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
-import org.slf4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import static java.util.stream.Collectors.toList;
 
 public class Client implements TorrentFileChangeAware, ClientFacade {
-    private static final Logger logger = getLogger(Client.class);
-
     private final AppConfiguration appConfiguration;
     private final TorrentFileProvider torrentFileProvider;
     private final ApplicationEventPublisher eventPublisher;
@@ -85,10 +81,10 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                 }
             }
         });
+
         for (int i = 0; i < this.appConfiguration.getSimultaneousSeed(); i++) {
             try {
                 this.lock.writeLock().lock();
-
                 this.addTorrent();
             } catch (final NoMoreTorrentsFileAvailableException ignored) {
                 break;
@@ -107,7 +103,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         final MockedTorrent torrent = this.torrentFileProvider.getTorrentNotIn(
                 this.currentlySeedingAnnouncer.stream()
                         .map(Announcer::getTorrentInfoHash)
-                        .collect(Collectors.toList())
+                        .collect(toList())
         );
         final Announcer announcer = this.announcerFactory.create(torrent);
         this.currentlySeedingAnnouncer.add(announcer);

@@ -49,10 +49,8 @@ public class BitTorrentClientConfig {
         this.numwant = numwant;
         this.numwantOnStop = numwantOnStop;
 
-        if (this.query.contains("{key}")) {
-            if (this.keyGenerator == null) {
-                throw new TorrentClientConfigIntegrityException("Query string contains {key}, but no keyGenerator was found in .client file.");
-            }
+        if (this.query.contains("{key}") && this.keyGenerator == null) {
+            throw new TorrentClientConfigIntegrityException("Query string contains {key}, but no keyGenerator was found in .client file.");
         }
     }
 

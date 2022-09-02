@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 
 /**
@@ -55,10 +56,8 @@ public class BitTorrentClient {
 
     @VisibleForTesting
     Optional<String> getKey(final InfoHash infoHash, final RequestEvent event) {
-        if (keyGenerator == null) {
-            return Optional.empty();
-        }
-        return Optional.of(keyGenerator.getKey(infoHash, event));
+        return ofNullable(keyGenerator)
+                .map(keyGen -> keyGen.getKey(infoHash, event));
     }
 
     public String getQuery() {
@@ -83,12 +82,9 @@ public class BitTorrentClient {
                 .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
                 .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
 
-        final String peerId;
-        if (this.peerIdGenerator.getShouldUrlEncoded()) {
-            peerId = urlEncoder.encode(this.getPeerId(torrentInfoHash, event));
-        } else {
-            peerId = this.getPeerId(torrentInfoHash, event);
-        }
+        final String peerId = this.peerIdGenerator.getShouldUrlEncoded()
+                ? urlEncoder.encode(this.getPeerId(torrentInfoHash, event))
+                : this.getPeerId(torrentInfoHash, event);
         emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", peerId);
 
         // set ip or ipv6 then remove placeholders that were left empty

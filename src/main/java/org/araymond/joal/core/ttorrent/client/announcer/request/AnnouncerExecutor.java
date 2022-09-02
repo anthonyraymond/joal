@@ -1,6 +1,5 @@
 package org.araymond.joal.core.ttorrent.client.announcer.request;
 
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
@@ -72,7 +71,7 @@ public class AnnouncerExecutor {
     }
 
     public List<Announcer> denyAll() {
-        final Set<InfoHash> infoHashes = Sets.newHashSet(this.currentlyRunning.keySet());
+        final Set<InfoHash> infoHashes = new HashSet<>(this.currentlyRunning.keySet());
         final List<Announcer> announcersCanceled = new ArrayList<>();
 
         for (final InfoHash infoHash: infoHashes) {

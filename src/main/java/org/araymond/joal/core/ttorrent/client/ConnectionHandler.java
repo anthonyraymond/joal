@@ -78,7 +78,7 @@ public class ConnectionHandler {
         urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
         try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), Charsets.UTF_8))) {
             return InetAddress.getByName(in.readLine());
-        }finally {
+        } finally {
             // Ensure all streams associated with http connection are closed
             final InputStream err = ((HttpURLConnection) urlConnection).getErrorStream();
             try { if (err != null) err.close(); }
@@ -125,7 +125,6 @@ public class ConnectionHandler {
 
         for (int port = ConnectionHandler.PORT_RANGE_START; port <= ConnectionHandler.PORT_RANGE_END; port++) {
             final InetSocketAddress tryAddress = new InetSocketAddress(port);
-
 
             try {
                 channel = ServerSocketChannel.open();

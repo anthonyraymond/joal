@@ -36,9 +36,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
             throw new FileNotFoundException(String.format("App configuration file '%s' not found.", joalConfPath));
         }
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("App configuration file will be searched for in {}", joalConfPath.toAbsolutePath());
-        }
+        logger.debug("App configuration file will be searched for in {}", joalConfPath.toAbsolutePath());
     }
 
     public void init() {
@@ -58,15 +56,14 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     AppConfiguration loadConfiguration() {
         final AppConfiguration configuration;
         try {
-            if (logger.isDebugEnabled()) {
-                logger.debug("Reading json configuration from '{}'.", joalConfPath.toAbsolutePath());
-            }
+            logger.debug("Reading json configuration from '{}'.", joalConfPath.toAbsolutePath());
             configuration = objectMapper.readValue(joalConfPath.toFile(), AppConfiguration.class);
             logger.debug("Successfully red json configuration.");
         } catch (final IOException e) {
             logger.error("Failed to read configuration file", e);
             throw new IllegalStateException(e);
         }
+
         logger.info("App configuration has been successfully loaded.");
         this.publisher.publishEvent(new ConfigHasBeenLoadedEvent(configuration));
         return configuration;

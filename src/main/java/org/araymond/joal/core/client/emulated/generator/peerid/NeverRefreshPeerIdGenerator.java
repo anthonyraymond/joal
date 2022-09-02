@@ -27,5 +27,4 @@ public class NeverRefreshPeerIdGenerator extends PeerIdGenerator {
     public String getPeerId(final InfoHash infoHash, final RequestEvent event) {
         return peerId;
     }
-
 }

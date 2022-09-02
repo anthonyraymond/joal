@@ -26,7 +26,7 @@ public class TrackerResponseHandler implements ResponseHandler<TrackerMessage> {
         }
 
         final int contentLength = entity.getContentLength() < 1 ? 1024 : (int) entity.getContentLength();
-        try(final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(contentLength)) {
+        try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(contentLength)) {
             if (response.getStatusLine().getStatusCode() >= 300) {
                 logger.warn("Tracker response is an error.");
             }

@@ -42,7 +42,7 @@ public class Announcer implements AnnouncerFacade {
     }
 
     private TrackerClient buildTrackerClient(final MockedTorrent torrent, HttpClient httpClient) {
-        final List<URI> trackerURIs = torrent.getAnnounceList().stream() // Use a list to keep it ordered
+        final List<URI> trackerURIs = torrent.getAnnounceList().stream()  // Use a list to keep it ordered
                 .sequential()
                 .flatMap(Collection::stream)
                 .collect(Collectors.toList());

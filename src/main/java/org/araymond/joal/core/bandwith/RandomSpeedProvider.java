@@ -10,14 +10,13 @@ public class RandomSpeedProvider {
 
     public RandomSpeedProvider(final AppConfiguration appConfiguration) {
         this.appConfiguration = appConfiguration;
-
         this.refresh();
     }
 
     public void refresh() {
-        final Long minUploadRateInBytes = appConfiguration.getMinUploadRate() * 1000L;
-        final Long maxUploadRateInBytes = appConfiguration.getMaxUploadRate() * 1000L;
-        this.currentSpeed = (minUploadRateInBytes.equals(maxUploadRateInBytes))
+        final long minUploadRateInBytes = appConfiguration.getMinUploadRate() * 1000L;
+        final long maxUploadRateInBytes = appConfiguration.getMaxUploadRate() * 1000L;
+        this.currentSpeed = (minUploadRateInBytes == maxUploadRateInBytes)
                 ? maxUploadRateInBytes
                 : ThreadLocalRandom.current().nextLong(minUploadRateInBytes, maxUploadRateInBytes);
     }

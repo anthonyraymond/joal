@@ -37,7 +37,7 @@ public class JacksonConfig {
     /**
      * Forces the timezone to be added to every LocalDateTime
      */
-    public  static final class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
+    public static final class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
         @Override
         public void serialize(final LocalDateTime value, final JsonGenerator gen, final SerializerProvider serializers) throws IOException {
             final ZonedDateTime zonedDateTime = value.atZone(ZoneId.systemDefault());

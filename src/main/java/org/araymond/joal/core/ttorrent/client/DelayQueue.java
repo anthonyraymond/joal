@@ -89,7 +89,6 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
             return item;
         }
 
-        @SuppressWarnings("NullableProblems")
         @Override
         public int compareTo(final IntervalAware o) {
             return this.releaseAt.compareTo(o.releaseAt);

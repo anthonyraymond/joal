@@ -7,8 +7,8 @@ import org.araymond.joal.core.torrent.torrent.MockedTorrent;
  */
 public interface TorrentFileChangeAware {
 
-    void onTorrentFileAdded(final MockedTorrent torrent);
+    void onTorrentFileAdded(MockedTorrent torrent);
 
-    void onTorrentFileRemoved(final MockedTorrent torrent);
+    void onTorrentFileRemoved(MockedTorrent torrent);
 
 }

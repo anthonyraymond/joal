@@ -73,8 +73,7 @@ public class TrackerClient {
         final AnnounceResponseMessage announceResponseMessage = (AnnounceResponseMessage) responseMessage;
 
         final int interval = announceResponseMessage.getInterval();
-        // Subtract one to seeders since we are one of them.
-        final int seeders = announceResponseMessage.getComplete() == 0 ? 0 : announceResponseMessage.getComplete() - 1;
+        final int seeders = announceResponseMessage.getComplete() == 0 ? 0 : announceResponseMessage.getComplete() - 1;  // Subtract one to seeders since we are one of them
         final int leechers = announceResponseMessage.getIncomplete();
         return new SuccessAnnounceResponse(interval, seeders, leechers);
     }

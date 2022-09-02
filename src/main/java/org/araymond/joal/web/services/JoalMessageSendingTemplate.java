@@ -20,9 +20,9 @@ public class JoalMessageSendingTemplate {
         this.messageSendingOperations = messageSendingOperations;
     }
 
-    public void convertAndSend(final String s, final MessagePayload payload) throws MessagingException {
+    public void convertAndSend(final String destination, final MessagePayload payload) throws MessagingException {
         final StompMessage stompMessage = StompMessage.wrap(payload);
-        messageSendingOperations.convertAndSend(s, stompMessage);
+        messageSendingOperations.convertAndSend(destination, stompMessage);
     }
 
 }

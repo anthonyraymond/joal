@@ -20,6 +20,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
+
 /**
  * Created by raymo on 28/01/2017.
  */
@@ -29,7 +31,6 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles;
     private final Set<TorrentFileChangeAware> torrentFileChangeListener;
-    private final Path torrentFolder;
     private final Path archiveFolder;
 
     @VisibleForTesting
@@ -55,7 +56,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     }
 
     public TorrentFileProvider(final SeedManager.JoalFoldersPath joalFoldersPath) throws FileNotFoundException {
-        this.torrentFolder = joalFoldersPath.getTorrentFilesPath();
+        Path torrentFolder = joalFoldersPath.getTorrentFilesPath();
         if (!Files.exists(torrentFolder)) {
             logger.error("Folder " + torrentFolder.toAbsolutePath() + " does not exists.");
             throw new FileNotFoundException(String.format("Torrent folder '%s' not found.", torrentFolder.toAbsolutePath()));
@@ -69,18 +70,11 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     @Override
     public void onFileDelete(final File file) {
-        if (!this.torrentFiles.containsKey(file)) {
-            return;
-        }
-
-        final MockedTorrent torrent = this.torrentFiles.get(file);
-        if (torrent == null) {
-            return;
-        }
-
-        logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
-        this.torrentFiles.remove(file);
-        this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileRemoved(torrent));
+        ofNullable(this.torrentFiles.remove(file))
+                .ifPresent(removedTorrent -> {
+                    logger.info("Torrent file deleting detected, hot deleted file: {}", file.getAbsolutePath());
+                    this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileRemoved(removedTorrent));
+                });
     }
 
     @Override
@@ -144,15 +138,12 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     }
 
     public void moveToArchiveFolder(final InfoHash infoHash) {
-        final Optional<File> first = this.torrentFiles.entrySet().stream()
+        this.torrentFiles.entrySet().stream()
                 .filter(entry -> entry.getValue().getTorrentInfoHash().equals(infoHash))
                 .map(Map.Entry::getKey)
-                .findFirst();
-        if (first.isPresent()) {
-            this.moveToArchiveFolder(first.get());
-        } else {
-            logger.warn("Cannot move torrent {} to archive folder. Torrent file seems not to be registered in TorrentFileProvider.", infoHash);
-        }
+                .findAny()
+                .ifPresentOrElse(this::moveToArchiveFolder,
+                        () -> logger.warn("Cannot move torrent {} to archive folder. Torrent file seems not to be registered in TorrentFileProvider.", infoHash));
     }
 
     public int getTorrentCount() {

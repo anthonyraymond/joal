@@ -1,7 +1,6 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -38,10 +37,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -168,17 +164,11 @@ public class SeedManager {
     }
 
     public List<AnnouncerFacade> getCurrentlySeedingAnnouncer() {
-        if (this.client == null) {
-            return new ArrayList<>();
-        }
-        return client.getCurrentlySeedingAnnouncer();
+        return this.client == null ? new ArrayList<>() : client.getCurrentlySeedingAnnouncer();
     }
 
     public Map<InfoHash, Speed> getSpeedMap() {
-        if (this.bandwidthDispatcher == null) {
-            return Maps.newHashMap();
-        }
-        return bandwidthDispatcher.getSpeedMap();
+        return this.bandwidthDispatcher == null ? new HashMap<>() : bandwidthDispatcher.getSpeedMap();
     }
 
     public AppConfiguration getCurrentConfig() {

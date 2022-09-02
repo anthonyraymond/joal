@@ -1,7 +1,6 @@
 package org.araymond.joal.core.ttorrent.client.announcer.tracker;
 
 import com.google.common.collect.Iterators;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
@@ -9,8 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class TrackerClientUriProvider {
-    private static final Logger logger = LoggerFactory.getLogger(TrackerClientUriProvider.class);
-
     private final Iterator<URI> addressIterator;
     private URI currentURI = null;
 

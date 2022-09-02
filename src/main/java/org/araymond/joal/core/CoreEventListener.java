@@ -24,7 +24,6 @@ public class CoreEventListener {
     public CoreEventListener() {
     }
 
-
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
