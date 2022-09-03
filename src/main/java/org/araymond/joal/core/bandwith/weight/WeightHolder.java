@@ -13,7 +13,7 @@ public class WeightHolder<E> {
 
     private final Lock lock;
     private final PeersAwareWeightCalculator weightCalculator;
-    private final Map<E, Weight> weightMap;
+    private final Map<E, Double> weightMap;
     private double totalWeight;
 
     public WeightHolder(final PeersAwareWeightCalculator weightCalculator) {
@@ -26,8 +26,8 @@ public class WeightHolder<E> {
         final double weight = this.weightCalculator.calculate(peers);
         lock.lock();
         try {
-            ofNullable(this.weightMap.put(item, new Weight(weight))).ifPresentOrElse(
-                    previousWeight -> this.totalWeight = this.totalWeight - previousWeight.getWeight() + weight,
+            ofNullable(this.weightMap.put(item, weight)).ifPresentOrElse(
+                    previousWeight -> this.totalWeight = this.totalWeight - previousWeight + weight,
                     () -> this.totalWeight += weight);
         } finally {
             lock.unlock();
@@ -38,7 +38,7 @@ public class WeightHolder<E> {
         lock.lock();
         try {
             ofNullable(this.weightMap.remove(item))
-                    .ifPresent(w -> this.totalWeight -= w.getWeight());
+                    .ifPresent(w -> this.totalWeight -= w);
         } finally {
             lock.unlock();
         }
@@ -52,26 +52,10 @@ public class WeightHolder<E> {
      */
     public double getWeightFor(final E item) {
         return ofNullable(weightMap.get(item))
-                .map(Weight::getWeight)
                 .orElse(0.0);
     }
 
     public double getTotalWeight() {
         return totalWeight;
-    }
-
-    /**
-     * Wrap double to prevent unboxing
-     */
-    private static final class Weight {
-        private final double weight;
-
-        private Weight(final double weight) {
-            this.weight = weight;
-        }
-
-        double getWeight() {
-            return weight;
-        }
     }
 }
