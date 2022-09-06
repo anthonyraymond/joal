@@ -214,7 +214,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     public List<AnnouncerFacade> getCurrentlySeedingAnnouncer() {
         try {
             this.lock.readLock().lock();
-            return Lists.newArrayList(this.currentlySeedingAnnouncer);
+            return new ArrayList<>(this.currentlySeedingAnnouncer);
         } finally {
             this.lock.readLock().unlock();
         }

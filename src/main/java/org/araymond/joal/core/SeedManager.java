@@ -41,7 +41,8 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Created by raymo on 27/01/2017.
+ * This is the outer boundary of our the business logic. Most (if not all)
+ * torrent-related handling is happening here & downstream.
  */
 public class SeedManager {
 
@@ -57,21 +58,7 @@ public class SeedManager {
     private BandwidthDispatcher bandwidthDispatcher;
     private ClientFacade client;
 
-    public void init() throws IOException {
-        this.connectionHandler.start();
-        this.torrentFileProvider.start();
-    }
-
-    public void tearDown() {
-        this.connectionHandler.close();
-        this.torrentFileProvider.stop();
-        if (this.client != null) {
-            this.client.stop();
-        }
-    }
-
     public SeedManager(final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
-        this.isSeeding = false;
         this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
         this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, publisher);
@@ -79,9 +66,8 @@ public class SeedManager {
         this.publisher = publisher;
         this.connectionHandler = new ConnectionHandler();
 
-
         final SocketConfig sc = SocketConfig.custom()
-                .setSoTimeout(30000)
+                .setSoTimeout(30_000)
                 .build();
         final PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
         connManager.setDefaultMaxPerRoute(100);
@@ -93,6 +79,19 @@ public class SeedManager {
                 .setConnectionManager(connManager)
                 .setConnectionManagerShared(true)
                 .build();
+    }
+
+    public void init() throws IOException {
+        this.connectionHandler.start();
+        this.torrentFileProvider.start();
+    }
+
+    public void tearDown() {
+        this.connectionHandler.close();
+        this.torrentFileProvider.stop();
+        if (this.client != null) {
+            this.client.stop();
+        }
     }
 
     public void startSeeding() throws IOException {
@@ -213,20 +212,23 @@ public class SeedManager {
         private final Path torrentArchivedPath;
         private final Path clientsFilesPath;
 
+        /**
+         * Resolves, stores & exposes location to various configuration file-paths.
+         */
         public JoalFoldersPath(final Path confPath) {
             this.confPath = confPath;
             this.torrentFilesPath = this.confPath.resolve("torrents");
             this.torrentArchivedPath = this.torrentFilesPath.resolve("archived");
             this.clientsFilesPath = this.confPath.resolve("clients");
 
-            if (!Files.exists(confPath)) {
-                logger.warn("No such directory: {}", this.confPath.toString());
+            if (!Files.isDirectory(confPath)) {
+                logger.warn("No such directory: {}", this.confPath);
             }
-            if (!Files.exists(torrentFilesPath)) {
-                logger.warn("Sub-folder 'torrents' is missing in joal conf folder: {}", this.torrentFilesPath.toString());
+            if (!Files.isDirectory(torrentFilesPath)) {
+                logger.warn("Sub-folder 'torrents' is missing in joal conf folder: {}", this.torrentFilesPath);
             }
-            if (!Files.exists(clientsFilesPath)) {
-                logger.warn("Sub-folder 'clients' is missing in joal conf folder: {}", this.clientsFilesPath.toString());
+            if (!Files.isDirectory(clientsFilesPath)) {
+                logger.warn("Sub-folder 'clients' is missing in joal conf folder: {}", this.clientsFilesPath);
             }
         }
 

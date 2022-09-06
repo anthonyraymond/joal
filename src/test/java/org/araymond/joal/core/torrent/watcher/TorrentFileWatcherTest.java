@@ -59,21 +59,21 @@ public class TorrentFileWatcherTest {
     public void shouldNotBuildWithNonExistingMonitoredFolder() {
         assertThatThrownBy(() -> new TorrentFileWatcher(new FileAlterationListenerAdaptor(), torrentsPath.resolve("nop")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Folder '" + torrentsPath.resolve("nop").toAbsolutePath() + "' does not exists.");
+                .hasMessageContaining("Folder [" + torrentsPath.resolve("nop").toAbsolutePath() + "] does not exists.");
     }
 
     @Test
     public void shouldNotBuildWithNullInterval() {
         assertThatThrownBy(() -> new TorrentFileWatcher(new FileAlterationListenerAdaptor(), torrentsPath, null))
                 .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("interval cannot be null");
+                .hasMessageContaining("intervalMs cannot be null");
     }
 
     @Test
     public void shouldNotBuildWithIntervalLessThan1() {
         assertThatThrownBy(() -> new TorrentFileWatcher(new FileAlterationListenerAdaptor(), torrentsPath, 0))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("interval cannot be less than 1");
+                .hasMessageContaining("intervalMs cannot be less than 1");
     }
 
     @Test

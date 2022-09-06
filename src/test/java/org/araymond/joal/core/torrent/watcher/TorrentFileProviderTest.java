@@ -50,8 +50,7 @@ public class TorrentFileProviderTest {
     public void shouldNotBuildIfFolderDoesNotExists() {
         assertThatThrownBy(() -> new TorrentFileProvider(new SeedManager.JoalFoldersPath(Paths.get("nop"))))
                 .isInstanceOf(FileNotFoundException.class)
-                .hasMessageStartingWith("Torrent folder '")
-                .hasMessageEndingWith("' not found.");
+                .hasMessageMatching("^Torrent folder \\[.*] not found$");
     }
 
     @Test

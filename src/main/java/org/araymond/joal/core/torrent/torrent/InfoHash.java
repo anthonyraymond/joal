@@ -2,6 +2,7 @@ package org.araymond.joal.core.torrent.torrent;
 
 import com.google.common.base.Objects;
 
+// TODO: add @ToString
 public class InfoHash {
     private final String infoHash;
     private final String humanReadable;

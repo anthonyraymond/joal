@@ -32,11 +32,11 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         this.publisher = publisher;
 
         this.joalConfPath = joalFoldersPath.getConfPath().resolve(CONF_FILE_NAME);
-        if (!Files.exists(joalConfPath)) {
-            throw new FileNotFoundException(String.format("App configuration file '%s' not found.", joalConfPath));
+        if (!Files.isRegularFile(joalConfPath)) {
+            throw new FileNotFoundException(String.format("App configuration file [%s] not found", joalConfPath));
         }
 
-        logger.debug("App configuration file will be searched for in {}", joalConfPath.toAbsolutePath());
+        logger.debug("App configuration file will be searched for in [{}]", joalConfPath.toAbsolutePath());
     }
 
     public void init() {
@@ -46,8 +46,8 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     @Override
     public AppConfiguration get() {
         if (this.config == null) {
-            logger.error("App configuration has not been loaded yet.");
-            throw new IllegalStateException("Attempted to get configuration before init.");
+            logger.error("App configuration has not been loaded yet");
+            throw new IllegalStateException("Attempted to get configuration before init");
         }
         return this.config;
     }
@@ -56,15 +56,15 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     AppConfiguration loadConfiguration() {
         final AppConfiguration configuration;
         try {
-            logger.debug("Reading json configuration from '{}'.", joalConfPath.toAbsolutePath());
+            logger.debug("Reading json configuration from [{}]", joalConfPath.toAbsolutePath());
             configuration = objectMapper.readValue(joalConfPath.toFile(), AppConfiguration.class);
-            logger.debug("Successfully red json configuration.");
+            logger.debug("Successfully read json configuration");
         } catch (final IOException e) {
             logger.error("Failed to read configuration file", e);
             throw new IllegalStateException(e);
         }
 
-        logger.info("App configuration has been successfully loaded.");
+        logger.info("App configuration has been successfully loaded");
         this.publisher.publishEvent(new ConfigHasBeenLoadedEvent(configuration));
         return configuration;
     }
@@ -78,5 +78,4 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
             throw new IllegalStateException(e);
         }
     }
-
 }

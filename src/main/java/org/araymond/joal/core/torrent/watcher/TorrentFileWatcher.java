@@ -16,12 +16,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
+ * Hooks up a directory listener to detect torrent file additions,
+ * deletions, changes.
+ *
  * Created by raymo on 01/05/2017.
  */
 class TorrentFileWatcher {
     private static final Logger logger = LoggerFactory.getLogger(TorrentFileWatcher.class);
     // TODO : get back to a bigger value as soon as https://issues.apache.org/jira/browse/IO-535 is fixed
-    private static final Integer DEFAULT_SCAN_INTERVAL = 2 * 1000;
+    private static final Integer DEFAULT_SCAN_INTERVAL_MS = 2 * 1000;
     private static final IOFileFilter TORRENT_FILE_FILTER = FileFilterUtils.suffixFileFilter(".torrent");
 
     private final FileAlterationObserver observer;
@@ -30,23 +33,24 @@ class TorrentFileWatcher {
     private final FileAlterationMonitor monitor;
 
     TorrentFileWatcher(final FileAlterationListener listener, final Path monitoredFolder) {
-        this(listener, monitoredFolder, DEFAULT_SCAN_INTERVAL);
+        this(listener, monitoredFolder, DEFAULT_SCAN_INTERVAL_MS);
     }
 
-    TorrentFileWatcher(final FileAlterationListener listener, final Path monitoredFolder, final Integer interval) {
+    TorrentFileWatcher(final FileAlterationListener listener, final Path monitoredFolder, final Integer intervalMs) {
         Preconditions.checkNotNull(listener, "listener cannot be null");
         Preconditions.checkNotNull(monitoredFolder, "monitoredFolder cannot be null");
-        Preconditions.checkArgument(Files.exists(monitoredFolder), "Folder '" + monitoredFolder.toAbsolutePath() + "' does not exists.");
-        Preconditions.checkNotNull(interval, "interval cannot be null");
-        Preconditions.checkArgument(interval > 0, "interval cannot be less than 1");
+        Preconditions.checkArgument(Files.exists(monitoredFolder), "Folder [" + monitoredFolder.toAbsolutePath() + "] does not exists.");
+        Preconditions.checkNotNull(intervalMs, "intervalMs cannot be null");
+        Preconditions.checkArgument(intervalMs > 0, "intervalMs cannot be less than 1");
         this.listener = listener;
-        this.monitoredFolder = monitoredFolder.toFile();
-        this.monitor = new FileAlterationMonitor(interval);
-        this.monitor.setThreadFactory(new ThreadFactoryBuilder().setNameFormat("torrent-file-watcher-%d").build());
-        this.observer = new FileAlterationObserver(this.monitoredFolder, TORRENT_FILE_FILTER);
 
+        this.monitoredFolder = monitoredFolder.toFile();
+        this.observer = new FileAlterationObserver(this.monitoredFolder, TORRENT_FILE_FILTER);
         this.observer.addListener(this.listener);
-        monitor.addObserver(this.observer);
+
+        this.monitor = new FileAlterationMonitor(intervalMs);
+        this.monitor.setThreadFactory(new ThreadFactoryBuilder().setNameFormat("torrent-file-watcher-%d").build());
+        this.monitor.addObserver(this.observer);
     }
 
     void start() {
@@ -54,21 +58,21 @@ class TorrentFileWatcher {
             this.monitor.start();
             // Trigger event for already present file
             FileUtils.listFiles(this.monitoredFolder, TorrentFileWatcher.TORRENT_FILE_FILTER, null)
-                    .forEach(listener::onFileCreate);
+                    .forEach(this.listener::onFileCreate);
         } catch (final Exception e) {
-            logger.error("Failed to start torrent file monitoring.", e);
-            throw new IllegalStateException("Failed to start torrent file monitoring.", e);
+            logger.error("Failed to start torrent file monitoring", e);
+            throw new IllegalStateException("Failed to start torrent file monitoring", e);
         }
     }
 
     void stop() {
-        logger.trace("Stopping TorrentFileProvider.");
+        logger.trace("Stopping TorrentFileProvider");
         this.observer.getListeners().forEach(observer::removeListener);
         try {
             this.monitor.stop(10);
         } catch (final Exception ignored) {
         }
-        logger.trace("TorrentFileProvider stopped.");
-    }
 
+        logger.trace("TorrentFileProvider stopped");
+    }
 }

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.util.Optional.ofNullable;
@@ -25,13 +26,16 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats;
     private final Map<InfoHash, Speed> speedMap;
     private SpeedChangedListener speedChangedListener;
-    private final int threadPauseInterval;
+    private final int threadPauseIntervalMs;
     private int threadLoopCounter;
     private volatile boolean stop;
     private Thread thread;
 
-    public BandwidthDispatcher(final int threadPauseInterval, final RandomSpeedProvider randomSpeedProvider) {
-        this.threadPauseInterval = threadPauseInterval;
+    private static final long TWENTY_MINS_MS = TimeUnit.MINUTES.toMillis(20);
+
+
+    public BandwidthDispatcher(final int threadPauseIntervalMs, final RandomSpeedProvider randomSpeedProvider) {
+        this.threadPauseIntervalMs = threadPauseIntervalMs;
         this.torrentsSeedStats = new HashMap<>();
         this.speedMap = new HashMap<>();
         this.lock = new ReentrantReadWriteLock();
@@ -81,10 +85,11 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     public void run() {
         try {
             while (!this.stop) {
-                Thread.sleep(this.threadPauseInterval);
+                Thread.sleep(this.threadPauseIntervalMs);
                 ++this.threadLoopCounter;
-                // refresh bandwidth every 1200000 milliseconds (20 minutes)
-                if (this.threadLoopCounter == 1200000 / this.threadPauseInterval) {
+
+                // refresh bandwidth every 20 minutes:
+                if (this.threadLoopCounter == TWENTY_MINS_MS / this.threadPauseIntervalMs) {
                     this.refreshCurrentBandwidth();
                     this.threadLoopCounter = 0;
                 }
@@ -102,7 +107,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                             .orElse(0L);
                     // Divide by 1000 because of the thread pause interval being in milliseconds
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
-                    entry.getValue().addUploaded((speedInBytesPerSecond * this.threadPauseInterval) / 1000);
+                    entry.getValue().addUploaded((speedInBytesPerSecond * this.threadPauseIntervalMs) / 1000);
                 }
             }
         } catch (final InterruptedException ignore) {

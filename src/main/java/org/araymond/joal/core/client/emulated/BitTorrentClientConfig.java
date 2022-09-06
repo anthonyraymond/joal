@@ -55,6 +55,7 @@ public class BitTorrentClientConfig {
     }
 
     @VisibleForTesting
+    // TODO: this method should be in BitTorrentClientProvider
     public BitTorrentClient createClient() {
         return new BitTorrentClient(
                 this.peerIdGenerator,

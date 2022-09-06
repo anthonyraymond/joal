@@ -96,7 +96,7 @@ public class ConnectionHandler {
             try {
                 return Optional.of(this.readIpFromProvider(ipProvider));
             } catch (final IOException e) {
-                logger.warn("Failed to fetch Ip from \"" + ipProvider + "\"", e);
+                logger.warn("Failed to fetch Ip from [" + ipProvider + "]", e);
             }
         }
 

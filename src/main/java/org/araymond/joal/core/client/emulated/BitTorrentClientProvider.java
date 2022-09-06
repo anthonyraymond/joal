@@ -14,10 +14,14 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.util.stream.Collectors.toList;
+
 /**
+ * Provides as with an instance of {@link BitTorrentClient}, based on the
+ * configured {@code client}.
+ *
  * Created by raymo on 23/04/2017.
  */
 public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
@@ -39,7 +43,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
             return paths.filter(p -> p.toString().endsWith(".client"))
                     .map(p -> p.getFileName().toString())
                     .sorted(new SemanticVersionFilenameComparator())
-                    .collect(Collectors.toList());
+                    .collect(toList());
         } catch (final IOException e) {
             throw new IllegalStateException("Failed to walk through .clients files", e);
         }
@@ -60,14 +64,14 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     public void generateNewClient() throws FileNotFoundException, IllegalStateException {
         logger.debug("Generating new client.");
         final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClientFileName());
-        if (!Files.exists(clientConfigPath)) {
-            throw new FileNotFoundException(String.format("BitTorrent client configuration file '%s' not found.", clientConfigPath.toAbsolutePath()));
+        if (!Files.isRegularFile(clientConfigPath)) {
+            throw new FileNotFoundException(String.format("BitTorrent client configuration file [%s] not found", clientConfigPath.toAbsolutePath()));
         }
 
         try {
             BitTorrentClientConfig config = objectMapper.readValue(clientConfigPath.toFile(), BitTorrentClientConfig.class);
             this.bitTorrentClient = config.createClient();
-            logger.debug("New client successfully generated.");
+            logger.debug("New client successfully generated");
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
