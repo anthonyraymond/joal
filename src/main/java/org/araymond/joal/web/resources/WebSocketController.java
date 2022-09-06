@@ -1,6 +1,7 @@
 package org.araymond.joal.web.resources;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.binary.Base64;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.bandwith.Speed;
@@ -25,8 +26,6 @@ import org.araymond.joal.web.messages.outgoing.impl.global.state.GlobalSeedStart
 import org.araymond.joal.web.messages.outgoing.impl.global.state.GlobalSeedStoppedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.speed.SeedingSpeedHasChangedPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.annotation.SubscribeMapping;
 import org.springframework.stereotype.Controller;
@@ -42,9 +41,8 @@ import java.util.Map;
  */
 @ConditionalOnWebUi
 @Controller
+@Slf4j
 public class WebSocketController {
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketController.class);
-
     private final SeedManager seedManager;
     private final JoalMessageSendingTemplate messageSendingTemplate;
 
@@ -64,14 +62,14 @@ public class WebSocketController {
 
     @MessageMapping("/config/save")
     public void saveNewConf(final ConfigIncomingMessage message) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Client ask to save new conf {}", message.toString());
+        if (log.isDebugEnabled()) {
+            log.debug("Client ask to save new conf {}", message.toString());
         }
 
         try {
             seedManager.saveNewConfiguration(message.toAppConfiguration());
         } catch (final Exception e) {
-            logger.warn("Failed to save conf {}", message.toString(), e);
+            log.warn("Failed to save conf {}", message.toString(), e);
             messageSendingTemplate.convertAndSend("/config", new InvalidConfigPayload(e));
         }
     }

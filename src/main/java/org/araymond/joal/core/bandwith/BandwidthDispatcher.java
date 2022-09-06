@@ -1,11 +1,11 @@
 package org.araymond.joal.core.bandwith;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.araymond.joal.core.bandwith.weight.PeersAwareWeightCalculator;
 import org.araymond.joal.core.bandwith.weight.WeightHolder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
-import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -16,10 +16,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.ObjectUtils.getIfNull;
-import static org.slf4j.LoggerFactory.getLogger;
 
+@Slf4j
 public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable {
-    private static final Logger logger = getLogger(BandwidthDispatcher.class);
     private final ReentrantReadWriteLock lock;
     private final WeightHolder<InfoHash> weightHolder;
     private final RandomSpeedProvider randomSpeedProvider;
@@ -115,7 +114,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void updateTorrentPeers(final InfoHash infoHash, final int seeders, final int leechers) {
-        logger.debug("Updating Peers stats for {}", infoHash.getHumanReadable());
+        log.debug("Updating Peers stats for {}", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.weightHolder.addOrUpdate(infoHash, new Peers(seeders, leechers));
@@ -126,7 +125,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void registerTorrent(final InfoHash infoHash) {
-        logger.debug("{} has been added to bandwidth dispatcher.", infoHash.getHumanReadable());
+        log.debug("{} has been added to bandwidth dispatcher.", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.torrentsSeedStats.put(infoHash, new TorrentSeedStats());
@@ -137,7 +136,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void unregisterTorrent(final InfoHash infoHash) {
-        logger.debug("{} has been removed from bandwidth dispatcher.", infoHash.getHumanReadable());
+        log.debug("{} has been removed from bandwidth dispatcher.", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.weightHolder.remove(infoHash);
@@ -151,13 +150,13 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
 
     @VisibleForTesting
     void refreshCurrentBandwidth() {
-        logger.debug("Refreshing global bandwidth");
+        log.debug("Refreshing global bandwidth");
         this.lock.writeLock().lock();
         try {
             this.randomSpeedProvider.refresh();
             this.recomputeSpeeds();
-            if (logger.isDebugEnabled()) {
-                logger.debug("Global bandwidth refreshed, new value is {}", FileUtils.byteCountToDisplaySize(this.randomSpeedProvider.getCurrentSpeed()));
+            if (log.isDebugEnabled()) {
+                log.debug("Global bandwidth refreshed, new value is {}", FileUtils.byteCountToDisplaySize(this.randomSpeedProvider.getCurrentSpeed()));
             }
         } finally {
             this.lock.writeLock().unlock();
@@ -166,7 +165,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
 
     @VisibleForTesting
     void recomputeSpeeds() {
-        logger.debug("Refreshing all torrents speeds");
+        log.debug("Refreshing all torrents speeds");
         for (final InfoHash infohash : this.torrentsSeedStats.keySet()) {
             this.speedMap.compute(infohash, (hash, speed) -> {
                 if (speed == null) {
@@ -186,7 +185,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         }
 
         try {
-            if (logger.isDebugEnabled()) {
+            if (log.isDebugEnabled()) {
                 final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
                 final double totalWeight = this.weightHolder.getTotalWeight();
                 this.speedMap.forEach((infoHash, speed) -> {
@@ -204,10 +203,10 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                             .append("\n");
                 });
                 sb.setLength(sb.length() - 1); // remove last \n
-                logger.debug(sb.toString());
+                log.debug(sb.toString());
             }
         } catch (final Exception e) {
-            logger.debug("Error while printing debug message for speed.", e);
+            log.debug("Error while printing debug message for speed.", e);
         }
     }
 

@@ -3,19 +3,17 @@ package org.araymond.joal.core.ttorrent.client.announcer.request;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.response.AnnounceResponseCallback;
-import org.slf4j.Logger;
 
 import java.util.*;
 import java.util.concurrent.*;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+@Slf4j
 public class AnnouncerExecutor {
-    private static final Logger logger = getLogger(AnnouncerExecutor.class);
 
     private final AnnounceResponseCallback announceResponseCallback;
     private final ThreadPoolExecutor executorService;
@@ -93,7 +91,7 @@ public class AnnouncerExecutor {
         try {
             this.executorService.awaitTermination(10, TimeUnit.SECONDS);
         } catch (final InterruptedException e) {
-            logger.warn("AnnouncerExecutor has ended with timeout, some torrents was still trying to announce after 10s", e);
+            log.warn("AnnouncerExecutor has ended with timeout, some torrents was still trying to announce after 10s", e);
         }
     }
 

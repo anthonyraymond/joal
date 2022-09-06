@@ -2,12 +2,11 @@ package org.araymond.joal.core.client.emulated;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableList;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.config.JoalConfigProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
@@ -26,9 +25,8 @@ import static java.util.stream.Collectors.toList;
  *
  * Created by raymo on 23/04/2017.
  */
+@Slf4j
 public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
-    private static final Logger logger = LoggerFactory.getLogger(BitTorrentClientProvider.class);
-
     private BitTorrentClient bitTorrentClient;
     private final JoalConfigProvider configProvider;
     private final ObjectMapper objectMapper;
@@ -64,7 +62,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     }
 
     public void generateNewClient() throws FileNotFoundException, IllegalStateException {
-        logger.debug("Generating new client.");
+        log.debug("Generating new client.");
         final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClient());
         if (!Files.isRegularFile(clientConfigPath)) {
             throw new FileNotFoundException(String.format("BitTorrent client configuration file [%s] not found", clientConfigPath.toAbsolutePath()));
@@ -73,7 +71,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
         try {
             BitTorrentClientConfig config = objectMapper.readValue(clientConfigPath.toFile(), BitTorrentClientConfig.class);
             this.bitTorrentClient = createClient(config);
-            logger.debug("New client successfully generated");
+            log.debug("New client successfully generated");
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }

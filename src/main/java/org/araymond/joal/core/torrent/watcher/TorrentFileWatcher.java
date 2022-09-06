@@ -2,14 +2,13 @@ package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -21,8 +20,8 @@ import java.nio.file.Path;
  *
  * Created by raymo on 01/05/2017.
  */
+@Slf4j
 class TorrentFileWatcher {
-    private static final Logger logger = LoggerFactory.getLogger(TorrentFileWatcher.class);
     // TODO : get back to a bigger value as soon as https://issues.apache.org/jira/browse/IO-535 is fixed
     private static final Integer DEFAULT_SCAN_INTERVAL_MS = 2 * 1000;
     private static final IOFileFilter TORRENT_FILE_FILTER = FileFilterUtils.suffixFileFilter(".torrent");
@@ -60,19 +59,19 @@ class TorrentFileWatcher {
             FileUtils.listFiles(this.monitoredFolder, TorrentFileWatcher.TORRENT_FILE_FILTER, null)
                     .forEach(this.listener::onFileCreate);
         } catch (final Exception e) {
-            logger.error("Failed to start torrent file monitoring", e);
+            log.error("Failed to start torrent file monitoring", e);
             throw new IllegalStateException("Failed to start torrent file monitoring", e);
         }
     }
 
     void stop() {
-        logger.trace("Stopping TorrentFileProvider");
+        log.trace("Stopping TorrentFileProvider");
         this.observer.getListeners().forEach(observer::removeListener);
         try {
             this.monitor.stop(10);
         } catch (final Exception ignored) {
         }
 
-        logger.trace("TorrentFileProvider stopped");
+        log.trace("TorrentFileProvider stopped");
     }
 }

@@ -1,5 +1,6 @@
 package org.araymond.joal.web.services.corelistener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.events.torrent.files.FailedToAddTorrentFileEvent;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.torrent.files.TorrentFileDeletedEvent;
@@ -8,8 +9,6 @@ import org.araymond.joal.web.messages.outgoing.impl.files.FailedToAddTorrentFile
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileAddedPayload;
 import org.araymond.joal.web.messages.outgoing.impl.files.TorrentFileDeletedPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -22,9 +21,8 @@ import javax.inject.Inject;
  */
 @ConditionalOnWebUi
 @Service
+@Slf4j
 public class WebTorrentFileEventListener extends WebEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(WebTorrentFileEventListener.class);
-
     @Inject
     public WebTorrentFileEventListener(final JoalMessageSendingTemplate messagingTemplate) {
         super(messagingTemplate);
@@ -33,7 +31,7 @@ public class WebTorrentFileEventListener extends WebEventListener {
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     public void torrentFileAdded(final TorrentFileAddedEvent event) {
-        logger.debug("Send TorrentFileAddedPayload to clients.");
+        log.debug("Send TorrentFileAddedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/torrents", new TorrentFileAddedPayload(event));
     }
@@ -41,7 +39,7 @@ public class WebTorrentFileEventListener extends WebEventListener {
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     public void torrentFileDeleted(final TorrentFileDeletedEvent event) {
-        logger.debug("Send TorrentFileDeletedPayload to clients.");
+        log.debug("Send TorrentFileDeletedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/torrents", new TorrentFileDeletedPayload(event));
     }
@@ -49,7 +47,7 @@ public class WebTorrentFileEventListener extends WebEventListener {
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     public void failedToAddTorrentFile(final FailedToAddTorrentFileEvent event) {
-        logger.debug("Send FailedToAddTorrentFilePayload to clients.");
+        log.debug("Send FailedToAddTorrentFilePayload to clients.");
 
         this.messagingTemplate.convertAndSend("/torrents", new FailedToAddTorrentFilePayload(event));
     }

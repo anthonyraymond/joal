@@ -2,11 +2,10 @@ package org.araymond.joal.core.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.core.events.config.ConfigurationIsInDirtyStateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 
 import javax.inject.Provider;
@@ -18,8 +17,8 @@ import java.nio.file.Path;
 /**
  * Created by raymo on 18/04/2017.
  */
+@Slf4j
 public class JoalConfigProvider implements Provider<AppConfiguration> {
-    private static final Logger logger = LoggerFactory.getLogger(JoalConfigProvider.class);
     private static final String CONF_FILE_NAME = "config.json";
 
     private final Path joalConfPath;
@@ -36,7 +35,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
             throw new FileNotFoundException(String.format("App configuration file [%s] not found", joalConfPath));
         }
 
-        logger.debug("App configuration file will be searched for in [{}]", joalConfPath.toAbsolutePath());
+        log.debug("App configuration file will be searched for in [{}]", joalConfPath.toAbsolutePath());
     }
 
     public void init() {
@@ -46,7 +45,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     @Override
     public AppConfiguration get() {
         if (this.config == null) {
-            logger.error("App configuration has not been loaded yet");
+            log.error("App configuration has not been loaded yet");
             throw new IllegalStateException("Attempted to get configuration before init");
         }
         return this.config;
@@ -56,15 +55,15 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     AppConfiguration loadConfiguration() {
         final AppConfiguration configuration;
         try {
-            logger.debug("Reading json configuration from [{}]", joalConfPath.toAbsolutePath());
+            log.debug("Reading json configuration from [{}]", joalConfPath.toAbsolutePath());
             configuration = objectMapper.readValue(joalConfPath.toFile(), AppConfiguration.class);
-            logger.debug("Successfully read json configuration");
+            log.debug("Successfully read json configuration");
         } catch (final IOException e) {
-            logger.error("Failed to read configuration file", e);
+            log.error("Failed to read configuration file", e);
             throw new IllegalStateException(e);
         }
 
-        logger.info("App configuration has been successfully loaded");
+        log.info("App configuration has been successfully loaded");
         this.publisher.publishEvent(new ConfigHasBeenLoadedEvent(configuration));
         return configuration;
     }
@@ -74,7 +73,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(joalConfPath.toFile(), conf);
             publisher.publishEvent(new ConfigurationIsInDirtyStateEvent(conf));
         } catch (final IOException e) {
-            logger.error("Failed to write new configuration file", e);
+            log.error("Failed to write new configuration file", e);
             throw new IllegalStateException(e);
         }
     }

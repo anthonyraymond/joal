@@ -2,13 +2,12 @@ package org.araymond.joal.core.torrent.watcher;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.monitor.FileAlterationListenerAdaptor;
 import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.exception.NoMoreTorrentsFileAvailableException;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -25,8 +24,8 @@ import static java.util.Optional.ofNullable;
 /**
  * Created by raymo on 28/01/2017.
  */
+@Slf4j
 public class TorrentFileProvider extends FileAlterationListenerAdaptor {
-    private static final Logger logger = LoggerFactory.getLogger(TorrentFileProvider.class);
 
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles = Collections.synchronizedMap(new HashMap<>());
@@ -37,7 +36,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         Path torrentFolder = joalFoldersPath.getTorrentFilesPath();
         if (!Files.isDirectory(torrentFolder)) {
             // TODO: shouldn't we check&throw in JoalFoldersPath instead?
-            logger.error("Folder [{}] does not exist", torrentFolder.toAbsolutePath());
+            log.error("Folder [{}] does not exist", torrentFolder.toAbsolutePath());
             throw new FileNotFoundException(format("Torrent folder [%s] not found", torrentFolder.toAbsolutePath()));
         }
 
@@ -51,7 +50,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         if (!Files.isDirectory(archiveFolder)) {
             if (Files.exists(archiveFolder)) {
                 String errMsg = "archive folder exists, but is not a directory";
-                logger.error(errMsg);
+                log.error(errMsg);
                 throw new IllegalStateException(errMsg);
             }
 
@@ -59,7 +58,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
                 Files.createDirectory(archiveFolder);
             } catch (final IOException e) {
                 String errMsg = "Failed to create archive folder";
-                logger.error(errMsg, e);
+                log.error(errMsg, e);
                 throw new IllegalStateException(errMsg, e);
             }
         }
@@ -79,31 +78,31 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     public void onFileDelete(final File file) {
         ofNullable(this.torrentFiles.remove(file))
                 .ifPresent(removedTorrent -> {
-                    logger.info("Torrent file deleting detected, hot deleted file [{}]", file.getAbsolutePath());
+                    log.info("Torrent file deleting detected, hot deleted file [{}]", file.getAbsolutePath());
                     this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileRemoved(removedTorrent));
                 });
     }
 
     @Override
     public void onFileCreate(final File file) {
-        logger.info("Torrent file addition detected, hot creating file [{}]", file.getAbsolutePath());
+        log.info("Torrent file addition detected, hot creating file [{}]", file.getAbsolutePath());
         try {
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
             this.torrentFileChangeListener.forEach(listener -> listener.onTorrentFileAdded(torrent));
         } catch (final IOException | NoSuchAlgorithmException e) {
-            logger.warn("Failed to read file [{}], moved to archive folder", file.getAbsolutePath(), e);
+            log.warn("Failed to read file [{}], moved to archive folder", file.getAbsolutePath(), e);
             this.moveToArchiveFolder(file);
         } catch (final Exception e) {
             // This thread MUST NOT crash. we need handle any other exception
-            logger.warn("Unexpected exception was caught for file [{}], moved to archive folder", file.getAbsolutePath(), e);
+            log.warn("Unexpected exception was caught for file [{}], moved to archive folder", file.getAbsolutePath(), e);
             this.moveToArchiveFolder(file);
         }
     }
 
     @Override
     public void onFileChange(final File file) {
-        logger.info("Torrent file change detected, hot reloading file [{}]", file.getAbsolutePath());
+        log.info("Torrent file change detected, hot reloading file [{}]", file.getAbsolutePath());
         this.onFileDelete(file);
         this.onFileCreate(file);
     }
@@ -136,9 +135,9 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
             Path moveTarget = archiveFolder.resolve(torrentFile.getName());
             Files.deleteIfExists(moveTarget);
             Files.move(torrentFile.toPath(), moveTarget);
-            logger.info("Successfully moved file [{}] to archive folder", torrentFile.getAbsolutePath());
+            log.info("Successfully moved file [{}] to archive folder", torrentFile.getAbsolutePath());
         } catch (final IOException e) {
-            logger.warn("Failed to archive file [{}], the file won't be used anymore for the current session, but it remains in the folder", torrentFile.getAbsolutePath());
+            log.warn("Failed to archive file [{}], the file won't be used anymore for the current session, but it remains in the folder", torrentFile.getAbsolutePath());
         }
     }
 
@@ -148,7 +147,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
                 .map(Map.Entry::getKey)
                 .findAny()
                 .ifPresentOrElse(this::moveToArchiveFolder,
-                        () -> logger.warn("Cannot move torrent [{}] to archive folder. Torrent file seems not to be registered in TorrentFileProvider", infoHash));
+                        () -> log.warn("Cannot move torrent [{}] to archive folder. Torrent file seems not to be registered in TorrentFileProvider", infoHash));
     }
 
     public int getTorrentCount() {

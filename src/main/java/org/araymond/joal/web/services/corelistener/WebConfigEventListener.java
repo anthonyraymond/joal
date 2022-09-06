@@ -1,5 +1,6 @@
 package org.araymond.joal.web.services.corelistener;
 
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.events.config.ConfigHasBeenLoadedEvent;
 import org.araymond.joal.core.events.config.ConfigurationIsInDirtyStateEvent;
 import org.araymond.joal.core.events.config.ListOfClientFilesEvent;
@@ -8,8 +9,6 @@ import org.araymond.joal.web.messages.outgoing.impl.config.ConfigHasBeenLoadedPa
 import org.araymond.joal.web.messages.outgoing.impl.config.ConfigIsInDirtyStatePayload;
 import org.araymond.joal.web.messages.outgoing.impl.config.ListOfClientFilesPayload;
 import org.araymond.joal.web.services.JoalMessageSendingTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -22,8 +21,8 @@ import javax.inject.Inject;
  */
 @ConditionalOnWebUi
 @Service
+@Slf4j
 public class WebConfigEventListener extends WebEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(WebConfigEventListener.class);
 
     @Inject
     public WebConfigEventListener(final JoalMessageSendingTemplate messagingTemplate) {
@@ -33,7 +32,7 @@ public class WebConfigEventListener extends WebEventListener {
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     public void configHasBeenLoaded(final ConfigHasBeenLoadedEvent event) {
-        logger.debug("Send ConfigHasBeenLoadedPayload to clients.");
+        log.debug("Send ConfigHasBeenLoadedPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ConfigHasBeenLoadedPayload(event));
     }
@@ -41,7 +40,7 @@ public class WebConfigEventListener extends WebEventListener {
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     public void configIsInDirtyState(final ConfigurationIsInDirtyStateEvent event) {
-        logger.debug("Send ConfigIsInDirtyStatePayload to clients.");
+        log.debug("Send ConfigIsInDirtyStatePayload to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ConfigIsInDirtyStatePayload(event));
     }
@@ -49,7 +48,7 @@ public class WebConfigEventListener extends WebEventListener {
     @Order(Ordered.LOWEST_PRECEDENCE)
     @EventListener
     public void clientFilesDiscovered(final ListOfClientFilesEvent event) {
-        logger.debug("Send ListOfClientFilesPayload to clients.");
+        log.debug("Send ListOfClientFilesPayload to clients.");
 
         this.messagingTemplate.convertAndSend("/config", new ListOfClientFilesPayload(event));
     }

@@ -1,16 +1,14 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.ttorrent.client.Client;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
-import org.slf4j.Logger;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+@Slf4j
 public class ClientNotifier implements AnnounceResponseHandlerChainElement {
-    private static final Logger logger = getLogger(ClientNotifier.class);
     private Client client;
 
     public void setClient(final Client client) {
@@ -45,7 +43,7 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onAnnounceStopSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
-        logger.debug("Notify client that a torrent has stopped.");
+        log.debug("Notify client that a torrent has stopped.");
         this.client.onTorrentHasStopped(announcer);
     }
 
@@ -55,7 +53,7 @@ public class ClientNotifier implements AnnounceResponseHandlerChainElement {
 
     @Override
     public void onTooManyAnnounceFailedInARaw(final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
-        logger.debug("Notify client that a torrent has failed too many times.");
+        log.debug("Notify client that a torrent has failed too many times.");
         this.client.onTooManyFailedInARaw(announcer);
     }
 }

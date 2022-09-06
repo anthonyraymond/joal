@@ -3,6 +3,7 @@ package org.araymond.joal.core;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -30,8 +31,6 @@ import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.io.IOException;
@@ -46,9 +45,9 @@ import java.util.concurrent.TimeUnit;
  * This is the outer boundary of our the business logic. Most (if not all)
  * torrent-related handling is happening here & downstream.
  */
+@Slf4j
 public class SeedManager {
 
-    private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
     private final CloseableHttpClient httpClient;
     @Getter
     private boolean seeding;
@@ -142,7 +141,7 @@ public class SeedManager {
             final String torrentName = name.endsWith(".torrent") ? name : name + ".torrent";
             Files.write(this.joalFoldersPath.getTorrentFilesPath().resolve(torrentName), bytes, StandardOpenOption.CREATE);
         } catch (final Exception e) {
-            logger.warn("Failed to save torrent file", e);
+            log.warn("Failed to save torrent file", e);
             // If NullPointerException occurs (when the file is an empty file) there is no message.
             final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
             this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
@@ -222,13 +221,13 @@ public class SeedManager {
             this.clientsFilesPath = this.confPath.resolve("clients");
 
             if (!Files.isDirectory(confPath)) {
-                logger.warn("No such directory: {}", this.confPath);
+                log.warn("No such directory: {}", this.confPath);
             }
             if (!Files.isDirectory(torrentFilesPath)) {
-                logger.warn("Sub-folder 'torrents' is missing in joal conf folder: {}", this.torrentFilesPath);
+                log.warn("Sub-folder 'torrents' is missing in joal conf folder: {}", this.torrentFilesPath);
             }
             if (!Files.isDirectory(clientsFilesPath)) {
-                logger.warn("Sub-folder 'clients' is missing in joal conf folder: {}", this.clientsFilesPath);
+                log.warn("Sub-folder 'clients' is missing in joal conf folder: {}", this.clientsFilesPath);
             }
         }
     }
