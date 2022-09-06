@@ -26,5 +26,4 @@ public class NeverRefreshKeyGenerator extends KeyGenerator {
     public String getKey(final InfoHash infoHash, final RequestEvent event) {
         return key;
     }
-
 }

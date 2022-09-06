@@ -21,9 +21,6 @@ import java.io.IOException;
 public class CoreEventListener {
     private static final Logger logger = LoggerFactory.getLogger(CoreEventListener.class);
 
-    public CoreEventListener() {
-    }
-
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener

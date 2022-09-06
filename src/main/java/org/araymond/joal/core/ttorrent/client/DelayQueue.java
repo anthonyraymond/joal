@@ -1,5 +1,7 @@
 package org.araymond.joal.core.ttorrent.client;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.time.LocalDateTime;
@@ -76,18 +78,11 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
     }
 
 
+    @RequiredArgsConstructor
     private static final class IntervalAware<T> implements Comparable<IntervalAware> {
-        private final LocalDateTime releaseAt;
+        @Getter
         private final T item;
-
-        private IntervalAware(final T item, final LocalDateTime releaseAt) {
-            this.item = item;
-            this.releaseAt = releaseAt;
-        }
-
-        public T getItem() {
-            return item;
-        }
+        private final LocalDateTime releaseAt;
 
         @Override
         public int compareTo(final IntervalAware o) {

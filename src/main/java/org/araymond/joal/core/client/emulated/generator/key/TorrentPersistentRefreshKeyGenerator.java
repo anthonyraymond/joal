@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.Getter;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
@@ -59,6 +60,7 @@ public class TorrentPersistentRefreshKeyGenerator extends KeyGenerator {
 
     static class AccessAwareKey {
         private final String peerId;
+        @Getter
         private LocalDateTime lastAccess;
 
         @VisibleForTesting
@@ -70,10 +72,6 @@ public class TorrentPersistentRefreshKeyGenerator extends KeyGenerator {
         public String getPeerId() {
             this.lastAccess = LocalDateTime.now();
             return this.peerId;
-        }
-
-        LocalDateTime getLastAccess() {
-            return lastAccess;
         }
     }
 }

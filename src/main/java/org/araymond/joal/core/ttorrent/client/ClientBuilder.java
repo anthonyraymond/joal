@@ -18,8 +18,9 @@ public final class ClientBuilder {
     private DelayQueue<AnnounceRequest> delayQueue;
 
     private ClientBuilder() {
+        // private
     }
-    
+
     public static ClientBuilder builder() {
         return new ClientBuilder();
     }

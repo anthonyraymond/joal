@@ -1,5 +1,6 @@
 package org.araymond.joal.core.bandwith.weight;
 
+import lombok.Getter;
 import org.araymond.joal.core.bandwith.Peers;
 
 import java.util.HashMap;
@@ -14,6 +15,8 @@ public class WeightHolder<E> {
     private final Lock lock;
     private final PeersAwareWeightCalculator weightCalculator;
     private final Map<E, Double> weightMap;
+
+    @Getter
     private double totalWeight;
 
     public WeightHolder(final PeersAwareWeightCalculator weightCalculator) {
@@ -53,9 +56,5 @@ public class WeightHolder<E> {
     public double getWeightFor(final E item) {
         return ofNullable(weightMap.get(item))
                 .orElse(0.0);
-    }
-
-    public double getTotalWeight() {
-        return totalWeight;
     }
 }

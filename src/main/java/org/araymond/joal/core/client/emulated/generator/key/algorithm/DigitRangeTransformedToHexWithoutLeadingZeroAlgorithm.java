@@ -1,11 +1,12 @@
 package org.araymond.joal.core.client.emulated.generator.key.algorithm;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+@EqualsAndHashCode
 public class DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm implements KeyAlgorithm {
 
     private final Long inclusiveLowerBound;
@@ -37,19 +38,5 @@ public class DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm implements Ke
     public String generate() {
         final long randomDigit = this.getRandomDigitBetween(this.inclusiveLowerBound, this.inclusiveUpperBound);
         return Long.toHexString(randomDigit);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm that = (DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm) o;
-        return Objects.equal(inclusiveLowerBound, that.inclusiveLowerBound) &&
-                Objects.equal(inclusiveUpperBound, that.inclusiveUpperBound);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(inclusiveLowerBound, inclusiveUpperBound);
     }
 }

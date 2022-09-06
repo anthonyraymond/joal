@@ -1,19 +1,18 @@
 package org.araymond.joal.core.ttorrent.client.announcer.request;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 
+@RequiredArgsConstructor
+@Getter
 public final class AnnounceRequest implements DelayQueue.InfoHashAble {
 
     private final Announcer announcer;
     private final RequestEvent event;
-
-    private AnnounceRequest(final Announcer announcer, final RequestEvent event) {
-        this.announcer = announcer;
-        this.event = event;
-    }
 
     public static AnnounceRequest createStart(final Announcer announcer) {
         return new AnnounceRequest(announcer, RequestEvent.STARTED);
@@ -27,17 +26,8 @@ public final class AnnounceRequest implements DelayQueue.InfoHashAble {
         return new AnnounceRequest(announcer, RequestEvent.STOPPED);
     }
 
-    public Announcer getAnnouncer() {
-        return this.announcer;
-    }
-
-    public RequestEvent getEvent() {
-        return this.event;
-    }
-
     @Override
     public InfoHash getInfoHash() {
         return this.announcer.getTorrentInfoHash();
     }
-
 }

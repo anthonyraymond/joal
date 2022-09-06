@@ -1,6 +1,8 @@
 package org.araymond.joal.core;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -48,7 +50,8 @@ public class SeedManager {
 
     private static final Logger logger = LoggerFactory.getLogger(SeedManager.class);
     private final CloseableHttpClient httpClient;
-    private boolean isSeeding;
+    @Getter
+    private boolean seeding;
     private final JoalFoldersPath joalFoldersPath;
     private final JoalConfigProvider configProvider;
     private final TorrentFileProvider torrentFileProvider;
@@ -98,7 +101,7 @@ public class SeedManager {
         if (this.client != null) {
             return;
         }
-        this.isSeeding = true;
+        this.seeding = true;
 
         this.configProvider.init();
         final AppConfiguration appConfiguration = this.configProvider.get();
@@ -150,10 +153,6 @@ public class SeedManager {
         this.torrentFileProvider.moveToArchiveFolder(torrentInfoHash);
     }
 
-    public boolean isSeeding() {
-        return this.isSeeding;
-    }
-
     public List<MockedTorrent> getTorrentFiles() {
         return torrentFileProvider.getTorrentFiles();
     }
@@ -192,7 +191,7 @@ public class SeedManager {
     }
 
     public void stop() {
-        this.isSeeding = false;
+        this.seeding = false;
         if (client != null) {
             this.client.stop();
             this.publisher.publishEvent(new GlobalSeedStoppedEvent());
@@ -206,6 +205,7 @@ public class SeedManager {
     }
 
 
+    @Getter
     public static class JoalFoldersPath {
         private final Path confPath;
         private final Path torrentFilesPath;
@@ -231,32 +231,15 @@ public class SeedManager {
                 logger.warn("Sub-folder 'clients' is missing in joal conf folder: {}", this.clientsFilesPath);
             }
         }
-
-        public Path getConfPath() {
-            return confPath;
-        }
-        public Path getTorrentFilesPath() {
-            return torrentFilesPath;
-        }
-        public Path getTorrentArchivedPath() {
-            return torrentArchivedPath;
-        }
-        public Path getClientsFilesPath() {
-            return clientsFilesPath;
-        }
     }
 
+    @RequiredArgsConstructor
     private static final class SeedManagerSpeedChangeListener implements SpeedChangedListener {
         private final ApplicationEventPublisher publisher;
-
-        private SeedManagerSpeedChangeListener(final ApplicationEventPublisher publisher) {
-            this.publisher = publisher;
-        }
 
         @Override
         public void speedsHasChanged(final Map<InfoHash, Speed> speeds) {
             this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
         }
     }
-
 }

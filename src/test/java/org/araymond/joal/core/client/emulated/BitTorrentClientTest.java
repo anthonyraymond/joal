@@ -1,6 +1,10 @@
 package org.araymond.joal.core.client.emulated;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.bandwith.TorrentSeedStats;
 import org.araymond.joal.core.bandwith.TorrentSeedStatsTest;
 import org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
@@ -12,17 +16,20 @@ import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.exception.UnrecognizedClientPlaceholder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandlerTest;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static java.lang.System.getProperty;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 
@@ -35,6 +42,9 @@ public class BitTorrentClientTest {
     private final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
     private final UrlEncoder defaultUrlEncoder = new UrlEncoder(".*", Casing.LOWER);
     private final NumwantProvider defaultNumwantProvider = new NumwantProvider(200, 0);
+
+    private static final Path clientsPath = Paths.get("resources/clients");
+    private static final ObjectMapper mapper = new ObjectMapper();
 
     @SuppressWarnings("ConstantConditions")
     @Test
@@ -388,4 +398,60 @@ public class BitTorrentClientTest {
         assertThat(client.hashCode()).isEqualTo(client2.hashCode());
     }
 
+    @Test
+    public void shouldGenerateAnnounceURLAndHeaders() {
+        BitTorrentClientProvider provider = new BitTorrentClientProvider(mock(JoalConfigProvider.class), mock(ObjectMapper.class), mock(SeedManager.JoalFoldersPath.class));
+        FileUtils.listFiles(clientsPath.toFile(), TrueFileFilter.TRUE, null)
+                .forEach(file -> {
+                    try {
+                        final String json = new String(Files.readAllBytes(file.toPath()));
+                        final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
+                        final BitTorrentClient client = provider.createClient(clientConfig);
+
+                        final ConnectionHandler connHandler = ConnectionHandlerTest.createMockedIpv4(1111);
+                        final TorrentSeedStats stats = TorrentSeedStatsTest.createOne();
+
+                        client.createRequestQuery(RequestEvent.STARTED, new InfoHash("adb".getBytes()), stats, connHandler);
+                        client.createRequestHeaders();
+                    } catch (final Exception e) {
+                        fail("Exception for client file [" + file.getName() + "]", e);
+                    }
+                });
+    }
+
+    @Test
+    public void shouldBeDeserializable() {
+        BitTorrentClientProvider provider = new BitTorrentClientProvider(mock(JoalConfigProvider.class), mock(ObjectMapper.class), mock(SeedManager.JoalFoldersPath.class));
+        FileUtils.listFiles(clientsPath.toFile(), TrueFileFilter.TRUE, null)
+                .forEach(file -> {
+                    try {
+                        final String json = new String(Files.readAllBytes(file.toPath()));
+                        final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
+                        final BitTorrentClient client = provider.createClient(clientConfig);
+
+
+                        final String query = client.getQuery();
+                        assertThat(query)
+                                .contains("info_hash={infohash}")
+                                .contains("peer_id={peerid}")
+                                .contains("uploaded={uploaded}")
+                                .contains("downloaded={downloaded}")
+                                .contains("left={left}")
+                                .contains("key={key}")
+                                .contains("event={event}");
+                        if (!file.getName().contains("rtorrent")) {
+                            assertThat(query).contains("numwant={numwant}");
+                        }
+                        if (query.contains("ipv6=")) assertThat(query).contains("ipv6={ipv6}");
+                        if (query.contains("ip=")) assertThat(query).contains("ip={ip}");
+                        if (query.contains("{ipv6}")) assertThat(query).contains("ipv6={ipv6}");
+                        if (query.contains("{ip}")) assertThat(query).contains("ip={ip}");
+                        assertThat(query).doesNotContain("&&");
+                        assertThat(query).doesNotStartWith("&");
+                        assertThat(query).doesNotEndWith("&");
+                    } catch (final Exception e) {
+                        fail("Exception for client file " + file.getName(), e);
+                    }
+                });
+    }
 }

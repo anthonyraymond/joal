@@ -3,6 +3,7 @@ package org.araymond.joal.core.ttorrent.client;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
 import com.google.common.collect.Lists;
+import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,7 @@ public class ConnectionHandler {
     public static final int PORT_RANGE_END = 65534;
 
     private ServerSocketChannel channel;
+    @Getter
     private InetAddress ipAddress;
     private Thread ipFetcherThread;
     private static final String[] IP_PROVIDERS = new String[]{
@@ -35,13 +37,6 @@ public class ConnectionHandler {
             "http://ident.me/",
             "http://icanhazip.com/"
     };
-
-    public ConnectionHandler() {
-    }
-
-    public InetAddress getIpAddress() {
-        return this.ipAddress;
-    }
 
     public int getPort() {
         return this.channel.socket().getLocalPort();

@@ -132,6 +132,10 @@
             <artifactId>fluent-hc</artifactId>
             <!--<version>${httpclient.version}</version> inherit version from parent -->
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
 
 
         <!-- TEST -->

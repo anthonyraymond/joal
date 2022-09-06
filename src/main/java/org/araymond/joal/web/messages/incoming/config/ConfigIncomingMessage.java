@@ -2,13 +2,16 @@ package org.araymond.joal.web.messages.incoming.config;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.MoreObjects;
+import lombok.Getter;
+import lombok.ToString;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.AppConfigurationIntegrityException;
 
 /**
  * Created by raymo on 09/07/2017.
  */
+@Getter
+@ToString
 public class ConfigIncomingMessage {
     private final Long minUploadRate;
     private final Long maxUploadRate;
@@ -31,38 +34,7 @@ public class ConfigIncomingMessage {
         this.keepTorrentWithZeroLeechers = keepTorrentWithZeroLeechers;
     }
 
-    public Long getMinUploadRate() {
-        return minUploadRate;
-    }
-
-    public Long getMaxUploadRate() {
-        return maxUploadRate;
-    }
-
-    public Integer getSimultaneousSeed() {
-        return simultaneousSeed;
-    }
-
-    public String getClient() {
-        return client;
-    }
-
-    public boolean shouldKeepTorrentWithZeroLeechers() {
-        return keepTorrentWithZeroLeechers;
-    }
-
     public AppConfiguration toAppConfiguration() throws AppConfigurationIntegrityException {
         return new AppConfiguration(this.minUploadRate, this.maxUploadRate, this.simultaneousSeed, this.client, keepTorrentWithZeroLeechers);
-    }
-
-    @Override
-    public String toString() {
-        return MoreObjects.toStringHelper(this)
-                .add("minUploadRate", minUploadRate)
-                .add("maxUploadRate", maxUploadRate)
-                .add("simultaneousSeed", simultaneousSeed)
-                .add("client", client)
-                .add("keepTorrentWithZeroLeechers", keepTorrentWithZeroLeechers)
-                .toString();
     }
 }

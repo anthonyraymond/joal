@@ -1,12 +1,15 @@
 package org.araymond.joal.core.client.emulated;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import org.araymond.joal.core.SeedManager;
 import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGenerator;
 import org.araymond.joal.core.client.emulated.generator.key.KeyGeneratorTest;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGeneratorTest;
 import org.araymond.joal.core.client.emulated.utils.Casing;
+import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -19,6 +22,8 @@ import java.util.stream.Collectors;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by raymo on 24/04/2017.
@@ -26,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class BitTorrentClientConfigTest {
     private final PeerIdGenerator defaultPeerIdGenerator = PeerIdGeneratorTest.createDefault();
     private final UrlEncoder defaultUrlEncoder = new UrlEncoder(".*", Casing.LOWER);
+    private BitTorrentClientProvider provider = new BitTorrentClientProvider(mock(JoalConfigProvider.class), mock(ObjectMapper.class), mock(SeedManager.JoalFoldersPath.class));
 
     @Test
     public void shouldBuildEvenIfKeyGeneratorIsNotDefined() {
@@ -39,7 +45,7 @@ public class BitTorrentClientConfigTest {
 
         final BitTorrentClientConfig config = new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, defaultUrlEncoder, requestHeaders, 200, 0);
 
-        assertThat(config.createClient().getKey(Mockito.mock(InfoHash.class), RequestEvent.STARTED)).isEmpty();
+        assertThat(provider.createClient(config).getKey(mock(InfoHash.class), RequestEvent.STARTED)).isEmpty();
     }
 
     @Test
@@ -103,7 +109,7 @@ public class BitTorrentClientConfigTest {
         final KeyGenerator keyGenerator = KeyGeneratorTest.createDefault();
         final BitTorrentClientConfig config = new BitTorrentClientConfig(peerIdGenerator, query, keyGenerator, defaultUrlEncoder, requestHeaders, 200, 0);
 
-        final BitTorrentClient client = config.createClient();
+        final BitTorrentClient client = provider.createClient(config);
         assertThat(client.getHeaders()).isEqualTo(requestHeaders.stream()
                 .map(header -> new AbstractMap.SimpleEntry<>(header.getName(), header.getValue()))
                 .collect(Collectors.toList())

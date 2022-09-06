@@ -115,7 +115,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void updateTorrentPeers(final InfoHash infoHash, final int seeders, final int leechers) {
-        logger.debug("Updating Peers stats for {}", infoHash.humanReadableValue());
+        logger.debug("Updating Peers stats for {}", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.weightHolder.addOrUpdate(infoHash, new Peers(seeders, leechers));
@@ -126,7 +126,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void registerTorrent(final InfoHash infoHash) {
-        logger.debug("{} has been added to bandwidth dispatcher.", infoHash.humanReadableValue());
+        logger.debug("{} has been added to bandwidth dispatcher.", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.torrentsSeedStats.put(infoHash, new TorrentSeedStats());
@@ -137,7 +137,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void unregisterTorrent(final InfoHash infoHash) {
-        logger.debug("{} has been removed from bandwidth dispatcher.", infoHash.humanReadableValue());
+        logger.debug("{} has been removed from bandwidth dispatcher.", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.weightHolder.remove(infoHash);
@@ -157,7 +157,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
             this.randomSpeedProvider.refresh();
             this.recomputeSpeeds();
             if (logger.isDebugEnabled()) {
-                logger.debug("Global bandwidth refreshed, new value is {}", FileUtils.byteCountToDisplaySize(this.randomSpeedProvider.getInBytesPerSeconds()));
+                logger.debug("Global bandwidth refreshed, new value is {}", FileUtils.byteCountToDisplaySize(this.randomSpeedProvider.getCurrentSpeed()));
             }
         } finally {
             this.lock.writeLock().unlock();
@@ -175,7 +175,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 double percentOfSpeedAssigned = this.weightHolder.getTotalWeight() == 0.0
                         ? 0.0
                         : this.weightHolder.getWeightFor(infohash) / this.weightHolder.getTotalWeight();
-                speed.setBytesPerSeconds((long) (this.randomSpeedProvider.getInBytesPerSeconds() * percentOfSpeedAssigned));
+                speed.setBytesPerSeconds((long) (this.randomSpeedProvider.getCurrentSpeed() * percentOfSpeedAssigned));
 
                 return speed;
             });
@@ -196,7 +196,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                             ? totalWeight / torrentWeight * 100
                             : 0;
                     sb.append("      ")
-                            .append(infoHash.humanReadableValue())
+                            .append(infoHash.getHumanReadable())
                             .append(":")
                             .append("\n          ").append("current speed: ").append(humanReadableSpeed).append("/s")
                             .append("\n          ").append("overall upload: ").append(FileUtils.byteCountToDisplaySize(this.torrentsSeedStats.get(infoHash).getUploaded()))

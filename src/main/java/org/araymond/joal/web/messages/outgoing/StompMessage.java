@@ -2,10 +2,12 @@ package org.araymond.joal.web.messages.outgoing;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
+import lombok.Getter;
 
 /**
  * Created by raymo on 29/06/2017.
  */
+@Getter
 public class StompMessage {
 
     private final StompMessageTypes type;
@@ -22,13 +24,5 @@ public class StompMessage {
 
     public static StompMessage wrap(final MessagePayload payload) {
         return new StompMessage(StompMessageTypes.typeFor(payload), payload);
-    }
-
-    public StompMessageTypes getType() {
-        return type;
-    }
-
-    public MessagePayload getPayload() {
-        return payload;
     }
 }

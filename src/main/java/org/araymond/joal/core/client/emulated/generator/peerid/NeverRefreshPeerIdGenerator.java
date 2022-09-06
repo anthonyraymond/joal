@@ -19,7 +19,6 @@ public class NeverRefreshPeerIdGenerator extends PeerIdGenerator {
             @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
         super(algorithm, isUrlEncoded);
-
         this.peerId = super.generatePeerId();
     }
 

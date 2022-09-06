@@ -4,6 +4,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Objects;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.Getter;
 import org.apache.http.client.HttpClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
@@ -26,11 +27,14 @@ import java.util.stream.Collectors;
 public class Announcer implements AnnouncerFacade {
     private static final Logger logger = LoggerFactory.getLogger(Announcer.class);
 
+    @Getter
     private int lastKnownInterval = 5;
+    @Getter
     private int consecutiveFails = 0;
     private Integer lastKnownLeechers = null;
     private Integer lastKnownSeeders = null;
     private LocalDateTime lastAnnouncedAt = null;
+    @Getter
     private final MockedTorrent torrent;
     private TrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
@@ -56,7 +60,7 @@ public class Announcer implements AnnouncerFacade {
 
     public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {
         if (logger.isDebugEnabled()) {
-            logger.debug("Attempt to announce {} for {}", event.getEventName(), this.torrent.getTorrentInfoHash().humanReadableValue());
+            logger.debug("Attempt to announce {} for {}", event.getEventName(), this.torrent.getTorrentInfoHash().getHumanReadable());
         }
 
         try {
@@ -66,7 +70,7 @@ public class Announcer implements AnnouncerFacade {
                     this.announceDataAccessor.getHttpHeadersForTorrent()
             );
             if (logger.isInfoEnabled()) {
-                logger.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval", this.torrent.getTorrentInfoHash().humanReadableValue(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
+                logger.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval", this.torrent.getTorrentInfoHash().getHumanReadable(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
             }
 
             this.lastKnownInterval = responseMessage.getInterval();
@@ -77,28 +81,18 @@ public class Announcer implements AnnouncerFacade {
             return responseMessage;
         } catch (final Exception e) {
             if (logger.isWarnEnabled()) {
-                logger.warn("{} has failed to announce", this.torrent.getTorrentInfoHash().humanReadableValue(), e);
+                logger.warn("{} has failed to announce", this.torrent.getTorrentInfoHash().getHumanReadable(), e);
             }
 
             ++this.consecutiveFails;
             if (this.consecutiveFails >= 5) {
                 if (logger.isInfoEnabled()) {
-                    logger.info("{} has failed to announce 5 times in a raw", this.torrent.getTorrentInfoHash().humanReadableValue());
+                    logger.info("{} has failed to announce 5 times in a raw", this.torrent.getTorrentInfoHash().getHumanReadable());
                 }
                 throw new TooMuchAnnouncesFailedInARawException(torrent);
             }
             throw e;
         }
-    }
-
-    @Override
-    public int getLastKnownInterval() {
-        return lastKnownInterval;
-    }
-
-    @Override
-    public int getConsecutiveFails() {
-        return consecutiveFails;
     }
 
     @Override
@@ -114,10 +108,6 @@ public class Announcer implements AnnouncerFacade {
     @Override
     public Optional<LocalDateTime> getLastAnnouncedAt() {
         return Optional.ofNullable(lastAnnouncedAt);
-    }
-
-    public MockedTorrent getTorrent() {
-        return torrent;
     }
 
     @Override

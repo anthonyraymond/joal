@@ -1,6 +1,8 @@
 package org.araymond.joal.core.ttorrent.client.announcer.request;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
@@ -95,22 +97,10 @@ public class AnnouncerExecutor {
         }
     }
 
+    @RequiredArgsConstructor
+    @Getter
     private static final class AnnouncerWithFuture {
         private final Announcer announcer;
         private final Future<?> future;
-
-        private AnnouncerWithFuture(final Announcer announcer, final Future<?> future) {
-            this.announcer = announcer;
-            this.future = future;
-        }
-
-        public Announcer getAnnouncer() {
-            return announcer;
-        }
-
-        public Future<?> getFuture() {
-            return future;
-        }
     }
-
 }

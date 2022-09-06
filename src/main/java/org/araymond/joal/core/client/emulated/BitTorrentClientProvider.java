@@ -1,8 +1,10 @@
 package org.araymond.joal.core.client.emulated;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.io.FilenameUtils;
 import org.araymond.joal.core.SeedManager;
+import org.araymond.joal.core.client.emulated.generator.numwant.NumwantProvider;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -63,18 +65,29 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
 
     public void generateNewClient() throws FileNotFoundException, IllegalStateException {
         logger.debug("Generating new client.");
-        final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClientFileName());
+        final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClient());
         if (!Files.isRegularFile(clientConfigPath)) {
             throw new FileNotFoundException(String.format("BitTorrent client configuration file [%s] not found", clientConfigPath.toAbsolutePath()));
         }
 
         try {
             BitTorrentClientConfig config = objectMapper.readValue(clientConfigPath.toFile(), BitTorrentClientConfig.class);
-            this.bitTorrentClient = config.createClient();
+            this.bitTorrentClient = createClient(config);
             logger.debug("New client successfully generated");
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    public BitTorrentClient createClient(BitTorrentClientConfig clientConfig) {
+        return new BitTorrentClient(
+                clientConfig.getPeerIdGenerator(),
+                clientConfig.getKeyGenerator(),
+                clientConfig.getUrlEncoder(),
+                clientConfig.getQuery(),
+                ImmutableList.copyOf(clientConfig.getRequestHeaders()),
+                new NumwantProvider(clientConfig.getNumwant(), clientConfig.getNumwantOnStop())
+        );
     }
 
     static final class SemanticVersionFilenameComparator implements Comparator<String> {

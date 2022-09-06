@@ -2,7 +2,6 @@ package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
@@ -154,7 +153,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     }
 
     public void onNoMorePeers(final InfoHash infoHash) {
-        if (!this.appConfiguration.shouldKeepTorrentWithZeroLeechers()) {
+        if (!this.appConfiguration.isKeepTorrentWithZeroLeechers()) {
             this.torrentFileProvider.moveToArchiveFolder(infoHash);
         }
     }

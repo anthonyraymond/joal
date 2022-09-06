@@ -1,9 +1,9 @@
 package org.araymond.joal.core.torrent.torrent;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
 import com.turn.ttorrent.bcodec.InvalidBEncodingException;
 import com.turn.ttorrent.common.Torrent;
+import lombok.EqualsAndHashCode;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
  * Created by raymo on 23/01/2017.
  */
 @SuppressWarnings("ClassWithOnlyPrivateConstructors")
+@EqualsAndHashCode
 public class MockedTorrent extends Torrent {
     public static final Charset BYTE_ENCODING = Charsets.ISO_8859_1;
 
@@ -59,18 +60,5 @@ public class MockedTorrent extends Torrent {
 
     public static MockedTorrent fromBytes(final byte[] bytes) throws IOException, NoSuchAlgorithmException {
         return new MockedTorrent(bytes, false);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final MockedTorrent that = (MockedTorrent) o;
-        return Objects.equal(this.infoHash, that.infoHash);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(this.infoHash);
     }
 }

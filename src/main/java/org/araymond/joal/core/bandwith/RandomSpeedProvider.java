@@ -1,12 +1,15 @@
 package org.araymond.joal.core.bandwith;
 
+import lombok.Getter;
 import org.araymond.joal.core.config.AppConfiguration;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomSpeedProvider {
     private final AppConfiguration appConfiguration;
-    private long currentSpeed;
+
+    @Getter
+    private long currentSpeed;  // bytes/s
 
     public RandomSpeedProvider(final AppConfiguration appConfiguration) {
         this.appConfiguration = appConfiguration;
@@ -20,9 +23,4 @@ public class RandomSpeedProvider {
                 ? maxUploadRateInBytes
                 : ThreadLocalRandom.current().nextLong(minUploadRateInBytes, maxUploadRateInBytes);
     }
-
-    public long getInBytesPerSeconds() {
-        return this.currentSpeed;
-    }
-
 }
