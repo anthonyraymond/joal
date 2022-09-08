@@ -11,10 +11,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static java.util.Optional.ofNullable;
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.lang3.ObjectUtils.getIfNull;
 
 @Slf4j
@@ -30,7 +30,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     private volatile boolean stop;
     private Thread thread;
 
-    private static final long TWENTY_MINS_MS = TimeUnit.MINUTES.toMillis(20);
+    private static final long TWENTY_MINS_MS = MINUTES.toMillis(20);
 
 
     public BandwidthDispatcher(final int threadPauseIntervalMs, final RandomSpeedProvider randomSpeedProvider) {
@@ -102,7 +102,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
 
                 for (final Map.Entry<InfoHash, TorrentSeedStats> entry : entrySet) {
                     final long speedInBytesPerSecond = ofNullable(this.speedMap.get(entry.getKey()))
-                            .map(Speed::getBytesPerSeconds)
+                            .map(Speed::getBytesPerSecond)
                             .orElse(0L);
                     // Divide by 1000 because of the thread pause interval being in milliseconds
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
@@ -129,7 +129,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         this.lock.writeLock().lock();
         try {
             this.torrentsSeedStats.put(infoHash, new TorrentSeedStats());
-            this.speedMap.put(infoHash, new Speed(0));
+            this.speedMap.put(infoHash, new Speed());
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -169,12 +169,12 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         for (final InfoHash infohash : this.torrentsSeedStats.keySet()) {
             this.speedMap.compute(infohash, (hash, speed) -> {
                 if (speed == null) {
-                    return new Speed(0);
+                    return new Speed();
                 }
                 double percentOfSpeedAssigned = this.weightHolder.getTotalWeight() == 0.0
                         ? 0.0
                         : this.weightHolder.getWeightFor(infohash) / this.weightHolder.getTotalWeight();
-                speed.setBytesPerSeconds((long) (this.randomSpeedProvider.getCurrentSpeed() * percentOfSpeedAssigned));
+                speed.setBytesPerSecond((long) (this.randomSpeedProvider.getCurrentSpeed() * percentOfSpeedAssigned));
 
                 return speed;
             });
@@ -189,7 +189,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
                 final double totalWeight = this.weightHolder.getTotalWeight();
                 this.speedMap.forEach((infoHash, speed) -> {
-                    final String humanReadableSpeed = FileUtils.byteCountToDisplaySize(speed.getBytesPerSeconds());
+                    final String humanReadableSpeed = FileUtils.byteCountToDisplaySize(speed.getBytesPerSecond());
                     final double torrentWeight = this.weightHolder.getWeightFor(infoHash);
                     final double weightInPercent = torrentWeight > 0.0
                             ? totalWeight / torrentWeight * 100
