@@ -11,8 +11,9 @@ import org.springframework.context.ApplicationEventPublisher;
 import javax.inject.Provider;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static java.nio.file.Files.isRegularFile;
 
 /**
  * Created by raymo on 18/04/2017.
@@ -26,12 +27,13 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
     private AppConfiguration config = null;
     private final ApplicationEventPublisher publisher;
 
-    public JoalConfigProvider(final ObjectMapper objectMapper, final SeedManager.JoalFoldersPath joalFoldersPath, final ApplicationEventPublisher publisher) throws FileNotFoundException {
+    public JoalConfigProvider(final ObjectMapper objectMapper, final SeedManager.JoalFoldersPath joalFoldersPath,
+                              final ApplicationEventPublisher publisher) throws FileNotFoundException {
         this.objectMapper = objectMapper;
         this.publisher = publisher;
 
         this.joalConfPath = joalFoldersPath.getConfPath().resolve(CONF_FILE_NAME);
-        if (!Files.isRegularFile(joalConfPath)) {
+        if (!isRegularFile(joalConfPath)) {
             throw new FileNotFoundException(String.format("App configuration file [%s] not found", joalConfPath));
         }
 

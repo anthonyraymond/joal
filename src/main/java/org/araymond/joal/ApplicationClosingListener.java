@@ -28,10 +28,10 @@ public class ApplicationClosingListener implements ApplicationListener<ContextCl
 
     @Override
     public void onApplicationEvent(final ContextClosedEvent event) {
-        log.info("Gracefully shutting down application.");
+        log.info("Gracefully shutting down application...");
         manager.stop();
         manager.tearDown();
-        log.info("JOAL gracefully shut down.");
+        log.info("JOAL gracefully shut down");
 
         // Since we disabled log4j2 shutdown hook, we need to handle it manually.
         final LifeCycle loggerContext = (LoggerContext) LogManager.getContext(false);

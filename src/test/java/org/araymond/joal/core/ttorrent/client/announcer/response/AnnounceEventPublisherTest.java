@@ -8,7 +8,7 @@ import org.araymond.joal.core.events.announce.WillAnnounceEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -169,7 +169,7 @@ public class AnnounceEventPublisherTest {
         final AnnounceEventPublisher notifier = new AnnounceEventPublisher(appEventPublisher);
         final Announcer announcer = mock(Announcer.class);
         Mockito.doReturn(new InfoHash("ddd".getBytes())).when(announcer).getTorrentInfoHash();
-        notifier.onTooManyAnnounceFailedInARaw(announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
+        notifier.onTooManyAnnounceFailedInARow(announcer, new TooManyAnnouncesFailedInARowException(mock(MockedTorrent.class)));
 
         final ArgumentCaptor<TooManyAnnouncesFailedEvent> captor = ArgumentCaptor.forClass(TooManyAnnouncesFailedEvent.class);
 

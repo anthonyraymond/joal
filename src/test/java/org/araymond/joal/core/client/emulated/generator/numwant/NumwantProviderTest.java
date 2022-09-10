@@ -12,17 +12,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class NumwantProviderTest {
 
     @Test
-    public void shouldNotBuildWithoutNumwant() {
-        assertThatThrownBy(() -> new NumwantProvider(null, 0))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("numwant must not be null.");
-    }
-
-    @Test
     public void shouldNotBuildWithNumwantLessThanOne() {
         assertThatThrownBy(() -> new NumwantProvider(0, 0))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("numwant must be at least 1.");
+                .hasMessage("numwant must be at least 1");
     }
 
     @Test
@@ -33,17 +26,10 @@ public class NumwantProviderTest {
     }
 
     @Test
-    public void shouldNotBuildWithoutNumwantOnStop() {
-        assertThatThrownBy(() -> new NumwantProvider(200, null))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessage("numwantOnStop must not be null.");
-    }
-
-    @Test
     public void shouldNotBuildWithNumwantOnStopLessThanZero() {
         assertThatThrownBy(() -> new NumwantProvider(200, -1))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessage("numwantOnStop must be at least 0.");
+                .hasMessage("numwantOnStop must be at least 0");
     }
 
     @Test

@@ -5,6 +5,7 @@ import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceResponseMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.ErrorMessage;
+import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
@@ -13,35 +14,23 @@ import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
+import org.springframework.http.HttpHeaders;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 
+@RequiredArgsConstructor
 public class TrackerClient {
     private final TrackerClientUriProvider trackerClientUriProvider;
-    private final HttpClient httpClient;
     private final ResponseHandler<TrackerMessage> trackerResponseHandler;
-
-    public TrackerClient(final TrackerClientUriProvider trackerClientUriProvider, final ResponseHandler<TrackerMessage> trackerResponseHandler, final HttpClient httpClient) {
-        this.trackerResponseHandler = trackerResponseHandler;
-        this.trackerClientUriProvider = trackerClientUriProvider;
-        this.httpClient = httpClient;
-    }
+    private final HttpClient httpClient;
 
     public SuccessAnnounceResponse announce(final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
-        final URI baseUri;
-        try {
-            while (!this.trackerClientUriProvider.get().getScheme().startsWith("http")) {
-                this.trackerClientUriProvider.deleteCurrentAndMoveToNext();
-            }
-            baseUri = this.trackerClientUriProvider.get();
-        } catch (final NoMoreUriAvailableException e) {
-            throw new AnnounceException("No more valid tracker URI", e);
-        }
-
+        final URI baseUri = this.trackerClientUriProvider.get();
         final TrackerMessage responseMessage;
+
         try {
             responseMessage = this.makeCallAndGetResponseAsByteBuffer(baseUri, requestQuery, headers);
 
@@ -54,44 +43,43 @@ public class TrackerClient {
             try {
                 this.trackerClientUriProvider.moveToNext();
             } catch (final NoMoreUriAvailableException e1) {
-                throw new AnnounceException("No more valid tracker for torrent.", e1);
+                throw new AnnounceException("No more valid tracker for torrent", e1);
             }
             throw new AnnounceException(e.getMessage(), e);
         }
 
         if (!(responseMessage instanceof AnnounceResponseMessage)) {
-            throw new AnnounceException("Unexpected tracker message type " + responseMessage.getType().name() + "!");
+            throw new AnnounceException("Unexpected tracker message type [" + responseMessage.getType().name() + "]!");
         }
 
         final AnnounceResponseMessage announceResponseMessage = (AnnounceResponseMessage) responseMessage;
 
         final int interval = announceResponseMessage.getInterval();
-        final int seeders = announceResponseMessage.getComplete() == 0 ? 0 : announceResponseMessage.getComplete() - 1;  // Subtract one to seeders since we are one of them
+        final int seeders = Math.max(0, announceResponseMessage.getComplete() - 1);  // -1 seeders since we are one of them; TODO: not the case while we're downloading though, right? not too sure about that..
         final int leechers = announceResponseMessage.getIncomplete();
         return new SuccessAnnounceResponse(interval, seeders, leechers);
     }
 
     @VisibleForTesting
-    TrackerMessage makeCallAndGetResponseAsByteBuffer(final URI announceUri, final String requestQuery, final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
-        final String base = announceUri + (announceUri.toString().contains("?") ? "&": "?");
+    TrackerMessage makeCallAndGetResponseAsByteBuffer(final URI announceUri, final String requestQuery,
+                                                      final Iterable<Map.Entry<String, String>> headers) throws AnnounceException {
+        final String base = announceUri + (announceUri.toString().contains("?") ? "&" : "?");
         final HttpUriRequest request = new HttpGet(base + requestQuery);
 
         String host = announceUri.getHost();
         if (announceUri.getPort() != -1) {
             host += ":" + announceUri.getPort();
         }
-        request.addHeader("Host", host);
-        for (final Map.Entry<String, String> entry : headers) {
-            request.addHeader(entry.getKey(), entry.getValue());
-        }
+        request.addHeader(HttpHeaders.HOST, host);
+        headers.forEach(hdrEntry -> request.addHeader(hdrEntry.getKey(), hdrEntry.getValue()));
 
         final HttpResponse response;
         try {
             response = httpClient.execute(request);
         } catch (final ClientProtocolException e) {
-            throw new AnnounceException("Failed to announce: protocol mismatch.", e);
+            throw new AnnounceException("Failed to announce: protocol mismatch", e);
         } catch (final IOException e) {
-            throw new AnnounceException("Failed to announce: error or connection aborted.", e);
+            throw new AnnounceException("Failed to announce: error or connection aborted", e);
         }
 
         try {

@@ -1,20 +1,12 @@
 package org.araymond.joal.core.client.emulated.generator.key.algorithm;
 
-import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class HashNoLeadingZeroKeyAlgorithmTest {
-
-    @Test
-    public void shouldNotBuildWithNullLength() {
-        assertThatThrownBy(() -> new HashNoLeadingZeroKeyAlgorithm(null))
-                .isInstanceOf(TorrentClientConfigIntegrityException.class);
-    }
 
     @Test
     public void shouldGenerateValidHash() {

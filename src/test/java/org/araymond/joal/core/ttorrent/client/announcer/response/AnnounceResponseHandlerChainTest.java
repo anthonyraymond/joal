@@ -3,7 +3,7 @@ package org.araymond.joal.core.ttorrent.client.announcer.response;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -41,8 +41,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchOnWillAnnounce() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -59,8 +59,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchSuccessAnnounceStart() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -78,8 +78,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchSuccessAnnounceRegular() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -97,8 +97,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchSuccessAnnounceStop() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -116,8 +116,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchFailAnnounceStart() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -134,8 +134,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchFailAnnounceRegular() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -152,8 +152,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchFailAnnounceStop() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -170,8 +170,8 @@ public class AnnounceResponseHandlerChainTest {
 
     @Test
     public void shouldDispatchTooManyFails() {
-        final AnnounceResponseHandlerChainElement e1 = mock(AnnounceResponseHandlerChainElement.class);
-        final AnnounceResponseHandlerChainElement e2 = mock(AnnounceResponseHandlerChainElement.class);
+        final AnnounceResponseHandler e1 = mock(AnnounceResponseHandler.class);
+        final AnnounceResponseHandler e2 = mock(AnnounceResponseHandler.class);
 
         final AnnounceResponseHandlerChain announceResponseHandlerChain = new AnnounceResponseHandlerChain();
         announceResponseHandlerChain.appendHandler(e1);
@@ -179,15 +179,15 @@ public class AnnounceResponseHandlerChainTest {
 
         final Announcer announcer = mock(Announcer.class);
 
-        announceResponseHandlerChain.onTooManyAnnounceFailedInARaw(RequestEvent.STARTED, announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
+        announceResponseHandlerChain.onTooManyAnnounceFailedInARow(RequestEvent.STARTED, announcer, new TooManyAnnouncesFailedInARowException(mock(MockedTorrent.class)));
 
-        Mockito.verify(e1, times(1)).onTooManyAnnounceFailedInARaw(eq(announcer), any(TooMuchAnnouncesFailedInARawException.class));
-        Mockito.verify(e2, times(1)).onTooManyAnnounceFailedInARaw(eq(announcer), any(TooMuchAnnouncesFailedInARawException.class));
+        Mockito.verify(e1, times(1)).onTooManyAnnounceFailedInARow(eq(announcer), any(TooManyAnnouncesFailedInARowException.class));
+        Mockito.verify(e2, times(1)).onTooManyAnnounceFailedInARow(eq(announcer), any(TooManyAnnouncesFailedInARowException.class));
         Mockito.verifyNoMoreInteractions(e1, e2);
     }
 
 
-    private static class DefaultResponseHandler implements AnnounceResponseHandlerChainElement {
+    private static class DefaultResponseHandler implements AnnounceResponseHandler {
         @Override
         public void onAnnouncerWillAnnounce(final Announcer announcer, final RequestEvent event) {
         }
@@ -217,7 +217,7 @@ public class AnnounceResponseHandlerChainTest {
         }
 
         @Override
-        public void onTooManyAnnounceFailedInARaw(final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
+        public void onTooManyAnnounceFailedInARow(final Announcer announcer, final TooManyAnnouncesFailedInARowException e) {
         }
     }
 

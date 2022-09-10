@@ -9,28 +9,22 @@ import java.util.concurrent.ThreadLocalRandom;
 @EqualsAndHashCode
 public class DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm implements KeyAlgorithm {
 
-    private final Long inclusiveLowerBound;
-    private final Long inclusiveUpperBound;
+    private final long inclusiveLowerBound;
+    private final long inclusiveUpperBound;
 
     public DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm(
-            @JsonProperty(value = "inclusiveLowerBound", required = true) final Long inclusiveLowerBound,
-            @JsonProperty(value = "inclusiveUpperBound", required = true) final Long inclusiveUpperBound
+            @JsonProperty(value = "inclusiveLowerBound", required = true) final long inclusiveLowerBound,
+            @JsonProperty(value = "inclusiveUpperBound", required = true) final long inclusiveUpperBound
     ) {
-        if (inclusiveLowerBound == null) {
-            throw new TorrentClientConfigIntegrityException("inclusiveLowerBound algorithm length must not be null.");
-        }
-        if (inclusiveUpperBound == null) {
-            throw new TorrentClientConfigIntegrityException("inclusiveUpperBound algorithm length must not be null.");
-        }
         if (inclusiveUpperBound < inclusiveLowerBound) {
-            throw new TorrentClientConfigIntegrityException("inclusiveUpperBound must be greater than inclusiveLowerBound.");
+            throw new TorrentClientConfigIntegrityException("inclusiveUpperBound must be greater than inclusiveLowerBound");
         }
 
         this.inclusiveLowerBound = inclusiveLowerBound;
         this.inclusiveUpperBound = inclusiveUpperBound;
     }
 
-    long getRandomDigitBetween(final Long minInclusive, final Long maxInclusive) {
+    long getRandomDigitBetween(final Long minInclusive, final long maxInclusive) {
         return ThreadLocalRandom.current().nextLong(minInclusive, maxInclusive + 1);
     }
 

@@ -2,7 +2,6 @@ package org.araymond.joal.core.client.emulated;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -18,12 +17,18 @@ import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 
 import java.net.Inet4Address;
 import java.net.Inet6Address;
+import java.net.InetAddress;
 import java.util.*;
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
+import static com.google.common.base.StandardSystemProperty.JAVA_VERSION;
+import static com.google.common.base.StandardSystemProperty.OS_NAME;
+import static java.lang.String.valueOf;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toSet;
+import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 
 /**
@@ -35,10 +40,30 @@ public class BitTorrentClient {
     private final KeyGenerator keyGenerator;
     private final UrlEncoder urlEncoder;
     @Getter private final String query;
-    private final List<Map.Entry<String, String>> headers;
+    @Getter private final Collection<HttpHeader> headers;
     private final NumwantProvider numwantProvider;
 
-    BitTorrentClient(final PeerIdGenerator peerIdGenerator, final KeyGenerator keyGenerator, final UrlEncoder urlEncoder, final String query, final Collection<HttpHeader> headers, final NumwantProvider numwantProvider) {
+    private static final Pattern INFOHASH_PTRN = Pattern.compile("\\{infohash}");
+    private static final Pattern UPLOADED_PTRN = Pattern.compile("\\{uploaded}");
+    private static final Pattern DOWNLOADED_PTRN = Pattern.compile("\\{downloaded}");
+    private static final Pattern LEFT_PTRN = Pattern.compile("\\{left}");
+    private static final Pattern PORT_PTRN = Pattern.compile("\\{port}");
+    private static final Pattern NUMWANT_PTRN = Pattern.compile("\\{numwant}");
+    private static final Pattern PEER_ID_PTRN = Pattern.compile("\\{peerid}");
+    private static final Pattern EVENT_PTRN = Pattern.compile("\\{event}");
+    private static final Pattern KEY_PTRN = Pattern.compile("\\{key}");
+    private static final Pattern JAVA_PTRN = Pattern.compile("\\{java}");
+    private static final Pattern OS_PTRN = Pattern.compile("\\{os}");
+    private static final Pattern LOCALE_PTRN = Pattern.compile("\\{locale}");
+    private static final Pattern AMPERSAND_DUPES_PTRN = Pattern.compile("&{2,}");
+    private static final Pattern IP_PTRN = Pattern.compile("\\{ip}");
+    private static final Pattern IPV6_PTRN = Pattern.compile("\\{ipv6}");
+    private static final Pattern IP_Q_PTRN = Pattern.compile("&*\\w+=\\{ip(?:v6)?}");
+    private static final Pattern EVENT_Q_PTRN = Pattern.compile("&*\\w+=\\{event}");
+    private static final Pattern PLACEHOLDER_PTRN = Pattern.compile("\\{.*?}");
+
+    BitTorrentClient(final PeerIdGenerator peerIdGenerator, final KeyGenerator keyGenerator, final UrlEncoder urlEncoder,
+                     final String query, final Collection<HttpHeader> headers, final NumwantProvider numwantProvider) {
         Preconditions.checkNotNull(peerIdGenerator, "peerIdGenerator cannot be null or empty");
         Preconditions.checkNotNull(urlEncoder, "urlEncoder cannot be null");
         Preconditions.checkArgument(!StringUtils.isBlank(query), "query cannot be null or empty");
@@ -47,7 +72,7 @@ public class BitTorrentClient {
         this.peerIdGenerator = peerIdGenerator;
         this.urlEncoder = urlEncoder;
         this.query = query;
-        this.headers = headers.stream().map(h -> new AbstractMap.SimpleImmutableEntry<>(h.getName(), h.getValue())).collect(Collectors.toList());
+        this.headers = headers;
         this.keyGenerator = keyGenerator;
         this.numwantProvider = numwantProvider;
     }
@@ -62,85 +87,79 @@ public class BitTorrentClient {
                 .map(keyGen -> keyGen.getKey(infoHash, event));
     }
 
-    public List<Map.Entry<String, String>> getHeaders() {
-        return ImmutableList.copyOf(headers);
-    }
-
     @VisibleForTesting
-    Integer getNumwant(final RequestEvent event) {
+    int getNumwant(final RequestEvent event) {
         return this.numwantProvider.get(event);
     }
 
-    public String createRequestQuery(final RequestEvent event, final InfoHash torrentInfoHash, final TorrentSeedStats stats, final ConnectionHandler connectionHandler) {
-        String emulatedClientQuery = this.getQuery()
-                .replaceAll("\\{infohash}", urlEncoder.encode(torrentInfoHash.value()))
-                .replaceAll("\\{uploaded}", String.valueOf(stats.getUploaded()))
-                .replaceAll("\\{downloaded}", String.valueOf(stats.getDownloaded()))
-                .replaceAll("\\{left}", String.valueOf(stats.getLeft()))
-                .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
-                .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
+    /**
+     * For torrent protocol, see https://wiki.theory.org/BitTorrent_Tracker_Protocol
+     */
+    public String createRequestQuery(final RequestEvent event, final InfoHash torrentInfoHash,
+                                     final TorrentSeedStats stats, final ConnectionHandler connectionHandler) {
+        String q = INFOHASH_PTRN.matcher(this.getQuery()).replaceAll(urlEncoder.encode(torrentInfoHash.value()));
+        q = UPLOADED_PTRN.matcher(q).replaceAll(valueOf(stats.getUploaded()));
+        q = DOWNLOADED_PTRN.matcher(q).replaceAll(valueOf(stats.getDownloaded()));
+        q = LEFT_PTRN.matcher(q).replaceAll(valueOf(stats.getLeft()));
+        q = PORT_PTRN.matcher(q).replaceAll(valueOf(connectionHandler.getPort()));
+        q = NUMWANT_PTRN.matcher(q).replaceAll(valueOf(this.getNumwant(event)));
 
         final String peerId = this.peerIdGenerator.isShouldUrlEncode()
                 ? urlEncoder.encode(this.getPeerId(torrentInfoHash, event))
                 : this.getPeerId(torrentInfoHash, event);
-        emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", peerId);
+        q = PEER_ID_PTRN.matcher(q).replaceAll(peerId);
 
         // set ip or ipv6 then remove placeholders that were left empty
-        if (connectionHandler.getIpAddress() instanceof Inet4Address) {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ip}", connectionHandler.getIpAddress().getHostAddress());
-        } else if(connectionHandler.getIpAddress() instanceof Inet6Address) {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{ipv6}", urlEncoder.encode(connectionHandler.getIpAddress().getHostAddress()));
+        InetAddress addy = connectionHandler.getIpAddress();
+        if (q.contains("{ip}") && addy instanceof Inet4Address) {
+            q = IP_PTRN.matcher(q).replaceAll(addy.getHostAddress());
+        } else if (q.contains("{ipv6}") && addy instanceof Inet6Address) {
+            q = IPV6_PTRN.matcher(q).replaceAll(urlEncoder.encode(addy.getHostAddress()));
         }
-        emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ipv6}", "");
-        emulatedClientQuery = emulatedClientQuery.replaceAll("[&]*[a-zA-Z0-9]+=\\{ip}", "");
+        q = IP_Q_PTRN.matcher(q).replaceAll(EMPTY);
 
         if (event == null || event == RequestEvent.NONE) {
-            // if event was NONE, remove the event from the query string
-            emulatedClientQuery = emulatedClientQuery.replaceAll("([&]*[a-zA-Z0-9]+=\\{event})", "");
+            // if event was NONE, remove the event from the query string; this is the normal announce made at regular intervals.
+            q = EVENT_Q_PTRN.matcher(q).replaceAll(EMPTY);
         } else {
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{event}", event.getEventName());
+            q = EVENT_PTRN.matcher(q).replaceAll(event.getEventName());
         }
 
-        if (emulatedClientQuery.contains("{key}")) {
-            final String key = this.getKey(torrentInfoHash, event).orElseThrow(() -> new IllegalStateException("Client request query contains 'key' but BitTorrentClient does not have a key."));
-            emulatedClientQuery = emulatedClientQuery.replaceAll("\\{key}", urlEncoder.encode(key));
+        if (q.contains("{key}")) {
+            final String key = this.getKey(torrentInfoHash, event)
+                    .orElseThrow(() -> new IllegalStateException("Client request query contains 'key' but BitTorrentClient does not have a key"));
+            q = KEY_PTRN.matcher(q).replaceAll(urlEncoder.encode(key));
         }
 
-        final Matcher matcher = Pattern.compile("(.*?\\{.*?})").matcher(emulatedClientQuery);
-        if (matcher.find()) {
-            final String unrecognizedPlaceHolder = matcher.group();
-            throw new UnrecognizedClientPlaceholder("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building announce URL.");
+        final Matcher placeholderMatcher = PLACEHOLDER_PTRN.matcher(q);
+        if (placeholderMatcher.find()) {
+            throw new UnrecognizedClientPlaceholder("Placeholder [" + placeholderMatcher.group() + "] were not recognized while building announce URL");
         }
 
-        // we might have removed event, ipv6 or ipv6, some '&' might have remains, lets remove them.
-        if (emulatedClientQuery.endsWith("&")) {
-            emulatedClientQuery = emulatedClientQuery.substring(0, emulatedClientQuery.length() - 1);
+        q = AMPERSAND_DUPES_PTRN.matcher(q).replaceAll("&");  // collapse dupes
+
+        if (q.endsWith("&")) {
+            q = q.substring(0, q.length() - 1);
         }
-        if (emulatedClientQuery.startsWith("&")) {
-            emulatedClientQuery = emulatedClientQuery.substring(1, emulatedClientQuery.length());
+        if (q.startsWith("&")) {
+            q = q.substring(1);
         }
-        emulatedClientQuery = emulatedClientQuery.replaceAll("&{2,}", "&");
-        return emulatedClientQuery;
+
+        return q;
     }
 
-    public List<Map.Entry<String, String>> createRequestHeaders() {
-        final List<Map.Entry<String, String>> headers = new ArrayList<>(this.headers.size() + 1);
+    public Set<Map.Entry<String, String>> createRequestHeaders() {
+        return this.headers.stream().map(hdr -> {
+            String value = JAVA_PTRN.matcher(hdr.getValue()).replaceAll(System.getProperty(JAVA_VERSION.key()));
+            value = OS_PTRN.matcher(value).replaceAll(System.getProperty(OS_NAME.key()));
+            value = LOCALE_PTRN.matcher(value).replaceAll(Locale.getDefault().toLanguageTag());
 
-        for (final Map.Entry<String, String> header : this.headers) {
-            final String name = header.getKey();
-            final String value = header.getValue()
-                    .replaceAll("\\{java}", System.getProperty("java.version"))
-                    .replaceAll("\\{os}", System.getProperty("os.name"))
-                    .replaceAll("\\{locale}", Locale.getDefault().toLanguageTag());
-
-            final Matcher matcher = Pattern.compile("(\\{.*?})").matcher(value);
-            if (matcher.find()) {
-                final String unrecognizedPlaceHolder = matcher.group();
-                throw new UnrecognizedClientPlaceholder("Placeholder " + unrecognizedPlaceHolder + " were not recognized while building client Headers.");
+            final Matcher placeholderMatcher = PLACEHOLDER_PTRN.matcher(value);
+            if (placeholderMatcher.find()) {
+                throw new UnrecognizedClientPlaceholder("Placeholder [" + placeholderMatcher.group() + "] were not recognized while building client Headers");
             }
 
-            headers.add(new AbstractMap.SimpleImmutableEntry<>(name, value));
-        }
-        return headers;
+            return new SimpleImmutableEntry<>(hdr.getName(), value);
+        }).collect(toSet());
     }
 }

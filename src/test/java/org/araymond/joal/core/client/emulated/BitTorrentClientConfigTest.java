@@ -12,17 +12,13 @@ import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -60,7 +56,7 @@ public class BitTorrentClientConfigTest {
 
         assertThatThrownBy(() -> new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, defaultUrlEncoder, requestHeaders, 200, 0))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessageContaining("Query string contains {key}, but no keyGenerator was found in .client file.");
+                .hasMessageContaining("Query string contains {key}, but no keyGenerator was found in .client file");
     }
 
     @Test
@@ -110,10 +106,7 @@ public class BitTorrentClientConfigTest {
         final BitTorrentClientConfig config = new BitTorrentClientConfig(peerIdGenerator, query, keyGenerator, defaultUrlEncoder, requestHeaders, 200, 0);
 
         final BitTorrentClient client = provider.createClient(config);
-        assertThat(client.getHeaders()).isEqualTo(requestHeaders.stream()
-                .map(header -> new AbstractMap.SimpleEntry<>(header.getName(), header.getValue()))
-                .collect(Collectors.toList())
-        );
+        assertThat(client.getHeaders()).isEqualTo(requestHeaders);
         assertThat(client.getQuery()).isEqualTo(query);
         //noinspection OptionalGetWithoutIsPresent
         assertThat(client.getKey(null, RequestEvent.STARTED).get()).isEqualTo(keyGenerator.getKey(null, RequestEvent.STARTED));

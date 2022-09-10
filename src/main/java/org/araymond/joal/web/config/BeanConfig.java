@@ -16,7 +16,8 @@ import java.io.IOException;
 public class BeanConfig {
 
     @Bean
-    public SeedManager seedManager(@Value("${joal-conf}") final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
+    public SeedManager seedManager(@Value("${joal-conf}") final String joalConfFolder,
+                                   final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
         return new SeedManager(joalConfFolder, mapper, publisher);
     }
 }

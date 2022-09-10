@@ -10,6 +10,8 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static java.util.Collections.emptyList;
+
 public class DelayQueue<T extends DelayQueue.InfoHashAble> {
     private final Lock lock = new ReentrantLock();
     private final Queue<IntervalAware<T>> queue = new PriorityQueue<>();
@@ -28,7 +30,7 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
         );
         this.lock.lock();
         try {
-            this.queue.removeIf(i -> i.getItem().getInfoHash().equals(item.getInfoHash())); // Ensure no double will be present in the queue (don't ant to have two announce type for a torrent)
+            this.queue.removeIf(i -> i.getItem().getInfoHash().equals(item.getInfoHash()));  // Ensure no double will be present in the queue (don't want to have two announce type for a torrent)
             this.queue.add(intervalAware);
         } finally {
             this.lock.unlock();
@@ -41,13 +43,13 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
             final IntervalAware<T> first = queue.peek();
             final LocalDateTime now = LocalDateTime.now();
             if (first == null || first.releaseAt.isAfter(now)) {
-                return Collections.emptyList();
+                return emptyList();
             }
 
             final List<T> timedOutItems = new ArrayList<>();
             do {
                 timedOutItems.add(this.queue.poll().getItem());
-            } while (this.queue.size() > 0 && !this.queue.peek().releaseAt.isAfter(now));
+            } while (!this.queue.isEmpty() && !this.queue.peek().releaseAt.isAfter(now));
 
             return timedOutItems;
         } finally {
@@ -68,7 +70,7 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
         this.lock.lock();
         try {
             final List<T> items = new ArrayList<>(queue.size());
-            while (queue.size() > 0) {
+            while (!queue.isEmpty()) {
                 items.add(queue.poll().getItem());
             }
             return items;
@@ -77,11 +79,9 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
         }
     }
 
-
     @RequiredArgsConstructor
     private static final class IntervalAware<T> implements Comparable<IntervalAware> {
-        @Getter
-        private final T item;
+        @Getter private final T item;
         private final LocalDateTime releaseAt;
 
         @Override

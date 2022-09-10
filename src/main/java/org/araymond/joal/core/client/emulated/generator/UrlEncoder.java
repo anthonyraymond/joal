@@ -17,21 +17,19 @@ import static java.lang.String.valueOf;
 @Getter
 public class UrlEncoder {
 
-    @JsonProperty("encodingExclusionPattern")
     private final String encodingExclusionPattern;
-    @JsonProperty("encodedHexCase")
     private final Casing encodedHexCase;
     @JsonIgnore
     private final Pattern pattern;
 
     @JsonCreator
     public UrlEncoder(
-            @JsonProperty(value = "encodingExclusionPattern" ,required = true) final String encodingExclusionPattern,
-            @JsonProperty(value = "encodedHexCase" ,required = true) final Casing encodedHexCase
+            @JsonProperty(value = "encodingExclusionPattern", required = true) final String encodingExclusionPattern,
+            @JsonProperty(value = "encodedHexCase", required = true) final Casing encodedHexCase
     ) {
         this.encodingExclusionPattern = encodingExclusionPattern;
-        this.pattern = Pattern.compile(this.encodingExclusionPattern);
         this.encodedHexCase = encodedHexCase;
+        this.pattern = Pattern.compile(this.encodingExclusionPattern);
     }
 
     /**

@@ -2,7 +2,6 @@ package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
-import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,9 +11,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
 import java.nio.channels.ServerSocketChannel;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * Created by raymo on 23/01/2017.
@@ -30,16 +32,22 @@ public class ConnectionHandler {
     private InetAddress ipAddress;
     private Thread ipFetcherThread;
     private static final String[] IP_PROVIDERS = new String[]{
+            "http://whatismyip.akamai.com",
+            "http://ipecho.net/plain",
             "http://ip.tyk.nu/",
             "http://l2.io/ip",
             "http://ident.me/",
-            "http://icanhazip.com/"
+            "http://icanhazip.com/",
+            "https://api.ipify.org",
+            "https://ipinfo.io/ip",
+            "https://checkip.amazonaws.com"
     };
 
     public int getPort() {
         return this.channel.socket().getLocalPort();
     }
 
+    // TODO: use @Scheduled
     public void start() throws IOException {
         this.channel = this.bindToPort();
         final int port = this.channel.socket().getLocalPort();
@@ -51,8 +59,7 @@ public class ConnectionHandler {
         this.ipFetcherThread = new Thread(() -> {
             while (this.ipFetcherThread == null || !this.ipFetcherThread.isInterrupted()) {
                 try {
-                    // Sleep for one hour and a half.
-                    Thread.sleep(1000 * 5400);
+                    MINUTES.sleep(90);  // TODO: move to config
                     this.ipAddress = this.fetchIp();
                 } catch (final UnknownHostException e) {
                     log.warn("Faield to fetch Ip", e);
@@ -68,7 +75,7 @@ public class ConnectionHandler {
     @VisibleForTesting
     InetAddress readIpFromProvider(final String providerUrl) throws IOException {
         final URLConnection urlConnection = new URL(providerUrl).openConnection();
-        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+        urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");  // TODO: move to config
         try (final BufferedReader in = new BufferedReader(new InputStreamReader(urlConnection.getInputStream(), Charsets.UTF_8))) {
             return InetAddress.getByName(in.readLine());
         } finally {
@@ -81,15 +88,15 @@ public class ConnectionHandler {
 
     @VisibleForTesting
     Optional<InetAddress> tryToFetchFromProviders() {
-        final List<String> shuffledList = Lists.newArrayList(IP_PROVIDERS);
-        Collections.shuffle(shuffledList);
+        final List<String> shuffledList = Arrays.asList(IP_PROVIDERS);
+        Collections.shuffle(shuffledList);  // TODO: why shuffle? perhaps better use Iterators.cycle here like we do in TrackerClientUriProvider?
 
-        for (final String ipProvider : shuffledList) {
-            log.info("Fetching ip from: " + ipProvider);
+        for (final String ipProviderUrl : shuffledList) {
+            log.info("Fetching ip from {}", ipProviderUrl);
             try {
-                return Optional.of(this.readIpFromProvider(ipProvider));
+                return Optional.of(this.readIpFromProvider(ipProviderUrl));
             } catch (final IOException e) {
-                log.warn("Failed to fetch Ip from [" + ipProvider + "]", e);
+                log.warn("Failed to fetch Ip from [" + ipProviderUrl + "]", e);
             }
         }
 
@@ -160,5 +167,4 @@ public class ConnectionHandler {
         }
         log.debug("ConnectionHandler closed.");
     }
-
 }

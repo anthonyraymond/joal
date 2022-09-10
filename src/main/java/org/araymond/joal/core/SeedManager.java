@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.config.SocketConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -13,6 +14,7 @@ import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.bandwith.Speed;
 import org.araymond.joal.core.bandwith.SpeedChangedListener;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
+import org.araymond.joal.core.client.emulated.BitTorrentClientConfig;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
@@ -40,6 +42,12 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static java.nio.file.Files.isDirectory;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.springframework.http.HttpHeaders.USER_AGENT;
 
 /**
  * This is the outer boundary of our the business logic. Most (if not all)
@@ -76,10 +84,18 @@ public class SeedManager {
         connManager.setMaxTotal(200);
         connManager.setValidateAfterInactivity(1000);
         connManager.setDefaultSocketConfig(sc);
+
+        RequestConfig requestConf = RequestConfig.custom()
+                .setConnectTimeout(10_000)
+                .setConnectionRequestTimeout(5000)  // timeout for requesting connection from connection manager
+                .setSocketTimeout(5000)
+                .build();
+
         this.httpClient = HttpClients.custom()
                 .setConnectionTimeToLive(1, TimeUnit.MINUTES)
                 .setConnectionManager(connManager)
                 .setConnectionManagerShared(true)
+                .setDefaultRequestConfig(requestConf)
                 .build();
     }
 
@@ -104,13 +120,12 @@ public class SeedManager {
 
         this.configProvider.init();
         final AppConfiguration appConfiguration = this.configProvider.get();
-        final List<String> clientFiles = this.bitTorrentClientProvider.listClientFiles();
-        this.publisher.publishEvent(new ListOfClientFilesEvent(clientFiles));
+        this.publisher.publishEvent(new ListOfClientFilesEvent(this.listClientFiles()));
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
         final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(appConfiguration);
-        this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);
+        this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);  // TODO: move interval to config
         this.bandwidthDispatcher.setSpeedListener(new SeedManagerSpeedChangeListener(this.publisher));
         this.bandwidthDispatcher.start();
 
@@ -135,15 +150,14 @@ public class SeedManager {
 
     public void saveTorrentToDisk(final String name, final byte[] bytes) {
         try {
-            // test if torrent file is valid or not.
-            MockedTorrent.fromBytes(bytes);
+            MockedTorrent.fromBytes(bytes);  // test if torrent file is valid or not
 
             final String torrentName = name.endsWith(".torrent") ? name : name + ".torrent";
             Files.write(this.joalFoldersPath.getTorrentFilesPath().resolve(torrentName), bytes, StandardOpenOption.CREATE);
         } catch (final Exception e) {
             log.warn("Failed to save torrent file", e);
             // If NullPointerException occurs (when the file is an empty file) there is no message.
-            final String errorMessage = Optional.ofNullable(e.getMessage()).orElse("Empty file");
+            final String errorMessage = firstNonNull(e.getMessage(), "Empty/bad file");
             this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
         }
     }
@@ -160,12 +174,12 @@ public class SeedManager {
         return bitTorrentClientProvider.listClientFiles();
     }
 
-    public List<AnnouncerFacade> getCurrentlySeedingAnnouncer() {
-        return this.client == null ? new ArrayList<>() : client.getCurrentlySeedingAnnouncer();
+    public List<AnnouncerFacade> getCurrentlySeedingAnnouncers() {
+        return this.client == null ? emptyList() : client.getCurrentlySeedingAnnouncers();
     }
 
     public Map<InfoHash, Speed> getSpeedMap() {
-        return this.bandwidthDispatcher == null ? new HashMap<>() : bandwidthDispatcher.getSpeedMap();
+        return this.bandwidthDispatcher == null ? emptyMap() : bandwidthDispatcher.getSpeedMap();
     }
 
     public AppConfiguration getCurrentConfig() {
@@ -180,9 +194,9 @@ public class SeedManager {
     public String getCurrentEmulatedClient() {
         try {
             return this.bitTorrentClientProvider.get().getHeaders().stream()
-                    .filter(entry -> "User-Agent".equalsIgnoreCase(entry.getKey()))
-                    .map(Map.Entry::getValue)
+                    .filter(hdr -> USER_AGENT.equalsIgnoreCase(hdr.getName()))
                     .findFirst()
+                    .map(BitTorrentClientConfig.HttpHeader::getValue)
                     .orElse("Unknown");
         } catch (final IllegalStateException e) {
             return "None";
@@ -204,6 +218,7 @@ public class SeedManager {
     }
 
 
+    // TODO: move to config, also rename?
     @Getter
     public static class JoalFoldersPath {
         private final Path confPath;
@@ -220,13 +235,13 @@ public class SeedManager {
             this.torrentArchivedPath = this.torrentFilesPath.resolve("archived");
             this.clientsFilesPath = this.confPath.resolve("clients");
 
-            if (!Files.isDirectory(confPath)) {
+            if (!isDirectory(confPath)) {
                 log.warn("No such directory: {}", this.confPath);
             }
-            if (!Files.isDirectory(torrentFilesPath)) {
+            if (!isDirectory(torrentFilesPath)) {
                 log.warn("Sub-folder 'torrents' is missing in joal conf folder: {}", this.torrentFilesPath);
             }
-            if (!Files.isDirectory(clientsFilesPath)) {
+            if (!isDirectory(clientsFilesPath)) {
                 log.warn("Sub-folder 'clients' is missing in joal conf folder: {}", this.clientsFilesPath);
             }
         }

@@ -1,15 +1,16 @@
 package org.araymond.joal.core.torrent.torrent;
 
-import com.google.common.base.Charsets;
 import com.turn.ttorrent.bcodec.InvalidBEncodingException;
 import com.turn.ttorrent.common.Torrent;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -17,10 +18,11 @@ import java.security.NoSuchAlgorithmException;
  */
 @SuppressWarnings("ClassWithOnlyPrivateConstructors")
 @EqualsAndHashCode
+@Getter
 public class MockedTorrent extends Torrent {
-    public static final Charset BYTE_ENCODING = Charsets.ISO_8859_1;
+    public static final Charset BYTE_ENCODING = StandardCharsets.ISO_8859_1;
 
-    private final InfoHash infoHash;
+    private final InfoHash torrentInfoHash;
     /**
      * Create a new torrent from meta-info binary data.
      * <p>
@@ -28,7 +30,7 @@ public class MockedTorrent extends Torrent {
      * BitTorrent specification) and create a Torrent object from it.
      *
      * @param torrent The meta-info byte data.
-     * @param seeder  Whether we'll be seeding for this torrent or not.
+     * @param seeder  Whether we're the _initial_ seeder for this torrent.
      * @throws IOException When the info dictionary can't be read or
      *                     encoded and hashed back to create the torrent's SHA-1 hash.
      */
@@ -46,19 +48,20 @@ public class MockedTorrent extends Torrent {
         } catch (final InvalidBEncodingException ex) {
             throw new IllegalArgumentException("Error reading torrent meta-info fields!", ex);
         }
-        this.infoHash = new InfoHash(this.getInfoHash());
+
+        this.torrentInfoHash = new InfoHash(this.getInfoHash());
     }
 
-    public InfoHash getTorrentInfoHash() {
-        return this.infoHash;
+    private MockedTorrent(byte[] data) throws IOException, NoSuchAlgorithmException {
+        this(data, false);
     }
 
-    public static MockedTorrent fromFile(final File torrent) throws IOException, NoSuchAlgorithmException {
-        final byte[] data = FileUtils.readFileToByteArray(torrent);
-        return new MockedTorrent(data, true);
+    public static MockedTorrent fromFile(final File torrentFile) throws IOException, NoSuchAlgorithmException {
+        final byte[] data = FileUtils.readFileToByteArray(torrentFile);
+        return new MockedTorrent(data);
     }
 
     public static MockedTorrent fromBytes(final byte[] bytes) throws IOException, NoSuchAlgorithmException {
-        return new MockedTorrent(bytes, false);
+        return new MockedTorrent(bytes);
     }
 }

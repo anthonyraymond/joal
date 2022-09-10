@@ -5,7 +5,7 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.response.AnnounceResponseCallback;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.mock;
 public class AnnouncerExecutorTest {
 
     @Test
-    public void shouldNotExecuteMoreThanThreeConcurentThreads() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldNotExecuteMoreThanThreeConcurentThreads() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
         final AnnouncerExecutor executor = new AnnouncerExecutor(new DefaultCallback());
         final AtomicInteger atomicInteger = new AtomicInteger(0);
 
@@ -50,7 +50,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldCallCallbackAfterExecution() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldCallCallbackAfterExecution() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
         final CountDownLatch countDown = new CountDownLatch(100);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -72,7 +72,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldCallOnAnnounceFailureWhenAnnounceThrownException() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldCallOnAnnounceFailureWhenAnnounceThrownException() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
         final CountDownLatch countDown = new CountDownLatch(100);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -94,11 +94,11 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldCallTooManyFailsWhenAnnounceThrownTooManyFails() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldCallTooManyFailsWhenAnnounceThrownTooManyFails() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
         final CountDownLatch countDown = new CountDownLatch(100);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
-            public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
+            public void onTooManyAnnounceFailedInARow(final RequestEvent event, final Announcer announcer, final TooManyAnnouncesFailedInARowException e) {
                 countDown.countDown();
             }
         };
@@ -107,7 +107,7 @@ public class AnnouncerExecutorTest {
         for (int i = 0; i < 100; i++) {
             final Announcer announcer = mock(Announcer.class);
             Mockito.doReturn(new InfoHash(ByteBuffer.allocate(4).putInt(i).array())).when(announcer).getTorrentInfoHash();
-            Mockito.doThrow(new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class))).when(announcer).announce(Mockito.any());
+            Mockito.doThrow(new TooManyAnnouncesFailedInARowException(mock(MockedTorrent.class))).when(announcer).announce(Mockito.any());
             executor.execute(AnnounceRequest.createRegular(announcer));
         }
 
@@ -116,7 +116,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldDenyAThread() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldDenyAThread() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
         final AtomicInteger atomicInteger = new AtomicInteger(0);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -160,7 +160,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldDenyAll() throws InterruptedException, AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldDenyAll() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
         final AtomicInteger atomicInteger = new AtomicInteger(0);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -191,11 +191,11 @@ public class AnnouncerExecutorTest {
         assertThat(executor.denyAll()).hasSize(100);
         assertThat(atomicInteger.get()).isEqualTo(0);
 
-        assertThat(executor.denyAll()).hasSize(0); // after being denied, the list of running thread should be empty
+        assertThat(executor.denyAll()).isEmpty();  // after being denied, the list of running thread should be empty
     }
 
     @Test
-    public void shouldAwaitAllThreadToFinishBeforeReturningFromAwait() throws AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldAwaitAllThreadToFinishBeforeReturningFromAwait() throws AnnounceException, TooManyAnnouncesFailedInARowException {
         final AtomicInteger atomicInteger = new AtomicInteger(0);
 
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
@@ -242,7 +242,7 @@ public class AnnouncerExecutorTest {
         }
 
         @Override
-        public void onTooManyAnnounceFailedInARaw(final RequestEvent event, final Announcer announcer, final TooMuchAnnouncesFailedInARawException e) {
+        public void onTooManyAnnounceFailedInARow(final RequestEvent event, final Announcer announcer, final TooManyAnnouncesFailedInARowException e) {
         }
     }
 

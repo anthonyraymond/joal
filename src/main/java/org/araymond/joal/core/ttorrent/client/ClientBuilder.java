@@ -57,18 +57,16 @@ public final class ClientBuilder {
 
     public ClientFacade build() {
         final AnnounceResponseHandlerChain announceResponseCallback = new AnnounceResponseHandlerChain();
-        announceResponseCallback.appendHandler(new AnnounceEventPublisher(this.eventPublisher));
-        announceResponseCallback.appendHandler(new AnnounceReEnqueuer(this.delayQueue));
+        announceResponseCallback.appendHandler(new AnnounceEventPublisher(eventPublisher));
+        announceResponseCallback.appendHandler(new AnnounceReEnqueuer(delayQueue));
         announceResponseCallback.appendHandler(new BandwidthDispatcherNotifier(bandwidthDispatcher));
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        announceResponseCallback.appendHandler(clientNotifier);
 
         final AnnouncerExecutor announcerExecutor = new AnnouncerExecutor(announceResponseCallback);
 
-        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor, this.delayQueue, this.announcerFactory, this.eventPublisher);
-        clientNotifier.setClient(client);
+        final Client client = new Client(this.appConfiguration, this.torrentFileProvider, announcerExecutor,
+                this.delayQueue, this.announcerFactory, this.eventPublisher);
+        announceResponseCallback.appendHandler(new ClientNotifier(client));
 
         return client;
     }
-
 }

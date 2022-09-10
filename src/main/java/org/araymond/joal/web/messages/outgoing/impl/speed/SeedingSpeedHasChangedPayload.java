@@ -24,6 +24,6 @@ public class SeedingSpeedHasChangedPayload implements MessagePayload {
     @RequiredArgsConstructor
     public static final class SpeedPayload {
         private final InfoHash infoHash;
-        private final Long bytesPerSecond;
+        private final long bytesPerSecond;
     }
 }

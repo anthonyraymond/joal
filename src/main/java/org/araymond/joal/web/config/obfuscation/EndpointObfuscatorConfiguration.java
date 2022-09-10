@@ -18,7 +18,7 @@ public class EndpointObfuscatorConfiguration {
 
     private final String pathPrefix;
 
-    public EndpointObfuscatorConfiguration(@Value("${joal.ui.path.prefix}")final String pathPrefix) {
+    public EndpointObfuscatorConfiguration(@Value("${joal.ui.path.prefix}") final String pathPrefix) {
         this.pathPrefix = pathPrefix;
     }
 

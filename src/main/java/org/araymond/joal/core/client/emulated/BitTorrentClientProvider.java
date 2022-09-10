@@ -17,6 +17,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
+import static java.nio.file.Files.isRegularFile;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -32,20 +35,23 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     private final ObjectMapper objectMapper;
     private final Path clientsFolderPath;
 
-    public BitTorrentClientProvider(final JoalConfigProvider configProvider, final ObjectMapper objectMapper, final SeedManager.JoalFoldersPath joalFoldersPath) {
+    public BitTorrentClientProvider(final JoalConfigProvider configProvider, final ObjectMapper objectMapper,
+                                    final SeedManager.JoalFoldersPath joalFoldersPath) {
         this.configProvider = configProvider;
         this.objectMapper = objectMapper;
         this.clientsFolderPath = joalFoldersPath.getClientsFilesPath();
     }
 
     public List<String> listClientFiles() {
-        try (final Stream<Path> paths = Files.walk(this.clientsFolderPath)) {
-            return paths.filter(p -> p.toString().endsWith(".client"))
+        try (final Stream<Path> paths = Files.walk(this.clientsFolderPath, FOLLOW_LINKS)) {
+            return paths
+                    .filter(Files::isRegularFile)
                     .map(p -> p.getFileName().toString())
+                    .filter(name -> name.endsWith(".client"))
                     .sorted(new SemanticVersionFilenameComparator())
                     .collect(toList());
         } catch (final IOException e) {
-            throw new IllegalStateException("Failed to walk through .clients files", e);
+            throw new IllegalStateException("Failed to walk through .clients files in [" + this.clientsFolderPath.toString() + "]", e);
         }
     }
 
@@ -62,10 +68,10 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     }
 
     public void generateNewClient() throws FileNotFoundException, IllegalStateException {
-        log.debug("Generating new client.");
+        log.debug("Generating new client");
         final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClient());
-        if (!Files.isRegularFile(clientConfigPath)) {
-            throw new FileNotFoundException(String.format("BitTorrent client configuration file [%s] not found", clientConfigPath.toAbsolutePath()));
+        if (!isRegularFile(clientConfigPath)) {
+            throw new FileNotFoundException(format("BitTorrent client configuration file [%s] not found", clientConfigPath.toAbsolutePath()));
         }
 
         try {
@@ -91,7 +97,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
     static final class SemanticVersionFilenameComparator implements Comparator<String> {
 
         @Override
-        public final int compare(final String o1, final String o2) {
+        public int compare(final String o1, final String o2) {
             // remove file extension and replace '_' (which delimited build number with '.'
             final String o1NameWithoutExtension = FilenameUtils.removeExtension(o1).replaceAll("_", ".");
             final String o2NameWithoutExtension = FilenameUtils.removeExtension(o2).replaceAll("_", ".");

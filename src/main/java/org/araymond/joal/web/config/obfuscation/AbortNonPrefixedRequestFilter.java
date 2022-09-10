@@ -21,7 +21,7 @@ import java.io.IOException;
 public class AbortNonPrefixedRequestFilter implements Filter {
     private final String pathPrefix;
 
-    public AbortNonPrefixedRequestFilter(@Value("${joal.ui.path.prefix}")final String pathPrefix) {
+    public AbortNonPrefixedRequestFilter(@Value("${joal.ui.path.prefix}") final String pathPrefix) {
         this.pathPrefix = pathPrefix;
     }
 
@@ -34,7 +34,7 @@ public class AbortNonPrefixedRequestFilter implements Filter {
             requestedUri = requestedUri.substring(1);
         }
         if (!requestedUri.startsWith(pathPrefix)) {
-            log.warn("Request was sent to URI '{}' and does not match the path prefix, therefore the request Thread has been shut down.", req.getRequestURI());
+            log.warn("Request was sent to URI [{}] and does not match the path prefix, therefore the request Thread has been shut down", req.getRequestURI());
             Thread.currentThread().interrupt();
             return;
         }

@@ -7,8 +7,8 @@ import org.araymond.joal.core.client.emulated.BitTorrentClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.ttorrent.client.ConnectionHandler;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RequiredArgsConstructor
 public class AnnounceDataAccessor {
@@ -21,7 +21,7 @@ public class AnnounceDataAccessor {
         return this.bitTorrentClient.createRequestQuery(event, infoHash, this.bandwidthDispatcher.getSeedStatForTorrent(infoHash), this.connectionHandler);
     }
 
-    public List<Map.Entry<String, String>> getHttpHeadersForTorrent() {
+    public Set<Map.Entry<String, String>> getHttpHeadersForTorrent() {
         return this.bitTorrentClient.createRequestHeaders();
     }
 }

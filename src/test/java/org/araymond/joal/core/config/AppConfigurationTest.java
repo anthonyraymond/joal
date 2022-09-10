@@ -18,7 +18,7 @@ public class AppConfigurationTest {
     public void shouldNotBuildIfMinUploadRateIsLessThanZero() {
         assertThatThrownBy(() -> new AppConfiguration(-1L, 190L, 2, "azureus.client", false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("minUploadRate must be at least 0.");
+                .hasMessageContaining("minUploadRate must be at least 0");
     }
 
     @Test
@@ -39,7 +39,7 @@ public class AppConfigurationTest {
     public void shouldNotBuildIfMaxUploadRateIsLessThanZero() {
         assertThatThrownBy(() -> new AppConfiguration(180L, -1L, 2, "azureus.client", false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("maxUploadRate must greater or equal to 0.");
+                .hasMessageContaining("maxUploadRate must greater or equal to 0");
     }
 
     @Test
@@ -54,7 +54,7 @@ public class AppConfigurationTest {
     public void shouldNotBuildIfMaxRateIsLesserThanMinRate() {
         assertThatThrownBy(() -> new AppConfiguration(180L, 179L, 2, "azureus.client", false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("maxUploadRate must be greater or equal to minUploadRate.");
+                .hasMessageContaining("maxUploadRate must be greater or equal to minUploadRate");
     }
 
     @Test
@@ -69,7 +69,7 @@ public class AppConfigurationTest {
     public void shouldNotBuildIfSimultaneousSeedIsLessThanOne() {
         assertThatThrownBy(() -> new AppConfiguration(180L, 190L, 0, "azureus.client", false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("simultaneousSeed must be greater than 0.");
+                .hasMessageContaining("simultaneousSeed must be greater than 0");
     }
 
     @Test
@@ -83,14 +83,14 @@ public class AppConfigurationTest {
     public void shouldNotBuildIfClientIsNull() {
         assertThatThrownBy(() -> new AppConfiguration(180L, 190L, 2, null, false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("client is required, no file name given.");
+                .hasMessageContaining("client is required, no file name given");
     }
 
     @Test
     public void shouldNotBuildIfClientIsEmpty() {
         assertThatThrownBy(() -> new AppConfiguration(180L, 190L, 2, "     ", false))
                 .isInstanceOf(AppConfigurationIntegrityException.class)
-                .hasMessageContaining("client is required, no file name given.");
+                .hasMessageContaining("client is required, no file name given");
     }
 
     @Test

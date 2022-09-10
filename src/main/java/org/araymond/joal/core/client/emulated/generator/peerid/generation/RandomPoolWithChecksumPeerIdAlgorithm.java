@@ -16,8 +16,8 @@ import java.time.Instant;
 public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
 
     private final SecureRandom random;
-    private Integer refreshSeedAfter;
-    private Integer generationCount;
+    private int refreshSeedAfter;
+    private int generationCount;
 
     @JsonProperty("prefix")
     @Getter
@@ -58,7 +58,7 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
         return Instant.now().toString().getBytes(Charsets.UTF_8);
     }
 
-    private Integer getRandomIntBetween10And50() {
+    private int getRandomIntBetween10And50() {
         // Using the current random to generate another random would be completely useless because if the SecureRandom appears to be predictable we will be able to predict the next int as well
         int randNumber = new SecureRandom(createSecureRandomSeed()).nextInt();
         randNumber = Math.abs(randNumber % 40);

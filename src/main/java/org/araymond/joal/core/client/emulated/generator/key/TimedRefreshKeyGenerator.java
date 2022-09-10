@@ -25,19 +25,18 @@ public class TimedRefreshKeyGenerator extends KeyGenerator {
     @JsonIgnore
     private String key;
 
-    @JsonProperty("refreshEvery")
     @Getter
-    private final Integer refreshEvery;
+    private final int refreshEvery;
 
     @JsonCreator
     TimedRefreshKeyGenerator(
-            @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
+            @JsonProperty(value = "refreshEvery", required = true) final int refreshEvery,
             @JsonProperty(value = "algorithm", required = true) final KeyAlgorithm algorithm,
             @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {
         super(algorithm, keyCase);
-        if (refreshEvery == null || refreshEvery < 1) {
-            throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0.");
+        if (refreshEvery < 1) {
+            throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0");
         }
         this.refreshEvery = refreshEvery;
     }

@@ -69,4 +69,36 @@ public class TrackerClientUriProviderTest {
         }
     }
 
+    @Test
+    public void shouldRemoveNonHttpUris() throws NoMoreUriAvailableException {
+        final TrackerClientUriProvider uriProvider = createOne(
+                "udp://tracker.coppersurfer.tk:80/announce",
+                "udp://tracker.coppersurfer.tk:6969/announce",
+                "udp://tracker.opentrackr.org:1337/announce",
+                "udp://9.rarbg.me:2750/announce",
+                "udp://9.rarbg.com:2730/announce",
+                "udp://9.rarbg.to:2770/announce",
+                "udp://tracker.pirateparty.gr:6969/announce",
+                "https://localhost2",
+                "udp://public.popcorn-tracker.org:6969/announce",
+                "udp://tracker.internetwarriors.net:1337/announce",
+                "udp://tracker.vanitycore.co:6969/announce",
+                "udp://tracker.zer0day.to:1337/announce",
+                "udp://open.stealth.si:80/announce",
+                "http://localhost"
+        );
+
+        assertThat(uriProvider.get()).isEqualTo(URI.create("https://localhost2"));
+        assertThat(uriProvider.get()).isEqualTo(URI.create("https://localhost2"));
+        uriProvider.moveToNext();
+        assertThat(uriProvider.get()).isEqualTo(URI.create("http://localhost"));
+        uriProvider.moveToNext();
+        assertThat(uriProvider.get()).isEqualTo(URI.create("https://localhost2"));   // started from the top again
+    }
+
+    @Test
+    public void shouldThrowExceptionIfNoHTTPUriAreFound() throws Exception {
+        assertThatThrownBy(() -> createOne("udp://localhost", "udp://127.0.0.1"))
+                .isInstanceOf(NoMoreUriAvailableException.class);
+    }
 }

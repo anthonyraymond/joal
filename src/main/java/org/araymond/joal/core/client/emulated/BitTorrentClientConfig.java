@@ -17,20 +17,13 @@ import java.util.List;
 @EqualsAndHashCode
 @Getter
 public class BitTorrentClientConfig {
-    @JsonProperty("peerIdGenerator")
     private final PeerIdGenerator peerIdGenerator;
-    @JsonProperty("query")
     private final String query;
-    @JsonProperty("keyGenerator")
     private final KeyGenerator keyGenerator;
-    @JsonProperty("urlEncoder")
     private final UrlEncoder urlEncoder;
-    @JsonProperty("requestHeaders")
     private final List<HttpHeader> requestHeaders;
-    @JsonProperty("numwant")
-    private final Integer numwant;
-    @JsonProperty("numwantOnStop")
-    private final Integer numwantOnStop;
+    private final int numwant;
+    private final int numwantOnStop;
 
     @JsonCreator
     BitTorrentClientConfig(
@@ -39,8 +32,8 @@ public class BitTorrentClientConfig {
             @JsonProperty(value = "keyGenerator") final KeyGenerator keyGenerator,
             @JsonProperty(value = "urlEncoder", required = true) final UrlEncoder urlEncoder,
             @JsonProperty(value = "requestHeaders", required = true) final List<HttpHeader> requestHeaders,
-            @JsonProperty(value = "numwant", required = true) final Integer numwant,
-            @JsonProperty(value = "numwantOnStop", required = true) final Integer numwantOnStop
+            @JsonProperty(value = "numwant", required = true) final int numwant,
+            @JsonProperty(value = "numwantOnStop", required = true) final int numwantOnStop
     ) {
         this.peerIdGenerator = peerIdGenerator;
         this.query = query;
@@ -50,8 +43,8 @@ public class BitTorrentClientConfig {
         this.numwant = numwant;
         this.numwantOnStop = numwantOnStop;
 
-        if (this.query.contains("{key}") && this.keyGenerator == null) {
-            throw new TorrentClientConfigIntegrityException("Query string contains {key}, but no keyGenerator was found in .client file.");
+        if (this.keyGenerator == null && this.query.contains("{key}")) {
+            throw new TorrentClientConfigIntegrityException("Query string contains {key}, but no keyGenerator was found in .client file");
         }
     }
 
@@ -62,7 +55,8 @@ public class BitTorrentClientConfig {
         private final String value;
 
         @JsonCreator
-        HttpHeader(@JsonProperty(value = "name", required = true) final String name, @JsonProperty(value = "value", required = true) final String value) {
+        HttpHeader(@JsonProperty(value = "name", required = true) final String name,
+                   @JsonProperty(value = "value", required = true) final String value) {
             Preconditions.checkNotNull(name);
             Preconditions.checkNotNull(value);
             this.name = name;

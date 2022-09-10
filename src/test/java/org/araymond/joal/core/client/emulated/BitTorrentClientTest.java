@@ -28,7 +28,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static com.google.common.base.StandardSystemProperty.JAVA_VERSION;
+import static com.google.common.base.StandardSystemProperty.OS_NAME;
 import static java.lang.System.getProperty;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -48,18 +51,19 @@ public class BitTorrentClientTest {
 
     @SuppressWarnings("ConstantConditions")
     @Test
-    public void shouldCreateHeadersInSameOrderAndReplacePlaceHolders() {
-        final List<HttpHeader> headers = new ArrayList<>();
-        headers.add(new HttpHeader("java-version", "{java}"));
-        headers.add(new HttpHeader("os", "{os}"));
-        headers.add(new HttpHeader("Connection", "close"));
-        headers.add(new HttpHeader("locale", "{locale}"));
+    public void shouldCreateHeadersAndReplacePlaceHolders() {
+        List<HttpHeader> headers = List.of(
+                new HttpHeader("java-version", "{java}"),
+                new HttpHeader("os", "{os}"),
+                new HttpHeader("Connection", "close"),
+                new HttpHeader("locale", "{locale}")
+        );
+        final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator,
+                defaultUrlEncoder, "myqueryString", headers, defaultNumwantProvider);
 
-        final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator, defaultUrlEncoder, "myqueryString", headers, defaultNumwantProvider);
-
-        assertThat(client.createRequestHeaders()).containsExactly(
-                new AbstractMap.SimpleEntry<>("java-version", getProperty("java.version")),
-                new AbstractMap.SimpleEntry<>("os", getProperty("os.name")),
+        assertThat(client.createRequestHeaders()).containsExactlyInAnyOrder(
+                new AbstractMap.SimpleEntry<>("java-version", getProperty(JAVA_VERSION.key())),
+                new AbstractMap.SimpleEntry<>("os", getProperty(OS_NAME.key())),
                 new AbstractMap.SimpleEntry<>("Connection", "close"),
                 new AbstractMap.SimpleEntry<>("locale", Locale.getDefault().toLanguageTag())
         );
@@ -76,13 +80,13 @@ public class BitTorrentClientTest {
                 null,
                 defaultUrlEncoder,
                 "key={key}&event={event}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
         assertThatThrownBy(() -> client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Client request query contains 'key' but BitTorrentClient does not have a key.");
+                .hasMessage("Client request query contains 'key' but BitTorrentClient does not have a key");
     }
 
     @Test
@@ -96,7 +100,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 defaultUrlEncoder,
                 "numwant={numwant}",
-                Collections.emptyList(),
+                emptyList(),
                 numwantProvider
         );
 
@@ -117,7 +121,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 defaultUrlEncoder,
                 "ipv4={ip}&ipv6={ipv6}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -141,7 +145,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 defaultUrlEncoder,
                 "port={port}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -164,7 +168,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 defaultUrlEncoder,
                 "uploaded={uploaded}&downloaded={downloaded}&left={left}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -182,7 +186,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 defaultUrlEncoder,
                 "nop={wtfIsThisPlaceHolder}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -200,7 +204,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 new UrlEncoder("", Casing.UPPER),
                 "infohash={infohash}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -218,7 +222,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 new UrlEncoder("", Casing.UPPER),
                 "peerid={peerid}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -236,7 +240,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 new UrlEncoder("", Casing.UPPER),
                 "peerid={peerid}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -254,7 +258,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 defaultUrlEncoder,
                 "event={event}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -279,7 +283,7 @@ public class BitTorrentClientTest {
                 keyGenerator,
                 urlEncoder,
                 "key={key}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -297,7 +301,7 @@ public class BitTorrentClientTest {
                 defaultKeyGenerator,
                 defaultUrlEncoder,
                 "uploaded={uploaded}&event={event}&uploaded={uploaded}",
-                Collections.emptyList(),
+                emptyList(),
                 defaultNumwantProvider
         );
 
@@ -307,9 +311,7 @@ public class BitTorrentClientTest {
 
     @Test
     public void shouldFailsIfHeadersContainsRemainingPlaceHolder() {
-        final List<HttpHeader> headers = new ArrayList<>();
-        headers.add(new HttpHeader("qmqm", "{aohdksdf}"));
-
+        final List<HttpHeader> headers = List.of(new HttpHeader("qmqm", "{aohdksdf}"));
         final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator, defaultUrlEncoder, "myqueryString", headers, defaultNumwantProvider);
 
         assertThatThrownBy(client::createRequestHeaders)
@@ -367,7 +369,7 @@ public class BitTorrentClientTest {
 
     @Test
     public void shouldBuildIfHeadersIsEmpty() {
-        final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator, defaultUrlEncoder, "myqueryString", Collections.emptyList(), defaultNumwantProvider);
+        final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator, defaultUrlEncoder, "myqueryString", emptyList(), defaultNumwantProvider);
 
         assertThat(client.getHeaders()).isEmpty();
     }
@@ -428,7 +430,6 @@ public class BitTorrentClientTest {
                         final String json = new String(Files.readAllBytes(file.toPath()));
                         final BitTorrentClientConfig clientConfig = mapper.readValue(json, BitTorrentClientConfig.class);
                         final BitTorrentClient client = provider.createClient(clientConfig);
-
 
                         final String query = client.getQuery();
                         assertThat(query)

@@ -2,10 +2,7 @@ package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.annotations.VisibleForTesting;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
-import lombok.Getter;
-import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
@@ -19,7 +16,7 @@ public class TimedOrAfterStartedAnnounceRefreshKeyGenerator extends TimedRefresh
 
     @JsonCreator
     TimedOrAfterStartedAnnounceRefreshKeyGenerator(
-            @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
+            @JsonProperty(value = "refreshEvery", required = true) final int refreshEvery,
             @JsonProperty(value = "algorithm", required = true) final KeyAlgorithm algorithm,
             @JsonProperty(value = "keyCase", required = true) final Casing keyCase
     ) {

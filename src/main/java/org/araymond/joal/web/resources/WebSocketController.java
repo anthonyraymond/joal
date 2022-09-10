@@ -12,7 +12,6 @@ import org.araymond.joal.core.events.speed.SeedingSpeedsHasChangedEvent;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
-import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.araymond.joal.web.messages.incoming.config.Base64TorrentIncomingMessage;
 import org.araymond.joal.web.messages.incoming.config.ConfigIncomingMessage;
@@ -92,7 +91,9 @@ public class WebSocketController {
 
     @MessageMapping("/torrents/delete")
     public void deleteTorrent(final String torrentInfoHash) {
-        this.seedManager.deleteTorrent(new InfoHash(torrentInfoHash.getBytes(MockedTorrent.BYTE_ENCODING)));
+        this.seedManager.deleteTorrent(
+                new InfoHash(torrentInfoHash.getBytes(MockedTorrent.BYTE_ENCODING))
+        );
     }
 
     /**
@@ -108,15 +109,19 @@ public class WebSocketController {
         final LinkedList<StompMessage> events = new LinkedList<>();
 
         // client files list
-        events.add(StompMessage.wrap(new ListOfClientFilesPayload(new ListOfClientFilesEvent(this.seedManager.listClientFiles()))));
+        events.add(StompMessage.wrap(
+                new ListOfClientFilesPayload(new ListOfClientFilesEvent(this.seedManager.listClientFiles()))
+        ));
 
         // config
-        events.addFirst(StompMessage.wrap(new ConfigHasBeenLoadedPayload(new ConfigHasBeenLoadedEvent(this.seedManager.getCurrentConfig()))));
+        events.addFirst(StompMessage.wrap(
+                new ConfigHasBeenLoadedPayload(new ConfigHasBeenLoadedEvent(this.seedManager.getCurrentConfig()))
+        ));
 
         // torrent files list
-        for (final MockedTorrent torrent : this.seedManager.getTorrentFiles()) {
-            events.addFirst(StompMessage.wrap(new TorrentFileAddedPayload(new TorrentFileAddedEvent(torrent))));
-        }
+        this.seedManager.getTorrentFiles().forEach(torrent -> events.addFirst(
+            StompMessage.wrap(new TorrentFileAddedPayload(new TorrentFileAddedEvent(torrent)))
+        ));
 
         // global state
         if (this.seedManager.isSeeding()) {
@@ -131,10 +136,12 @@ public class WebSocketController {
             events.addFirst(StompMessage.wrap(new SeedingSpeedHasChangedPayload(new SeedingSpeedsHasChangedEvent(speedMap))));
         }
 
-        // Announcers are the most likely to change due to a concurrent access, so we gather them as late as possible, and we put them at the top of the list.
-        for (final AnnouncerFacade announcerFacade : this.seedManager.getCurrentlySeedingAnnouncer()) {
-            events.addFirst(StompMessage.wrap(new SuccessfullyAnnouncePayload(new SuccessfullyAnnounceEvent(announcerFacade, RequestEvent.STARTED))));
-        }
+        // Announcers are the most likely to change due to a concurrent access,
+        // so we gather them as late as possible, and we put them at the top of the list.
+        this.seedManager.getCurrentlySeedingAnnouncers().forEach(a -> events.addFirst(
+            StompMessage.wrap(new SuccessfullyAnnouncePayload(new SuccessfullyAnnounceEvent(a, RequestEvent.STARTED)))
+        ));
+
         return events;
     }
 

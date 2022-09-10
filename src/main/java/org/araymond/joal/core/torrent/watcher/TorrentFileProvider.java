@@ -116,7 +116,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     }
 
     public MockedTorrent getTorrentNotIn(final List<InfoHash> unwantedTorrents) throws NoMoreTorrentsFileAvailableException {
-        Preconditions.checkNotNull(unwantedTorrents, "List of unwantedTorrents cannot be null.");
+        Preconditions.checkNotNull(unwantedTorrents, "List of unwantedTorrents cannot be null");
 
         return this.torrentFiles.values().stream()
                 .filter(torrent -> !unwantedTorrents.contains(torrent.getTorrentInfoHash()))
@@ -125,7 +125,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
                     return collected.stream();
                 }))
                 .findAny()
-                .orElseThrow(() -> new NoMoreTorrentsFileAvailableException("No more torrent file available."));
+                .orElseThrow(() -> new NoMoreTorrentsFileAvailableException("No more torrent file available"));
     }
 
     void moveToArchiveFolder(final File torrentFile) {

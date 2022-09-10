@@ -5,28 +5,24 @@ import com.google.common.annotations.VisibleForTesting;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
+import org.apache.commons.lang3.StringUtils;
 
 @EqualsAndHashCode
 @Getter
 public class HashNoLeadingZeroKeyAlgorithm implements KeyAlgorithm {
 
     @JsonProperty("length")
-    private final Integer length;
+    private final int length;
 
     public HashNoLeadingZeroKeyAlgorithm(
-            @JsonProperty(value = "length", required = true) final Integer length
+            @JsonProperty(value = "length", required = true) final int length
     ) {
-        if (length == null) {
-            throw new TorrentClientConfigIntegrityException("key algorithm length must not be null.");
-        }
-
         this.length = length;
     }
 
     @VisibleForTesting
     String removeLeadingZeroes(final String string) {
-        return string.replaceFirst("^0+(?!$)", "");
+        return StringUtils.stripStart(string, "0");
     }
 
     @Override

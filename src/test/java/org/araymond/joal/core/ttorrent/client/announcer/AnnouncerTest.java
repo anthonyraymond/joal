@@ -1,13 +1,12 @@
 package org.araymond.joal.core.ttorrent.client.announcer;
 
-import com.google.common.collect.Lists;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.apache.http.client.HttpClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.torrent.torrent.MockedTorrentTest;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponseTest;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,7 +45,7 @@ public class AnnouncerTest {
         doThrow(new AnnounceException("yeah ! :)")).when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
-        doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
+        doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
         announcer.setTrackerClient(trackerClient);
@@ -56,13 +56,13 @@ public class AnnouncerTest {
                 announcer.announce(RequestEvent.STARTED);
                 fail("Should have thrown AnnounceException");
             } catch (final AnnounceException ignore) {
-            } catch (final TooMuchAnnouncesFailedInARawException e) {
+            } catch (final TooManyAnnouncesFailedInARowException e) {
                 fail("should not have thrown TooMuchAnnouncesFailedInARawException already");
             }
         }
 
         assertThatThrownBy(() -> announcer.announce(RequestEvent.STARTED))
-                .isInstanceOf(TooMuchAnnouncesFailedInARawException.class);
+                .isInstanceOf(TooManyAnnouncesFailedInARowException.class);
     }
 
     @Test
@@ -78,7 +78,7 @@ public class AnnouncerTest {
                 .when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
-        doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
+        doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
         announcer.setTrackerClient(trackerClient);
@@ -89,7 +89,7 @@ public class AnnouncerTest {
                 announcer.announce(RequestEvent.STARTED);
                 fail("Should have thrown AnnounceException");
             } catch (final AnnounceException ignore) {
-            } catch (final TooMuchAnnouncesFailedInARawException e) {
+            } catch (final TooManyAnnouncesFailedInARowException e) {
                 fail("should not have thrown TooMuchAnnouncesFailedInARawException already");
             }
         }
@@ -97,7 +97,7 @@ public class AnnouncerTest {
 
         try {
             announcer.announce(RequestEvent.STARTED);
-        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException e) {
+        } catch (final TooManyAnnouncesFailedInARowException | AnnounceException e) {
             fail("should not have failed");
         }
 
@@ -114,7 +114,7 @@ public class AnnouncerTest {
                 .when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
-        doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
+        doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
         announcer.setTrackerClient(trackerClient);
@@ -123,7 +123,7 @@ public class AnnouncerTest {
         try {
             announcer.announce(RequestEvent.STARTED);
             fail("should have failed");
-        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooManyAnnouncesFailedInARowException | AnnounceException ignore) {
         }
         //noinspection ConstantConditions
         final LocalDateTime lastDateTime = announcer.getLastAnnouncedAt().get();
@@ -134,7 +134,7 @@ public class AnnouncerTest {
 
         try {
             announcer.announce(RequestEvent.STARTED);
-        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooManyAnnouncesFailedInARowException | AnnounceException ignore) {
             fail("should not have failed");
         }
         //noinspection ConstantConditions
@@ -153,7 +153,7 @@ public class AnnouncerTest {
                 .when(trackerClient).announce(anyString(), any());
         final AnnounceDataAccessor dataAccessor = mock(AnnounceDataAccessor.class);
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
-        doReturn(Lists.newArrayList()).when(dataAccessor).getHttpHeadersForTorrent();
+        doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
         final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
         announcer.setTrackerClient(trackerClient);
@@ -163,7 +163,7 @@ public class AnnouncerTest {
         assertThat(announcer.getLastKnownLeechers()).isEmpty();
         try {
             announcer.announce(RequestEvent.STARTED);
-        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooManyAnnouncesFailedInARowException | AnnounceException ignore) {
             fail("should not have failed");
         }
         assertThat(announcer.getLastKnownInterval()).isEqualTo(1800);
@@ -173,7 +173,7 @@ public class AnnouncerTest {
         try {
             announcer.announce(RequestEvent.STARTED);
             fail("should have failed");
-        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooManyAnnouncesFailedInARowException | AnnounceException ignore) {
         }
         // same after a fail
         assertThat(announcer.getLastKnownInterval()).isEqualTo(1800);
@@ -182,7 +182,7 @@ public class AnnouncerTest {
 
         try {
             announcer.announce(RequestEvent.STARTED);
-        } catch (final TooMuchAnnouncesFailedInARawException | AnnounceException ignore) {
+        } catch (final TooManyAnnouncesFailedInARowException | AnnounceException ignore) {
             fail("should not have failed");
         }
         assertThat(announcer.getLastKnownInterval()).isEqualTo(900);
