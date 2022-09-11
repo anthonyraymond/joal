@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 
-public class TooMuchAnnouncesFailedInARawExceptionTest {
+public class TooManyAnnouncesFailedInARowExceptionTest {
 
     @Test
     public void shouldBuild() {

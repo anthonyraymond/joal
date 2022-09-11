@@ -2,6 +2,7 @@ package org.araymond.joal.core.bandwith.weight;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.Peers;
 
 import java.util.HashMap;
@@ -11,6 +12,11 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.Optional.ofNullable;
 
+/**
+ * Keeps track of the 'weights' of each and every torrent we're currently processing/uploading.
+ * These weights will be used (likely by {@link BandwidthDispatcher}) to calculate per-torrent
+ * speeds from our global configured bandwidth budget.
+ */
 @RequiredArgsConstructor
 public class WeightHolder<E> {
 

@@ -145,7 +145,7 @@ public class ClientNotifierTest {
 
         clientNotifier.onTooManyAnnounceFailedInARow(announcer, new TooManyAnnouncesFailedInARowException(mock(MockedTorrent.class)));
 
-        Mockito.verify(client, times(1)).onTooManyFailedInARaw(ArgumentMatchers.eq(announcer));
+        Mockito.verify(client, times(1)).onTooManyFailedInARow(ArgumentMatchers.eq(announcer));
         Mockito.verifyNoMoreInteractions(client);
     }
 

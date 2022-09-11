@@ -56,6 +56,6 @@ public class ClientNotifier implements AnnounceResponseHandler {
     @Override
     public void onTooManyAnnounceFailedInARow(final Announcer announcer, final TooManyAnnouncesFailedInARowException e) {
         log.debug("Notify client that a torrent has failed too many times");
-        this.client.onTooManyFailedInARaw(announcer);
+        this.client.onTooManyFailedInARow(announcer);
     }
 }

@@ -67,7 +67,7 @@ public class TorrentFileProviderTest {
 
         assertThatThrownBy(() -> provider.getTorrentNotIn(new ArrayList<>()))
                 .isInstanceOf(NoMoreTorrentsFileAvailableException.class)
-                .hasMessageContaining("No more torrent file available");
+                .hasMessageContaining("No more torrent files available");
     }
 
     @Test

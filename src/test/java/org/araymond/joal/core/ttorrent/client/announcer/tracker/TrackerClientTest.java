@@ -19,8 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.*;
 
 public class TrackerClientTest {
 
@@ -62,7 +61,7 @@ public class TrackerClientTest {
 
         trackerClient.announce("param=val&dd=q", this.createHeaders());
 
-        Mockito.verify(uriProvider, times(0)).deleteCurrentAndMoveToNext();
+        Mockito.verify(uriProvider, never()).deleteCurrentAndMoveToNext();
     }
 
     @Test
@@ -77,7 +76,7 @@ public class TrackerClientTest {
         assertThatThrownBy(() -> trackerClient.announce("http://localhost", this.createHeaders()))
                 .isInstanceOf(AnnounceException.class);
 
-        Mockito.verify(uriProvider, times(0)).deleteCurrentAndMoveToNext();
+        Mockito.verify(uriProvider, never()).deleteCurrentAndMoveToNext();
         Mockito.verify(uriProvider, times(1)).moveToNext();
     }
 

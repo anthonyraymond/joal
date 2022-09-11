@@ -32,6 +32,11 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 
 /**
+ * This is our mocked torrent client that represents our specific configured client (eg 'deluge-2.0.3').
+ * <p/>
+ * It's responsible for composing/formatting the request data sent to the trackers. It
+ * makes no requests itself.
+ * <p/>
  * Created by raymo on 26/01/2017.
  */
 @EqualsAndHashCode(exclude = "urlEncoder")
@@ -77,6 +82,7 @@ public class BitTorrentClient {
         this.numwantProvider = numwantProvider;
     }
 
+    @VisibleForTesting
     public String getPeerId(final InfoHash infoHash, final RequestEvent event) {
         return peerIdGenerator.getPeerId(infoHash, event);
     }

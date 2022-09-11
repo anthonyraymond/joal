@@ -1,10 +1,12 @@
 package org.araymond.joal.core.bandwith;
 
 import com.google.common.annotations.VisibleForTesting;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.bandwith.weight.PeersAwareWeightCalculator;
 import org.araymond.joal.core.bandwith.weight.WeightHolder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.ttorrent.client.announcer.response.BandwidthDispatcherNotifier;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -18,31 +20,30 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 import static org.apache.commons.lang3.ObjectUtils.getIfNull;
 
+/**
+ * This class has 2 main functions:
+ * <ul>
+ *     <li>listens for invocations from {@link BandwidthDispatcherNotifier} in order to register new torrents
+ *     and update speeds based on the information received from tracker announce responses;</li>
+ *     <li>periodically recomputes per-torrent speeds, and updates the tally in corresponding {@link TorrentSeedStats}</li>
+ * </ul>
+ */
 @Slf4j
+@RequiredArgsConstructor
 public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable {
-    private final ReentrantReadWriteLock lock;
-    private final WeightHolder<InfoHash> weightHolder;
-    private final RandomSpeedProvider randomSpeedProvider;
-    private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats;
-    private final Map<InfoHash, Speed> speedMap;
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final WeightHolder<InfoHash> weightHolder = new WeightHolder<>(new PeersAwareWeightCalculator());
+    private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats = new HashMap<>();
+    private final Map<InfoHash, Speed> speedMap = new HashMap<>();
     private SpeedChangedListener speedChangedListener;
-    private final int threadPauseIntervalMs;
     private int threadLoopCounter;
     private volatile boolean stop;
     private Thread thread;
 
+    private final int threadPauseIntervalMs;
+    private final RandomSpeedProvider randomSpeedProvider;
+
     private static final long TWENTY_MINS_MS = MINUTES.toMillis(20);  // TODO: 20min interval needs to be in config
-
-
-    public BandwidthDispatcher(final int threadPauseIntervalMs, final RandomSpeedProvider randomSpeedProvider) {
-        this.threadPauseIntervalMs = threadPauseIntervalMs;
-        this.torrentsSeedStats = new HashMap<>();
-        this.speedMap = new HashMap<>();
-        this.lock = new ReentrantReadWriteLock();
-
-        this.weightHolder = new WeightHolder<>(new PeersAwareWeightCalculator());
-        this.randomSpeedProvider = randomSpeedProvider;
-    }
 
     public void setSpeedListener(final SpeedChangedListener speedListener) {
         this.speedChangedListener = speedListener;
@@ -101,6 +102,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 final Set<Map.Entry<InfoHash, TorrentSeedStats>> seedStatsView = new HashSet<>(this.torrentsSeedStats.entrySet());
                 this.lock.readLock().unlock();
 
+                // update the uploaded data amount tallies:
                 seedStatsView.forEach(entry -> {
                     final long speedInBytesPerSecond = ofNullable(this.speedMap.get(entry.getKey()))
                             .map(Speed::getBytesPerSecond)
@@ -108,6 +110,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                     // Divide by 1000 because of the thread pause interval being in milliseconds
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
                     // TODO: we should add some additional randomization here, besides the bandwidth refresh done above; or maybe just update bandwidth more often than every 20mins?
+                    // TODO: maybe instead of trusting threadPauseIntervalMs, use wall clock for calculations?
                     entry.getValue().addUploaded(speedInBytesPerSecond * this.threadPauseIntervalMs / 1000);
                 });
             }
@@ -127,7 +130,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void registerTorrent(final InfoHash infoHash) {
-        log.debug("{} has been added to bandwidth dispatcher.", infoHash.getHumanReadable());
+        log.debug("{} has been added to bandwidth dispatcher", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.torrentsSeedStats.put(infoHash, new TorrentSeedStats());
@@ -138,7 +141,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     }
 
     public void unregisterTorrent(final InfoHash infoHash) {
-        log.debug("{} has been removed from bandwidth dispatcher.", infoHash.getHumanReadable());
+        log.debug("{} has been removed from bandwidth dispatcher", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
             this.weightHolder.remove(infoHash);
@@ -165,6 +168,9 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         }
     }
 
+    /**
+     * Update the values of the {@code speedMap}, introducing change to the current torrent speeds.
+     */
     @VisibleForTesting
     void recomputeSpeeds() {
         log.debug("Refreshing all torrents speeds");

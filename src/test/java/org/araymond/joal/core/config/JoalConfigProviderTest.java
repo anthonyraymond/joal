@@ -62,22 +62,25 @@ public class JoalConfigProviderTest {
     @Test
     public void shouldGetConf() throws FileNotFoundException {
         final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
-        provider.init();
+        AppConfiguration conf = provider.init();
+        AppConfiguration confGet = provider.get();
 
-        assertThat(provider.get()).isEqualTo(defaultConfig);
+        assertThat(confGet).isEqualTo(defaultConfig);
+        assertThat(confGet).isEqualTo(conf);
     }
 
     @Test
-    public void shouldAlwaysReturnsSameConf() throws FileNotFoundException {
+    public void shouldAlwaysReturnSameConf() throws FileNotFoundException {
         final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
-        provider.init();
+        AppConfiguration confInit = provider.init();
 
         assertThat(provider.get()).usingComparator((o1, o2) -> {
             if (o1 == o2) return 0;
             return -1;
         })
                 .isEqualTo(provider.get())
-                .isEqualTo(provider.get());
+                .isEqualTo(provider.get())
+                .isEqualTo(confInit);
     }
 
     @Test

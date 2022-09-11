@@ -37,6 +37,9 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
         }
     }
 
+    /**
+     * Get list of requests that are ready to be executed.
+     */
     public List<T> getAvailables() {
         this.lock.lock();
         try {

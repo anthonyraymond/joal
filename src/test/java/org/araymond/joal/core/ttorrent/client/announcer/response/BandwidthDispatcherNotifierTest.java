@@ -120,7 +120,7 @@ public class BandwidthDispatcherNotifierTest {
 
     @SuppressWarnings({"ResultOfMethodCallIgnored", "TypeMayBeWeakened"})
     @Test
-    public void shouldUnregisterOnTooManyFailsInARaw() {
+    public void shouldUnregisterOnTooManyFailsInARow() {
         final BandwidthDispatcher dispatcher = mock(BandwidthDispatcher.class);
 
         final BandwidthDispatcherNotifier notifier = new BandwidthDispatcherNotifier(dispatcher);

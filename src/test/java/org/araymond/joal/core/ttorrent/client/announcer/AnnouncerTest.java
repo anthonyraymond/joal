@@ -38,7 +38,7 @@ public class AnnouncerTest {
     }
 
     @Test
-    public void shouldThrowTooManyFailsExceptionIfFailsFiveTimesInARaw() throws AnnounceException {
+    public void shouldThrowTooManyFailsExceptionIfFailsFiveTimesInARow() throws AnnounceException {
         final MockedTorrent torrent = MockedTorrentTest.createOneMock("abcd");
 
         final TrackerClient trackerClient = mock(TrackerClient.class);
@@ -57,7 +57,7 @@ public class AnnouncerTest {
                 fail("Should have thrown AnnounceException");
             } catch (final AnnounceException ignore) {
             } catch (final TooManyAnnouncesFailedInARowException e) {
-                fail("should not have thrown TooMuchAnnouncesFailedInARawException already");
+                fail("should not have thrown TooManyAnnouncesFailedInARowException already");
             }
         }
 
@@ -90,7 +90,7 @@ public class AnnouncerTest {
                 fail("Should have thrown AnnounceException");
             } catch (final AnnounceException ignore) {
             } catch (final TooManyAnnouncesFailedInARowException e) {
-                fail("should not have thrown TooMuchAnnouncesFailedInARawException already");
+                fail("should not have thrown TooManyAnnouncesFailedInARowException already");
             }
         }
         assertThat(announcer.getConsecutiveFails()).isEqualTo(4);

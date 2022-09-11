@@ -57,24 +57,23 @@ import static org.springframework.http.HttpHeaders.USER_AGENT;
 public class SeedManager {
 
     private final CloseableHttpClient httpClient;
-    @Getter
-    private boolean seeding;
+    @Getter private boolean seeding;
     private final JoalFoldersPath joalFoldersPath;
     private final JoalConfigProvider configProvider;
     private final TorrentFileProvider torrentFileProvider;
     private final BitTorrentClientProvider bitTorrentClientProvider;
-    private final ApplicationEventPublisher publisher;
-    private final ConnectionHandler connectionHandler;
+    private final ApplicationEventPublisher appEventPublisher;
+    private final ConnectionHandler connectionHandler = new ConnectionHandler();
     private BandwidthDispatcher bandwidthDispatcher;
     private ClientFacade client;
 
-    public SeedManager(final String joalConfRootPath, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
+    public SeedManager(final String joalConfRootPath, final ObjectMapper mapper,
+                       final ApplicationEventPublisher appEventPublisher) throws IOException {
         this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfRootPath));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
-        this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, publisher);
+        this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, appEventPublisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath);
-        this.publisher = publisher;
-        this.connectionHandler = new ConnectionHandler();
+        this.appEventPublisher = appEventPublisher;
 
         final SocketConfig sc = SocketConfig.custom()
                 .setSoTimeout(30_000)
@@ -120,29 +119,27 @@ public class SeedManager {
         }
         this.seeding = true;
 
-        this.configProvider.init();
-        final AppConfiguration appConfig = this.configProvider.get();
-        this.publisher.publishEvent(new ListOfClientFilesEvent(this.listClientFiles()));
-        this.bitTorrentClientProvider.generateNewClient();
-        final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
+        final AppConfiguration appConfig = this.configProvider.init();
+        this.appEventPublisher.publishEvent(new ListOfClientFilesEvent(this.listClientFiles()));
+        final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.generateNewClient();
 
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, new RandomSpeedProvider(appConfig));  // TODO: move interval to config
-        this.bandwidthDispatcher.setSpeedListener(new SeedManagerSpeedChangeListener(this.publisher));
+        this.bandwidthDispatcher.setSpeedListener(new SeedManagerSpeedChangeListener(this.appEventPublisher));
         this.bandwidthDispatcher.start();
 
-        final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
+        final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, connectionHandler);
 
         this.client = ClientBuilder.builder()
                 .withAppConfiguration(appConfig)
                 .withTorrentFileProvider(this.torrentFileProvider)
                 .withBandwidthDispatcher(this.bandwidthDispatcher)
                 .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor, httpClient))
-                .withEventPublisher(this.publisher)
+                .withEventPublisher(this.appEventPublisher)
                 .withDelayQueue(new DelayQueue<>())
                 .build();
 
         this.client.start();
-        publisher.publishEvent(new GlobalSeedStartedEvent(bitTorrentClient));
+        appEventPublisher.publishEvent(new GlobalSeedStartedEvent(bitTorrentClient));
     }
 
     public void saveNewConfiguration(final AppConfiguration config) {
@@ -159,7 +156,7 @@ public class SeedManager {
             log.warn("Failed to save torrent file", e);
             // If NullPointerException occurs (when the file is an empty file) there is no message.
             final String errorMessage = firstNonNull(e.getMessage(), "Empty/bad file");
-            this.publisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
+            this.appEventPublisher.publishEvent(new FailedToAddTorrentFileEvent(name, errorMessage));
         }
     }
 
@@ -187,8 +184,7 @@ public class SeedManager {
         try {
             return this.configProvider.get();
         } catch (final IllegalStateException e) {
-            this.configProvider.init();
-            return this.configProvider.get();
+            return this.configProvider.init();
         }
     }
 
@@ -208,7 +204,7 @@ public class SeedManager {
         this.seeding = false;
         if (client != null) {
             this.client.stop();
-            this.publisher.publishEvent(new GlobalSeedStoppedEvent());
+            this.appEventPublisher.publishEvent(new GlobalSeedStoppedEvent());
             this.client = null;
         }
         if (this.bandwidthDispatcher != null) {
@@ -255,11 +251,11 @@ public class SeedManager {
 
     @RequiredArgsConstructor
     private static final class SeedManagerSpeedChangeListener implements SpeedChangedListener {
-        private final ApplicationEventPublisher publisher;
+        private final ApplicationEventPublisher appEventPublisher;
 
         @Override
         public void speedsHasChanged(final Map<InfoHash, Speed> speeds) {
-            this.publisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
+            this.appEventPublisher.publishEvent(new SeedingSpeedsHasChangedEvent(speeds));
         }
     }
 }

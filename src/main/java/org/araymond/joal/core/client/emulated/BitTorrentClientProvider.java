@@ -17,6 +17,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 
+import static java.lang.Integer.parseInt;
 import static java.lang.String.format;
 import static java.nio.file.FileVisitOption.FOLLOW_LINKS;
 import static java.nio.file.Files.isRegularFile;
@@ -25,7 +26,7 @@ import static java.util.stream.Collectors.toList;
 /**
  * Provides as with an instance of {@link BitTorrentClient}, based on the
  * configured {@code client}.
- *
+ * <p/>
  * Created by raymo on 23/04/2017.
  */
 @Slf4j
@@ -67,8 +68,8 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
         return bitTorrentClient;
     }
 
-    public void generateNewClient() throws FileNotFoundException, IllegalStateException {
-        log.debug("Generating new client");
+    public BitTorrentClient generateNewClient() throws FileNotFoundException, IllegalStateException {
+        log.debug("Generating new client...");
         final Path clientConfigPath = clientsFolderPath.resolve(configProvider.get().getClient());
         if (!isRegularFile(clientConfigPath)) {
             throw new FileNotFoundException(format("BitTorrent client configuration file [%s] not found", clientConfigPath.toAbsolutePath()));
@@ -78,6 +79,8 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
             BitTorrentClientConfig config = objectMapper.readValue(clientConfigPath.toFile(), BitTorrentClientConfig.class);
             this.bitTorrentClient = createClient(config);
             log.debug("New client successfully generated");
+
+            return this.bitTorrentClient;
         } catch (final IOException e) {
             throw new IllegalStateException(e);
         }
@@ -109,16 +112,16 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
                 return o1.compareTo(o2);
             }
 
-            final String[] o1VersionSufix = o1NameWithoutExtension
+            final String[] o1VersionSuffix = o1NameWithoutExtension
                     .substring(o1NameWithoutExtension.lastIndexOf('-') + 1)
                     .split("\\.");
-            final String[] o2VersionSufix = o2NameWithoutExtension
+            final String[] o2VersionSuffix = o2NameWithoutExtension
                     .substring(o2NameWithoutExtension.lastIndexOf('-') + 1)
                     .split("\\.");
-            final int length = Math.max(o1VersionSufix.length, o2VersionSufix.length);
+            final int length = Math.max(o1VersionSuffix.length, o2VersionSuffix.length);
             for (int i = 0; i < length; i++) {
-                final int thisPart = i < o1VersionSufix.length ? Integer.parseInt(o1VersionSufix[i]) : 0;
-                final int thatPart = i < o2VersionSufix.length ? Integer.parseInt(o2VersionSufix[i]) : 0;
+                final int thisPart = i < o1VersionSuffix.length ? parseInt(o1VersionSuffix[i]) : 0;
+                final int thatPart = i < o2VersionSuffix.length ? parseInt(o2VersionSuffix[i]) : 0;
                 if(thisPart < thatPart) return -1;
                 if(thisPart > thatPart) return 1;
             }
