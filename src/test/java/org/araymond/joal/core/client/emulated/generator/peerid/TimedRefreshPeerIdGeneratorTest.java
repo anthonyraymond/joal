@@ -40,7 +40,7 @@ public class TimedRefreshPeerIdGeneratorTest {
         final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(1, algo, false);
 
         final InfoHash infoHash = new InfoHash(new byte[] { 22 });
-        for( int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             generator.getPeerId(infoHash, RequestEvent.STARTED);
         }
         Mockito.verify(algo, times(1)).generate();

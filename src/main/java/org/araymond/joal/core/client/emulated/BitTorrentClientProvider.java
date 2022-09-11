@@ -39,7 +39,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
                                     final SeedManager.JoalFoldersPath joalFoldersPath) {
         this.configProvider = configProvider;
         this.objectMapper = objectMapper;
-        this.clientsFolderPath = joalFoldersPath.getClientsFilesPath();
+        this.clientsFolderPath = joalFoldersPath.getClientFilesDirPath();
     }
 
     public List<String> listClientFiles() {
@@ -51,7 +51,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
                     .sorted(new SemanticVersionFilenameComparator())
                     .collect(toList());
         } catch (final IOException e) {
-            throw new IllegalStateException("Failed to walk through .clients files in [" + this.clientsFolderPath.toString() + "]", e);
+            throw new IllegalStateException("Failed to walk through .clients files in [" + this.clientsFolderPath + "]", e);
         }
     }
 
@@ -98,7 +98,7 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
 
         @Override
         public int compare(final String o1, final String o2) {
-            // remove file extension and replace '_' (which delimited build number with '.'
+            // remove file extension and replace '_' (which delimited build number with '.')
             final String o1NameWithoutExtension = FilenameUtils.removeExtension(o1).replaceAll("_", ".");
             final String o2NameWithoutExtension = FilenameUtils.removeExtension(o2).replaceAll("_", ".");
 
@@ -109,10 +109,14 @@ public class BitTorrentClientProvider implements Provider<BitTorrentClient> {
                 return o1.compareTo(o2);
             }
 
-            final String[] o1VersionSufix = o1NameWithoutExtension.substring(o1NameWithoutExtension.lastIndexOf('-') + 1, o1NameWithoutExtension.length()).split("\\.");
-            final String[] o2VersionSufix = o2NameWithoutExtension.substring(o2NameWithoutExtension.lastIndexOf('-') + 1, o2NameWithoutExtension.length()).split("\\.");
+            final String[] o1VersionSufix = o1NameWithoutExtension
+                    .substring(o1NameWithoutExtension.lastIndexOf('-') + 1)
+                    .split("\\.");
+            final String[] o2VersionSufix = o2NameWithoutExtension
+                    .substring(o2NameWithoutExtension.lastIndexOf('-') + 1)
+                    .split("\\.");
             final int length = Math.max(o1VersionSufix.length, o2VersionSufix.length);
-            for(int i = 0; i < length; i++) {
+            for (int i = 0; i < length; i++) {
                 final int thisPart = i < o1VersionSufix.length ? Integer.parseInt(o1VersionSufix[i]) : 0;
                 final int thatPart = i < o2VersionSufix.length ? Integer.parseInt(o2VersionSufix[i]) : 0;
                 if(thisPart < thatPart) return -1;

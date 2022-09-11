@@ -26,6 +26,10 @@ public final class AnnounceRequest implements DelayQueue.InfoHashAble {
         return new AnnounceRequest(announcer, RequestEvent.STOPPED);
     }
 
+    public AnnounceRequest toStop() {
+        return new AnnounceRequest(announcer, RequestEvent.STOPPED);
+    }
+
     @Override
     public InfoHash getInfoHash() {
         return this.announcer.getTorrentInfoHash();

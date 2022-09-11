@@ -28,7 +28,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.stream.Collectors.toList;
 
 public class Client implements TorrentFileChangeAware, ClientFacade {
-    private final AppConfiguration appConfiguration;
+    private final AppConfiguration appConfig;
     private final TorrentFileProvider torrentFileProvider;
     private final ApplicationEventPublisher eventPublisher;
     private AnnouncerExecutor announcerExecutor;
@@ -39,14 +39,14 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     private Thread thread;
     private volatile boolean stop = true;
 
-    Client(final AppConfiguration appConfiguration, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor,
+    Client(final AppConfiguration appConfig, final TorrentFileProvider torrentFileProvider, final AnnouncerExecutor announcerExecutor,
            final DelayQueue<AnnounceRequest> delayQueue, final AnnouncerFactory announcerFactory, final ApplicationEventPublisher eventPublisher) {
-        Preconditions.checkNotNull(appConfiguration, "AppConfiguration must not be null");
+        Preconditions.checkNotNull(appConfig, "AppConfiguration must not be null");
         Preconditions.checkNotNull(torrentFileProvider, "TorrentFileProvider must not be null");
         Preconditions.checkNotNull(delayQueue, "DelayQueue must not be null");
         Preconditions.checkNotNull(announcerFactory, "AnnouncerFactory must not be null");
         this.eventPublisher = eventPublisher;
-        this.appConfiguration = appConfiguration;
+        this.appConfig = appConfig;
         this.torrentFileProvider = torrentFileProvider;
         this.announcerExecutor = announcerExecutor;
         this.delayQueue = delayQueue;
@@ -64,6 +64,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     public void start() {
         this.stop = false;
 
+        // TODO: use @Scheduled or something similar instead of looping manually over X period
         this.thread = new Thread(() -> {
             while (!this.stop) {
                 this.delayQueue.getAvailables().forEach(req -> {
@@ -85,14 +86,15 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             }
         });
 
-        for (int i = 0; i < this.appConfiguration.getSimultaneousSeed(); i++) {
+        Lock lock = this.lock.writeLock();
+        for (int i = 0; i < this.appConfig.getSimultaneousSeed(); i++) {
             try {
-                this.lock.writeLock().lock();
+                lock.lock();
                 this.addTorrent();
             } catch (final NoMoreTorrentsFileAvailableException ignored) {
                 break;
             } finally {
-                this.lock.writeLock().unlock();
+                lock.unlock();
             }
         }
 
@@ -115,8 +117,9 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
 
     @Override
     public void stop() {
+        Lock lock = this.lock.writeLock();
         try {
-            this.lock.writeLock().lock();
+            lock.lock();
             this.stop = true;
             this.torrentFileProvider.unRegisterListener(this);
             if (this.thread != null) {
@@ -124,18 +127,18 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                 try {
                     this.thread.join();
                 } catch (final InterruptedException ignored) {
+                } finally {
+                    this.thread = null;
                 }
-                this.thread = null;
             }
             this.delayQueue.drainAll().stream()
                     .filter(req -> req.getEvent() != RequestEvent.STARTED)
-                    .map(AnnounceRequest::getAnnouncer)
-                    .map(AnnounceRequest::createStop)
+                    .map(AnnounceRequest::toStop)
                     .forEach(this.announcerExecutor::execute);
 
             this.announcerExecutor.awaitForRunningTasks();
         } finally {
-            this.lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
@@ -145,68 +148,70 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             return;
         }
 
+        Lock lock = this.lock.writeLock();
         try {
-            this.lock.writeLock().lock();
+            lock.lock();
             this.currentlySeedingAnnouncers.remove(announcer); // Remove from announcers list asap, otherwise the deletion will trigger an announce stop event.
             this.torrentFileProvider.moveToArchiveFolder(announcer.getTorrentInfoHash());
             this.addTorrent();
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
-            this.lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     public void onNoMorePeers(final InfoHash infoHash) {
-        if (!this.appConfiguration.isKeepTorrentWithZeroLeechers()) {
+        if (!this.appConfig.isKeepTorrentWithZeroLeechers()) {
             this.torrentFileProvider.moveToArchiveFolder(infoHash);
         }
     }
 
     public void onTorrentHasStopped(final Announcer stoppedAnnouncer) {
+        Lock lock = this.lock.writeLock();
         try {
-            this.lock.writeLock().lock();
+            lock.lock();
             if (!this.stop) {
                 this.addTorrent();
             }
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
             this.currentlySeedingAnnouncers.remove(stoppedAnnouncer);
-            this.lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 
     @Override
     public void onTorrentFileAdded(final MockedTorrent torrent) {
         this.eventPublisher.publishEvent(new TorrentFileAddedEvent(torrent));
-        if (this.stop) {
-            return;
-        }
-        try {
-            this.lock.writeLock().lock();
-            if (this.currentlySeedingAnnouncers.size() >= this.appConfiguration.getSimultaneousSeed()) {
-                return;
+        if (!this.stop && this.currentlySeedingAnnouncers.size() < this.appConfig.getSimultaneousSeed()) {
+            Lock lock = this.lock.writeLock();
+            try {
+                lock.lock();
+                final Announcer announcer = this.announcerFactory.create(torrent);
+                this.currentlySeedingAnnouncers.add(announcer);
+                this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 1, ChronoUnit.SECONDS);
+            } finally {
+                lock.unlock();
             }
-            final Announcer announcer = this.announcerFactory.create(torrent);
-            this.currentlySeedingAnnouncers.add(announcer);
-            this.delayQueue.addOrReplace(AnnounceRequest.createStart(announcer), 1, ChronoUnit.SECONDS);
-        } finally {
-            this.lock.writeLock().unlock();
         }
     }
 
     @Override
     public void onTorrentFileRemoved(final MockedTorrent torrent) {
         this.eventPublisher.publishEvent(new TorrentFileDeletedEvent(torrent));
+        Lock lock = this.lock.writeLock();
         try {
-            this.lock.writeLock().lock();
+            lock.lock();
             this.currentlySeedingAnnouncers.stream()
                     .filter(announcer -> announcer.getTorrentInfoHash().equals(torrent.getTorrentInfoHash()))
                     .findFirst()
                     .ifPresent(announcer ->
-                            this.delayQueue.addOrReplace(AnnounceRequest.createStop(announcer), 1, ChronoUnit.SECONDS)
+                            this.delayQueue.addOrReplace(
+                                    AnnounceRequest.createStop(announcer), 1, ChronoUnit.SECONDS
+                            )
                     );
         } finally {
-            this.lock.writeLock().unlock();
+            lock.unlock();
         }
     }
 

@@ -68,8 +68,8 @@ public class SeedManager {
     private BandwidthDispatcher bandwidthDispatcher;
     private ClientFacade client;
 
-    public SeedManager(final String joalConfFolder, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
-        this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfFolder));
+    public SeedManager(final String joalConfRootPath, final ObjectMapper mapper, final ApplicationEventPublisher publisher) throws IOException {
+        this.joalFoldersPath = new JoalFoldersPath(Paths.get(joalConfRootPath));
         this.torrentFileProvider = new TorrentFileProvider(joalFoldersPath);
         this.configProvider = new JoalConfigProvider(mapper, joalFoldersPath, publisher);
         this.bitTorrentClientProvider = new BitTorrentClientProvider(configProvider, mapper, joalFoldersPath);
@@ -109,30 +109,31 @@ public class SeedManager {
         this.torrentFileProvider.stop();
         if (this.client != null) {
             this.client.stop();
+            this.client = null;
         }
     }
 
     public void startSeeding() throws IOException {
-        if (this.client != null) {
+        if (this.seeding) {
+            log.warn("startSeeding() called, but already running");
             return;
         }
         this.seeding = true;
 
         this.configProvider.init();
-        final AppConfiguration appConfiguration = this.configProvider.get();
+        final AppConfiguration appConfig = this.configProvider.get();
         this.publisher.publishEvent(new ListOfClientFilesEvent(this.listClientFiles()));
         this.bitTorrentClientProvider.generateNewClient();
         final BitTorrentClient bitTorrentClient = bitTorrentClientProvider.get();
 
-        final RandomSpeedProvider randomSpeedProvider = new RandomSpeedProvider(appConfiguration);
-        this.bandwidthDispatcher = new BandwidthDispatcher(5000, randomSpeedProvider);  // TODO: move interval to config
+        this.bandwidthDispatcher = new BandwidthDispatcher(5000, new RandomSpeedProvider(appConfig));  // TODO: move interval to config
         this.bandwidthDispatcher.setSpeedListener(new SeedManagerSpeedChangeListener(this.publisher));
         this.bandwidthDispatcher.start();
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, this.connectionHandler);
 
         this.client = ClientBuilder.builder()
-                .withAppConfiguration(appConfiguration)
+                .withAppConfiguration(appConfig)
                 .withTorrentFileProvider(this.torrentFileProvider)
                 .withBandwidthDispatcher(this.bandwidthDispatcher)
                 .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor, httpClient))
@@ -153,7 +154,7 @@ public class SeedManager {
             MockedTorrent.fromBytes(bytes);  // test if torrent file is valid or not
 
             final String torrentName = name.endsWith(".torrent") ? name : name + ".torrent";
-            Files.write(this.joalFoldersPath.getTorrentFilesPath().resolve(torrentName), bytes, StandardOpenOption.CREATE);
+            Files.write(this.joalFoldersPath.getTorrentsDirPath().resolve(torrentName), bytes, StandardOpenOption.CREATE);
         } catch (final Exception e) {
             log.warn("Failed to save torrent file", e);
             // If NullPointerException occurs (when the file is an empty file) there is no message.
@@ -218,31 +219,36 @@ public class SeedManager {
     }
 
 
+    /**
+     * Contains the references to all the directories
+     * containing settings/configurations/torrent sources
+     * for JOAL.
+     */
     // TODO: move to config, also rename?
     @Getter
     public static class JoalFoldersPath {
-        private final Path confPath;
-        private final Path torrentFilesPath;
-        private final Path torrentArchivedPath;
-        private final Path clientsFilesPath;
+        private final Path confDirRootPath;  // all other directories stem from this
+        private final Path torrentsDirPath;
+        private final Path torrentArchiveDirPath;
+        private final Path clientFilesDirPath;
 
         /**
          * Resolves, stores & exposes location to various configuration file-paths.
          */
-        public JoalFoldersPath(final Path confPath) {
-            this.confPath = confPath;
-            this.torrentFilesPath = this.confPath.resolve("torrents");
-            this.torrentArchivedPath = this.torrentFilesPath.resolve("archived");
-            this.clientsFilesPath = this.confPath.resolve("clients");
+        public JoalFoldersPath(final Path confDirRootPath) {
+            this.confDirRootPath = confDirRootPath;
+            this.torrentsDirPath = this.confDirRootPath.resolve("torrents");
+            this.torrentArchiveDirPath = this.torrentsDirPath.resolve("archived");
+            this.clientFilesDirPath = this.confDirRootPath.resolve("clients");
 
-            if (!isDirectory(confPath)) {
-                log.warn("No such directory: {}", this.confPath);
+            if (!isDirectory(confDirRootPath)) {
+                log.warn("No such directory: [{}]", this.confDirRootPath);
             }
-            if (!isDirectory(torrentFilesPath)) {
-                log.warn("Sub-folder 'torrents' is missing in joal conf folder: {}", this.torrentFilesPath);
+            if (!isDirectory(torrentsDirPath)) {
+                log.warn("Sub-folder 'torrents' is missing in joal conf folder: [{}]", this.torrentsDirPath);
             }
-            if (!isDirectory(clientsFilesPath)) {
-                log.warn("Sub-folder 'clients' is missing in joal conf folder: {}", this.clientsFilesPath);
+            if (!isDirectory(clientFilesDirPath)) {
+                log.warn("Sub-folder 'clients' is missing in joal conf folder: [{}]", this.clientFilesDirPath);
             }
         }
     }

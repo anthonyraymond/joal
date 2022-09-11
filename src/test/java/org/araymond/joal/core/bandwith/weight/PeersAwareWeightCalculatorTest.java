@@ -45,7 +45,7 @@ public class PeersAwareWeightCalculatorTest {
         assertThat(calculator.calculate(new Peers(2000, 150))).isEqualTo(73.01243916, Offset.offset(0.00001));
         assertThat(calculator.calculate(new Peers(150, 2000))).isCloseTo(173066.5224, Offset.offset(0.01));
         assertThat(calculator.calculate(new Peers(80, 2000))).isCloseTo(184911.2426, Offset.offset(0.1));
-        assertThat(calculator.calculate(new Peers(2000, 2000))).isEqualTo(50000);
+        assertThat(calculator.calculate(new Peers(2000, 2000))).isEqualTo(50_000);
         assertThat(calculator.calculate(new Peers(0, 0))).isEqualTo(0);
     }
 

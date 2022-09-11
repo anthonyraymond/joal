@@ -32,7 +32,7 @@ public class JoalConfigProvider implements Provider<AppConfiguration> {
         this.objectMapper = objectMapper;
         this.publisher = publisher;
 
-        this.joalConfPath = joalFoldersPath.getConfPath().resolve(CONF_FILE_NAME);
+        this.joalConfPath = joalFoldersPath.getConfDirRootPath().resolve(CONF_FILE_NAME);
         if (!isRegularFile(joalConfPath)) {
             throw new FileNotFoundException(String.format("App configuration file [%s] not found", joalConfPath));
         }

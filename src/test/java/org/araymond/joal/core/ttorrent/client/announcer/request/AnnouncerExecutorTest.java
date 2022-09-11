@@ -25,7 +25,7 @@ import static org.mockito.Mockito.mock;
 public class AnnouncerExecutorTest {
 
     @Test
-    public void shouldNotExecuteMoreThanThreeConcurentThreads() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
+    public void shouldNotExecuteMoreThanThreeConcurrentThreads() throws Exception {
         final AnnouncerExecutor executor = new AnnouncerExecutor(new DefaultCallback());
         final AtomicInteger atomicInteger = new AtomicInteger(0);
 
@@ -35,8 +35,8 @@ public class AnnouncerExecutorTest {
             Mockito.doAnswer(invocation -> {
                 atomicInteger.incrementAndGet();
                 try {
-                    // Thread that nevers dies when started
-                    Thread.sleep(90000);
+                    // Thread that never dies when started
+                    Thread.sleep(90_000);
                 } catch (final InterruptedException ignored) {
                 }
                 return null;
@@ -50,7 +50,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldCallCallbackAfterExecution() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
+    public void shouldCallCallbackAfterExecution() throws Exception {
         final CountDownLatch countDown = new CountDownLatch(100);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -72,7 +72,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldCallOnAnnounceFailureWhenAnnounceThrownException() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
+    public void shouldCallOnAnnounceFailureWhenAnnounceThrownException() throws Exception {
         final CountDownLatch countDown = new CountDownLatch(100);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -94,7 +94,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldCallTooManyFailsWhenAnnounceThrownTooManyFails() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
+    public void shouldCallTooManyFailsWhenAnnounceThrownTooManyFails() throws Exception {
         final CountDownLatch countDown = new CountDownLatch(100);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -116,7 +116,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldDenyAThread() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
+    public void shouldDenyAThread() throws Exception {
         final AtomicInteger atomicInteger = new AtomicInteger(0);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override
@@ -160,7 +160,7 @@ public class AnnouncerExecutorTest {
     }
 
     @Test
-    public void shouldDenyAll() throws InterruptedException, AnnounceException, TooManyAnnouncesFailedInARowException {
+    public void shouldDenyAll() throws Exception {
         final AtomicInteger atomicInteger = new AtomicInteger(0);
         final AnnounceResponseCallback announceResponseCallback = new DefaultCallback() {
             @Override

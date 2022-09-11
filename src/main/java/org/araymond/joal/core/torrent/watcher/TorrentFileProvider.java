@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
+import static java.nio.file.Files.isDirectory;
 import static java.util.Optional.ofNullable;
 
 /**
@@ -33,23 +34,23 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     private final Path archiveFolder;
 
     public TorrentFileProvider(final SeedManager.JoalFoldersPath joalFoldersPath) throws FileNotFoundException {
-        Path torrentFolder = joalFoldersPath.getTorrentFilesPath();
-        if (!Files.isDirectory(torrentFolder)) {
+        Path torrentFolder = joalFoldersPath.getTorrentsDirPath();
+        if (!isDirectory(torrentFolder)) {
             // TODO: shouldn't we check&throw in JoalFoldersPath instead?
             log.error("Folder [{}] does not exist", torrentFolder.toAbsolutePath());
             throw new FileNotFoundException(format("Torrent folder [%s] not found", torrentFolder.toAbsolutePath()));
         }
 
-        this.archiveFolder = joalFoldersPath.getTorrentArchivedPath();
+        this.archiveFolder = joalFoldersPath.getTorrentArchiveDirPath();
         this.watcher = new TorrentFileWatcher(this, torrentFolder);
         this.torrentFileChangeListener = new HashSet<>();
     }
 
     @VisibleForTesting
     void init() {
-        if (!Files.isDirectory(archiveFolder)) {
+        if (!isDirectory(archiveFolder)) {
             if (Files.exists(archiveFolder)) {
-                String errMsg = "archive folder exists, but is not a directory";
+                String errMsg = "Archive folder exists, but is not a directory";
                 log.error(errMsg);
                 throw new IllegalStateException(errMsg);
             }
@@ -140,7 +141,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
             Files.move(torrentFile.toPath(), moveTarget);
             log.info("Successfully moved file [{}] to archive folder", torrentFile.getAbsolutePath());
         } catch (final IOException e) {
-            log.warn("Failed to archive file [{}], the file won't be used anymore for the current session, but it remains in the folder", torrentFile.getAbsolutePath());
+            log.error("Failed to archive file [{}], the file won't be used anymore for the current session, but it remains in the folder", torrentFile.getAbsolutePath());
         }
     }
 

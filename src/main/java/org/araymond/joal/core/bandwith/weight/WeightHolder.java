@@ -17,9 +17,7 @@ public class WeightHolder<E> {
     private final Lock lock = new ReentrantLock();
     private final Map<E, Double> weightMap = new HashMap<>();
     private final PeersAwareWeightCalculator weightCalculator;
-
-    @Getter
-    private double totalWeight;
+    @Getter private double totalWeight;
 
     public void addOrUpdate(final E item, final Peers peers) {
         final double weight = this.weightCalculator.calculate(peers);

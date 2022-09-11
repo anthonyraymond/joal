@@ -39,11 +39,11 @@ public class AppConfiguration {
     }
 
     private void validate() {
-        if (minUploadRate < 0L) {
+        if (minUploadRate < 0) {
             throw new AppConfigurationIntegrityException("minUploadRate must be at least 0");
         }
 
-        if (maxUploadRate < 0L) {
+        if (maxUploadRate < 0) {
             throw new AppConfigurationIntegrityException("maxUploadRate must greater or equal to 0");
         } else if (maxUploadRate < minUploadRate) {
             throw new AppConfigurationIntegrityException("maxUploadRate must be greater or equal to minUploadRate");

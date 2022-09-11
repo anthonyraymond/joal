@@ -15,7 +15,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +40,7 @@ public class JoalConfigProviderTest {
         final SeedManager.JoalFoldersPath fakeFolders = new SeedManager.JoalFoldersPath(Paths.get("nop"));
         assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), fakeFolders, Mockito.mock(ApplicationEventPublisher.class)))
                 .isInstanceOf(FileNotFoundException.class)
-                .hasMessageContaining("App configuration file [" + fakeFolders.getConfPath() + File.separator + "config.json] not found");
+                .hasMessageContaining("App configuration file [" + fakeFolders.getConfDirRootPath() + File.separator + "config.json] not found");
     }
 
     @Test
@@ -97,7 +96,7 @@ public class JoalConfigProviderTest {
 
     @Test
     public void shouldWriteConfigurationFile() throws IOException {
-        new ObjectMapper().writeValue(rewritableJoalFoldersPath.getConfPath().resolve("config.json").toFile(), defaultConfig);
+        new ObjectMapper().writeValue(rewritableJoalFoldersPath.getConfDirRootPath().resolve("config.json").toFile(), defaultConfig);
         try {
             final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), rewritableJoalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
             final Random rand = new Random();
@@ -113,7 +112,7 @@ public class JoalConfigProviderTest {
 
             assertThat(provider.loadConfiguration()).isEqualTo(newConf);
         } finally {
-            Files.deleteIfExists(rewritableJoalFoldersPath.getConfPath().resolve("config.json"));
+            Files.deleteIfExists(rewritableJoalFoldersPath.getConfDirRootPath().resolve("config.json"));
         }
     }
 

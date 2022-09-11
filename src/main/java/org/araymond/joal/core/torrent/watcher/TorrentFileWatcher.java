@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationMonitor;
@@ -13,6 +12,8 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
 
 /**
  * Hooks up a directory listener to detect torrent file additions,
@@ -24,7 +25,7 @@ import java.nio.file.Path;
 class TorrentFileWatcher {
     // TODO : get back to a bigger value as soon as https://issues.apache.org/jira/browse/IO-535 is fixed
     private static final Integer DEFAULT_SCAN_INTERVAL_MS = 2 * 1000;
-    private static final IOFileFilter TORRENT_FILE_FILTER = FileFilterUtils.suffixFileFilter(".torrent");
+    private static final IOFileFilter TORRENT_FILE_FILTER = suffixFileFilter(".torrent");
 
     private final FileAlterationObserver observer;
     private final FileAlterationListener listener;
@@ -65,7 +66,7 @@ class TorrentFileWatcher {
     }
 
     void stop() {
-        log.trace("Stopping TorrentFileProvider");
+        log.trace("Stopping TorrentFileProvider...");
         this.observer.getListeners().forEach(observer::removeListener);
         try {
             this.monitor.stop(10);

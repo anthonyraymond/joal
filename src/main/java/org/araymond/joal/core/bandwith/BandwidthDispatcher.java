@@ -168,19 +168,17 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     @VisibleForTesting
     void recomputeSpeeds() {
         log.debug("Refreshing all torrents speeds");
-        this.torrentsSeedStats.keySet().forEach(infohash -> {
-            this.speedMap.compute(infohash, (hash, speed) -> {
-                if (speed == null) {  // TODO: could it ever be null? both maps are updated under same lock anyway
-                    return new Speed(0);
-                }
-                double percentOfSpeedAssigned = this.weightHolder.getTotalWeight() == 0.0
-                        ? 0.0
-                        : this.weightHolder.getWeightFor(infohash) / this.weightHolder.getTotalWeight();
-                speed.setBytesPerSecond((long) (this.randomSpeedProvider.getCurrentSpeed() * percentOfSpeedAssigned));
+        this.torrentsSeedStats.keySet().forEach(infohash -> this.speedMap.compute(infohash, (hash, speed) -> {
+            if (speed == null) {  // TODO: could it ever be null? both maps are updated under same lock anyway
+                return new Speed(0);
+            }
+            double percentOfSpeedAssigned = this.weightHolder.getTotalWeight() == 0.0
+                    ? 0.0
+                    : this.weightHolder.getWeightFor(infohash) / this.weightHolder.getTotalWeight();
+            speed.setBytesPerSecond((long) (this.randomSpeedProvider.getCurrentSpeed() * percentOfSpeedAssigned));
 
-                return speed;
-            });
-        });
+            return speed;
+        }));
 
         if (speedChangedListener != null) {
             this.speedChangedListener.speedsHasChanged(new HashMap<>(this.speedMap));
