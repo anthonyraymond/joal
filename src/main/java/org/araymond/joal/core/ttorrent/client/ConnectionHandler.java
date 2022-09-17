@@ -54,7 +54,6 @@ public class ConnectionHandler {
         return this.channel.socket().getLocalPort();
     }
 
-    // TODO: use @Scheduled
     public void start() throws IOException {
         this.channel = this.bindToPort();
         final int port = this.channel.socket().getLocalPort();
@@ -63,6 +62,7 @@ public class ConnectionHandler {
         this.ipAddress = fetchIp();
         log.info("IP reported to tracker will be: {}", this.getIpAddress().getHostAddress());
 
+        // TODO: use @Scheduled
         this.ipFetcherThread = new Thread(() -> {
             while (this.ipFetcherThread == null || !this.ipFetcherThread.isInterrupted()) {
                 try {
@@ -87,8 +87,8 @@ public class ConnectionHandler {
             return InetAddress.getByName(in.readLine());
         } finally {
             // Ensure all streams associated with http connection are closed
-            final InputStream err = ((HttpURLConnection) urlConnection).getErrorStream();
-            try { if (err != null) err.close(); }
+            final InputStream errStream = ((HttpURLConnection) urlConnection).getErrorStream();
+            try { if (errStream != null) errStream.close(); }
             catch (final IOException ignored) {}
         }
     }

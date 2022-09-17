@@ -140,7 +140,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     }
 
     void moveToArchiveFolder(final File torrentFile) {
-        if (!torrentFile.exists()) {
+        if (torrentFile == null || !torrentFile.exists()) {
             return;
         }
         this.onFileDelete(torrentFile);
@@ -158,8 +158,8 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     public void moveToArchiveFolder(final InfoHash infoHash) {
         this.torrentFiles.entrySet().stream()
                 .filter(entry -> entry.getValue().getTorrentInfoHash().equals(infoHash))
-                .map(Map.Entry::getKey)
                 .findAny()
+                .map(Map.Entry::getKey)
                 .ifPresentOrElse(this::moveToArchiveFolder,
                         () -> log.warn("Cannot move torrent [{}] to archive folder. Torrent file seems not to be registered in TorrentFileProvider", infoHash));
     }

@@ -61,7 +61,7 @@ public class BitTorrentClientTest {
         final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator,
                 defaultUrlEncoder, "myqueryString", headers, defaultNumwantProvider);
 
-        assertThat(client.createRequestHeaders()).containsExactlyInAnyOrder(
+        assertThat(client.getHeaders()).containsExactlyInAnyOrder(
                 new AbstractMap.SimpleEntry<>("java-version", getProperty(JAVA_VERSION.key())),
                 new AbstractMap.SimpleEntry<>("os", getProperty(OS_NAME.key())),
                 new AbstractMap.SimpleEntry<>("Connection", "close"),
@@ -105,11 +105,11 @@ public class BitTorrentClientTest {
         );
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("numwant=10");
+                .isEqualTo("numwant=10");
         assertThat(client.createRequestQuery(RequestEvent.NONE, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("numwant=10");
+                .isEqualTo("numwant=10");
         assertThat(client.createRequestQuery(RequestEvent.STOPPED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("numwant=50");
+                .isEqualTo("numwant=50");
     }
 
     @Test
@@ -128,11 +128,29 @@ public class BitTorrentClientTest {
         // If Ipv4, should fill param and remove {ipv6}
         final ConnectionHandler mockedIpv4 = ConnectionHandlerTest.createMockedIpv4(12);
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, mockedIpv4))
-                .isEqualToIgnoringCase("ipv4=" + mockedIpv4.getIpAddress().getHostAddress());
+                .isEqualTo("ipv4=" + mockedIpv4.getIpAddress().getHostAddress());
         // If Ipv6, should fill param and remove {ip}
         final ConnectionHandler mockedIpv6 = ConnectionHandlerTest.createMockedIpv6(12);
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, mockedIpv6))
-                .isEqualToIgnoringCase("ipv6=" + mockedIpv6.getIpAddress().getHostAddress());
+                .isEqualTo("ipv6=" + mockedIpv6.getIpAddress().getHostAddress());
+    }
+
+    @Test
+    public void shouldCollapseMultipleAmpersandCharacters() {
+        final ConnectionHandler connectionHandler = ConnectionHandlerTest.createMockedIpv4(12345);
+        final TorrentSeedStats stats = TorrentSeedStatsTest.createOne();
+
+        final BitTorrentClient client = new BitTorrentClient(
+                defaultPeerIdGenerator,
+                defaultKeyGenerator,
+                defaultUrlEncoder,
+                "&&uploaded={uploaded}&&&port={port}&&&&left={left}&&&&&",
+                emptyList(),
+                defaultNumwantProvider
+        );
+
+        assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
+                .isEqualTo("uploaded=0&port=12345&left=0");
     }
 
     @Test
@@ -150,7 +168,7 @@ public class BitTorrentClientTest {
         );
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("port=12345");
+                .isEqualTo("port=12345");
     }
 
 
@@ -173,7 +191,7 @@ public class BitTorrentClientTest {
         );
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("uploaded=123456&downloaded=1478&left=369");
+                .isEqualTo("uploaded=123456&downloaded=1478&left=369");
     }
 
     @Test
@@ -209,7 +227,7 @@ public class BitTorrentClientTest {
         );
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("infohash=%61");
+                .isEqualTo("infohash=%61");
     }
 
     @Test
@@ -227,7 +245,7 @@ public class BitTorrentClientTest {
         );
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("peerid=%2D%41%41%2D%61%61%61%61%61%61%61%61%61%61%61%61%61%61%61%61");
+                .isEqualTo("peerid=%2D%41%41%2D%61%61%61%61%61%61%61%61%61%61%61%61%61%61%61%61");
     }
 
     @Test
@@ -245,7 +263,7 @@ public class BitTorrentClientTest {
         );
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("peerid=-AA-aaaaaaaaaaaaaaaa");
+                .isEqualTo("peerid=-AA-aaaaaaaaaaaaaaaa");
     }
 
     @Test
@@ -264,11 +282,13 @@ public class BitTorrentClientTest {
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
                 .isEqualToIgnoringCase("event=STARTED");
-        // If none, event must be deleted
-        assertThat(client.createRequestQuery(RequestEvent.NONE, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("");
         assertThat(client.createRequestQuery(RequestEvent.STOPPED, new InfoHash("a".getBytes()), stats, connectionHandler))
                 .isEqualToIgnoringCase("event=STOPPED");
+        // If none, event must be deleted:
+        assertThat(client.createRequestQuery(RequestEvent.NONE, new InfoHash("a".getBytes()), stats, connectionHandler))
+                .isEmpty();
+        assertThat(client.createRequestQuery(null, new InfoHash("a".getBytes()), stats, connectionHandler))
+                .isEmpty();
     }
 
     @Test
@@ -288,7 +308,7 @@ public class BitTorrentClientTest {
         );
 
         assertThat(client.createRequestQuery(RequestEvent.STARTED, new InfoHash("a".getBytes()), stats, connectionHandler))
-                .isEqualToIgnoringCase("key=" + urlEncoder.encode(keyGenerator.getKey(new InfoHash("a".getBytes()), RequestEvent.STARTED)));
+                .isEqualTo("key=" + urlEncoder.encode(keyGenerator.getKey(new InfoHash("a".getBytes()), RequestEvent.STARTED)));
     }
 
     @Test
@@ -310,11 +330,9 @@ public class BitTorrentClientTest {
     }
 
     @Test
-    public void shouldFailsIfHeadersContainsRemainingPlaceHolder() {
+    public void shouldFailIfHeadersContainRemainingPlaceHolder() {
         final List<HttpHeader> headers = List.of(new HttpHeader("qmqm", "{aohdksdf}"));
-        final BitTorrentClient client = new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator, defaultUrlEncoder, "myqueryString", headers, defaultNumwantProvider);
-
-        assertThatThrownBy(client::createRequestHeaders)
+        assertThatThrownBy(() -> new BitTorrentClient(defaultPeerIdGenerator, defaultKeyGenerator, defaultUrlEncoder, "myqueryString", headers, defaultNumwantProvider))
                 .isInstanceOf(UnrecognizedClientPlaceholder.class);
     }
 
@@ -414,7 +432,7 @@ public class BitTorrentClientTest {
                         final TorrentSeedStats stats = TorrentSeedStatsTest.createOne();
 
                         client.createRequestQuery(RequestEvent.STARTED, new InfoHash("adb".getBytes()), stats, connHandler);
-                        client.createRequestHeaders();
+                        // headers are generated in constructor
                     } catch (final Exception e) {
                         fail("Exception for client file [" + file.getName() + "]", e);
                     }

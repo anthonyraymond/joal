@@ -22,6 +22,6 @@ public class AnnounceDataAccessor {
     }
 
     public Set<Map.Entry<String, String>> getHttpHeadersForTorrent() {
-        return this.bitTorrentClient.createRequestHeaders();
+        return this.bitTorrentClient.getHeaders();
     }
 }

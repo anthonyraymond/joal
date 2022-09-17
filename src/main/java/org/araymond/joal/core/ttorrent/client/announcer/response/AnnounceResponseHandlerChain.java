@@ -73,6 +73,6 @@ public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
 
     @Override
     public void onTooManyAnnounceFailedInARow(final RequestEvent event, final Announcer announcer, final TooManyAnnouncesFailedInARowException e) {
-        handlers.forEach(ce -> ce.onTooManyAnnounceFailedInARow(announcer, e));
+        handlers.forEach(h -> h.onTooManyAnnounceFailedInARow(announcer, e));
     }
 }

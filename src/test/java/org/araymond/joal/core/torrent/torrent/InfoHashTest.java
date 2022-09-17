@@ -34,7 +34,7 @@ public class InfoHashTest {
 
     @Test
     public void shouldRemoveNonHumanReadableChars() {
-        final InfoHash infoHash = new InfoHash("a\u0001b\u0001\u0001cc".getBytes());
+        final InfoHash infoHash = new InfoHash("a\u0001b\u0001\u0001cc\u0002".getBytes());
 
         assertThat(infoHash.getHumanReadable()).isEqualTo("abcc");
     }

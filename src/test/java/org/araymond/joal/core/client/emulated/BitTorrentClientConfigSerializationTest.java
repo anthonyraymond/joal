@@ -88,7 +88,7 @@ public class BitTorrentClientConfigSerializationTest {
         final BitTorrentClientConfig bitTorrentClientConfig = mapper.readValue(jsonWithEmptyHeaders, BitTorrentClientConfig.class);
 
         assertThat(bitTorrentClientConfig).isNotNull();
-        assertThat(provider.createClient(bitTorrentClientConfig).getHeaders()).hasSize(0);
+        assertThat(provider.createClient(bitTorrentClientConfig).getHeaders()).isEmpty();
     }
 
     @Test

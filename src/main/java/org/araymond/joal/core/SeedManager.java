@@ -14,7 +14,6 @@ import org.araymond.joal.core.bandwith.RandomSpeedProvider;
 import org.araymond.joal.core.bandwith.Speed;
 import org.araymond.joal.core.bandwith.SpeedChangedListener;
 import org.araymond.joal.core.client.emulated.BitTorrentClient;
-import org.araymond.joal.core.client.emulated.BitTorrentClientConfig;
 import org.araymond.joal.core.client.emulated.BitTorrentClientProvider;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.config.JoalConfigProvider;
@@ -191,9 +190,9 @@ public class SeedManager {
     public String getCurrentEmulatedClient() {
         try {
             return this.bitTorrentClientProvider.get().getHeaders().stream()
-                    .filter(hdr -> USER_AGENT.equalsIgnoreCase(hdr.getName()))
+                    .filter(hdr -> USER_AGENT.equalsIgnoreCase(hdr.getKey()))
                     .findFirst()
-                    .map(BitTorrentClientConfig.HttpHeader::getValue)
+                    .map(Map.Entry::getValue)
                     .orElse("Unknown");
         } catch (final IllegalStateException e) {
             return "None";

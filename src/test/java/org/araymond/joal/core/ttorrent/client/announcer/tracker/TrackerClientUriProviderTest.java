@@ -3,19 +3,20 @@ package org.araymond.joal.core.ttorrent.client.announcer.tracker;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TrackerClientUriProviderTest {
 
     public static TrackerClientUriProvider createOne(final String... uris) {
-        final List<URI> uriList = new ArrayList<>();
-        for (final String uri : uris) {
-            uriList.add(URI.create(uri));
-        }
+        final List<URI> uriList = Arrays.stream(uris)
+                .map(URI::create)
+                .collect(toList());
+
         return new TrackerClientUriProvider(uriList);
     }
 

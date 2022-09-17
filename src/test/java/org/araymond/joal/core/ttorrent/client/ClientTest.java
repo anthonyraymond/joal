@@ -66,7 +66,8 @@ public class ClientTest {
         }
         try {
             if (stubber == null) {
-                Mockito.doThrow(new NoMoreTorrentsFileAvailableException("no more")).when(torrentFileProvider).getTorrentNotIn(anyCollection());
+                Mockito.doThrow(new NoMoreTorrentsFileAvailableException("no more"))
+                        .when(torrentFileProvider).getTorrentNotIn(anyCollection());
             } else {
                 stubber
                         .doThrow(new NoMoreTorrentsFileAvailableException("no more"))

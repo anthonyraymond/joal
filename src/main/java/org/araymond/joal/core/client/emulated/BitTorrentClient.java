@@ -25,9 +25,9 @@ import java.util.regex.Pattern;
 
 import static com.google.common.base.StandardSystemProperty.JAVA_VERSION;
 import static com.google.common.base.StandardSystemProperty.OS_NAME;
+import static com.google.common.collect.ImmutableSet.toImmutableSet;
 import static java.lang.String.valueOf;
 import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.EMPTY;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 
@@ -45,7 +45,7 @@ public class BitTorrentClient {
     private final KeyGenerator keyGenerator;
     private final UrlEncoder urlEncoder;
     @Getter private final String query;
-    @Getter private final Collection<HttpHeader> headers;
+    @Getter private final Set<Map.Entry<String, String>> headers;
     private final NumwantProvider numwantProvider;
 
     private static final Pattern INFOHASH_PTRN = Pattern.compile("\\{infohash}");
@@ -76,8 +76,8 @@ public class BitTorrentClient {
         Preconditions.checkNotNull(numwantProvider, "numwantProvider cannot be null");
         this.peerIdGenerator = peerIdGenerator;
         this.urlEncoder = urlEncoder;
-        this.query = query;
-        this.headers = headers;
+        this.query = AMPERSAND_DUPES_PTRN.matcher(query).replaceAll("&");  // collapse dupes;
+        this.headers = createRequestHeaders(headers);
         this.keyGenerator = keyGenerator;
         this.numwantProvider = numwantProvider;
     }
@@ -142,8 +142,6 @@ public class BitTorrentClient {
             throw new UnrecognizedClientPlaceholder("Placeholder [" + placeholderMatcher.group() + "] were not recognized while building announce URL");
         }
 
-        q = AMPERSAND_DUPES_PTRN.matcher(q).replaceAll("&");  // collapse dupes
-
         if (q.endsWith("&")) {
             q = q.substring(0, q.length() - 1);
         }
@@ -154,8 +152,8 @@ public class BitTorrentClient {
         return q;
     }
 
-    public Set<Map.Entry<String, String>> createRequestHeaders() {
-        return this.headers.stream().map(hdr -> {
+    private Set<Map.Entry<String, String>> createRequestHeaders(Collection<HttpHeader> headers) {
+        return headers.stream().map(hdr -> {
             String value = JAVA_PTRN.matcher(hdr.getValue()).replaceAll(System.getProperty(JAVA_VERSION.key()));
             value = OS_PTRN.matcher(value).replaceAll(System.getProperty(OS_NAME.key()));
             value = LOCALE_PTRN.matcher(value).replaceAll(Locale.getDefault().toLanguageTag());
@@ -166,6 +164,6 @@ public class BitTorrentClient {
             }
 
             return new SimpleImmutableEntry<>(hdr.getName(), value);
-        }).collect(toSet());
+        }).collect(toImmutableSet());
     }
 }

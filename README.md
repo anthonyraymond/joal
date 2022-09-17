@@ -123,7 +123,7 @@ The application configuration belongs in `joal-conf/config.json`.
 | ![Edge][browser-edge]               | ![no][support-no]       | Lack of `referrer-policy`                            |
 | ![Internet explorer][browser-ie]    | ![no][support-never]    | Not enough space to explain...                       |
 
-Some non-supported browser might works, but they may be unsafe due to the lack of support for `referrer-policy`.
+Some non-supported browser might work, but they may be unsafe due to the lack of support for `referrer-policy`.
 
 
 ## Community projects

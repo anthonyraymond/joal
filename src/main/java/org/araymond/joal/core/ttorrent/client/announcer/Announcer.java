@@ -27,15 +27,12 @@ import static java.util.stream.Collectors.toList;
 
 @Slf4j
 public class Announcer implements AnnouncerFacade {
-    @Getter
-    private int lastKnownInterval = 5;
-    @Getter
-    private int consecutiveFails;
+    @Getter private int lastKnownInterval = 5;
+    @Getter private int consecutiveFails;
     private Integer lastKnownLeechers = null;
     private Integer lastKnownSeeders = null;
     private LocalDateTime lastAnnouncedAt = null;
-    @Getter
-    private final MockedTorrent torrent;
+    @Getter private final MockedTorrent torrent;
     private TrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
 
@@ -122,8 +119,7 @@ public class Announcer implements AnnouncerFacade {
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final Announcer announcer = (Announcer) o;
-        return Objects.equal(this.getTorrentInfoHash(), announcer.getTorrentInfoHash());
+        return Objects.equal(this.getTorrentInfoHash(), ((Announcer) o).getTorrentInfoHash());
     }
 
     @Override

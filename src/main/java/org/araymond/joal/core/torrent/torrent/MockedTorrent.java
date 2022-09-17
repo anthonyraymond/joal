@@ -17,7 +17,7 @@ import java.security.NoSuchAlgorithmException;
  * Created by raymo on 23/01/2017.
  */
 @SuppressWarnings("ClassWithOnlyPrivateConstructors")
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Getter
 public class MockedTorrent extends Torrent {
     public static final Charset BYTE_ENCODING = StandardCharsets.ISO_8859_1;

@@ -34,7 +34,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final WeightHolder<InfoHash> weightHolder = new WeightHolder<>(new PeersAwareWeightCalculator());
     private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats = new HashMap<>();
-    private final Map<InfoHash, Speed> speedMap = new HashMap<>();
+    private final Map<InfoHash, Speed> speedMap = new HashMap<>();  // TODO: stop using Speed object, use raw long
     private SpeedChangedListener speedChangedListener;
     private int threadLoopCounter;
     private volatile boolean stop;
@@ -191,7 +191,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         }
 
         if (log.isDebugEnabled() && !this.speedMap.isEmpty()) {
-            final StringBuilder sb = new StringBuilder("All torrents speeds has been refreshed:\n");
+            final StringBuilder sb = new StringBuilder("All torrents speeds have been refreshed:\n");
             final double totalWeight = this.weightHolder.getTotalWeight();
             this.speedMap.forEach((infoHash, speed) -> {
                 final String humanReadableSpeed = byteCountToDisplaySize(speed.getBytesPerSecond());

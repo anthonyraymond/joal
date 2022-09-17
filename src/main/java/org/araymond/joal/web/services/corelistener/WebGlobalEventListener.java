@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 
+import java.util.Map;
+
 import static org.springframework.http.HttpHeaders.USER_AGENT;
 
 /**
@@ -35,9 +37,9 @@ public class WebGlobalEventListener extends WebEventListener {
         log.debug("Send GlobalSeedStartedPayload to clients");
 
         final String client = event.getBitTorrentClient().getHeaders().stream()
-                .filter(hdr -> USER_AGENT.equalsIgnoreCase(hdr.getName()))
+                .filter(hdr -> USER_AGENT.equalsIgnoreCase(hdr.getKey()))
                 .findFirst()
-                .map(BitTorrentClientConfig.HttpHeader::getValue)
+                .map(Map.Entry::getValue)
                 .orElse("Unknown");
 
         this.messagingTemplate.convertAndSend("/global", new GlobalSeedStartedPayload(client));
