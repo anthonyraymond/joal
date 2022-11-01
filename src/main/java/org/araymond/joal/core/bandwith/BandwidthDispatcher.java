@@ -93,7 +93,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                     this.threadLoopCounter = 0;
                 }
 
-                // This method as to run as fast as possible to avoid blocking other ones. Because we wasn't this loop
+                // This method as to run as fast as possible to avoid blocking other ones. Because we want this loop
                 //  to be scheduled as precise as we can. Locking too much will delay the Thread.sleep and cause stats
                 //  to be undervalued
                 this.lock.readLock().lock();
