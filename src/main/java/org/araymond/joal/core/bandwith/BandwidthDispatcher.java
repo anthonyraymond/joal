@@ -129,7 +129,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         this.lock.writeLock().lock();
         try {
             this.torrentsSeedStats.put(infoHash, new TorrentSeedStats());
-            this.speedMap.put(infoHash, new Speed());
+            this.speedMap.put(infoHash, new Speed(0));
         } finally {
             this.lock.writeLock().unlock();
         }
@@ -169,7 +169,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         for (final InfoHash infohash : this.torrentsSeedStats.keySet()) {
             this.speedMap.compute(infohash, (hash, speed) -> {
                 if (speed == null) {
-                    return new Speed();
+                    return new Speed(0);
                 }
                 double percentOfSpeedAssigned = this.weightHolder.getTotalWeight() == 0.0
                         ? 0.0
