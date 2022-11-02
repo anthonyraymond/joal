@@ -1,0 +1,30 @@
+{
+    "keyGenerator": {
+        "algorithm": {
+            "type": "HASH_NO_LEADING_ZERO",
+            "length": 8
+        },
+        "refreshOn": "TORRENT_PERSISTENT",
+        "keyCase": "upper"
+    },
+    "peerIdGenerator": {
+        "algorithm": {
+            "type": "REGEX",
+            "pattern": "-DE211s-[A-Za-z0-9_~\\(\\)\\!\\.\\*-]{12}"
+        },
+        "refreshOn": "NEVER",
+        "shouldUrlEncode": false
+    },
+    "urlEncoder": {
+        "encodingExclusionPattern": "[A-Za-z0-9_~\\(\\)\\!\\.\\*-]",
+        "encodedHexCase": "lower"
+    },
+    "query": "info_hash={infohash}&peer_id={peerid}&port={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&key={key}&event={event}&numwant={numwant}&compact=1&no_peer_id=1&supportcrypto=1&redundant=0",
+    "numwant": 200,
+    "numwantOnStop": 0,
+    "requestHeaders": [
+        { "name": "User-Agent", "value": "Deluge/2.1.1 libtorrent/1.2.15.0" },
+        { "name": "Accept-Encoding", "value": "gzip" },
+        { "name": "Connection", "value": "close" }
+    ]
+}
