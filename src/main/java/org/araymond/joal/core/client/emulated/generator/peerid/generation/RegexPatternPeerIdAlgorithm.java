@@ -1,12 +1,16 @@
 package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.google.common.base.Objects;
 import com.mifmif.common.regex.Generex;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 
+@EqualsAndHashCode(of = "pattern")
 public class RegexPatternPeerIdAlgorithm implements PeerIdAlgorithm {
 
+    @JsonProperty("pattern")
+    @Getter
     private final String pattern;
     private final Generex generex;
 
@@ -20,26 +24,8 @@ public class RegexPatternPeerIdAlgorithm implements PeerIdAlgorithm {
         this.generex = new Generex(pattern);
     }
 
-    @JsonProperty("pattern")
-    public String getPattern() {
-        return pattern;
-    }
-
     @Override
     public String generate() {
         return this.generex.random();
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final RegexPatternPeerIdAlgorithm that = (RegexPatternPeerIdAlgorithm) o;
-        return Objects.equal(pattern, that.pattern);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(pattern);
     }
 }

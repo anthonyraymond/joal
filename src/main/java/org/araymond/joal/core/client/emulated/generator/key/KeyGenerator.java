@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
@@ -22,9 +24,13 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
         @JsonSubTypes.Type(value = TorrentVolatileRefreshKeyGenerator.class, name = "TORRENT_VOLATILE"),
         @JsonSubTypes.Type(value = TorrentPersistentRefreshKeyGenerator.class, name = "TORRENT_PERSISTENT")
 })
+@Getter
+@EqualsAndHashCode
 public abstract class KeyGenerator {
 
+    @JsonProperty("algorithm")
     private final KeyAlgorithm algorithm;
+    @JsonProperty("keyCase")
     private final Casing keyCase;
 
     protected KeyGenerator(final KeyAlgorithm keyAlgorithm, final Casing keyCase) {
@@ -35,18 +41,6 @@ public abstract class KeyGenerator {
         this.keyCase = keyCase;
     }
 
-
-    @JsonProperty("algorithm")
-    KeyAlgorithm getAlgorithm() {
-        return algorithm;
-    }
-
-    @JsonProperty("keyCase")
-    Casing getKeyCase() {
-        return keyCase;
-    }
-
-
     @JsonIgnore
     public abstract String getKey(final InfoHash infoHash, RequestEvent event);
 
@@ -54,20 +48,6 @@ public abstract class KeyGenerator {
         final String key = this.algorithm.generate();
 
         return keyCase.toCase(key);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final KeyGenerator keyGenerator = (KeyGenerator) o;
-        return keyCase == keyGenerator.keyCase &&
-                com.google.common.base.Objects.equal(algorithm, keyGenerator.algorithm);
-    }
-
-    @Override
-    public int hashCode() {
-        return com.google.common.base.Objects.hashCode(algorithm, keyCase);
     }
 
 }

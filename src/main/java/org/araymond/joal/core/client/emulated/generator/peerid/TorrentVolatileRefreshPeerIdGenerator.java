@@ -27,13 +27,8 @@ public class TorrentVolatileRefreshPeerIdGenerator extends PeerIdGenerator {
 
     @Override
     public String getPeerId(final InfoHash infoHash, final RequestEvent event) {
-        final String peerId;
-
-        if (!this.peerIdPerTorrent.containsKey(infoHash)) {
-            this.peerIdPerTorrent.put(infoHash, super.generatePeerId());
-        }
-
-        peerId = this.peerIdPerTorrent.get(infoHash);
+        this.peerIdPerTorrent.computeIfAbsent(infoHash, k -> super.generatePeerId());
+        String peerId = this.peerIdPerTorrent.get(infoHash);
 
         if (event == RequestEvent.STOPPED) {
             this.peerIdPerTorrent.remove(infoHash);

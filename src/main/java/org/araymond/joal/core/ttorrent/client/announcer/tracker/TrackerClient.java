@@ -10,14 +10,9 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
-import org.apache.http.client.fluent.Request;
-import org.apache.http.client.fluent.Response;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +20,6 @@ import java.net.URI;
 import java.util.Map;
 
 public class TrackerClient {
-    private static final Logger logger = LoggerFactory.getLogger(TrackerClient.class);
-
     private final TrackerClientUriProvider trackerClientUriProvider;
     private final HttpClient httpClient;
     private final ResponseHandler<TrackerMessage> trackerResponseHandler;
@@ -73,8 +66,7 @@ public class TrackerClient {
         final AnnounceResponseMessage announceResponseMessage = (AnnounceResponseMessage) responseMessage;
 
         final int interval = announceResponseMessage.getInterval();
-        // Subtract one to seeders since we are one of them.
-        final int seeders = announceResponseMessage.getComplete() == 0 ? 0 : announceResponseMessage.getComplete() - 1;
+        final int seeders = announceResponseMessage.getComplete() == 0 ? 0 : announceResponseMessage.getComplete() - 1;  // Subtract one to seeders since we are one of them
         final int leechers = announceResponseMessage.getIncomplete();
         return new SuccessAnnounceResponse(interval, seeders, leechers);
     }

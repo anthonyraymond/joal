@@ -1,11 +1,10 @@
 package org.araymond.joal;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.LifeCycle;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.araymond.joal.core.SeedManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextClosedEvent;
@@ -18,9 +17,8 @@ import javax.inject.Inject;
  */
 @Profile("!test")
 @Component
+@Slf4j
 public class ApplicationClosingListener implements ApplicationListener<ContextClosedEvent> {
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationClosingListener.class);
-
     private final SeedManager manager;
 
     @Inject
@@ -30,10 +28,10 @@ public class ApplicationClosingListener implements ApplicationListener<ContextCl
 
     @Override
     public void onApplicationEvent(final ContextClosedEvent event) {
-        logger.info("Gracefully shutting down application.");
+        log.info("Gracefully shutting down application.");
         manager.stop();
         manager.tearDown();
-        logger.info("JOAL gracefully shut down.");
+        log.info("JOAL gracefully shut down.");
 
         // Since we disabled log4j2 shutdown hook, we need to handle it manually.
         final LifeCycle loggerContext = (LoggerContext) LogManager.getContext(false);

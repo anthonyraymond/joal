@@ -23,7 +23,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldRefreshRandomSpeedProviderAndRecomputeSpeed() {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final BandwidthDispatcher bandwidthDispatcher = spy(new BandwidthDispatcher(2, speedProvider));
 
@@ -37,7 +37,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldReturnZeroIfInfoHashIsNotRegistered() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
         bandwidthDispatcher.start();
@@ -55,7 +55,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldNotIncrementRegisteredTorrentsBeforePeersHaveBeenAdded() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
@@ -76,7 +76,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldNotIncrementRegisteredTorrentsWithZeroSeeders() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
@@ -98,7 +98,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldNotIncrementRegisteredTorrentsWithZeroLeechers() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
@@ -120,7 +120,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldRemoveUnregisteredTorrent() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
@@ -144,7 +144,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldIncrementRegisteredTorrent() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         final InfoHash infoHash2 = new InfoHash(new byte[]{100});
@@ -169,7 +169,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldBeSafeToUpdateTorrentSeedsStatsWhileRegisteringTorrents() throws ExecutionException, InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(1000000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(1000_000L).when(speedProvider).getCurrentSpeed();
 
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(1, speedProvider);
 
@@ -178,7 +178,7 @@ public class BandwidthDispatcherTest {
         final ExecutorService executorService = Executors.newFixedThreadPool(5);
         final Collection<Future<?>> futures = new ArrayList<>();
         for (int i = 0; i < 25; ++i) {
-            final InfoHash infoHash = new InfoHash((i + "").getBytes());
+            final InfoHash infoHash = new InfoHash((String.valueOf(i)).getBytes());
             futures.add(executorService.submit(() -> {
                 bandwidthDispatcher.registerTorrent(infoHash);
                 bandwidthDispatcher.updateTorrentPeers(infoHash, 20, 50);
@@ -195,7 +195,7 @@ public class BandwidthDispatcherTest {
     @Test
     public void shouldNotifyThatSpeedHasChangedAfterRegisteringTorrent() throws InterruptedException {
         final RandomSpeedProvider speedProvider = Mockito.mock(RandomSpeedProvider.class);
-        Mockito.doReturn(10000L).when(speedProvider).getInBytesPerSeconds();
+        Mockito.doReturn(10_000L).when(speedProvider).getCurrentSpeed();
 
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
         bandwidthDispatcher.start();

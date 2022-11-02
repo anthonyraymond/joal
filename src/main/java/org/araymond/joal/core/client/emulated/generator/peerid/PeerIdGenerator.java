@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
@@ -20,9 +22,14 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
         @JsonSubTypes.Type(value = TorrentVolatileRefreshPeerIdGenerator.class, name = "TORRENT_VOLATILE"),
         @JsonSubTypes.Type(value = TorrentPersistentRefreshPeerIdGenerator.class, name = "TORRENT_PERSISTENT")
 })
+@EqualsAndHashCode
+@Getter
 public abstract class PeerIdGenerator {
     public static final int PEER_ID_LENGTH = 20;
+
+    @JsonProperty("algorithm")
     private final PeerIdAlgorithm algorithm;
+    @JsonProperty("shouldUrlEncode")
     private final boolean shouldUrlEncode;
 
     protected PeerIdGenerator(final PeerIdAlgorithm algorithm, final boolean shouldUrlEncode) {
@@ -31,16 +38,6 @@ public abstract class PeerIdGenerator {
         }
         this.algorithm = algorithm;
         this.shouldUrlEncode = shouldUrlEncode;
-    }
-
-    @JsonProperty("algorithm")
-    PeerIdAlgorithm getAlgorithm() {
-        return algorithm;
-    }
-
-    @JsonProperty("shouldUrlEncode")
-    public boolean getShouldUrlEncoded() {
-        return shouldUrlEncode;
     }
 
     @JsonIgnore
@@ -53,19 +50,4 @@ public abstract class PeerIdGenerator {
         }
         return peerId;
     }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final PeerIdGenerator peerIdGenerator = (PeerIdGenerator) o;
-        return shouldUrlEncode == peerIdGenerator.shouldUrlEncode &&
-                com.google.common.base.Objects.equal(algorithm, peerIdGenerator.algorithm);
-    }
-
-    @Override
-    public int hashCode() {
-        return com.google.common.base.Objects.hashCode(algorithm, shouldUrlEncode);
-    }
-
 }

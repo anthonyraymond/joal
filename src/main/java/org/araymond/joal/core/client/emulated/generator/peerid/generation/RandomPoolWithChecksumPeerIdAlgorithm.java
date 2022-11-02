@@ -3,7 +3,8 @@ package org.araymond.joal.core.client.emulated.generator.peerid.generation;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Charsets;
-import com.google.common.base.Objects;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
@@ -11,13 +12,21 @@ import org.araymond.joal.core.client.emulated.generator.peerid.PeerIdGenerator;
 import java.security.SecureRandom;
 import java.time.Instant;
 
+@EqualsAndHashCode(of = {"prefix", "charactersPool", "base"})
 public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
 
     private final SecureRandom random;
     private Integer refreshSeedAfter;
     private Integer generationCount;
+
+    @JsonProperty("prefix")
+    @Getter
     private final String prefix;
+    @JsonProperty("charactersPool")
+    @Getter
     private final String charactersPool;
+    @JsonProperty("base")
+    @Getter
     private final Integer base;
 
     public RandomPoolWithChecksumPeerIdAlgorithm(
@@ -44,21 +53,6 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
         this.base = base;
     }
 
-    @JsonProperty("prefix")
-    public String getPrefix() {
-        return prefix;
-    }
-
-    @JsonProperty("charactersPool")
-    public String getCharactersPool() {
-        return charactersPool;
-    }
-
-    @JsonProperty("base")
-    public Integer getBase() {
-        return base;
-    }
-
     @VisibleForTesting
     byte[] createSecureRandomSeed() {
         return Instant.now().toString().getBytes(Charsets.UTF_8);
@@ -68,7 +62,7 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
         // Using the current random to generate another random would be completely useless because if the SecureRandom appears to be predictable we will be able to predict the next int as well
         int randNumber = new SecureRandom(createSecureRandomSeed()).nextInt();
         randNumber = Math.abs(randNumber % 40);
-        return (randNumber + 10);
+        return randNumber + 10;
     }
 
     @VisibleForTesting
@@ -104,20 +98,5 @@ public class RandomPoolWithChecksumPeerIdAlgorithm implements PeerIdAlgorithm {
         val = (total % this.base) != 0 ? this.base - (total % this.base) : 0;
         buf[suffixLength - 1] = this.charactersPool.charAt(val);
         return this.prefix + new String(buf);
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final RandomPoolWithChecksumPeerIdAlgorithm that = (RandomPoolWithChecksumPeerIdAlgorithm) o;
-        return Objects.equal(prefix, that.prefix) &&
-                Objects.equal(charactersPool, that.charactersPool) &&
-                Objects.equal(base, that.base);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(prefix, charactersPool, base);
     }
 }

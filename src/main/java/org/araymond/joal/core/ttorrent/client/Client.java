@@ -2,7 +2,6 @@ package org.araymond.joal.core.ttorrent.client;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
@@ -17,20 +16,16 @@ import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFacade;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
-import org.slf4j.Logger;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
-import static org.slf4j.LoggerFactory.getLogger;
+import static java.util.stream.Collectors.toList;
 
 public class Client implements TorrentFileChangeAware, ClientFacade {
-    private static final Logger logger = getLogger(Client.class);
-
     private final AppConfiguration appConfiguration;
     private final TorrentFileProvider torrentFileProvider;
     private final ApplicationEventPublisher eventPublisher;
@@ -85,10 +80,10 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                 }
             }
         });
+
         for (int i = 0; i < this.appConfiguration.getSimultaneousSeed(); i++) {
             try {
                 this.lock.writeLock().lock();
-
                 this.addTorrent();
             } catch (final NoMoreTorrentsFileAvailableException ignored) {
                 break;
@@ -107,7 +102,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         final MockedTorrent torrent = this.torrentFileProvider.getTorrentNotIn(
                 this.currentlySeedingAnnouncer.stream()
                         .map(Announcer::getTorrentInfoHash)
-                        .collect(Collectors.toList())
+                        .collect(toList())
         );
         final Announcer announcer = this.announcerFactory.create(torrent);
         this.currentlySeedingAnnouncer.add(announcer);
@@ -158,7 +153,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     }
 
     public void onNoMorePeers(final InfoHash infoHash) {
-        if (!this.appConfiguration.shouldKeepTorrentWithZeroLeechers()) {
+        if (!this.appConfiguration.isKeepTorrentWithZeroLeechers()) {
             this.torrentFileProvider.moveToArchiveFolder(infoHash);
         }
     }
@@ -218,7 +213,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     public List<AnnouncerFacade> getCurrentlySeedingAnnouncer() {
         try {
             this.lock.readLock().lock();
-            return Lists.newArrayList(this.currentlySeedingAnnouncer);
+            return new ArrayList<>(this.currentlySeedingAnnouncer);
         } finally {
             this.lock.readLock().unlock();
         }

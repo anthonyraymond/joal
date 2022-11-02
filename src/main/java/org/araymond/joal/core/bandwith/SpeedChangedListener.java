@@ -5,5 +5,5 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 import java.util.Map;
 
 public interface SpeedChangedListener {
-    void speedsHasChanged(final Map<InfoHash, Speed> speeds);
+    void speedsHasChanged(Map<InfoHash, Speed> speeds);
 }

@@ -1,9 +1,11 @@
 package org.araymond.joal.core.client.emulated.generator.key;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.Getter;
 import org.araymond.joal.core.client.emulated.TorrentClientConfigIntegrityException;
 import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorithm;
 import org.araymond.joal.core.client.emulated.utils.Casing;
@@ -18,7 +20,13 @@ import java.time.temporal.ChronoUnit;
 public class TimedRefreshKeyGenerator extends KeyGenerator {
     @VisibleForTesting
     LocalDateTime lastGeneration;
+
+    @Getter
+    @JsonIgnore
     private String key;
+
+    @JsonProperty("refreshEvery")
+    @Getter
     private final Integer refreshEvery;
 
     @JsonCreator
@@ -34,11 +42,6 @@ public class TimedRefreshKeyGenerator extends KeyGenerator {
         this.refreshEvery = refreshEvery;
     }
 
-    @JsonProperty("refreshEvery")
-    Integer getRefreshEvery() {
-        return refreshEvery;
-    }
-
     @Override
     public String getKey(final InfoHash infoHash, final RequestEvent event) {
         if (this.shouldRegenerateKey()) {
@@ -49,7 +52,11 @@ public class TimedRefreshKeyGenerator extends KeyGenerator {
         return this.key;
     }
 
-    private boolean shouldRegenerateKey() {
+    boolean shouldRegenerateKey() {
         return this.lastGeneration == null || ChronoUnit.SECONDS.between(this.lastGeneration, LocalDateTime.now()) >= this.refreshEvery;
+    }
+
+    void setKey(String key) {
+        this.key = key;
     }
 }

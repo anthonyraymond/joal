@@ -100,7 +100,7 @@ public class AppConfigurationTest {
         assertThat(config.getMinUploadRate()).isEqualTo(180);
         assertThat(config.getMaxUploadRate()).isEqualTo(190);
         assertThat(config.getSimultaneousSeed()).isEqualTo(2);
-        assertThat(config.getClientFileName()).isEqualTo("azureus.client");
+        assertThat(config.getClient()).isEqualTo("azureus.client");
     }
 
     @Test

@@ -1,10 +1,9 @@
 package org.araymond.joal.core;
 
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.events.global.state.GlobalSeedStartedEvent;
 import org.araymond.joal.core.events.global.state.GlobalSeedStoppedEvent;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -18,25 +17,20 @@ import java.io.IOException;
  * will soon turn into a god damn mess and we won't be able to maintain the code because of all the non explicit method calls.
  */
 @Component
+@Slf4j
 public class CoreEventListener {
-    private static final Logger logger = LoggerFactory.getLogger(CoreEventListener.class);
-
-    public CoreEventListener() {
-    }
-
-
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     public void handleTorrentFileAddedForSeed(final TorrentFileAddedEvent event) throws IOException {
-        logger.debug("Event TorrentFileAddedEvent caught.");
+        log.debug("Event TorrentFileAddedEvent caught.");
     }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleSeedSessionHasStarted(final GlobalSeedStartedEvent event) {
-        logger.debug("Event GlobalSeedStartedEvent caught.");
+        log.debug("Event GlobalSeedStartedEvent caught.");
         // TODO : add a log to tell which BitTorrent client.
         // TODO : detailed BitTorrent client log at debug log level
     }
@@ -45,7 +39,7 @@ public class CoreEventListener {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     public void handleSeedSessionHasEnded(final GlobalSeedStoppedEvent event) {
-        logger.debug("Event GlobalSeedStoppedEvent caught.");
+        log.debug("Event GlobalSeedStoppedEvent caught.");
         // TODO : log that the seed session is over
     }
 

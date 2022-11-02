@@ -48,7 +48,7 @@ By default the web-ui is disabled, you can enable it with some more arguments:
 - `--joal.ui.secret-token="SECRET_TOKEN"`: use your own secret token here (this is some kind of a password, choose a complicated one).
 
 Once joal is started head to: `http://localhost:port/SECRET_OBFUSCATION_PATH/ui/` (obviously, replace `SECRET_OBFUSCATION_PATH`) by the value you had chosen
-The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to set it as complex as possible to prevent peoples to know that joal is running on your server.
+The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to set it as complex as possible to prevent people to know that joal is running on your server.
 
 If you want to use iframe you may also pass the `joal.iframe.enabled=true` argument. If you don't known what that is just ignore it.
 
@@ -135,7 +135,7 @@ Those projects are maintained by their individual authors, if you have any quest
 
 # Thanks:
 This project use a modified version of the awesome [mpetazzoni/ttorrent](http://mpetazzoni.github.com/ttorrent/) library. Thanks to **mpetazzoni** for this.
-Also this project has benefited from the help of several peoples, see [Thanks.md](THANKS.md)
+Also this project has benefited from the help of several people, see [Thanks.md](THANKS.md)
 
 ## Supporters
 [![Thanks for providing Jetbrain license](readme-assets/jetbrains.svg)](https://www.jetbrains.com/?from=joal)

@@ -1,12 +1,13 @@
 package org.araymond.joal.core.client.emulated.generator.numwant;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.EqualsAndHashCode;
 
 /**
  * Created by raymo on 19/07/2017.
  */
+@EqualsAndHashCode
 public class NumwantProvider {
 
     private final Integer numwant;
@@ -26,19 +27,5 @@ public class NumwantProvider {
             return numwantOnStop;
         }
         return numwant;
-    }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final NumwantProvider that = (NumwantProvider) o;
-        return Objects.equal(numwant, that.numwant) &&
-                Objects.equal(numwantOnStop, that.numwantOnStop);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(numwant, numwantOnStop);
     }
 }

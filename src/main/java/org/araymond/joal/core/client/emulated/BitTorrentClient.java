@@ -1,10 +1,11 @@
 package org.araymond.joal.core.client.emulated;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.core.bandwith.TorrentSeedStats;
 import org.araymond.joal.core.client.emulated.generator.UrlEncoder;
@@ -22,16 +23,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static java.util.Optional.ofNullable;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 
 /**
  * Created by raymo on 26/01/2017.
  */
+@EqualsAndHashCode(exclude = "urlEncoder")
 public class BitTorrentClient {
     private final PeerIdGenerator peerIdGenerator;
     private final KeyGenerator keyGenerator;
     private final UrlEncoder urlEncoder;
-    private final String query;
+    @Getter private final String query;
     private final List<Map.Entry<String, String>> headers;
     private final NumwantProvider numwantProvider;
 
@@ -55,14 +58,8 @@ public class BitTorrentClient {
 
     @VisibleForTesting
     Optional<String> getKey(final InfoHash infoHash, final RequestEvent event) {
-        if (keyGenerator == null) {
-            return Optional.empty();
-        }
-        return Optional.of(keyGenerator.getKey(infoHash, event));
-    }
-
-    public String getQuery() {
-        return query;
+        return ofNullable(keyGenerator)
+                .map(keyGen -> keyGen.getKey(infoHash, event));
     }
 
     public List<Map.Entry<String, String>> getHeaders() {
@@ -83,12 +80,9 @@ public class BitTorrentClient {
                 .replaceAll("\\{port}", String.valueOf(connectionHandler.getPort()))
                 .replaceAll("\\{numwant}", String.valueOf(this.getNumwant(event)));
 
-        final String peerId;
-        if (this.peerIdGenerator.getShouldUrlEncoded()) {
-            peerId = urlEncoder.encode(this.getPeerId(torrentInfoHash, event));
-        } else {
-            peerId = this.getPeerId(torrentInfoHash, event);
-        }
+        final String peerId = this.peerIdGenerator.isShouldUrlEncode()
+                ? urlEncoder.encode(this.getPeerId(torrentInfoHash, event))
+                : this.getPeerId(torrentInfoHash, event);
         emulatedClientQuery = emulatedClientQuery.replaceAll("\\{peerid}", peerId);
 
         // set ip or ipv6 then remove placeholders that were left empty
@@ -149,22 +143,4 @@ public class BitTorrentClient {
         }
         return headers;
     }
-
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        final BitTorrentClient that = (BitTorrentClient) o;
-        return com.google.common.base.Objects.equal(peerIdGenerator, that.peerIdGenerator) &&
-                Objects.equal(keyGenerator, that.keyGenerator) &&
-                Objects.equal(query, that.query) &&
-                Objects.equal(headers, that.headers) &&
-                Objects.equal(numwantProvider, that.numwantProvider);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(peerIdGenerator, keyGenerator, query, headers, numwantProvider);
-    }
-
 }

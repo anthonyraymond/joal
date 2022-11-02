@@ -45,5 +45,4 @@ public class AuthChannelInterceptorAdapter implements ChannelInterceptor {
 
         return message;
     }
-
 }

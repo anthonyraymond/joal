@@ -6,12 +6,12 @@ import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnoun
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 
 public interface AnnounceResponseHandlerChainElement {
-    void onAnnouncerWillAnnounce(final Announcer announcer, RequestEvent event);
-    void onAnnounceStartSuccess(final Announcer announcer, final SuccessAnnounceResponse result);
-    void onAnnounceStartFails(final Announcer announcer, final Throwable throwable);
-    void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result);
-    void onAnnounceRegularFails(final Announcer announcer, final Throwable throwable);
-    void onAnnounceStopSuccess(final Announcer announcer, final SuccessAnnounceResponse result);
-    void onAnnounceStopFails(final Announcer announcer, final Throwable throwable);
-    void onTooManyAnnounceFailedInARaw(final Announcer announcer, final TooMuchAnnouncesFailedInARawException e);
+    void onAnnouncerWillAnnounce(Announcer announcer, RequestEvent event);
+    void onAnnounceStartSuccess(Announcer announcer, SuccessAnnounceResponse result);
+    void onAnnounceStartFails(Announcer announcer, Throwable throwable);
+    void onAnnounceRegularSuccess(Announcer announcer, SuccessAnnounceResponse result);
+    void onAnnounceRegularFails(Announcer announcer, Throwable throwable);
+    void onAnnounceStopSuccess(Announcer announcer, SuccessAnnounceResponse result);
+    void onAnnounceStopFails(Announcer announcer, Throwable throwable);
+    void onTooManyAnnounceFailedInARaw(Announcer announcer, TooMuchAnnouncesFailedInARawException e);
 }

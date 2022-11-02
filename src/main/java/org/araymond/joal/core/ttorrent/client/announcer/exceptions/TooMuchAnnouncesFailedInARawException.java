@@ -1,7 +1,9 @@
 package org.araymond.joal.core.ttorrent.client.announcer.exceptions;
 
+import lombok.Getter;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 
+@Getter
 public class TooMuchAnnouncesFailedInARawException extends Exception {
     private static final long serialVersionUID = 1864953989056739188L;
 
@@ -10,9 +12,5 @@ public class TooMuchAnnouncesFailedInARawException extends Exception {
     public TooMuchAnnouncesFailedInARawException(final MockedTorrent torrent) {
         super();
         this.torrent = torrent;
-    }
-
-    public MockedTorrent getTorrent() {
-        return torrent;
     }
 }

@@ -3,13 +3,14 @@ package org.araymond.joal.core.client.emulated.generator.peerid;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Sets;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.Getter;
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,7 +48,7 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
 
     @VisibleForTesting
     void evictOldEntries() {
-        Sets.newHashSet(this.peerIdPerTorrent.entrySet()).stream()
+        new HashSet<>(this.peerIdPerTorrent.entrySet()).stream()
                 .filter(this::shouldEvictEntry)
                 .forEach(entry -> this.peerIdPerTorrent.remove(entry.getKey()));
     }
@@ -65,6 +66,7 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
 
     static class AccessAwarePeerId {
         private final String peerId;
+        @Getter
         private LocalDateTime lastAccess;
 
         @VisibleForTesting
@@ -76,10 +78,6 @@ public class TorrentPersistentRefreshPeerIdGenerator extends PeerIdGenerator {
         public String getPeerId() {
             this.lastAccess = LocalDateTime.now();
             return this.peerId;
-        }
-
-        LocalDateTime getLastAccess() {
-            return lastAccess;
         }
     }
 }

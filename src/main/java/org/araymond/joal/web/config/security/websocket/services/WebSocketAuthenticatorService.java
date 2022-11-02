@@ -45,5 +45,4 @@ public class WebSocketAuthenticatorService {
                 Collections.singleton((GrantedAuthority) () -> "USER")
         );
     }
-
 }

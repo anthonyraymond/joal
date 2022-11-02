@@ -11,7 +11,6 @@ import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
@@ -37,7 +36,7 @@ public class JacksonConfig {
     /**
      * Forces the timezone to be added to every LocalDateTime
      */
-    public  static final class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
+    public static final class LocalDateTimeSerializer extends JsonSerializer<LocalDateTime> {
         @Override
         public void serialize(final LocalDateTime value, final JsonGenerator gen, final SerializerProvider serializers) throws IOException {
             final ZonedDateTime zonedDateTime = value.atZone(ZoneId.systemDefault());

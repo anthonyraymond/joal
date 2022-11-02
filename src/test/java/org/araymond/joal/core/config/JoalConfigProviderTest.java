@@ -41,7 +41,7 @@ public class JoalConfigProviderTest {
         final SeedManager.JoalFoldersPath fakeFolders = new SeedManager.JoalFoldersPath(Paths.get("nop"));
         assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), fakeFolders, Mockito.mock(ApplicationEventPublisher.class)))
                 .isInstanceOf(FileNotFoundException.class)
-                .hasMessageContaining("App configuration file '" + fakeFolders.getConfPath() + File.separator + "config.json' not found.");
+                .hasMessageContaining("App configuration file [" + fakeFolders.getConfPath() + File.separator + "config.json] not found");
     }
 
     @Test
@@ -50,7 +50,7 @@ public class JoalConfigProviderTest {
 
         assertThatThrownBy(provider::get)
                 .isInstanceOf(IllegalStateException.class)
-                .hasMessage("Attempted to get configuration before init.");
+                .hasMessage("Attempted to get configuration before init");
     }
 
     @Test
@@ -73,7 +73,7 @@ public class JoalConfigProviderTest {
         final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
         provider.init();
 
-        assertThat(provider.get()).usingComparator((Comparator<AppConfiguration>) (o1, o2) -> {
+        assertThat(provider.get()).usingComparator((o1, o2) -> {
             if (o1 == o2) return 0;
             return -1;
         })

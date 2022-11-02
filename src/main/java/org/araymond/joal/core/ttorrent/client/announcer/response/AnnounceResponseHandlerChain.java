@@ -1,18 +1,16 @@
 package org.araymond.joal.core.ttorrent.client.announcer.response;
 
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
-import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+@Slf4j
 public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
-    private static final Logger logger = getLogger(AnnounceResponseHandlerChain.class);
     private final List<AnnounceResponseHandlerChainElement> chainElements;
 
     public AnnounceResponseHandlerChain() {
@@ -47,7 +45,7 @@ public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
                     break;
                 }
                 default: {
-                    logger.warn("Event {} cannot be handled by {}", event.getEventName(), getClass().getSimpleName());
+                    log.warn("Event {} cannot be handled by {}", event.getEventName(), getClass().getSimpleName());
                     break;
                 }
             }
@@ -71,7 +69,7 @@ public class AnnounceResponseHandlerChain implements AnnounceResponseCallback {
                     break;
                 }
                 default: {
-                    logger.warn("Event {} cannot be handled by {}", event.getEventName(), getClass().getSimpleName());
+                    log.warn("Event {} cannot be handled by {}", event.getEventName(), getClass().getSimpleName());
                     break;
                 }
             }

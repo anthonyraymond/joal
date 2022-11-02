@@ -1,8 +1,7 @@
 package org.araymond.joal;
 
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.SeedManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -16,9 +15,8 @@ import javax.inject.Inject;
  */
 @Profile("!test")
 @Component
+@Slf4j
 public class ApplicationReadyListener implements ApplicationListener<ApplicationReadyEvent> {
-    private static final Logger logger = LoggerFactory.getLogger(ApplicationReadyListener.class);
-
     private final SeedManager manager;
     private final ConfigurableApplicationContext applicationContext;
 
@@ -35,7 +33,7 @@ public class ApplicationReadyListener implements ApplicationListener<Application
             manager.startSeeding();
         } catch (final Throwable e) {
             final IllegalStateException wrapped = new IllegalStateException("Fatal error encountered", e);
-            logger.error("Fatal error encountered", wrapped);
+            log.error("Fatal error encountered", wrapped);
             applicationContext.close();
         }
     }

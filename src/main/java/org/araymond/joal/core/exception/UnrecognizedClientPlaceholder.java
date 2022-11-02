@@ -9,5 +9,4 @@ public class UnrecognizedClientPlaceholder extends RuntimeException {
     public UnrecognizedClientPlaceholder(final String message) {
         super(message);
     }
-
 }

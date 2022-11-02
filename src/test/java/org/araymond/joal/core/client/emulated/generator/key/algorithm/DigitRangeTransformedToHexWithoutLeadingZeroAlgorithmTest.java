@@ -8,14 +8,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 
 public class DigitRangeTransformedToHexWithoutLeadingZeroAlgorithmTest {
 
     @Test
     public void shouldNotBuildWithNullLowerBound() {
-        assertThatThrownBy(() -> new DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm(null, 10000L))
+        assertThatThrownBy(() -> new DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm(null, 10_000L))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class);
     }
     @Test

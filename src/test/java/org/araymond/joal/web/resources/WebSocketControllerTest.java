@@ -39,8 +39,8 @@ public class WebSocketControllerTest {
         doReturn(config.getMinUploadRate()).when(configIncomingMessage).getMinUploadRate();
         doReturn(config.getMaxUploadRate()).when(configIncomingMessage).getMaxUploadRate();
         doReturn(config.getSimultaneousSeed()).when(configIncomingMessage).getSimultaneousSeed();
-        doReturn(config.getClientFileName()).when(configIncomingMessage).getClient();
-        doReturn(config.shouldKeepTorrentWithZeroLeechers()).when(configIncomingMessage).shouldKeepTorrentWithZeroLeechers();
+        doReturn(config.getClient()).when(configIncomingMessage).getClient();
+        doReturn(config.isKeepTorrentWithZeroLeechers()).when(configIncomingMessage).isKeepTorrentWithZeroLeechers();
         doReturn(config).when(configIncomingMessage).toAppConfiguration();
 
         controller.saveNewConf(configIncomingMessage);

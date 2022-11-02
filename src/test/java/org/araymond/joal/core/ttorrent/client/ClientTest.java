@@ -40,7 +40,7 @@ public class ClientTest {
 
     private AppConfiguration createMockedConf() {
         // wrap into spy to allow mocking
-        return Mockito.spy(AppConfigurationTest.createOne());
+        return spy(AppConfigurationTest.createOne());
     }
 
     private AnnouncerFactory createMockedAnnouncerFactory() {
@@ -83,7 +83,7 @@ public class ClientTest {
     @Test
     public void shouldDeleteTorrentIfNoMorePeersOnlyIfConfigValueShouldKeepInactiveTorrentIsFalse() {
         final AppConfiguration appConfiguration = this.createMockedConf();
-        doReturn(false).when(appConfiguration).shouldKeepTorrentWithZeroLeechers();
+        doReturn(false).when(appConfiguration).isKeepTorrentWithZeroLeechers();
 
         final TorrentFileProvider torrentFileProvider = mock(TorrentFileProvider.class);
 
@@ -102,7 +102,7 @@ public class ClientTest {
         verify(torrentFileProvider, times(1)).moveToArchiveFolder(eq(infoHash));
 
         final InfoHash infoHash2 = InfoHashTest.createOne("abcd");
-        doReturn(true).when(appConfiguration).shouldKeepTorrentWithZeroLeechers();
+        doReturn(true).when(appConfiguration).isKeepTorrentWithZeroLeechers();
         client.onNoMorePeers(infoHash);
 
         verify(torrentFileProvider, times(1)).moveToArchiveFolder(eq(infoHash2));
@@ -111,6 +111,7 @@ public class ClientTest {
     @SuppressWarnings({"unchecked", "TypeMayBeWeakened", "ResultOfMethodCallIgnored", "ConstantConditions"})
     @Test
     public void shouldStartAnnouncerWhenStart() {
+        // given
         final AppConfiguration appConfiguration = this.createMockedConf();
         doReturn(5).when(appConfiguration).getSimultaneousSeed();
 
@@ -134,8 +135,10 @@ public class ClientTest {
                 .withDelayQueue(delayQueue)
                 .build();
 
+        // when
         client.start();
 
+        // then
         Mockito.verify(delayQueue, times(appConfiguration.getSimultaneousSeed()))
                 .addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
         assertThat(client.getCurrentlySeedingAnnouncer().stream()

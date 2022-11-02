@@ -28,7 +28,7 @@ public class RandomSpeedProviderTest {
         final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConf());
         for (int i = 0; i < 50; i++) {
             speedProvider.refresh();
-            assertThat(speedProvider.getInBytesPerSeconds() / 1000).isBetween(MIN_UPLOAD_RATE, MAX_UPLOAD_RATE);
+            assertThat(speedProvider.getCurrentSpeed() / 1000).isBetween(MIN_UPLOAD_RATE, MAX_UPLOAD_RATE);
         }
     }
 
@@ -37,7 +37,7 @@ public class RandomSpeedProviderTest {
         // no call to refresh before call to get
         final RandomSpeedProvider speedProvider = new RandomSpeedProvider(this.mockedConf());
 
-        assertThat(speedProvider.getInBytesPerSeconds() / 1000).isBetween(MIN_UPLOAD_RATE, MAX_UPLOAD_RATE);
+        assertThat(speedProvider.getCurrentSpeed() / 1000).isBetween(MIN_UPLOAD_RATE, MAX_UPLOAD_RATE);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class RandomSpeedProviderTest {
         final Set<Long> recordedSpeeds = IntStream.range(1, 10)
                 .mapToObj(i -> {
                     speedProvider.refresh();
-                    return speedProvider.getInBytesPerSeconds();
+                    return speedProvider.getCurrentSpeed();
                 })
                 .collect(Collectors.toSet());
 

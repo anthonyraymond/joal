@@ -3,20 +3,17 @@ package org.araymond.joal.core.ttorrent.client.announcer.tracker;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.http.HTTPTrackerMessage;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ResponseHandler;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
-import static org.slf4j.LoggerFactory.getLogger;
-
+@Slf4j
 public class TrackerResponseHandler implements ResponseHandler<TrackerMessage> {
-    private static final Logger logger = getLogger(TrackerResponseHandler.class);
-
     @Override
     public TrackerMessage handleResponse(final HttpResponse response) throws IOException {
         final HttpEntity entity = response.getEntity();
@@ -26,9 +23,9 @@ public class TrackerResponseHandler implements ResponseHandler<TrackerMessage> {
         }
 
         final int contentLength = entity.getContentLength() < 1 ? 1024 : (int) entity.getContentLength();
-        try(final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(contentLength)) {
+        try (final ByteArrayOutputStream outputStream = new ByteArrayOutputStream(contentLength)) {
             if (response.getStatusLine().getStatusCode() >= 300) {
-                logger.warn("Tracker response is an error.");
+                log.warn("Tracker response is an error.");
             }
 
             try {

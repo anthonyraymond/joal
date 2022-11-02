@@ -1,13 +1,9 @@
 package org.araymond.joal.web.config;
 
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
-import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.config.annotation.*;
 
 @ConditionalOnWebUi
 // Do not use @EnableWebMvc as it will remove all the default springboot config.
