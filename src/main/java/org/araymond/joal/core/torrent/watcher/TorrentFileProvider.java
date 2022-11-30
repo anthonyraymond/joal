@@ -16,7 +16,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.util.Optional.ofNullable;
@@ -120,7 +120,10 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
         return this.torrentFiles.values().stream()
                 .filter(torrent -> !unwantedTorrents.contains(torrent.getTorrentInfoHash()))
-                .sorted((o1, o2) -> ThreadLocalRandom.current().nextInt(-1, 2))
+                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                    Collections.shuffle(collected);
+                    return collected.stream();
+                }))
                 .findAny()
                 .orElseThrow(() -> new NoMoreTorrentsFileAvailableException("No more torrent file available."));
     }
