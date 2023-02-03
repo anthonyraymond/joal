@@ -74,7 +74,8 @@ public class Announcer implements AnnouncerFacade {
 
             return responseMessage;
         } catch (final Exception e) {
-            if (++this.consecutiveFails >= 5) {  // TODO: move to config
+            this.consecutiveFails++;
+            if (this.consecutiveFails >= 5) {  // TODO: move to config
                 log.warn("[{}] has failed to announce {} times in a row", this.torrent.getTorrentInfoHash().getHumanReadable(), this.consecutiveFails);
                 throw new TooManyAnnouncesFailedInARowException(torrent);
             } else {

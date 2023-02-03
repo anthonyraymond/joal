@@ -9,6 +9,7 @@ import java.time.temporal.TemporalUnit;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Predicate;
 
 import static java.util.Collections.emptyList;
 
@@ -30,7 +31,7 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
         );
         this.lock.lock();
         try {
-            this.queue.removeIf(i -> i.getItem().getInfoHash().equals(item.getInfoHash()));  // Ensure no double will be present in the queue (don't want to have two announce type for a torrent)
+            this.queue.removeIf(infoHashEquals(item));  // Ensure no double will be present in the queue (don't want to have two announce type for a torrent)
             this.queue.add(intervalAware);
         } finally {
             this.lock.unlock();
@@ -60,10 +61,14 @@ public class DelayQueue<T extends DelayQueue.InfoHashAble> {
         }
     }
 
+    private Predicate<IntervalAware<T>> infoHashEquals(T item) {
+        return i -> i.getItem().getInfoHash().equals(item.getInfoHash());
+    }
+
     public void remove(final T itemToRemove) {
         this.lock.lock();
         try {
-            this.queue.removeIf(item -> item.getItem().getInfoHash().equals(itemToRemove.getInfoHash()));
+            this.queue.removeIf(infoHashEquals(itemToRemove));
         } finally {
             this.lock.unlock();
         }

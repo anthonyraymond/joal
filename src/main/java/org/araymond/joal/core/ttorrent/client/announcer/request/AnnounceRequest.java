@@ -27,7 +27,7 @@ public final class AnnounceRequest implements DelayQueue.InfoHashAble {
     }
 
     public AnnounceRequest toStop() {
-        return new AnnounceRequest(announcer, RequestEvent.STOPPED);
+        return createStop(announcer);
     }
 
     @Override

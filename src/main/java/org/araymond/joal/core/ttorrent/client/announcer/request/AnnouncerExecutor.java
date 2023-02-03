@@ -50,9 +50,10 @@ public class AnnouncerExecutor {
             }
         };
 
+        final Future<?> taskFuture = this.executorService.submit(task);
         this.currentlyRunning.put(
                 request.getAnnouncer().getTorrentInfoHash(),
-                new AnnouncerWithFuture(request.getAnnouncer(), this.executorService.submit(task))
+                new AnnouncerWithFuture(request.getAnnouncer(), taskFuture)
         );
     }
 

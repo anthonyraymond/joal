@@ -30,7 +30,7 @@ import static java.util.stream.Collectors.toSet;
 /**
  * This class is a torrent client agnostic representation. It
  * <ul>
- *     <li>keeps track & manages of all the queued {@link AnnounceRequest}s via {@link DelayQueue}</li>
+ *     <li>keeps track of & manages all the queued {@link AnnounceRequest}s via {@link DelayQueue}</li>
  *     <li>spawns a thread periodically going through the {@code delayQueue}, and generating
  *     tracker announcements off it</li>
  *     <li>implements {@link TorrentFileChangeAware} to react to torrent file changes in filesystem</li>
@@ -196,10 +196,15 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     @Override
     public void onTorrentFileAdded(final MockedTorrent torrent) {
         this.eventPublisher.publishEvent(new TorrentFileAddedEvent(torrent));
-        if (!this.stop && this.currentlySeedingAnnouncers.size() < this.appConfig.getSimultaneousSeed()) {
-            Lock lock = this.lock.writeLock();
+
+        if (this.stop) {
+            return;
+        }
+
+        Lock lock = this.lock.writeLock();
+        lock.lock();
+        if (this.currentlySeedingAnnouncers.size() < this.appConfig.getSimultaneousSeed()) {
             try {
-                lock.lock();
                 addTorrent(torrent);
             } finally {
                 lock.unlock();

@@ -56,8 +56,7 @@ public class ConnectionHandler {
 
     public void start() throws IOException {
         this.channel = this.bindToPort();
-        final int port = this.channel.socket().getLocalPort();
-        log.info("Listening for incoming peer connections on port {}", port);
+        log.info("Listening for incoming peer connections on port {}", getPort());
 
         this.ipAddress = fetchIp();
         log.info("IP reported to tracker will be: {}", this.getIpAddress().getHostAddress());
