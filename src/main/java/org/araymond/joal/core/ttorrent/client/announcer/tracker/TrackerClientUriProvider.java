@@ -36,8 +36,7 @@ public class TrackerClientUriProvider {
 
     void deleteCurrentAndMoveToNext() throws NoMoreUriAvailableException {
         if (this.currentURI == null) {
-            // TODO: shouldn't we throw or ignore if current selection is null?
-            this.currentURI = this.addressIterator.next();
+            throw new NoMoreUriAvailableException("No more valid tracker URIs left");
         }
         this.addressIterator.remove();
         this.moveToNext();
@@ -45,7 +44,7 @@ public class TrackerClientUriProvider {
 
     void moveToNext() throws NoMoreUriAvailableException {
         if (!this.addressIterator.hasNext()) {
-            throw new NoMoreUriAvailableException("No more valid trackers");
+            throw new NoMoreUriAvailableException("No more valid tracker URIs left");
         }
         this.currentURI = this.addressIterator.next();
     }

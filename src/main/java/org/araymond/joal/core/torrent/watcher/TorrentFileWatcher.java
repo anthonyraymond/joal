@@ -13,6 +13,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 import static java.nio.file.Files.isDirectory;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
 
 /**
@@ -23,8 +24,7 @@ import static org.apache.commons.io.filefilter.FileFilterUtils.suffixFileFilter;
  */
 @Slf4j
 class TorrentFileWatcher {
-    // TODO : get back to a bigger value as soon as https://issues.apache.org/jira/browse/IO-535 is fixed
-    private static final int DEFAULT_SCAN_INTERVAL_MS = 2 * 1000;
+    private static final long DEFAULT_SCAN_INTERVAL_MS = SECONDS.toMillis(5);
     private static final IOFileFilter TORRENT_FILE_FILTER = suffixFileFilter(".torrent");
 
     private final FileAlterationObserver observer;
@@ -36,7 +36,7 @@ class TorrentFileWatcher {
         this(listener, monitoredFolder, DEFAULT_SCAN_INTERVAL_MS);
     }
 
-    TorrentFileWatcher(final FileAlterationListener listener, final Path monitoredFolder, final int intervalMs) {
+    TorrentFileWatcher(final FileAlterationListener listener, final Path monitoredFolder, final long intervalMs) {
         Preconditions.checkNotNull(listener, "listener cannot be null");
         Preconditions.checkNotNull(monitoredFolder, "monitoredFolder cannot be null");
         Preconditions.checkArgument(isDirectory(monitoredFolder), "Folder [" + monitoredFolder.toAbsolutePath() + "] does not exists.");

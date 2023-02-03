@@ -44,6 +44,7 @@ public class TrackerClientUriProviderTest {
     @Test
     public void shouldDeleteAndMoveToNext() throws NoMoreUriAvailableException {
         final TrackerClientUriProvider provider = createOne("http://localhost", "https://localhost", "http://127.0.0.1", "https://127.0.0.1");
+        provider.moveToNext();
 
         provider.deleteCurrentAndMoveToNext();
         provider.deleteCurrentAndMoveToNext();
@@ -53,6 +54,7 @@ public class TrackerClientUriProviderTest {
     @Test
     public void shouldFailIfDeleteAndNoMoreAvailable() throws NoMoreUriAvailableException {
         final TrackerClientUriProvider provider = createOne("http://localhost", "https://localhost", "http://127.0.0.1");
+        provider.moveToNext();
 
         provider.deleteCurrentAndMoveToNext();
         provider.deleteCurrentAndMoveToNext();

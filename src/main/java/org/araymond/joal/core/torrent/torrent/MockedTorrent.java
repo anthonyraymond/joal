@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 
 /**
@@ -20,9 +19,10 @@ import java.security.NoSuchAlgorithmException;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 public class MockedTorrent extends Torrent {
-    public static final Charset BYTE_ENCODING = StandardCharsets.ISO_8859_1;
+    public static final Charset BYTE_ENCODING = Charset.forName(Torrent.BYTE_ENCODING);
 
     private final InfoHash torrentInfoHash;
+
     /**
      * Create a new torrent from meta-info binary data.
      * <p>
@@ -30,12 +30,11 @@ public class MockedTorrent extends Torrent {
      * BitTorrent specification) and create a Torrent object from it.
      *
      * @param torrent The meta-info byte data.
-     * @param seeder  Whether we're the _initial_ seeder for this torrent.
      * @throws IOException When the info dictionary can't be read or
      *                     encoded and hashed back to create the torrent's SHA-1 hash.
      */
-    private MockedTorrent(final byte[] torrent, final boolean seeder) throws IOException, NoSuchAlgorithmException {
-        super(torrent, seeder);
+    private MockedTorrent(final byte[] torrent) throws IOException, NoSuchAlgorithmException {
+        super(torrent, false);
 
         try {
             // Torrent validity tests
@@ -50,10 +49,6 @@ public class MockedTorrent extends Torrent {
         }
 
         this.torrentInfoHash = new InfoHash(this.getInfoHash());
-    }
-
-    private MockedTorrent(byte[] data) throws IOException, NoSuchAlgorithmException {
-        this(data, false);
     }
 
     public static MockedTorrent fromFile(final File torrentFile) throws IOException, NoSuchAlgorithmException {

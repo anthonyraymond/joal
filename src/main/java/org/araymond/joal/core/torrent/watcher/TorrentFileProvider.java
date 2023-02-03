@@ -20,8 +20,10 @@ import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static java.nio.file.Files.isDirectory;
+import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import static java.util.Collections.synchronizedMap;
 import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 /**
  * With help of a {@link TorrentFileWatcher}, it monitors our filesystem for
@@ -131,7 +133,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
         return this.torrentFiles.values().stream()
                 .filter(torrent -> !unwantedTorrents.contains(torrent.getTorrentInfoHash()))
-                .collect(Collectors.collectingAndThen(Collectors.toList(), collected -> {
+                .collect(Collectors.collectingAndThen(toList(), collected -> {
                     Collections.shuffle(collected);
                     return collected.stream();
                 }))
@@ -147,8 +149,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
         try {
             Path moveTarget = archiveFolder.resolve(torrentFile.getName());
-            Files.deleteIfExists(moveTarget);
-            Files.move(torrentFile.toPath(), moveTarget);
+            Files.move(torrentFile.toPath(), moveTarget, REPLACE_EXISTING);
             log.info("Successfully moved file [{}] to archive folder", torrentFile.getAbsolutePath());
         } catch (final IOException e) {
             log.error("Failed to archive file [{}], the file won't be used anymore for the current session, but it remains in the folder", torrentFile.getAbsolutePath());

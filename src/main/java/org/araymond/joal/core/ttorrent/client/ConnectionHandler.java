@@ -21,7 +21,7 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 /**
  * This class has 2 main functions:
  * <ul>
- *     <li>establishes a socket at a port that accepts connections</li>
+ *     <li>establishes a socket on an open port that accepts connections</li>
  *     <li>periodically resolves our external IP address</li>
  * </ul>
  * Note this port & IP will be reported back to trackers via announcements, if your client
@@ -96,7 +96,7 @@ public class ConnectionHandler {
     @VisibleForTesting
     Optional<InetAddress> tryToFetchFromProviders() {
         final List<String> shuffledList = Arrays.asList(IP_PROVIDERS);
-        Collections.shuffle(shuffledList);  // TODO: why shuffle? perhaps better use Iterators.cycle here like we do in TrackerClientUriProvider?
+        Collections.shuffle(shuffledList);
 
         for (final String ipProviderUrl : shuffledList) {
             log.info("Fetching ip from {}", ipProviderUrl);

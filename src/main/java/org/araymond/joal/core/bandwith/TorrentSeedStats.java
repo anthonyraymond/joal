@@ -19,7 +19,7 @@ public class TorrentSeedStats {  // TODO: rename to TorrentSeedState? or Torrent
      */
     private long downloaded;
     /**
-     * bytes this client still hsa to download.
+     * bytes this client still has to download.
      * Note that this can't be computed from downloaded and the file length since the client might be
      * resuming an earlier download, and there's a chance that some of the downloaded data failed an
      * integrity check and had to be re-downloaded.

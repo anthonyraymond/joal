@@ -34,7 +34,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final WeightHolder<InfoHash> weightHolder = new WeightHolder<>(new PeersAwareWeightCalculator());
     private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats = new HashMap<>();
-    private final Map<InfoHash, Speed> speedMap = new HashMap<>();  // TODO: stop using Speed object, use raw long
+    private final Map<InfoHash, Speed> speedMap = new HashMap<>();
     private SpeedChangedListener speedChangedListener;
     private int threadLoopCounter;
     private volatile boolean stop;
@@ -43,7 +43,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     private final int threadPauseIntervalMs;
     private final RandomSpeedProvider randomSpeedProvider;
 
-    private static final long TWENTY_MINS_MS = MINUTES.toMillis(20);  // TODO: 20min interval needs to be in config
+    private static final long TWENTY_MINS_MS = MINUTES.toMillis(20);
 
     public void setSpeedListener(final SpeedChangedListener speedListener) {
         this.speedChangedListener = speedListener;
@@ -89,7 +89,8 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 MILLISECONDS.sleep(this.threadPauseIntervalMs);
 
                 // refresh bandwidth every 20 minutes:
-                if (++this.threadLoopCounter == TWENTY_MINS_MS / this.threadPauseIntervalMs) {
+                this.threadLoopCounter++;
+                if (this.threadLoopCounter == TWENTY_MINS_MS / this.threadPauseIntervalMs) {
                     this.refreshCurrentBandwidth();
                     this.threadLoopCounter = 0;
                 }
@@ -97,7 +98,6 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                 // This method as to run as fast as possible to avoid blocking other ones. Because we want this loop
                 //  to be scheduled as precise as we can. Locking too much will delay the Thread.sleep and cause stats
                 //  to be undervalued
-                // TODO: is locking here even necessary?:
                 this.lock.readLock().lock();
                 final Set<Map.Entry<InfoHash, TorrentSeedStats>> seedStatsView = new HashSet<>(this.torrentsSeedStats.entrySet());
                 this.lock.readLock().unlock();
@@ -109,7 +109,6 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                             .orElse(0L);
                     // Divide by 1000 because of the thread pause interval being in milliseconds
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
-                    // TODO: we should add some additional randomization here, besides the bandwidth refresh done above; or maybe just update bandwidth more often than every 20mins?
                     // TODO: maybe instead of trusting threadPauseIntervalMs, use wall clock for calculations?
                     entry.getValue().addUploaded(speedInBytesPerSecond * this.threadPauseIntervalMs / 1000);
                 });
