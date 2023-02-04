@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
+<!-- Don't forget to set system property
+-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector
+or
+-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.BasicAsyncLoggerContextSelector
+     to make _all_ loggers asynchronous.
+
 See also:
   - https://springframework.guru/asynchronous-logging-with-log4j-2/
   - https://logging.apache.org/log4j/2.x/manual/appenders.html
@@ -32,10 +37,8 @@ See also:
     </Appenders>
     <Loggers>
         <!-- about includeLocation: https://logging.apache.org/log4j/2.x/manual/async.html#Location -->
-        <AsyncLogger name="org.araymond.joal" level="INFO" includeLocation="false">
-            <AppenderRef ref="RollingRandomAccessFile"/>
-        </AsyncLogger>
         <Root level="INFO" includeLocation="false">
+            <AppenderRef ref="RollingRandomAccessFile"/>
             <AppenderRef ref="Console"/>
         </Root>
     </Loggers>
