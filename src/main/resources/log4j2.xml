@@ -1,21 +1,42 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration shutdownHook="disable">
+<!--
+See also:
+  - https://springframework.guru/asynchronous-logging-with-log4j-2/
+  - https://logging.apache.org/log4j/2.x/manual/appenders.html
+  - https://logging.apache.org/log4j/2.x/manual/async.html
+-->
 
-    <Loggers>
-        <Root level="INFO" additivity="false">
-            <AppenderRef ref="CONSOLE"/>
-        </Root>
-        <Logger name="org.araymond.joal" level="INFO" additivity="false">
-            <Appender-ref ref="CONSOLE"/>
-        </Logger>
-    </Loggers>
+<Configuration status="WARN" name="joal" shutdownHook="disable">
+    <Properties>
+        <Property name="appenderPatternLayout">%highlight{[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%15t] %c{1.}: %msg%n%throwable}{FATAL=Bright red, ERROR=red, WARN=Normal yellow, INFO=Normal, DEBUG=Normal, TRACE=Normal}</Property>
+    </Properties>
 
     <Appenders>
-        <Console name="CONSOLE" target="SYSTEM_OUT">
-            <PatternLayout
-                    pattern="%highlight{[%-5level] %d{yyyy-MM-dd HH:mm:ss.SSS} [%15t] %c{1.}: %msg%n%throwable}{FATAL=Bright red, ERROR=red, WARN=Normal yellow, INFO=Normal, DEBUG=Normal, TRACE=Normal}"
-            />
+        <!--     Async Loggers will auto-flush in batches, so switch off immediateFlush. -->
+        <RollingRandomAccessFile name="RollingRandomAccessFile" fileName="logs/app.log"
+                                 filePattern="logs/$${date:yyyy-MM}/app-%d{MM-dd-yyyy}-%i.log.gz"
+                                 immediateFlush="false">
+            <PatternLayout pattern="${appenderPatternLayout}" />
+            <Policies>
+                <!-- Causes a rollover if the log file is older than the current JVM's start time: -->
+                <OnStartupTriggeringPolicy />
+
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="3"/>
+        </RollingRandomAccessFile>
+
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${appenderPatternLayout}" />
         </Console>
     </Appenders>
-
+    <Loggers>
+        <!-- about includeLocation: https://logging.apache.org/log4j/2.x/manual/async.html#Location -->
+        <AsyncLogger name="org.araymond.joal" level="INFO" includeLocation="false">
+            <AppenderRef ref="RollingRandomAccessFile"/>
+        </AsyncLogger>
+        <Root level="INFO" includeLocation="false">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
 </Configuration>
