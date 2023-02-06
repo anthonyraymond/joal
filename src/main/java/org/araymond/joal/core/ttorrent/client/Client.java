@@ -78,8 +78,7 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                     this.announcerExecutor.execute(req);
                     try {
                         this.lock.writeLock().lock();
-                        // TODO: do we need removeIf()? why not use remove(req.getAnnouncer())? because list may contain more instances of same announcer?
-                        this.currentlySeedingAnnouncers.removeIf(a -> a.equals(req.getAnnouncer()));  // remove the last recorded events
+                        this.currentlySeedingAnnouncers.remove(req.getAnnouncer());
                         this.currentlySeedingAnnouncers.add(req.getAnnouncer());
                     } finally {
                         this.lock.writeLock().unlock();

@@ -116,6 +116,9 @@ public class Announcer implements AnnouncerFacade {
         return this.getTorrent().getTorrentInfoHash();
     }
 
+    /**
+     * Make sure to keep {@code torrentInfoHash} as the only input.
+     */
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
@@ -123,6 +126,9 @@ public class Announcer implements AnnouncerFacade {
         return Objects.equal(this.getTorrentInfoHash(), ((Announcer) o).getTorrentInfoHash());
     }
 
+    /**
+     * Make sure to keep {@code torrentInfoHash} as the only input.
+     */
     @Override
     public int hashCode() {
         return this.getTorrentInfoHash().hashCode();
