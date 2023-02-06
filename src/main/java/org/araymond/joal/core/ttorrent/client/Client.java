@@ -197,14 +197,10 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     public void onTorrentFileAdded(final MockedTorrent torrent) {
         this.eventPublisher.publishEvent(new TorrentFileAddedEvent(torrent));
 
-        if (this.stop) {
-            return;
-        }
-
-        Lock lock = this.lock.writeLock();
-        lock.lock();
-        if (this.currentlySeedingAnnouncers.size() < this.appConfig.getSimultaneousSeed()) {
+        if (!this.stop && this.currentlySeedingAnnouncers.size() < this.appConfig.getSimultaneousSeed()) {
+            Lock lock = this.lock.writeLock();
             try {
+                lock.lock();
                 addTorrent(torrent);
             } finally {
                 lock.unlock();

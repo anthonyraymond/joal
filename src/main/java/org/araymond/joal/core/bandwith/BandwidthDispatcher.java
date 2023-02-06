@@ -133,7 +133,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         this.lock.writeLock().lock();
         try {
             this.torrentsSeedStats.put(infoHash, new TorrentSeedStats());
-            this.speedMap.put(infoHash, new Speed(0));  // TODO: why start w/ 0 speed?
+            this.speedMap.put(infoHash, new Speed(0));
         } finally {
             this.lock.writeLock().unlock();
         }
