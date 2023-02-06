@@ -29,23 +29,22 @@ public class TrackerClientUriProviderTest {
 
     @Test
     public void shouldMoveToNext() throws NoMoreUriAvailableException {
-        final TrackerClientUriProvider provider = createOne("http://localhost", "https://localhost", "http://127.0.0.1", "https://127.0.0.1");
+        final TrackerClientUriProvider provider = createOne("http://first-element", "https://localhost", "http://127.0.0.1", "https://127.0.0.1");
 
-        provider.moveToNext();
-        assertThat(provider.get().toString()).isEqualTo("http://localhost");
+        assertThat(provider.get().toString()).isEqualTo("http://first-element");
         provider.moveToNext();
         assertThat(provider.get().toString()).isEqualTo("https://localhost");
         provider.moveToNext();
         assertThat(provider.get().toString()).isEqualTo("http://127.0.0.1");
         provider.moveToNext();
         assertThat(provider.get().toString()).isEqualTo("https://127.0.0.1");
+        provider.moveToNext();
+        assertThat(provider.get().toString()).isEqualTo("http://first-element");
     }
 
     @Test
     public void shouldDeleteAndMoveToNext() throws NoMoreUriAvailableException {
         final TrackerClientUriProvider provider = createOne("http://localhost", "https://localhost", "http://127.0.0.1", "https://127.0.0.1");
-        provider.moveToNext();
-
         provider.deleteCurrentAndMoveToNext();
         provider.deleteCurrentAndMoveToNext();
         assertThat(provider.get().toString()).isEqualTo("http://127.0.0.1");
@@ -54,7 +53,6 @@ public class TrackerClientUriProviderTest {
     @Test
     public void shouldFailIfDeleteAndNoMoreAvailable() throws NoMoreUriAvailableException {
         final TrackerClientUriProvider provider = createOne("http://localhost", "https://localhost", "http://127.0.0.1");
-        provider.moveToNext();
 
         provider.deleteCurrentAndMoveToNext();
         provider.deleteCurrentAndMoveToNext();
@@ -68,7 +66,7 @@ public class TrackerClientUriProviderTest {
 
         for (int i = 0; i < 20; i++) {
             provider.moveToNext();
-            assertThat(provider.get().toString()).isEqualTo(i % 2 == 0 ? "http://localhost" : "https://localhost");
+            assertThat(provider.get().toString()).isEqualTo(i % 2 == 0 ? "https://localhost" : "http://localhost");
         }
     }
 
@@ -100,7 +98,7 @@ public class TrackerClientUriProviderTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfNoHTTPUriAreFound() throws Exception {
+    public void shouldThrowExceptionIfNoHTTPUriAreFound() {
         assertThatThrownBy(() -> createOne("udp://localhost", "udp://127.0.0.1"))
                 .isInstanceOf(NoMoreUriAvailableException.class);
     }

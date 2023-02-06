@@ -25,19 +25,14 @@ public class TrackerClientUriProvider {
 
         // TODO: sorted(new PreferHTTPSComparator())
         this.addressIterator = Iterators.cycle(trackers);
+        this.currentURI = this.addressIterator.next(); // initialize state
     }
 
     URI get() {
-        if (this.currentURI == null) {
-            this.currentURI = this.addressIterator.next();
-        }
         return this.currentURI;
     }
 
     void deleteCurrentAndMoveToNext() throws NoMoreUriAvailableException {
-        if (this.currentURI == null) {
-            throw new NoMoreUriAvailableException("No more valid tracker URIs left");
-        }
         this.addressIterator.remove();
         this.moveToNext();
     }
