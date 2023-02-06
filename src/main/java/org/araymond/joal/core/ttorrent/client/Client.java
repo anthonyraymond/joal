@@ -159,14 +159,17 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     }
 
     public void onTooManyFailedInARow(final Announcer announcer) {
+        if (this.stop) {
+            this.currentlySeedingAnnouncers.remove(announcer);
+            return;
+        }
+
         Lock lock = this.lock.writeLock();
         try {
             lock.lock();
             this.currentlySeedingAnnouncers.remove(announcer);  // Remove from announcers list asap, otherwise the deletion will trigger an announce stop event.
-            if (!this.stop) {
-                this.torrentFileProvider.moveToArchiveFolder(announcer.getTorrentInfoHash());
-                this.addTorrentFromDirectory();
-            }
+            this.torrentFileProvider.moveToArchiveFolder(announcer.getTorrentInfoHash());
+            this.addTorrentFromDirectory();
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
             lock.unlock();
@@ -180,12 +183,15 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
     }
 
     public void onTorrentHasStopped(final Announcer stoppedAnnouncer) {
+        if (this.stop) {
+            this.currentlySeedingAnnouncers.remove(stoppedAnnouncer);
+            return;
+        }
+
         Lock lock = this.lock.writeLock();
         try {
             lock.lock();
-            if (!this.stop) {
-                this.addTorrentFromDirectory();
-            }
+            this.addTorrentFromDirectory();
         } catch (final NoMoreTorrentsFileAvailableException ignored) {
         } finally {
             this.currentlySeedingAnnouncers.remove(stoppedAnnouncer);
