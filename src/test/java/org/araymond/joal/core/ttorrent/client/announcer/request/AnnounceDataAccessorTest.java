@@ -1,6 +1,5 @@
 package org.araymond.joal.core.ttorrent.client.announcer.request;
 
-import com.turn.ttorrent.common.protocol.TrackerMessage;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.bandwith.TorrentSeedStats;
@@ -39,7 +38,7 @@ public class AnnounceDataAccessorTest {
     }
 
     @Test
-    public void shouldCallCreateHeadersOnBitTorrentClient() {
+    public void shouldCallGetHeadersOnBitTorrentClient() {
         final BitTorrentClient bitTorrentClient = mock(BitTorrentClient.class);
         final BandwidthDispatcher bandwidthDispatcher = mock(BandwidthDispatcher.class);
         final ConnectionHandler connectionHandler = mock(ConnectionHandler.class);
@@ -48,7 +47,7 @@ public class AnnounceDataAccessorTest {
 
         announceDataAccessor.getHttpHeadersForTorrent();
 
-        verify(bitTorrentClient, times(1)).createRequestHeaders();
+        verify(bitTorrentClient, times(1)).getHeaders();
     }
 
 }

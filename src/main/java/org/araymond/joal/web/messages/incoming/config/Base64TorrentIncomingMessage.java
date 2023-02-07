@@ -13,7 +13,8 @@ public class Base64TorrentIncomingMessage {
     private final String b64String;
 
     @JsonCreator
-    public Base64TorrentIncomingMessage(@JsonProperty("fileName") final String fileName, @JsonProperty("b64String") final String b64String) {
+    public Base64TorrentIncomingMessage(@JsonProperty("fileName") final String fileName,
+                                        @JsonProperty("b64String") final String b64String) {
         this.fileName = fileName;
         this.b64String = b64String;
     }

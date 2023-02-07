@@ -6,7 +6,6 @@ import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.R
 import org.araymond.joal.core.client.emulated.generator.peerid.generation.PeerIdAlgorithm;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

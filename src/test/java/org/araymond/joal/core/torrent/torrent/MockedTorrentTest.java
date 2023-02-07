@@ -1,6 +1,5 @@
 package org.araymond.joal.core.torrent.torrent;
 
-import com.google.common.collect.Lists;
 import com.turn.ttorrent.common.Torrent;
 import org.araymond.joal.core.utils.TorrentFileCreator;
 import org.junit.jupiter.api.Test;
@@ -26,9 +25,11 @@ public class MockedTorrentTest {
         doReturn(new InfoHash(infoHash.getBytes())).when(torrent).getTorrentInfoHash();
         doReturn(infoHash.getBytes()).when(torrent).getInfoHash();
 
-        final List<List<URI>> uris = Lists.newArrayList();
-        uris.add(Lists.newArrayList(URI.create("http://localhost"), URI.create("https://localhost")));
-        uris.add(Lists.newArrayList(URI.create("http://127.0.0.1"), URI.create("https://127.0.0.1")));
+        final List<List<URI>> uris = List.of(
+                List.of(URI.create("http://localhost"), URI.create("https://localhost")),
+                List.of(URI.create("http://127.0.0.1"), URI.create("https://127.0.0.1"))
+        );
+
         doReturn(uris).when(torrent).getAnnounceList();
         doReturn(Torrent.byteArrayToHexString(infoHash.getBytes())).when(torrent).getHexInfoHash();
         doReturn("generic torrent").when(torrent).getName();

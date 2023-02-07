@@ -11,7 +11,6 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -19,13 +18,14 @@ import static org.mockito.Mockito.mock;
  */
 public class BitTorrentClientConfigSerializationTest {
 
-    private BitTorrentClientProvider provider = new BitTorrentClientProvider(mock(JoalConfigProvider.class), mock(ObjectMapper.class), mock(SeedManager.JoalFoldersPath.class));
+    private BitTorrentClientProvider provider = new BitTorrentClientProvider(mock(JoalConfigProvider.class),
+            mock(ObjectMapper.class), mock(SeedManager.JoalFoldersPath.class));
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String validJSON = "{\"peerIdGenerator\":{\"refreshOn\":\"NEVER\",\"algorithm\": { \"type\": \"REGEX\", \"pattern\": \"-AZ5750-[a-zA-Z0-9]{12}\" }, \"shouldUrlEncode\": false},\"urlEncoder\":{\"encodingExclusionPattern\":\"[a-z]\",\"encodedHexCase\":\"lower\"},\"numwant\":200,\"numwantOnStop\":0,\"query\":\"info_hash={infohash}&peer_id={peerid}&supportcrypto=1&port={port}&azudp={port}&uploaded={uploaded}&downloaded={downloaded}&left={left}&corrupt=0&event={event}&numwant={numwant}&no_peer_id=1&compact=1&key={key}&azver=3\",\"keyGenerator\":{\"refreshOn\":\"NEVER\",\"algorithm\": { \"type\": \"HASH\", \"length\": 8 },\"keyCase\":\"lower\"},\"requestHeaders\":[{\"name\":\"User-Agent\",\"value\":\"Azureus 5.7.5.0;{os};1.8.0_66\"},{\"name\":\"Connection\",\"value\":\"close\"},{\"name\":\"Accept-Encoding\",\"value\":\"gzip\"},{\"name\":\"Accept\",\"value\":\"text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2\"}]}";
 
     @Test
     public void shouldFailToDeserializeIfPeerIdInfoIsNotDefined() throws IOException {
-        final String jsonWithoutPeerId = validJSON.replaceAll("\"peerIdGenerator\":[ ]*\\{.*?},", "");
+        final String jsonWithoutPeerId = validJSON.replaceAll("\"peerIdGenerator\": *\\{.*?},", "");
         assertThatThrownBy(() -> mapper.readValue(jsonWithoutPeerId, BitTorrentClientConfig.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'peerIdGenerator'");
@@ -33,7 +33,7 @@ public class BitTorrentClientConfigSerializationTest {
 
     @Test
     public void shouldFailToDeserializeIfQueryIsNotDefined() throws IOException {
-        final String jsonWithoutQuery = validJSON.replaceAll("\"query\":[ ]*\".*?\",", "");
+        final String jsonWithoutQuery = validJSON.replaceAll("\"query\": *\".*?\",", "");
         assertThatThrownBy(() -> mapper.readValue(jsonWithoutQuery, BitTorrentClientConfig.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'query'");
@@ -42,7 +42,7 @@ public class BitTorrentClientConfigSerializationTest {
     @Test
     public void shouldNotFailToDeserializeIfKeyGeneratorIsNotDefined() throws IOException {
         final String jsonWithoutKeyGenerator = validJSON
-                .replaceAll("\"keyGenerator\":[ ]*\\{.*?algorithm\":[ ]*\\{.*?}.*?},", "")
+                .replaceAll("\"keyGenerator\": *\\{.*?algorithm\": *\\{.*?}.*?},", "")
                 .replaceAll("&key=\\{key}", "");
         final BitTorrentClientConfig bitTorrentClientConfig = mapper.readValue(jsonWithoutKeyGenerator, BitTorrentClientConfig.class);
 
@@ -52,7 +52,7 @@ public class BitTorrentClientConfigSerializationTest {
 
     @Test
     public void shouldFailToDeserializeIfUrlEncoderIsNotDefined() throws IOException {
-        final String jsonWithoutUrlEncoder = validJSON.replaceAll("\"urlEncoder\":[ ]*\\{.*?},", "");
+        final String jsonWithoutUrlEncoder = validJSON.replaceAll("\"urlEncoder\": *\\{.*?},", "");
         assertThatThrownBy(() -> mapper.readValue(jsonWithoutUrlEncoder, BitTorrentClientConfig.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'urlEncoder'");
@@ -60,7 +60,7 @@ public class BitTorrentClientConfigSerializationTest {
 
     @Test
     public void shouldFailToDeserializeIfNumwantIsNotDefined() throws IOException {
-        final String jsonWithoutNumwant = validJSON.replaceAll("\"numwant\":[ ]*[0-9]+,", "");
+        final String jsonWithoutNumwant = validJSON.replaceAll("\"numwant\": *\\d+,", "");
         assertThatThrownBy(() -> mapper.readValue(jsonWithoutNumwant, BitTorrentClientConfig.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'numwant'");
@@ -68,7 +68,7 @@ public class BitTorrentClientConfigSerializationTest {
 
     @Test
     public void shouldFailToDeserializeIfNumwantOnStopIsNotDefined() throws IOException {
-        final String jsonWithoutNumwantOnStop = validJSON.replaceAll("\"numwantOnStop\":[ ]*[0-9]+,", "");
+        final String jsonWithoutNumwantOnStop = validJSON.replaceAll("\"numwantOnStop\": *\\d+,", "");
         assertThatThrownBy(() -> mapper.readValue(jsonWithoutNumwantOnStop, BitTorrentClientConfig.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'numwantOnStop'");
@@ -76,7 +76,7 @@ public class BitTorrentClientConfigSerializationTest {
 
     @Test
     public void shouldFailToDeserializeIfRequestHeadersIsNotDefined() throws IOException {
-        final String jsonWithoutHeaders = validJSON.replaceAll(",\"requestHeaders\":[ ]*\\[.*?\\]", "");
+        final String jsonWithoutHeaders = validJSON.replaceAll(",\"requestHeaders\": *\\[.*?]", "");
         assertThatThrownBy(() -> mapper.readValue(jsonWithoutHeaders, BitTorrentClientConfig.class))
                 .isInstanceOf(JsonMappingException.class)
                 .hasMessageContaining("Missing required creator property 'requestHeaders'");
@@ -84,11 +84,11 @@ public class BitTorrentClientConfigSerializationTest {
 
     @Test
     public void shouldNotFailToDeserializeIfRequestHeadersIsEmpty() throws IOException {
-        final String jsonWithEmptyHeaders = validJSON.replaceAll("\"requestHeaders\":[ ]*\\[.*?\\]", "\"requestHeaders\":[]");
+        final String jsonWithEmptyHeaders = validJSON.replaceAll("\"requestHeaders\": *\\[.*?]", "\"requestHeaders\":[]");
         final BitTorrentClientConfig bitTorrentClientConfig = mapper.readValue(jsonWithEmptyHeaders, BitTorrentClientConfig.class);
 
         assertThat(bitTorrentClientConfig).isNotNull();
-        assertThat(provider.createClient(bitTorrentClientConfig).getHeaders()).hasSize(0);
+        assertThat(provider.createClient(bitTorrentClientConfig).getHeaders()).isEmpty();
     }
 
     @Test
@@ -100,7 +100,8 @@ public class BitTorrentClientConfigSerializationTest {
 
     @Test
     public void shouldSerializeAndDeserialize() throws IOException {
-        assertThat(mapper.readTree(mapper.writeValueAsString(mapper.readValue(validJSON, BitTorrentClientConfig.class))))
+        BitTorrentClientConfig deserConf = mapper.readValue(validJSON, BitTorrentClientConfig.class);
+        assertThat(mapper.readTree(mapper.writeValueAsString(deserConf)))
                 .isEqualTo(mapper.readTree(validJSON));
     }
 

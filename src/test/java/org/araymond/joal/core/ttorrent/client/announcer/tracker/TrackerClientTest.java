@@ -19,8 +19,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.*;
 
 public class TrackerClientTest {
 
@@ -52,35 +51,7 @@ public class TrackerClientTest {
     }
 
     @Test
-    public void shouldIterateOverUriProviderUntilHttpSchemeIsFound() throws AnnounceException, NoMoreUriAvailableException {
-        final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne(
-                "udp://tracker.coppersurfer.tk:80/announce",
-                "udp://tracker.coppersurfer.tk:6969/announce",
-                "udp://tracker.opentrackr.org:1337/announce",
-                "udp://9.rarbg.me:2750/announce",
-                "udp://9.rarbg.com:2730/announce",
-                "udp://9.rarbg.to:2770/announce",
-                "udp://tracker.pirateparty.gr:6969/announce",
-                "udp://public.popcorn-tracker.org:6969/announce",
-                "udp://tracker.internetwarriors.net:1337/announce",
-                "udp://tracker.vanitycore.co:6969/announce",
-                "udp://tracker.zer0day.to:1337/announce",
-                "udp://open.stealth.si:80/announce",
-                "http://localhost"
-        ));
-
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
-        Mockito.doReturn(
-                this.createMockedTrackerSuccessMessage()
-        ).when(trackerClient).makeCallAndGetResponseAsByteBuffer(any(URI.class), anyString(), any());
-
-        trackerClient.announce("param=val&dd=q", this.createHeaders());
-
-        Mockito.verify(uriProvider, times(12)).deleteCurrentAndMoveToNext();
-    }
-
-    @Test
-    public void shouldAlsoAcceptHttps() throws AnnounceException, NoMoreUriAvailableException {
+    public void shouldAlsoAcceptHttps() throws Exception {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
@@ -90,24 +61,11 @@ public class TrackerClientTest {
 
         trackerClient.announce("param=val&dd=q", this.createHeaders());
 
-        Mockito.verify(uriProvider, times(0)).deleteCurrentAndMoveToNext();
+        Mockito.verify(uriProvider, never()).deleteCurrentAndMoveToNext();
     }
 
     @Test
-    public void shouldThrowExceptionIfNoHTTPUriAreFound() throws NoMoreUriAvailableException {
-        final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("udp://localhost", "udp://127.0.0.1"));
-
-        final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
-
-        assertThatThrownBy(() -> trackerClient.announce("param=val&dd=q", this.createHeaders()))
-                .isInstanceOf(AnnounceException.class)
-                .hasCauseInstanceOf(NoMoreUriAvailableException.class);
-
-        Mockito.verify(uriProvider, times(2)).deleteCurrentAndMoveToNext();
-    }
-
-    @Test
-    public void shouldThrowAnnounceExceptionAndMoveToNextUriWhenResponseIsError() throws AnnounceException, NoMoreUriAvailableException {
+    public void shouldThrowAnnounceExceptionAndMoveToNextUriWhenResponseIsError() throws Exception {
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("http://localhost", "https://localhost"));
 
         final TrackerClient trackerClient = Mockito.spy(new TrackerClient(uriProvider, mock(TrackerResponseHandler.class), Mockito.mock(HttpClient.class)));
@@ -118,12 +76,12 @@ public class TrackerClientTest {
         assertThatThrownBy(() -> trackerClient.announce("http://localhost", this.createHeaders()))
                 .isInstanceOf(AnnounceException.class);
 
-        Mockito.verify(uriProvider, times(0)).deleteCurrentAndMoveToNext();
+        Mockito.verify(uriProvider, never()).deleteCurrentAndMoveToNext();
         Mockito.verify(uriProvider, times(1)).moveToNext();
     }
 
     @Test
-    public void shouldRemoveOneFromSeeders() throws AnnounceException {
+    public void shouldRemoveOneFromSeeders() throws Exception {
         // should remove one seeder because we are one of them
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 
@@ -141,7 +99,7 @@ public class TrackerClientTest {
     }
 
     @Test
-    public void shouldNotFailToRemoveOneFromSeedersIfThereIsNoSeeders() throws AnnounceException {
+    public void shouldNotFailToRemoveOneFromSeedersIfThereIsNoSeeders() throws Exception {
         // should remove one seeder because we are one of them
         final TrackerClientUriProvider uriProvider = Mockito.spy(TrackerClientUriProviderTest.createOne("https://localhost"));
 

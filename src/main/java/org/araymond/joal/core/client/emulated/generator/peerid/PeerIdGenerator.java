@@ -34,7 +34,7 @@ public abstract class PeerIdGenerator {
 
     protected PeerIdGenerator(final PeerIdAlgorithm algorithm, final boolean shouldUrlEncode) {
         if (algorithm == null) {
-            throw new TorrentClientConfigIntegrityException("peerId algorithm must not be null.");
+            throw new TorrentClientConfigIntegrityException("peerId algorithm must not be null");
         }
         this.algorithm = algorithm;
         this.shouldUrlEncode = shouldUrlEncode;
@@ -46,7 +46,8 @@ public abstract class PeerIdGenerator {
     protected String generatePeerId() {
         final String peerId = this.algorithm.generate();
         if (peerId.length() != PEER_ID_LENGTH) {
-            throw new IllegalStateException("PeerId length was supposed to be 20. But a PeerId of " + peerId.length() + " was generated. Throw exception to prevent sending invalid PeerId to tracker.");
+            throw new IllegalStateException("PeerId length was supposed to be " + PEER_ID_LENGTH + ", but a length of "
+                    + peerId.length() + " was generated. Throw exception to prevent sending invalid PeerId to tracker");
         }
         return peerId;
     }

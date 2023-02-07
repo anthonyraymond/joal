@@ -12,6 +12,7 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 public class NeverRefreshPeerIdGenerator extends PeerIdGenerator {
 
     private final String peerId;
+
     @JsonCreator
     NeverRefreshPeerIdGenerator(
 

@@ -24,5 +24,5 @@ COPY --from=build /artifact/joal.jar /joal/joal.jar
 
 VOLUME /data
 
-ENTRYPOINT ["java","-jar","/joal/joal.jar"]
+ENTRYPOINT ["java", "-jar", "/joal/joal.jar"]
 CMD ["--joal-conf=/data"]

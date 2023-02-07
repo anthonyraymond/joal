@@ -7,7 +7,6 @@ import org.araymond.joal.core.client.emulated.generator.key.algorithm.KeyAlgorit
 import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 

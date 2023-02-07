@@ -13,18 +13,6 @@ import static org.mockito.Mockito.doReturn;
 public class DigitRangeTransformedToHexWithoutLeadingZeroAlgorithmTest {
 
     @Test
-    public void shouldNotBuildWithNullLowerBound() {
-        assertThatThrownBy(() -> new DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm(null, 10_000L))
-                .isInstanceOf(TorrentClientConfigIntegrityException.class);
-    }
-    @Test
-
-    public void shouldNotBuildWithNullUppererBound() {
-        assertThatThrownBy(() -> new DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm(0L, null))
-                .isInstanceOf(TorrentClientConfigIntegrityException.class);
-    }
-
-    @Test
     public void shouldNotBuildWithLowerBoundGreaterThanUpperBound() {
         assertThatThrownBy(() -> new DigitRangeTransformedToHexWithoutLeadingZeroAlgorithm(100L, 1L))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class);

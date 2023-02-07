@@ -13,8 +13,10 @@ public class Peers {
     public Peers(final int seeders, final int leechers) {
         this.seeders = seeders;
         this.leechers = leechers;
-        this.leechersRatio = (this.seeders + this.leechers) == 0
+
+        var allPeers = this.seeders + this.leechers;
+        this.leechersRatio = allPeers == 0
                 ? 0
-                : ((float) this.leechers) / (this.seeders + this.leechers);
+                : ((float) this.leechers) / allPeers;
     }
 }

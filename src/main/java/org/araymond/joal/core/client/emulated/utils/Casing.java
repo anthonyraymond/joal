@@ -4,27 +4,28 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum Casing {
     @JsonProperty("upper")
-    UPPER,
-    @JsonProperty("lower")
-    LOWER,
-    @JsonProperty("none")
-    NONE;
-
-    public String toCase(final String str) {
-        final String value;
-        switch (this) {
-            case UPPER:
-                value = str.toUpperCase();
-                break;
-            case LOWER:
-                value = str.toLowerCase();
-                break;
-            case NONE:
-                value = str;
-                break;
-            default:
-                throw new IllegalStateException("Unhandled type: " + this.name());
+    UPPER {
+        @Override
+        public String toCase(String str) {
+            return str.toUpperCase();
         }
-        return value;
-    }
+    },
+
+    @JsonProperty("lower")
+    LOWER {
+        @Override
+        public String toCase(String str) {
+            return str.toLowerCase();
+        }
+    },
+
+    @JsonProperty("none")
+    NONE {
+        @Override
+        public String toCase(String str) {
+            return str;
+        }
+    };
+
+    public abstract String toCase(String str);
 }

@@ -50,7 +50,8 @@ public class HttpHeaderSerializationTest {
     @Test
     public void shouldSerializeAndDeserialize() throws IOException {
         final HttpHeader header = new HttpHeader("Connection", "close");
-        assertThat(mapper.readValue(mapper.writeValueAsString(header), HttpHeader.class)).usingRecursiveComparison().isEqualTo(header);
+        final HttpHeader deserHdr = mapper.readValue(mapper.writeValueAsString(header), HttpHeader.class);
+        assertThat(deserHdr).isEqualTo(header);
     }
 
 }

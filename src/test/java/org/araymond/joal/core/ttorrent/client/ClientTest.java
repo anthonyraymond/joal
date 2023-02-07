@@ -1,6 +1,5 @@
 package org.araymond.joal.core.ttorrent.client;
 
-import com.google.common.collect.Lists;
 import com.turn.ttorrent.client.announce.AnnounceException;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
 import org.araymond.joal.core.bandwith.BandwidthDispatcher;
@@ -14,24 +13,24 @@ import org.araymond.joal.core.torrent.torrent.MockedTorrentTest;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
 import org.araymond.joal.core.ttorrent.client.announcer.AnnouncerFactory;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnouncerExecutor;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Stubber;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.time.temporal.TemporalUnit;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
@@ -67,11 +66,12 @@ public class ClientTest {
         }
         try {
             if (stubber == null) {
-                Mockito.doThrow(new NoMoreTorrentsFileAvailableException("no more")).when(torrentFileProvider).getTorrentNotIn(anyList());
+                Mockito.doThrow(new NoMoreTorrentsFileAvailableException("no more"))
+                        .when(torrentFileProvider).getTorrentNotIn(anyCollection());
             } else {
                 stubber
                         .doThrow(new NoMoreTorrentsFileAvailableException("no more"))
-                        .when(torrentFileProvider).getTorrentNotIn(anyList());
+                        .when(torrentFileProvider).getTorrentNotIn(anyCollection());
             }
         } catch (final NoMoreTorrentsFileAvailableException ignore) {
         }
@@ -115,7 +115,7 @@ public class ClientTest {
         final AppConfiguration appConfiguration = this.createMockedConf();
         doReturn(5).when(appConfiguration).getSimultaneousSeed();
 
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc"),
                 MockedTorrentTest.createOneMock("def"),
                 MockedTorrentTest.createOneMock("ghi"),
@@ -141,7 +141,7 @@ public class ClientTest {
         // then
         Mockito.verify(delayQueue, times(appConfiguration.getSimultaneousSeed()))
                 .addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
-        assertThat(client.getCurrentlySeedingAnnouncer().stream()
+        assertThat(client.getCurrentlySeedingAnnouncers().stream()
                 .map(announcer -> announcer.getTorrentInfoHash().value())
                 .reduce((o, t) -> o + t).get()
         ).isEqualTo("abcdefghijklmno");
@@ -175,16 +175,16 @@ public class ClientTest {
 
     @SuppressWarnings({"ResultOfMethodCallIgnored", "unchecked"})
     @Test
-    public void shouldClearDelayQueueOnStopAndSendStopAnnounceToExecutor() throws AnnounceException, TooMuchAnnouncesFailedInARawException {
+    public void shouldClearDelayQueueOnStopAndSendStopAnnounceToExecutor() throws AnnounceException, TooManyAnnouncesFailedInARowException {
         final AppConfiguration appConfiguration = this.createMockedConf();
         doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc")
         ));
 
         final DelayQueue<AnnounceRequest> delayQueue = mock(DelayQueue.class);
-        doReturn(Lists.newArrayList(AnnounceRequest.createRegular(null))).when(delayQueue).drainAll();
+        doReturn(List.of(AnnounceRequest.createRegular(null))).when(delayQueue).drainAll();
         final AnnouncerFactory mockedAnnouncerFactory = mock(AnnouncerFactory.class);
 
         final Client client = (Client) ClientBuilder.builder()
@@ -205,12 +205,7 @@ public class ClientTest {
 
         client.stop();
         verify(delayQueue, times(1)).drainAll();
-        verify(announcerExecutor, times(1)).execute(argThat(new ArgumentMatcher<AnnounceRequest>() {
-            @Override
-            public boolean matches(final AnnounceRequest argument) {
-                return argument.getEvent() == RequestEvent.STOPPED;
-            }
-        }));
+        verify(announcerExecutor, times(1)).execute(argThat(argument -> argument.getEvent() == RequestEvent.STOPPED));
     }
 
     @Test
@@ -218,7 +213,7 @@ public class ClientTest {
         final AppConfiguration appConfiguration = this.createMockedConf();
         doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc")
         ));
 
@@ -243,12 +238,7 @@ public class ClientTest {
 
         client.stop();
         verify(delayQueue, times(1)).drainAll();
-        verify(announcerExecutor, times(0)).execute(argThat(new ArgumentMatcher<AnnounceRequest>() {
-            @Override
-            public boolean matches(final AnnounceRequest argument) {
-                return argument.getEvent() == RequestEvent.STOPPED;
-            }
-        }));
+        verify(announcerExecutor, never()).execute(argThat(argument -> argument.getEvent() == RequestEvent.STOPPED));
     }
 
     @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
@@ -257,7 +247,7 @@ public class ClientTest {
         final AppConfiguration appConfiguration = this.createMockedConf();
         doReturn(0).when(appConfiguration).getSimultaneousSeed();
 
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc")
         ));
 
@@ -288,7 +278,7 @@ public class ClientTest {
         final AppConfiguration appConfiguration = this.createMockedConf();
         doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc"),
                 MockedTorrentTest.createOneMock("def")
         ));
@@ -311,16 +301,16 @@ public class ClientTest {
 
         client.start();
         verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
 
         final Announcer firstAnnouncer = argumentCaptor.getValue().getAnnouncer();
 
-        client.onTooManyFailedInARaw(firstAnnouncer);
+        client.onTooManyFailedInARow(firstAnnouncer);
         verify(torrentFileProvider, times(1)).moveToArchiveFolder(eq(firstAnnouncer.getTorrentInfoHash()));
         verify(delayQueue, times(2)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
         assertThat(argumentCaptor.getValue().getInfoHash()).isNotEqualTo(firstAnnouncer.getTorrentInfoHash());
         assertThat(argumentCaptor.getValue().getInfoHash().value()).isEqualTo("def");
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
     }
 
     @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
@@ -331,7 +321,7 @@ public class ClientTest {
 
         final MockedTorrent torrent = MockedTorrentTest.createOneMock("abc");
         final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("abc");
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 torrent,
                 torrent2
         ));
@@ -352,7 +342,7 @@ public class ClientTest {
         client.setAnnouncerExecutor(announcerExecutor);
 
         client.start();
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
         final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
         verify(delayQueue, times(1)).addOrReplace(argumentCaptor.capture(), anyInt(), any(TemporalUnit.class));
 
@@ -372,7 +362,7 @@ public class ClientTest {
         doReturn(2).when(appConfiguration).getSimultaneousSeed();
 
         final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("def");
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc")
         ));
 
@@ -392,7 +382,7 @@ public class ClientTest {
         client.setAnnouncerExecutor(announcerExecutor);
 
         client.start();
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
 
 
         final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
@@ -405,7 +395,7 @@ public class ClientTest {
         assertThat(announceRequest.getInfoHash()).isEqualTo(torrent2.getTorrentInfoHash());
         assertThat(announceRequest.getEvent()).isEqualTo(RequestEvent.STARTED);
 
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(2);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(2);
     }
 
     @SuppressWarnings({"unchecked", "ResultOfMethodCallIgnored"})
@@ -415,7 +405,7 @@ public class ClientTest {
         doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
         final MockedTorrent torrent3 = MockedTorrentTest.createOneMock("ghi");
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc"),
                 MockedTorrentTest.createOneMock("def")
         ));
@@ -436,13 +426,13 @@ public class ClientTest {
         client.setAnnouncerExecutor(announcerExecutor);
 
         client.start();
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
 
         Mockito.reset(delayQueue);
         client.onTorrentFileAdded(torrent3);
-        verify(delayQueue, times(0)).addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
+        verify(delayQueue, never()).addOrReplace(any(AnnounceRequest.class), anyInt(), any(TemporalUnit.class));
 
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
     }
 
 
@@ -453,7 +443,7 @@ public class ClientTest {
         doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
         final MockedTorrent torrent = MockedTorrentTest.createOneMock("abc");
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 torrent
         ));
 
@@ -473,7 +463,7 @@ public class ClientTest {
         client.setAnnouncerExecutor(announcerExecutor);
 
         client.start();
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
 
 
         final ArgumentCaptor<AnnounceRequest> argumentCaptor = ArgumentCaptor.forClass(AnnounceRequest.class);
@@ -493,7 +483,7 @@ public class ClientTest {
         final AppConfiguration appConfiguration = this.createMockedConf();
         doReturn(1).when(appConfiguration).getSimultaneousSeed();
 
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList(
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(List.of(
                 MockedTorrentTest.createOneMock("abc")
         ));
 
@@ -513,14 +503,14 @@ public class ClientTest {
         client.setAnnouncerExecutor(announcerExecutor);
 
         client.start();
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
 
         try {
             client.onTorrentFileRemoved(MockedTorrentTest.createOneMock("def"));
         } catch (final Throwable t) {
             fail("Should not have thrown");
         }
-        assertThat(client.getCurrentlySeedingAnnouncer()).hasSize(1);
+        assertThat(client.getCurrentlySeedingAnnouncers()).hasSize(1);
     }
 
 
@@ -529,7 +519,7 @@ public class ClientTest {
     public void shouldRegisterToTorrentFileProviderOnStartAndUnregisterOnStop() {
         final AppConfiguration appConfiguration = this.createMockedConf();
 
-        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(Lists.newArrayList());
+        final TorrentFileProvider torrentFileProvider = createMockedTorrentFileProviderWithTorrent(new ArrayList<>());
 
         final DelayQueue<AnnounceRequest> delayQueue = mock(DelayQueue.class);
         final AnnouncerFactory mockedAnnouncerFactory = createMockedAnnouncerFactory();

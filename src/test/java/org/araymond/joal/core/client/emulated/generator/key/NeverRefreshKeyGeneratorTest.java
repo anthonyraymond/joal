@@ -9,6 +9,8 @@ import org.mockito.Mockito;
 
 import java.nio.ByteBuffer;
 
+import static org.mockito.Mockito.times;
+
 /**
  * Created by raymo on 16/07/2017.
  */
@@ -26,7 +28,7 @@ public class NeverRefreshKeyGeneratorTest {
             generator.getKey(infoHash, RequestEvent.STARTED);
         }
 
-        Mockito.verify(algo, Mockito.times(1)).generate();
+        Mockito.verify(algo, times(1)).generate();
     }
 
 }

@@ -10,10 +10,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 /**
- * Intercept core event, method can be @Async. THey MUST NOT interact with JOAL state, otherwise this class
+ * Intercept core event, method can be @Async. They MUST NOT interact with JOAL state, otherwise this class
  * will soon turn into a god damn mess and we won't be able to maintain the code because of all the non explicit method calls.
  */
 @Component
@@ -22,15 +20,15 @@ public class CoreEventListener {
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
-    public void handleTorrentFileAddedForSeed(final TorrentFileAddedEvent event) throws IOException {
-        log.debug("Event TorrentFileAddedEvent caught.");
+    public void handleTorrentFileAddedForSeed(final TorrentFileAddedEvent event) {
+        log.debug("Event TorrentFileAddedEvent caught");
     }
 
     @Async
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     void handleSeedSessionHasStarted(final GlobalSeedStartedEvent event) {
-        log.debug("Event GlobalSeedStartedEvent caught.");
+        log.debug("Event GlobalSeedStartedEvent caught");
         // TODO : add a log to tell which BitTorrent client.
         // TODO : detailed BitTorrent client log at debug log level
     }
@@ -39,7 +37,7 @@ public class CoreEventListener {
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener
     public void handleSeedSessionHasEnded(final GlobalSeedStoppedEvent event) {
-        log.debug("Event GlobalSeedStoppedEvent caught.");
+        log.debug("Event GlobalSeedStoppedEvent caught");
         // TODO : log that the seed session is over
     }
 

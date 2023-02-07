@@ -30,7 +30,7 @@ public class PeerIdGeneratorTest {
             }
         })
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("peerId algorithm must not be null.");
+                .hasMessage("peerId algorithm must not be null");
     }
 
     @Test
@@ -87,7 +87,7 @@ public class PeerIdGeneratorTest {
         final PeerIdGenerator peerIdGenerator2 = new DefaultPeerIdGenerator("-my\\.pre-[a-zA-Z]{12}", false);
         assertThat(peerIdGenerator.hashCode()).isEqualTo(peerIdGenerator2.hashCode());
     }
-    
+
     private static class DefaultPeerIdGenerator extends PeerIdGenerator {
 
         protected DefaultPeerIdGenerator(final String pattern, final boolean isUrlEncoded) {

@@ -12,17 +12,16 @@ import org.araymond.joal.core.client.emulated.utils.Casing;
 import org.araymond.joal.core.config.JoalConfigProvider;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
+import java.util.AbstractMap.SimpleImmutableEntry;
 
+import static com.google.common.base.StandardSystemProperty.OS_NAME;
+import static java.lang.String.format;
+import static java.lang.System.getProperty;
 import static org.araymond.joal.core.client.emulated.BitTorrentClientConfig.HttpHeader;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -60,7 +59,7 @@ public class BitTorrentClientConfigTest {
 
         assertThatThrownBy(() -> new BitTorrentClientConfig(defaultPeerIdGenerator, query, null, defaultUrlEncoder, requestHeaders, 200, 0))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessageContaining("Query string contains {key}, but no keyGenerator was found in .client file.");
+                .hasMessageContaining("Query string contains {key}, but no keyGenerator was found in .client file");
     }
 
     @Test
@@ -110,9 +109,11 @@ public class BitTorrentClientConfigTest {
         final BitTorrentClientConfig config = new BitTorrentClientConfig(peerIdGenerator, query, keyGenerator, defaultUrlEncoder, requestHeaders, 200, 0);
 
         final BitTorrentClient client = provider.createClient(config);
-        assertThat(client.getHeaders()).isEqualTo(requestHeaders.stream()
-                .map(header -> new AbstractMap.SimpleEntry<>(header.getName(), header.getValue()))
-                .collect(Collectors.toList())
+        assertThat(client.getHeaders()).containsExactlyInAnyOrder(
+                new SimpleImmutableEntry<>("User-Agent", format("Azureus 5.7.5.0;%s;1.8.0_66", getProperty(OS_NAME.key()))),
+                new SimpleImmutableEntry<>("Connection", "close"),
+                new SimpleImmutableEntry<>("Accept-Encoding", "gzip"),
+                new SimpleImmutableEntry<>("Accept", "text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2")
         );
         assertThat(client.getQuery()).isEqualTo(query);
         //noinspection OptionalGetWithoutIsPresent

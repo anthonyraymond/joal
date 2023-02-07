@@ -5,7 +5,7 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.DelayQueue;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceRequest;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.jupiter.api.Test;
@@ -151,7 +151,7 @@ public class AnnounceReEnqueuerTest {
 
         final AnnounceReEnqueuer announceReEnqueuer = new AnnounceReEnqueuer(delayQueue);
 
-        announceReEnqueuer.onTooManyAnnounceFailedInARaw(announcer, new TooMuchAnnouncesFailedInARawException(Mockito.mock(MockedTorrent.class)));
+        announceReEnqueuer.onTooManyAnnounceFailedInARow(announcer, new TooManyAnnouncesFailedInARowException(Mockito.mock(MockedTorrent.class)));
 
         Mockito.verifyNoMoreInteractions(delayQueue);
     }

@@ -24,7 +24,7 @@ public class KeyGeneratorTest {
     public void shouldNotBuildWithNullAlgorithm() {
         assertThatThrownBy(() -> new DefaultKeyGenerator(null, Casing.NONE))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("key algorithm must not be null.");
+                .hasMessage("key algorithm must not be null");
     }
 
 

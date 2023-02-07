@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
+
 /**
  * Created by raymo on 30/06/2017.
  */
@@ -23,9 +25,7 @@ public class JacksonConfig {
     @Bean
     public Jackson2ObjectMapperBuilder objectMapperBuilder() {
         return new Jackson2ObjectMapperBuilder()
-                .featuresToDisable(
-                        SerializationFeature.WRITE_DATES_AS_TIMESTAMPS
-                )
+                .featuresToDisable(WRITE_DATES_AS_TIMESTAMPS)
                 .failOnEmptyBeans(false)
                 .serializers(
                         new InfoHashSerializer(),

@@ -20,21 +20,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TimedOrAfterStartedAnnounceRefreshKeyGeneratorTest {
 
     @Test
-    public void shouldNotBuildWithoutRefreshEvery() {
-        final KeyAlgorithm algo = Mockito.mock(KeyAlgorithm.class);
-        Mockito.when(algo.generate()).thenReturn("do-not-care");
-        assertThatThrownBy(() -> new TimedOrAfterStartedAnnounceRefreshKeyGenerator(null, algo, Casing.NONE))
-                .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("refreshEvery must be greater than 0.");
-    }
-
-    @Test
     public void shouldNotBuildWithRefreshEveryLessThanOne() {
         final KeyAlgorithm algo = Mockito.mock(KeyAlgorithm.class);
         Mockito.when(algo.generate()).thenReturn("do-not-care");
         assertThatThrownBy(() -> new TimedOrAfterStartedAnnounceRefreshKeyGenerator(0, algo, Casing.NONE))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("refreshEvery must be greater than 0.");
+                .hasMessage("refreshEvery must be greater than 0");
     }
 
     @Test

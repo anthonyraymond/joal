@@ -10,9 +10,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static java.lang.String.valueOf;
+import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class DelayQueueTest {
@@ -29,7 +30,7 @@ public class DelayQueueTest {
         queue.addOrReplace(createInfoHashAble("four"), 1801, ChronoUnit.SECONDS);
         queue.addOrReplace(createInfoHashAble("three"), 30, ChronoUnit.MINUTES);
 
-        final List<String> announcers = queue.drainAll().stream().map(i -> i.getInfoHash().value()).collect(Collectors.toList());;
+        final List<String> announcers = queue.drainAll().stream().map(i -> i.getInfoHash().value()).collect(toList());
         assertThat(announcers).containsExactly("one", "two", "three", "four");
         assertThat(queue.drainAll()).isEmpty();
     }
@@ -43,7 +44,7 @@ public class DelayQueueTest {
         queue.addOrReplace(createInfoHashAble("three"), 30, ChronoUnit.MINUTES);
         queue.addOrReplace(createInfoHashAble("four"), 1801, ChronoUnit.SECONDS);
 
-        final List<String> announcers = queue.getAvailables().stream().map(i -> i.getInfoHash().value()).collect(Collectors.toList());
+        final List<String> announcers = queue.getAvailables().stream().map(i -> i.getInfoHash().value()).collect(toList());
         assertThat(announcers).hasSize(2);
         assertThat(announcers).containsExactly("one", "two");
     }
@@ -59,7 +60,7 @@ public class DelayQueueTest {
 
         queue.remove(createInfoHashAble("two"));
 
-        final List<String> announcers = queue.drainAll().stream().map(i -> i.getInfoHash().value()).collect(Collectors.toList());
+        final List<String> announcers = queue.drainAll().stream().map(i -> i.getInfoHash().value()).collect(toList());
         assertThat(announcers)
                 .hasSize(2)
                 .containsExactly("one", "three");
@@ -69,11 +70,11 @@ public class DelayQueueTest {
     public void shouldBeThreadSafe() throws InterruptedException {
         final int announcerCount = 100;
         final DelayQueue<DelayQueue.InfoHashAble> queue = new DelayQueue<>();
-        IntStream.range(0, announcerCount).forEach(i -> queue.addOrReplace(createInfoHashAble(String.valueOf(i)), -50, ChronoUnit.MILLIS));
+        IntStream.range(0, announcerCount).forEach(i -> queue.addOrReplace(createInfoHashAble(valueOf(i)), -50, ChronoUnit.MILLIS));
 
         final List<Callable<List<DelayQueue.InfoHashAble>>> callables = IntStream.range(0, 5)
                 .mapToObj(i -> (Callable<List<DelayQueue.InfoHashAble>>) queue::getAvailables)
-                .collect(Collectors.toList());
+                .collect(toList());
         final ExecutorService executor = Executors.newFixedThreadPool(7);
         final List<Future<List<DelayQueue.InfoHashAble>>> futures = executor.invokeAll(callables);
         final List<DelayQueue.InfoHashAble> results = futures.stream()
@@ -85,7 +86,7 @@ public class DelayQueueTest {
                     }
                 })
                 .flatMap(List::stream)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         assertThat(results).hasSize(announcerCount);
     }

@@ -129,7 +129,7 @@ public class WebSocketControllerTest {
         doReturn(true).when(seedManager).isSeeding();
         doReturn("utorrent").when(seedManager).getCurrentEmulatedClient();
         doReturn(Maps.newHashMap(InfoHashTest.createOne("abc"), mock(Speed.class))).when(seedManager).getSpeedMap();
-        doReturn(Lists.newArrayList(announcerFacade)).when(seedManager).getCurrentlySeedingAnnouncer();
+        doReturn(Lists.newArrayList(announcerFacade)).when(seedManager).getCurrentlySeedingAnnouncers();
 
         controller.list();
 
@@ -139,7 +139,7 @@ public class WebSocketControllerTest {
         verify(seedManager, times(1)).isSeeding();
         verify(seedManager, times(1)).getCurrentEmulatedClient();
         verify(seedManager, times(1)).getSpeedMap();
-        verify(seedManager, times(1)).getCurrentlySeedingAnnouncer();
+        verify(seedManager, times(1)).getCurrentlySeedingAnnouncers();
         verifyNoMoreInteractions(seedManager);
     }
 
@@ -159,7 +159,7 @@ public class WebSocketControllerTest {
         doReturn(Lists.newArrayList(MockedTorrentTest.createOneMock("abc"), MockedTorrentTest.createOneMock("def"))).when(seedManager).getTorrentFiles();
         doReturn(false).when(seedManager).isSeeding();
         doReturn(Maps.newHashMap(InfoHashTest.createOne("abc"), mock(Speed.class))).when(seedManager).getSpeedMap();
-        doReturn(Lists.newArrayList(announcerFacade)).when(seedManager).getCurrentlySeedingAnnouncer();
+        doReturn(Lists.newArrayList(announcerFacade)).when(seedManager).getCurrentlySeedingAnnouncers();
 
         controller.list();
 
@@ -168,7 +168,7 @@ public class WebSocketControllerTest {
         verify(seedManager, times(1)).getTorrentFiles();
         verify(seedManager, times(1)).isSeeding();
         verify(seedManager, times(1)).getSpeedMap();
-        verify(seedManager, times(1)).getCurrentlySeedingAnnouncer();
+        verify(seedManager, times(1)).getCurrentlySeedingAnnouncers();
         verifyNoMoreInteractions(seedManager);
     }
 }

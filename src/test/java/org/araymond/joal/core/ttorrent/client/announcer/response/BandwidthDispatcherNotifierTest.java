@@ -4,7 +4,7 @@ import org.araymond.joal.core.bandwith.BandwidthDispatcher;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -120,7 +120,7 @@ public class BandwidthDispatcherNotifierTest {
 
     @SuppressWarnings({"ResultOfMethodCallIgnored", "TypeMayBeWeakened"})
     @Test
-    public void shouldUnregisterOnTooManyFailsInARaw() {
+    public void shouldUnregisterOnTooManyFailsInARow() {
         final BandwidthDispatcher dispatcher = mock(BandwidthDispatcher.class);
 
         final BandwidthDispatcherNotifier notifier = new BandwidthDispatcherNotifier(dispatcher);
@@ -128,7 +128,7 @@ public class BandwidthDispatcherNotifierTest {
         final InfoHash infoHash = new InfoHash("qjfqjbqdui".getBytes());
         final Announcer announcer = mock(Announcer.class);
         doReturn(infoHash).when(announcer).getTorrentInfoHash();
-        notifier.onTooManyAnnounceFailedInARaw(announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
+        notifier.onTooManyAnnounceFailedInARow(announcer, new TooManyAnnouncesFailedInARowException(mock(MockedTorrent.class)));
 
         Mockito.verify(dispatcher, times(1)).unregisterTorrent(ArgumentMatchers.eq(infoHash));
         Mockito.verifyNoMoreInteractions(dispatcher);

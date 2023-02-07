@@ -9,7 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.HttpClient;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.TrackerClient;
@@ -21,19 +21,18 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 public class Announcer implements AnnouncerFacade {
-    @Getter
-    private int lastKnownInterval = 5;
-    @Getter
-    private int consecutiveFails = 0;
+    @Getter private int lastKnownInterval = 5;
+    @Getter private int consecutiveFails;
     private Integer lastKnownLeechers = null;
     private Integer lastKnownSeeders = null;
     private LocalDateTime lastAnnouncedAt = null;
-    @Getter
-    private final MockedTorrent torrent;
+    @Getter private final MockedTorrent torrent;
     private TrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
 
@@ -47,7 +46,7 @@ public class Announcer implements AnnouncerFacade {
         final List<URI> trackerURIs = torrent.getAnnounceList().stream()  // Use a list to keep it ordered
                 .sequential()
                 .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                .collect(toList());
         return new TrackerClient(new TrackerClientUriProvider(trackerURIs), new TrackerResponseHandler(), httpClient);
     }
 
@@ -56,10 +55,8 @@ public class Announcer implements AnnouncerFacade {
         this.trackerClient = trackerClient;
     }
 
-    public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooMuchAnnouncesFailedInARawException {
-        if (log.isDebugEnabled()) {
-            log.debug("Attempt to announce {} for {}", event.getEventName(), this.torrent.getTorrentInfoHash().getHumanReadable());
-        }
+    public SuccessAnnounceResponse announce(final RequestEvent event) throws AnnounceException, TooManyAnnouncesFailedInARowException {
+        log.debug("Attempt to announce {} for {}", event.getEventName(), this.torrent.getTorrentInfoHash().getHumanReadable());
 
         try {
             this.lastAnnouncedAt = LocalDateTime.now();
@@ -67,45 +64,41 @@ public class Announcer implements AnnouncerFacade {
                     this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
                     this.announceDataAccessor.getHttpHeadersForTorrent()
             );
-            if (log.isInfoEnabled()) {
-                log.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval", this.torrent.getTorrentInfoHash().getHumanReadable(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
-            }
+            log.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval",
+                    this.torrent.getTorrentInfoHash().getHumanReadable(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
 
             this.lastKnownInterval = responseMessage.getInterval();
             this.lastKnownLeechers = responseMessage.getLeechers();
             this.lastKnownSeeders = responseMessage.getSeeders();
-            this.consecutiveFails = 0;
+            this.consecutiveFails = 0;  // reset failure tally
 
             return responseMessage;
         } catch (final Exception e) {
-            if (log.isWarnEnabled()) {
-                log.warn("{} has failed to announce", this.torrent.getTorrentInfoHash().getHumanReadable(), e);
+            this.consecutiveFails++;
+            if (this.consecutiveFails >= 5) {  // TODO: move to config
+                log.warn("[{}] has failed to announce {} times in a row", this.torrent.getTorrentInfoHash().getHumanReadable(), this.consecutiveFails);
+                throw new TooManyAnnouncesFailedInARowException(torrent);
+            } else {
+                log.info("[{}] has failed to announce {}. time", this.torrent.getTorrentInfoHash().getHumanReadable(), this.consecutiveFails);
             }
 
-            ++this.consecutiveFails;
-            if (this.consecutiveFails >= 5) {
-                if (log.isInfoEnabled()) {
-                    log.info("{} has failed to announce 5 times in a raw", this.torrent.getTorrentInfoHash().getHumanReadable());
-                }
-                throw new TooMuchAnnouncesFailedInARawException(torrent);
-            }
             throw e;
         }
     }
 
     @Override
     public Optional<Integer> getLastKnownLeechers() {
-        return Optional.ofNullable(lastKnownLeechers);
+        return ofNullable(lastKnownLeechers);
     }
 
     @Override
     public Optional<Integer> getLastKnownSeeders() {
-        return Optional.ofNullable(lastKnownSeeders);
+        return ofNullable(lastKnownSeeders);
     }
 
     @Override
     public Optional<LocalDateTime> getLastAnnouncedAt() {
-        return Optional.ofNullable(lastAnnouncedAt);
+        return ofNullable(lastAnnouncedAt);
     }
 
     @Override
@@ -123,14 +116,19 @@ public class Announcer implements AnnouncerFacade {
         return this.getTorrent().getTorrentInfoHash();
     }
 
+    /**
+     * Make sure to keep {@code torrentInfoHash} as the only input.
+     */
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        final Announcer announcer = (Announcer) o;
-        return Objects.equal(this.getTorrentInfoHash(), announcer.getTorrentInfoHash());
+        return Objects.equal(this.getTorrentInfoHash(), ((Announcer) o).getTorrentInfoHash());
     }
 
+    /**
+     * Make sure to keep {@code torrentInfoHash} as the only input.
+     */
     @Override
     public int hashCode() {
         return this.getTorrentInfoHash().hashCode();

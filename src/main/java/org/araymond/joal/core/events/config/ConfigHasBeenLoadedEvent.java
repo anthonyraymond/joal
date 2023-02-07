@@ -12,7 +12,7 @@ public class ConfigHasBeenLoadedEvent {
     private final AppConfiguration configuration;
 
     public ConfigHasBeenLoadedEvent(final AppConfiguration configuration) {
-        Preconditions.checkNotNull(configuration, "Configuration must not be null.");
+        Preconditions.checkNotNull(configuration, "Configuration must not be null");
         this.configuration = configuration;
     }
 }

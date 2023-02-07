@@ -4,7 +4,7 @@ import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.Client;
 import org.araymond.joal.core.ttorrent.client.announcer.Announcer;
-import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooMuchAnnouncesFailedInARawException;
+import org.araymond.joal.core.ttorrent.client.announcer.exceptions.TooManyAnnouncesFailedInARowException;
 import org.araymond.joal.core.ttorrent.client.announcer.request.SuccessAnnounceResponse;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -18,9 +18,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldNotifyNoMorePeersIfAnnounceStartedResponseHasNoLeechers() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final InfoHash infoHash = new InfoHash("qjfqjbqdui".getBytes());
         final Announcer announcer = mock(Announcer.class);
@@ -38,9 +36,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldNotifyNoMorePeersIfAnnounceStartedResponseHasNoSeeders() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final InfoHash infoHash = new InfoHash("qjfqjbqdui".getBytes());
         final Announcer announcer = mock(Announcer.class);
@@ -59,9 +55,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldDoNothingIfAnnounceStartedHasPeers() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final InfoHash infoHash = new InfoHash("qjfqjbqdui".getBytes());
         final Announcer announcer = mock(Announcer.class);
@@ -79,9 +73,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldNotifyNoMorePeersIfAnnounceRegularResponseHasNoLeechers() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final InfoHash infoHash = new InfoHash("qjfqjbqdui".getBytes());
         final Announcer announcer = mock(Announcer.class);
@@ -99,9 +91,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldNotifyNoMorePeersIfAnnounceRegularResponseHasNoSeeders() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final InfoHash infoHash = new InfoHash("qjfqjbqdui".getBytes());
         final Announcer announcer = mock(Announcer.class);
@@ -120,9 +110,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldDoNothingIfAnnounceRegularHasPeers() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final InfoHash infoHash = new InfoHash("qjfqjbqdui".getBytes());
         final Announcer announcer = mock(Announcer.class);
@@ -138,9 +126,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldNotifyTorrentHasStoppedOnStopSuccess() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final Announcer announcer = mock(Announcer.class);
 
@@ -153,15 +139,13 @@ public class ClientNotifierTest {
     @Test
     public void shouldNotifyTorrentFailedTooManyTimes() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         final Announcer announcer = mock(Announcer.class);
 
-        clientNotifier.onTooManyAnnounceFailedInARaw(announcer, new TooMuchAnnouncesFailedInARawException(mock(MockedTorrent.class)));
+        clientNotifier.onTooManyAnnounceFailedInARow(announcer, new TooManyAnnouncesFailedInARowException(mock(MockedTorrent.class)));
 
-        Mockito.verify(client, times(1)).onTooManyFailedInARaw(ArgumentMatchers.eq(announcer));
+        Mockito.verify(client, times(1)).onTooManyFailedInARow(ArgumentMatchers.eq(announcer));
         Mockito.verifyNoMoreInteractions(client);
     }
 
@@ -169,9 +153,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldDoNothingOnWillAnnounce() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         clientNotifier.onAnnouncerWillAnnounce(null, null);
         Mockito.verifyNoMoreInteractions(client);
@@ -181,9 +163,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldDoNothingOnStartFails() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         clientNotifier.onAnnounceStartFails(null, null);
         Mockito.verifyNoMoreInteractions(client);
@@ -193,9 +173,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldDoNothingOnRegularFails() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         clientNotifier.onAnnounceRegularFails(null, null);
         Mockito.verifyNoMoreInteractions(client);
@@ -205,9 +183,7 @@ public class ClientNotifierTest {
     @Test
     public void shouldDoNothingOnStopFailes() {
         final Client client = mock(Client.class);
-
-        final ClientNotifier clientNotifier = new ClientNotifier();
-        clientNotifier.setClient(client);
+        final ClientNotifier clientNotifier = new ClientNotifier(client);
 
         clientNotifier.onAnnounceStopFails(null, null);
         Mockito.verifyNoMoreInteractions(client);

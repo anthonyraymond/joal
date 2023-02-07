@@ -12,6 +12,7 @@ import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.times;
 
 /**
  * Created by raymo on 16/07/2017.
@@ -19,17 +20,10 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 public class TimedRefreshPeerIdGeneratorTest {
 
     @Test
-    public void shouldNotBuildWithoutRefreshEvery() {
-        assertThatThrownBy(() -> new TimedRefreshPeerIdGenerator(null, Mockito.mock(PeerIdAlgorithm.class), false))
-                .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("refreshEvery must be greater than 0.");
-    }
-
-    @Test
     public void shouldNotBuildWithRefreshEveryLessThanOne() {
         assertThatThrownBy(() -> new TimedRefreshPeerIdGenerator(0, Mockito.mock(PeerIdAlgorithm.class), false))
                 .isInstanceOf(TorrentClientConfigIntegrityException.class)
-                .hasMessage("refreshEvery must be greater than 0.");
+                .hasMessage("refreshEvery must be greater than 0");
     }
 
     @Test
@@ -46,15 +40,15 @@ public class TimedRefreshPeerIdGeneratorTest {
         final TimedRefreshPeerIdGenerator generator = new TimedRefreshPeerIdGenerator(1, algo, false);
 
         final InfoHash infoHash = new InfoHash(new byte[] { 22 });
-        for( int i = 0; i < 10; ++i) {
+        for (int i = 0; i < 10; ++i) {
             generator.getPeerId(infoHash, RequestEvent.STARTED);
         }
-        Mockito.verify(algo, Mockito.times(1)).generate();
+        Mockito.verify(algo, times(1)).generate();
 
         generator.lastGeneration = LocalDateTime.now().minus(10, ChronoUnit.SECONDS);
 
         generator.getPeerId(infoHash, RequestEvent.STARTED);
-        Mockito.verify(algo, Mockito.times(2)).generate();
+        Mockito.verify(algo, times(2)).generate();
     }
 
 }

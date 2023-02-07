@@ -7,5 +7,5 @@ import java.util.List;
 public interface ClientFacade {
     void start();
     void stop();
-    List<AnnouncerFacade> getCurrentlySeedingAnnouncer();
+    List<AnnouncerFacade> getCurrentlySeedingAnnouncers();
 }

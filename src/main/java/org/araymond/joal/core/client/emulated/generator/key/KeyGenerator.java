@@ -35,7 +35,7 @@ public abstract class KeyGenerator {
 
     protected KeyGenerator(final KeyAlgorithm keyAlgorithm, final Casing keyCase) {
         if (keyAlgorithm == null) {
-            throw new TorrentClientConfigIntegrityException("key algorithm must not be null.");
+            throw new TorrentClientConfigIntegrityException("key algorithm must not be null");
         }
         this.algorithm = keyAlgorithm;
         this.keyCase = keyCase;
@@ -45,9 +45,7 @@ public abstract class KeyGenerator {
     public abstract String getKey(final InfoHash infoHash, RequestEvent event);
 
     protected String generateKey() {
-        final String key = this.algorithm.generate();
-
-        return keyCase.toCase(key);
+        return keyCase.toCase(this.algorithm.generate());
     }
 
 }

@@ -2,7 +2,6 @@ package org.araymond.joal.core.events.config;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import org.araymond.joal.core.config.AppConfiguration;
 
 /**

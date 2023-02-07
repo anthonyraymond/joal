@@ -10,22 +10,17 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode
 public class NumwantProvider {
 
-    private final Integer numwant;
-    private final Integer numwantOnStop;
+    private final int numwant;
+    private final int numwantOnStop;
 
-    public NumwantProvider(final Integer numwant, final Integer numwantOnStop) {
-        Preconditions.checkNotNull(numwant, "numwant must not be null.");
-        Preconditions.checkArgument(numwant > 0, "numwant must be at least 1.");
-        Preconditions.checkNotNull(numwantOnStop, "numwantOnStop must not be null.");
-        Preconditions.checkArgument(numwantOnStop >= 0, "numwantOnStop must be at least 0.");
+    public NumwantProvider(final int numwant, final int numwantOnStop) {
+        Preconditions.checkArgument(numwant > 0, "numwant must be at least 1");
+        Preconditions.checkArgument(numwantOnStop >= 0, "numwantOnStop must be at least 0");
         this.numwant = numwant;
         this.numwantOnStop = numwantOnStop;
     }
 
-    public Integer get(final RequestEvent event) {
-        if (event == RequestEvent.STOPPED) {
-            return numwantOnStop;
-        }
-        return numwant;
+    public int get(final RequestEvent event) {
+        return event == RequestEvent.STOPPED ? numwantOnStop : numwant;
     }
 }

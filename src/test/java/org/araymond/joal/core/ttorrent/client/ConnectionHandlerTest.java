@@ -35,7 +35,7 @@ public class ConnectionHandlerTest {
 
     public static ConnectionHandler createMockedIpv6(final int port) {
         try {
-            final InetAddress inetAddress = InetAddress.getByName("fd2d:7212:4cd5:2f14:ffff:ffff:ffff:ffff");;
+            final InetAddress inetAddress = InetAddress.getByName("fd2d:7212:4cd5:2f14:ffff:ffff:ffff:ffff");
             final ConnectionHandler connectionHandler = Mockito.mock(ConnectionHandler.class);
             Mockito.when(connectionHandler.getPort()).thenReturn(46582);
             Mockito.when(connectionHandler.getIpAddress()).thenReturn(inetAddress);

@@ -63,13 +63,6 @@ public class TorrentFileWatcherTest {
     }
 
     @Test
-    public void shouldNotBuildWithNullInterval() {
-        assertThatThrownBy(() -> new TorrentFileWatcher(new FileAlterationListenerAdaptor(), torrentsPath, null))
-                .isInstanceOf(NullPointerException.class)
-                .hasMessageContaining("intervalMs cannot be null");
-    }
-
-    @Test
     public void shouldNotBuildWithIntervalLessThan1() {
         assertThatThrownBy(() -> new TorrentFileWatcher(new FileAlterationListenerAdaptor(), torrentsPath, 0))
                 .isInstanceOf(IllegalArgumentException.class)

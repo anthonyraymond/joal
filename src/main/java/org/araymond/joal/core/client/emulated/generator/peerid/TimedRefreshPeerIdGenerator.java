@@ -20,20 +20,17 @@ public class TimedRefreshPeerIdGenerator extends PeerIdGenerator {
     @VisibleForTesting
     LocalDateTime lastGeneration;
     private String peerId;
-
-    @JsonProperty("refreshEvery")
-    @Getter
-    private final Integer refreshEvery;
+    @Getter private final int refreshEvery;
 
     @JsonCreator
     TimedRefreshPeerIdGenerator(
-            @JsonProperty(value = "refreshEvery", required = true) final Integer refreshEvery,
+            @JsonProperty(value = "refreshEvery", required = true) final int refreshEvery,
             @JsonProperty(value = "algorithm", required = true) final PeerIdAlgorithm algorithm,
             @JsonProperty(value = "shouldUrlEncode", required = true) final boolean isUrlEncoded
     ) {
         super(algorithm, isUrlEncoded);
-        if (refreshEvery == null || refreshEvery < 1) {
-            throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0.");
+        if (refreshEvery < 1) {
+            throw new TorrentClientConfigIntegrityException("refreshEvery must be greater than 0");
         }
         this.refreshEvery = refreshEvery;
     }

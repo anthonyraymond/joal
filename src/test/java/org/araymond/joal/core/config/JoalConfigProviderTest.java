@@ -15,7 +15,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,7 +40,7 @@ public class JoalConfigProviderTest {
         final SeedManager.JoalFoldersPath fakeFolders = new SeedManager.JoalFoldersPath(Paths.get("nop"));
         assertThatThrownBy(() -> new JoalConfigProvider(new ObjectMapper(), fakeFolders, Mockito.mock(ApplicationEventPublisher.class)))
                 .isInstanceOf(FileNotFoundException.class)
-                .hasMessageContaining("App configuration file [" + fakeFolders.getConfPath() + File.separator + "config.json] not found");
+                .hasMessageContaining("App configuration file [" + fakeFolders.getConfDirRootPath() + File.separator + "config.json] not found");
     }
 
     @Test
@@ -63,22 +62,25 @@ public class JoalConfigProviderTest {
     @Test
     public void shouldGetConf() throws FileNotFoundException {
         final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
-        provider.init();
+        AppConfiguration conf = provider.init();
+        AppConfiguration confGet = provider.get();
 
-        assertThat(provider.get()).isEqualTo(defaultConfig);
+        assertThat(confGet).isEqualTo(defaultConfig);
+        assertThat(confGet).isEqualTo(conf);
     }
 
     @Test
-    public void shouldAlwaysReturnsSameConf() throws FileNotFoundException {
+    public void shouldAlwaysReturnSameConf() throws FileNotFoundException {
         final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), joalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
-        provider.init();
+        AppConfiguration confInit = provider.init();
 
         assertThat(provider.get()).usingComparator((o1, o2) -> {
             if (o1 == o2) return 0;
             return -1;
         })
                 .isEqualTo(provider.get())
-                .isEqualTo(provider.get());
+                .isEqualTo(provider.get())
+                .isEqualTo(confInit);
     }
 
     @Test
@@ -97,7 +99,7 @@ public class JoalConfigProviderTest {
 
     @Test
     public void shouldWriteConfigurationFile() throws IOException {
-        new ObjectMapper().writeValue(rewritableJoalFoldersPath.getConfPath().resolve("config.json").toFile(), defaultConfig);
+        new ObjectMapper().writeValue(rewritableJoalFoldersPath.getConfDirRootPath().resolve("config.json").toFile(), defaultConfig);
         try {
             final JoalConfigProvider provider = new JoalConfigProvider(new ObjectMapper(), rewritableJoalFoldersPath, Mockito.mock(ApplicationEventPublisher.class));
             final Random rand = new Random();
@@ -113,7 +115,7 @@ public class JoalConfigProviderTest {
 
             assertThat(provider.loadConfiguration()).isEqualTo(newConf);
         } finally {
-            Files.deleteIfExists(rewritableJoalFoldersPath.getConfPath().resolve("config.json"));
+            Files.deleteIfExists(rewritableJoalFoldersPath.getConfDirRootPath().resolve("config.json"));
         }
     }
 
