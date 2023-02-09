@@ -16,8 +16,8 @@ public class WeightHolderTest {
 
         final WeightHolder<String> weightHolder = new WeightHolder<>(calculator);
 
-        weightHolder.addOrUpdate("a", new Peers(5, 10));
-        Mockito.verify(calculator, Mockito.times(1)).calculate(eq(new Peers(5, 10)));
+        weightHolder.addOrUpdate("a", new Peers(5, 10), 1000, 0);
+        Mockito.verify(calculator, Mockito.times(1)).calculate(eq(new Peers(5, 10)), 1000, 0);
     }
 
     @Test
@@ -25,11 +25,11 @@ public class WeightHolderTest {
         final PeersAwareWeightCalculator calculator = Mockito.spy(PeersAwareWeightCalculator.class);
         Mockito
                 .doReturn(22.0)
-                .when(calculator).calculate(any());
+                .when(calculator).calculate(any(), 1000, 0);
 
         final WeightHolder<String> weightHolder = new WeightHolder<>(calculator);
 
-        weightHolder.addOrUpdate("a", new Peers(10, 10));
+        weightHolder.addOrUpdate("a", new Peers(10, 10), 1000, 0);
         assertThat(weightHolder.getWeightFor("a")).isEqualTo(22.0);
     }
 
@@ -40,15 +40,15 @@ public class WeightHolderTest {
                 .doReturn(22.0)
                 .doReturn(55.3)
                 .doReturn(90.0)
-                .when(calculator).calculate(any());
+                .when(calculator).calculate(any(), 1000, 0);
 
         final WeightHolder<String> weightHolder = new WeightHolder<>(calculator);
 
-        weightHolder.addOrUpdate("a", new Peers(10, 10));
+        weightHolder.addOrUpdate("a", new Peers(10, 10), 1000, 0);
         assertThat(weightHolder.getTotalWeight()).isEqualTo(22.0);
-        weightHolder.addOrUpdate("b", new Peers(10, 10));
+        weightHolder.addOrUpdate("b", new Peers(10, 10), 1000, 0);
         assertThat(weightHolder.getTotalWeight()).isEqualTo(77.3);
-        weightHolder.addOrUpdate("b", new Peers(20, 20));
+        weightHolder.addOrUpdate("b", new Peers(20, 20), 1000, 0);
         assertThat(weightHolder.getTotalWeight()).isEqualTo(112.0);
         weightHolder.remove("a");
         assertThat(weightHolder.getTotalWeight()).isEqualTo(90.0);

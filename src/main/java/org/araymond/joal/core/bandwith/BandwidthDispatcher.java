@@ -117,11 +117,11 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         }
     }
 
-    public void updateTorrentPeers(final InfoHash infoHash, final int seeders, final int leechers) {
+    public void updateTorrentPeers(final InfoHash infoHash, final int seeders, final int leechers, final long torrentSize) {
         log.debug("Updating Peers stats for {}", infoHash.getHumanReadable());
         this.lock.writeLock().lock();
         try {
-            this.weightHolder.addOrUpdate(infoHash, new Peers(seeders, leechers));
+            this.weightHolder.addOrUpdate(infoHash, new Peers(seeders, leechers), torrentSize, this.torrentsSeedStats.get(infoHash).getUploaded());
             this.recomputeSpeeds();
         } finally {
             this.lock.writeLock().unlock();

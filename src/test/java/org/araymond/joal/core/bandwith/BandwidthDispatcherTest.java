@@ -82,7 +82,7 @@ public class BandwidthDispatcherTest {
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
-        bandwidthDispatcher.updateTorrentPeers(infoHash, 0, 100);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 0, 100, 1000);
         bandwidthDispatcher.start();
         Thread.sleep(10);
         final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(infoHash);
@@ -104,7 +104,7 @@ public class BandwidthDispatcherTest {
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
-        bandwidthDispatcher.updateTorrentPeers(infoHash, 100, 0);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 100, 0, 1000);
         bandwidthDispatcher.start();
         Thread.sleep(10);
         final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(infoHash);
@@ -126,7 +126,7 @@ public class BandwidthDispatcherTest {
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
-        bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10, 1000);
 
         bandwidthDispatcher.start();
         Thread.sleep(20);
@@ -151,9 +151,9 @@ public class BandwidthDispatcherTest {
         final BandwidthDispatcher bandwidthDispatcher = new BandwidthDispatcher(2, speedProvider);
 
         bandwidthDispatcher.registerTorrent(infoHash);
-        bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10, 1000);
         bandwidthDispatcher.registerTorrent(infoHash2);
-        bandwidthDispatcher.updateTorrentPeers(infoHash2, 20, 30);
+        bandwidthDispatcher.updateTorrentPeers(infoHash2, 20, 30, 1000);
         bandwidthDispatcher.start();
         Thread.sleep(30);
         final TorrentSeedStats seedStats = bandwidthDispatcher.getSeedStatForTorrent(infoHash);
@@ -181,7 +181,7 @@ public class BandwidthDispatcherTest {
             final InfoHash infoHash = new InfoHash((String.valueOf(i)).getBytes());
             futures.add(executorService.submit(() -> {
                 bandwidthDispatcher.registerTorrent(infoHash);
-                bandwidthDispatcher.updateTorrentPeers(infoHash, 20, 50);
+                bandwidthDispatcher.updateTorrentPeers(infoHash, 20, 50, 1000);
             }));
         }
         for (final Future<?> future : futures) {
@@ -205,7 +205,7 @@ public class BandwidthDispatcherTest {
 
         final InfoHash infoHash = new InfoHash(new byte[]{12});
         bandwidthDispatcher.registerTorrent(infoHash);
-        bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10);
+        bandwidthDispatcher.updateTorrentPeers(infoHash, 10, 10, 1000);
         Thread.sleep(30);
 
         bandwidthDispatcher.stop();

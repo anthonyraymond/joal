@@ -25,8 +25,8 @@ public class WeightHolder<E> {
     private final PeersAwareWeightCalculator weightCalculator;
     @Getter private double totalWeight;
 
-    public void addOrUpdate(final E item, final Peers peers) {
-        final double weight = this.weightCalculator.calculate(peers);
+    public void addOrUpdate(final E item, final Peers peers, final long torrentSize, final long uploaded) {
+        final double weight = this.weightCalculator.calculate(peers, torrentSize, uploaded);
         lock.lock();
         try {
             ofNullable(this.weightMap.put(item, weight)).ifPresentOrElse(
