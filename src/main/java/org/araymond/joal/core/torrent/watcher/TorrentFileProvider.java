@@ -42,6 +42,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles = synchronizedMap(new HashMap<>());
+    private final Map<InfoHash, Long> torrentSizes = synchronizedMap(new HashMap<>());
     private final Set<TorrentFileChangeAware> torrentFileChangeListeners;
     private final Path archiveFolder;
 
@@ -85,6 +86,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
     public void stop() {
         this.watcher.stop();
         this.torrentFiles.clear();
+        this.torrentSizes.clear();
     }
 
     @Override
@@ -92,6 +94,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         ofNullable(this.torrentFiles.remove(file))
                 .ifPresent(removedTorrent -> {
                     log.info("Torrent file deleting detected, hot deleted file [{}]", file.getAbsolutePath());
+                    this.torrentSizes.remove(removedTorrent.getTorrentInfoHash());
                     this.torrentFileChangeListeners.forEach(listener -> listener.onTorrentFileRemoved(removedTorrent));
                 });
     }
@@ -102,6 +105,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         try {
             final MockedTorrent torrent = MockedTorrent.fromFile(file);
             this.torrentFiles.put(file, torrent);
+            this.torrentSizes.put(torrent.getTorrentInfoHash(), torrent.getSize());
             this.torrentFileChangeListeners.forEach(listener -> listener.onTorrentFileAdded(torrent));
         } catch (final IOException | NoSuchAlgorithmException e) {
             log.warn("Failed to read file [{}], moved to archive folder: {}", file.getAbsolutePath(), e);
@@ -171,5 +175,13 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     public List<MockedTorrent> getTorrentFiles() {
         return new ArrayList<>(this.torrentFiles.values());
+    }
+
+    public void checkUploadRatioPassed(InfoHash infoHash, long uploaded){
+        log.info("RATIO CHECK: Uploaded: " + uploaded+"\tTorrent Size: "+this.torrentSizes.get(infoHash));
+        if(uploaded > this.torrentSizes.get(infoHash)){
+            this.moveToArchiveFolder(infoHash);
+            log.info("Deleting torrent [{}] since seeding ratio has been met.");
+        }
     }
 }

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.bandwith.weight.PeersAwareWeightCalculator;
 import org.araymond.joal.core.bandwith.weight.WeightHolder;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
+import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.response.BandwidthDispatcherNotifier;
 
 import java.util.HashMap;
@@ -36,6 +37,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     private final Map<InfoHash, TorrentSeedStats> torrentsSeedStats = new HashMap<>();
     private final Map<InfoHash, Speed> speedMap = new HashMap<>();
     private SpeedChangedListener speedChangedListener;
+    private TorrentFileProvider torrentFileProvider;
     private int threadLoopCounter;
     private volatile boolean stop;
     private Thread thread;
@@ -49,6 +51,9 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
         this.speedChangedListener = speedListener;
     }
 
+    public void setTorrentFileProvider(final TorrentFileProvider torrentFileProvider) {
+        this.torrentFileProvider = torrentFileProvider;
+    }
     /**
      * This method does not benefit from the lock, because the value will never be accessed in a ambiguous way.
      * And even if it happens, we return 0 by default.
@@ -111,6 +116,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
                     // TODO: maybe instead of trusting threadPauseIntervalMs, use wall clock for calculations?
                     entry.getValue().addUploaded(speedInBytesPerSecond * this.threadPauseIntervalMs / 1000);
+                    this.torrentFileProvider.checkUploadRatioPassed(entry.getKey(), entry.getValue().getUploaded());
                 });
             }
         } catch (final InterruptedException ignore) {
