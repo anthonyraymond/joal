@@ -60,7 +60,7 @@ docker run -d \
     -p PORT:PORT \
     -v PATH_TO_CONF:/data \
     --name="joal" \
-    anthonyraymond/joal \
+    anthonyraymond/joal:X.X.X \
     --joal-conf="/data" \
     --spring.main.web-environment=true \
     --server.port="PORT" \
