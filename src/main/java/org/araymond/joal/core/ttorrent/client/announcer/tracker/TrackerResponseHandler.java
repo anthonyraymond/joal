@@ -9,8 +9,11 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ResponseHandler;
 
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
 
 @Slf4j
 public class TrackerResponseHandler implements ResponseHandler<TrackerMessage> {
@@ -34,6 +37,8 @@ public class TrackerResponseHandler implements ResponseHandler<TrackerMessage> {
                 final String message = "Failed to read tracker http response";
                 throw new IOException(message, new AnnounceException(message, e));
             }
+            
+            log.trace("Tracker http response is: {}", outputStream.toString(StandardCharsets.UTF_8));
 
             try {
                 // Parse and handle the response
