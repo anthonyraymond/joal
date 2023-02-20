@@ -63,3 +63,4 @@ fabric.properties
 *.jar
 *.war
 *.ear
+joal-conf/*
