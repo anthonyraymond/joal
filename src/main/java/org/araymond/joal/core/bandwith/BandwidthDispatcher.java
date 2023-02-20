@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.bandwith.weight.PeersAwareWeightCalculator;
 import org.araymond.joal.core.bandwith.weight.WeightHolder;
+import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.torrent.torrent.InfoHash;
 import org.araymond.joal.core.torrent.watcher.TorrentFileProvider;
 import org.araymond.joal.core.ttorrent.client.announcer.response.BandwidthDispatcherNotifier;
@@ -41,6 +42,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
     private int threadLoopCounter;
     private volatile boolean stop;
     private Thread thread;
+    private AppConfiguration appConfig;
 
     private final int threadPauseIntervalMs;
     private final RandomSpeedProvider randomSpeedProvider;
@@ -116,7 +118,7 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
                     // TODO: maybe instead of trusting threadPauseIntervalMs, use wall clock for calculations?
                     entry.getValue().addUploaded(speedInBytesPerSecond * this.threadPauseIntervalMs / 1000);
-                    if(this.torrentFileProvider.checkUploadRatioPassed(entry.getKey(), entry.getValue().getUploaded()))
+                    if(this.torrentFileProvider.checkUploadRatioPassed(entry.getKey(), entry.getValue().getUploaded(), this.appConfig.getUploadRatioTarget()))
                         this.speedMap.put(entry.getKey(), new Speed(0));
                 });
             }
@@ -216,5 +218,9 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
             sb.setLength(sb.length() - 1); // remove last \n
             log.debug(sb.toString());
         }
+    }
+
+    public void setAppConfig(AppConfiguration appConfig) {
+        this.appConfig = appConfig;
     }
 }

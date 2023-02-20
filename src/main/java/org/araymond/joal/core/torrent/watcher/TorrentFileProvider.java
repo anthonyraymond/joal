@@ -179,10 +179,10 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         return new ArrayList<>(this.torrentFiles.values());
     }
 
-    public boolean checkUploadRatioPassed(InfoHash infoHash, long uploaded){
-        if(uploaded > this.torrentSizes.get(infoHash)){
+    public boolean checkUploadRatioPassed(InfoHash infoHash, long uploaded, float ratio){
+        if(ratio > 0 && (1f*uploaded)/this.torrentSizes.get(infoHash) > ratio){
             this.seededTorrentList.add(infoHash);
-            log.info("Setting speed to 0 and adding torrent [{}] to list to be deleted at next announce since seeding ratio has been met: {}", infoHash,(uploaded/this.torrentSizes.get(infoHash)));
+            log.info("Setting speed to 0 and adding torrent [{}] to list to be deleted at next announce since seeding ratio has been met: {}", infoHash,(1f*uploaded)/this.torrentSizes.get(infoHash));
             return true;
         }
         return false;

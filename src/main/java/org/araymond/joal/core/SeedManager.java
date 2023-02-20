@@ -125,6 +125,7 @@ public class SeedManager {
         this.bandwidthDispatcher = new BandwidthDispatcher(5000, new RandomSpeedProvider(appConfig));  // TODO: move interval to config
         this.bandwidthDispatcher.setSpeedListener(new SeedManagerSpeedChangeListener(this.appEventPublisher));
         this.bandwidthDispatcher.setTorrentFileProvider(this.torrentFileProvider);
+        this.bandwidthDispatcher.setAppConfig(appConfig);
         this.bandwidthDispatcher.start();
 
         final AnnounceDataAccessor announceDataAccessor = new AnnounceDataAccessor(bitTorrentClient, bandwidthDispatcher, connectionHandler);
