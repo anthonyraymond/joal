@@ -116,7 +116,8 @@ public class BandwidthDispatcher implements BandwidthDispatcherFacade, Runnable 
                     // The multiplication HAS to be done before the division, otherwise we're going to have trailing zeroes
                     // TODO: maybe instead of trusting threadPauseIntervalMs, use wall clock for calculations?
                     entry.getValue().addUploaded(speedInBytesPerSecond * this.threadPauseIntervalMs / 1000);
-                    this.torrentFileProvider.checkUploadRatioPassed(entry.getKey(), entry.getValue().getUploaded());
+                    if(this.torrentFileProvider.checkUploadRatioPassed(entry.getKey(), entry.getValue().getUploaded()))
+                        this.speedMap.put(entry.getKey(), new Speed(0));
                 });
             }
         } catch (final InterruptedException ignore) {

@@ -3,6 +3,7 @@ package org.araymond.joal.core.ttorrent.client;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.turn.ttorrent.common.protocol.TrackerMessage.AnnounceRequestMessage.RequestEvent;
+import lombok.extern.slf4j.Slf4j;
 import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.events.torrent.files.TorrentFileAddedEvent;
 import org.araymond.joal.core.events.torrent.files.TorrentFileDeletedEvent;
@@ -36,6 +37,7 @@ import static java.util.stream.Collectors.toSet;
  *     <li>implements {@link TorrentFileChangeAware} to react to torrent file changes in filesystem</li>
  * </ul>
  */
+@Slf4j
 public class Client implements TorrentFileChangeAware, ClientFacade {
     private final AppConfiguration appConfig;
     private final TorrentFileProvider torrentFileProvider;
@@ -84,7 +86,12 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
                         this.lock.writeLock().unlock();
                     }
                 });
-
+                List<InfoHash> seededTorrentList = this.torrentFileProvider.getSeededTorrentList();
+                while(seededTorrentList.size() > 0){
+                    InfoHash infoHash = seededTorrentList.remove(0);
+                    log.info("Deleting torrent [{}] since ratio has been met", infoHash);
+                    this.torrentFileProvider.moveToArchiveFolder(infoHash);
+                }
                 try {
                     MILLISECONDS.sleep(1000); // TODO: move to config
                 } catch (final InterruptedException ignored) {

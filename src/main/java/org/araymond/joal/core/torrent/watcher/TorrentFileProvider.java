@@ -42,6 +42,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
 
     private final TorrentFileWatcher watcher;
     private final Map<File, MockedTorrent> torrentFiles = synchronizedMap(new HashMap<>());
+    private final List<InfoHash> seededTorrentList;
     private final Map<InfoHash, Long> torrentSizes = synchronizedMap(new HashMap<>());
     private final Set<TorrentFileChangeAware> torrentFileChangeListeners;
     private final Path archiveFolder;
@@ -57,6 +58,7 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         this.archiveFolder = joalFoldersPath.getTorrentArchiveDirPath();
         this.watcher = new TorrentFileWatcher(this, torrentsDir);
         this.torrentFileChangeListeners = new HashSet<>();
+        this.seededTorrentList = new ArrayList<>();
     }
 
     public void start() {
@@ -177,11 +179,16 @@ public class TorrentFileProvider extends FileAlterationListenerAdaptor {
         return new ArrayList<>(this.torrentFiles.values());
     }
 
-    public void checkUploadRatioPassed(InfoHash infoHash, long uploaded){
-        log.info("RATIO CHECK: Uploaded: " + uploaded+"\tTorrent Size: "+this.torrentSizes.get(infoHash));
+    public boolean checkUploadRatioPassed(InfoHash infoHash, long uploaded){
         if(uploaded > this.torrentSizes.get(infoHash)){
-            this.moveToArchiveFolder(infoHash);
-            log.info("Deleting torrent [{}] since seeding ratio has been met.");
+            this.seededTorrentList.add(infoHash);
+            log.info("Setting speed to 0 and adding torrent [{}] to list to be deleted at next announce since seeding ratio has been met: {}", infoHash,(uploaded/this.torrentSizes.get(infoHash)));
+            return true;
         }
+        return false;
+    }
+
+    public List<InfoHash> getSeededTorrentList(){
+        return this.seededTorrentList;
     }
 }
