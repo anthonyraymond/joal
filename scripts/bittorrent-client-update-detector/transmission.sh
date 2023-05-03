@@ -88,6 +88,7 @@ transmissionTempFolder="./tempSource/transmission"
 rm -rf $transmissionTempFolder
 mkdir -p $transmissionTempFolder
 
+downloadAndExtract
 
 userAgent="$(getUserAgent)"
 echo "User-Agent is: $userAgent"
