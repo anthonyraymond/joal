@@ -97,7 +97,7 @@ peerIdPrefix="$(getPeerIdPrefix)"
 echo "Peer_id prefix is: $peerIdPrefix"
 
 # fn de generation des key : https://github.com/transmission/transmission/blob/9d2507c7e32d60d91cf91dc6ef0147f568d44111/libtransmission/torrent.h > constexpr auto announce_key() const noexcept
-echo "key : An int between 1 and 2147483647 (inclusive) which is converted to hex (without leading zero)"
+echo "key : An int between 1 and 4294967295 (inclusive) which is converted to hex (without leading zero)"
 
 
 # clean tempSource folder
