@@ -10,6 +10,7 @@ import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static java.nio.file.Files.isDirectory;
@@ -54,6 +55,9 @@ class TorrentFileWatcher {
 
     void start() {
         try {
+            if (!this.monitoredFolder.exists()) {
+                throw new IllegalArgumentException(String.format("Torrent directory [%s] does not exist", monitoredFolder));
+            }
             this.monitor.start();
             // Trigger event for already present files:
             FileUtils.listFiles(this.monitoredFolder, TORRENT_FILE_FILTER, null)
