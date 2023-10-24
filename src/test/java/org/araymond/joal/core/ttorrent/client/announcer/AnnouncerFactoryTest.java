@@ -33,7 +33,7 @@ public class AnnouncerFactoryTest {
     @Test
     public void createThrowsIfTorrentContainsNoValidURIs() {
         final AnnounceDataAccessor announceDataAccessor = mock(AnnounceDataAccessor.class);
-        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class));
+        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class), mock(AppConfiguration.class));
 
         assertThatThrownBy(() -> announcerFactory.create(mock(MockedTorrent.class)))
                 .isInstanceOf(NoMoreUriAvailableException.class);
