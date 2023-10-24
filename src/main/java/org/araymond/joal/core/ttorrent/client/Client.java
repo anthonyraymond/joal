@@ -181,6 +181,10 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
         }
     }
 
+    public void onUploadRatioLimitReached(final InfoHash infoHash) {
+        this.torrentFileProvider.moveToArchiveFolder(infoHash);
+    }
+
     public void onTorrentHasStopped(final Announcer stoppedAnnouncer) {
         if (this.stop) {
             this.currentlySeedingAnnouncers.remove(stoppedAnnouncer);
@@ -242,4 +246,5 @@ public class Client implements TorrentFileChangeAware, ClientFacade {
             lock.unlock();
         }
     }
+
 }

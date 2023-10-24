@@ -18,6 +18,7 @@ public class ConfigIncomingMessage {
     private final Integer simultaneousSeed;
     private final String client;
     private final boolean keepTorrentWithZeroLeechers;
+    private final Float uploadRatioTarget;
 
     @JsonCreator
     ConfigIncomingMessage(
@@ -25,16 +26,18 @@ public class ConfigIncomingMessage {
             @JsonProperty(value = "maxUploadRate", required = true) final Long maxUploadRate,
             @JsonProperty(value = "simultaneousSeed", required = true) final Integer simultaneousSeed,
             @JsonProperty(value = "client", required = true) final String client,
-            @JsonProperty(value = "keepTorrentWithZeroLeechers", required = true) final boolean keepTorrentWithZeroLeechers
+            @JsonProperty(value = "keepTorrentWithZeroLeechers", required = true) final boolean keepTorrentWithZeroLeechers,
+            @JsonProperty(value = "uploadRatioTarget", defaultValue = "-1.0", required = false) final Float uploadRatioTarget
     ) {
         this.minUploadRate = minUploadRate;
         this.maxUploadRate = maxUploadRate;
         this.simultaneousSeed = simultaneousSeed;
         this.client = client;
         this.keepTorrentWithZeroLeechers = keepTorrentWithZeroLeechers;
+        this.uploadRatioTarget = uploadRatioTarget;
     }
 
     public AppConfiguration toAppConfiguration() throws AppConfigurationIntegrityException {
-        return new AppConfiguration(this.minUploadRate, this.maxUploadRate, this.simultaneousSeed, this.client, keepTorrentWithZeroLeechers);
+        return new AppConfiguration(this.minUploadRate, this.maxUploadRate, this.simultaneousSeed, this.client, keepTorrentWithZeroLeechers, this.uploadRatioTarget);
     }
 }
