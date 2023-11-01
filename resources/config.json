@@ -3,5 +3,6 @@
   "maxUploadRate": 170,
   "simultaneousSeed": 5,
   "client": "utorrent-3.5.0_43916.client",
-  "keepTorrentWithZeroLeechers": true
+  "keepTorrentWithZeroLeechers": true,
+  "uploadRatioTarget": -1.0
 }

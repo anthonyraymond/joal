@@ -34,6 +34,10 @@ public class ClientNotifier implements AnnounceResponseHandler {
     public void onAnnounceRegularSuccess(final Announcer announcer, final SuccessAnnounceResponse result) {
         if (result.getSeeders() < 1 || result.getLeechers() < 1) {
             this.client.onNoMorePeers(announcer.getTorrentInfoHash());
+            return;
+        }
+        if (announcer.hasReachedUploadRatioLimit()) {
+            this.client.onUploadRatioLimitReached(announcer.getTorrentInfoHash());
         }
     }
 

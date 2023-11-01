@@ -132,7 +132,7 @@ public class SeedManager {
                 .withAppConfiguration(appConfig)
                 .withTorrentFileProvider(this.torrentFileProvider)
                 .withBandwidthDispatcher(this.bandwidthDispatcher)
-                .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor, httpClient))
+                .withAnnouncerFactory(new AnnouncerFactory(announceDataAccessor, httpClient, appConfig))
                 .withEventPublisher(this.appEventPublisher)
                 .withDelayQueue(new DelayQueue<>())
                 .build();

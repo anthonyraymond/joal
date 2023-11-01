@@ -35,11 +35,14 @@ public class Announcer implements AnnouncerFacade {
     @Getter private final MockedTorrent torrent;
     private TrackerClient trackerClient;
     private final AnnounceDataAccessor announceDataAccessor;
+    private long reportedUploadBytes = 0L;
+    private final float uploadRatioTarget;
 
-    Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor, final HttpClient httpClient) {
+    Announcer(final MockedTorrent torrent, final AnnounceDataAccessor announceDataAccessor, final HttpClient httpClient, final float uploadRatioTarget) {
         this.torrent = torrent;
         this.trackerClient = this.buildTrackerClient(torrent, httpClient);
         this.announceDataAccessor = announceDataAccessor;
+        this.uploadRatioTarget = uploadRatioTarget;
     }
 
     private TrackerClient buildTrackerClient(final MockedTorrent torrent, HttpClient httpClient) {
@@ -67,6 +70,7 @@ public class Announcer implements AnnouncerFacade {
             log.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval",
                     this.torrent.getTorrentInfoHash().getHumanReadable(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
 
+            this.reportedUploadBytes = announceDataAccessor.getUploaded(this.torrent.getTorrentInfoHash());
             this.lastKnownInterval = responseMessage.getInterval();
             this.lastKnownLeechers = responseMessage.getLeechers();
             this.lastKnownSeeders = responseMessage.getSeeders();
@@ -114,6 +118,14 @@ public class Announcer implements AnnouncerFacade {
     @Override
     public InfoHash getTorrentInfoHash() {
         return this.getTorrent().getTorrentInfoHash();
+    }
+
+    public boolean hasReachedUploadRatioLimit() {
+        if (uploadRatioTarget == -1f) {
+            return false;
+        }
+        final float bytesToUploadTarget = (uploadRatioTarget * (float) this.getTorrentSize());
+        return reportedUploadBytes >= bytesToUploadTarget;
     }
 
     /**

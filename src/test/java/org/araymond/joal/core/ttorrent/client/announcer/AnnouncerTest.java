@@ -28,7 +28,7 @@ public class AnnouncerTest {
     @Test
     public void shouldProvideRequiredInfoForAnnouncerFacade() {
         final MockedTorrent torrent = MockedTorrentTest.createOneMock();
-        final AnnouncerFacade facade = new Announcer(torrent, null, Mockito.mock(HttpClient.class));
+        final AnnouncerFacade facade = new Announcer(torrent, null, Mockito.mock(HttpClient.class), 1f);
 
         assertThat(facade.getConsecutiveFails()).isEqualTo(0);
         assertThat(facade.getLastKnownInterval()).isEqualTo(5);
@@ -47,7 +47,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
+        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class), 1f);
         announcer.setTrackerClient(trackerClient);
 
         //noinspection Duplicates
@@ -80,7 +80,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
+        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class), 1f);
         announcer.setTrackerClient(trackerClient);
 
         //noinspection Duplicates
@@ -116,7 +116,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
+        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class), 1f);
         announcer.setTrackerClient(trackerClient);
 
         assertThat(announcer.getLastAnnouncedAt()).isEmpty();
@@ -155,7 +155,7 @@ public class AnnouncerTest {
         doReturn("dd=ff&qq=d").when(dataAccessor).getHttpRequestQueryForTorrent(any(InfoHash.class), eq(RequestEvent.STARTED));
         doReturn(new HashSet<>()).when(dataAccessor).getHttpHeadersForTorrent();
 
-        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class));
+        final Announcer announcer = new Announcer(torrent, dataAccessor, Mockito.mock(HttpClient.class), 1f);
         announcer.setTrackerClient(trackerClient);
 
         assertThat(announcer.getLastKnownInterval()).isEqualTo(5);
@@ -194,11 +194,11 @@ public class AnnouncerTest {
     @Test
     public void shouldBeEqualsByInfoHash() {
         final MockedTorrent torrent1 = MockedTorrentTest.createOneMock("abcd");
-        final Announcer announcer1 = new Announcer(torrent1, null, Mockito.mock(HttpClient.class));
+        final Announcer announcer1 = new Announcer(torrent1, null, Mockito.mock(HttpClient.class), 1f);
 
 
         final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("abcd");
-        final Announcer announcer2 = new Announcer(torrent2, null, Mockito.mock(HttpClient.class));
+        final Announcer announcer2 = new Announcer(torrent2, null, Mockito.mock(HttpClient.class), 1f);
 
         assertThat(announcer1).isEqualTo(announcer2);
     }
@@ -207,11 +207,11 @@ public class AnnouncerTest {
     @Test
     public void shouldNotBeEqualsWithDifferentInfoHash() {
         final MockedTorrent torrent1 = MockedTorrentTest.createOneMock("abcd");
-        final Announcer announcer1 = new Announcer(torrent1, null, Mockito.mock(HttpClient.class));
+        final Announcer announcer1 = new Announcer(torrent1, null, Mockito.mock(HttpClient.class), 1f);
 
 
         final MockedTorrent torrent2 = MockedTorrentTest.createOneMock("abcdefgh");
-        final Announcer announcer2 = new Announcer(torrent2, null, Mockito.mock(HttpClient.class));
+        final Announcer announcer2 = new Announcer(torrent2, null, Mockito.mock(HttpClient.class), 1f);
 
         assertThat(announcer1).isNotEqualTo(announcer2);
     }

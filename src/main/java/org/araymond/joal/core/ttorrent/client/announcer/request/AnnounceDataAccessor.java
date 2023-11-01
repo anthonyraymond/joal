@@ -24,4 +24,8 @@ public class AnnounceDataAccessor {
     public Set<Map.Entry<String, String>> getHttpHeadersForTorrent() {
         return this.bitTorrentClient.getHeaders();
     }
+
+    public long getUploaded(final InfoHash infoHash) {
+        return this.bandwidthDispatcher.getSeedStatForTorrent(infoHash).getUploaded();
+    }
 }

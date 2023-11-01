@@ -1,6 +1,7 @@
 package org.araymond.joal.core.ttorrent.client.announcer;
 
 import org.apache.http.client.HttpClient;
+import org.araymond.joal.core.config.AppConfiguration;
 import org.araymond.joal.core.torrent.torrent.MockedTorrent;
 import org.araymond.joal.core.ttorrent.client.announcer.request.AnnounceDataAccessor;
 import org.araymond.joal.core.ttorrent.client.announcer.tracker.NoMoreUriAvailableException;
@@ -20,7 +21,7 @@ public class AnnouncerFactoryTest {
     @Test
     public void shouldCreate() {
         final AnnounceDataAccessor announceDataAccessor = mock(AnnounceDataAccessor.class);
-        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class));
+        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class), mock(AppConfiguration.class));
 
         final MockedTorrent torrent = mock(MockedTorrent.class);
         given(torrent.getAnnounceList()).willReturn(list(list(URI.create("http://localhost"))));
@@ -32,7 +33,7 @@ public class AnnouncerFactoryTest {
     @Test
     public void createThrowsIfTorrentContainsNoValidURIs() {
         final AnnounceDataAccessor announceDataAccessor = mock(AnnounceDataAccessor.class);
-        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class));
+        final AnnouncerFactory announcerFactory = new AnnouncerFactory(announceDataAccessor, Mockito.mock(HttpClient.class), mock(AppConfiguration.class));
 
         assertThatThrownBy(() -> announcerFactory.create(mock(MockedTorrent.class)))
                 .isInstanceOf(NoMoreUriAvailableException.class);

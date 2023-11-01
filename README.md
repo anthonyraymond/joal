@@ -101,7 +101,8 @@ The application configuration belongs in `joal-conf/config.json`.
   "maxUploadRate" : 160,
   "simultaneousSeed" : 20,
   "client" : "qbittorrent-3.3.16.client",
-  "keepTorrentWithZeroLeechers" : true
+  "keepTorrentWithZeroLeechers" : true,
+  "uploadRatioTarget": -1.0
 }
 ```
 - `minUploadRate` : The minimum uploadRate you want to fake (in kB/s) (**required**)
@@ -109,6 +110,7 @@ The application configuration belongs in `joal-conf/config.json`.
 - `simultaneousSeed` : How many torrents should be seeding at the same time (**required**)
 - `client` : The name of the .client file to use in `joal-conf/clients/` (**required**)
 - `keepTorrentWithZeroLeechers`: should JOAL keep torrent with no leechers or seeders. If yes, torrent with no peers will be seed at 0kB/s. If false torrents will be deleted on 0 peers reached. (**required**)
+- `uploadRatioTarget`: when JOAL has uploaded X times the size of the torrent **in a single session**, the torrent is removed. If -1.0 torrents are never removed.
 
 
 
