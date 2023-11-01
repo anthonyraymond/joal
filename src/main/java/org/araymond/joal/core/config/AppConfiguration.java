@@ -29,14 +29,14 @@ public class AppConfiguration {
             @JsonProperty(value = "simultaneousSeed", required = true) final int simultaneousSeed,
             @JsonProperty(value = "client", required = true) final String client,
             @JsonProperty(value = "keepTorrentWithZeroLeechers", required = true) final boolean keepTorrentWithZeroLeechers,
-            @JsonProperty(value = "uploadRatioTarget", defaultValue = "-1.0", required = false) final float uploadRatioTarget
+            @JsonProperty(value = "uploadRatioTarget", required = false) final Float uploadRatioTarget
     ) {
         this.minUploadRate = minUploadRate;
         this.maxUploadRate = maxUploadRate;
         this.simultaneousSeed = simultaneousSeed;
         this.client = client;
         this.keepTorrentWithZeroLeechers = keepTorrentWithZeroLeechers;
-        this.uploadRatioTarget = uploadRatioTarget;
+        this.uploadRatioTarget = uploadRatioTarget == null ? -1.0f : uploadRatioTarget;
 
         validate();
     }
