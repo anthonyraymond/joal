@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.*;
+import java.nio.channels.ClosedChannelException;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 
@@ -35,9 +35,10 @@ public class ConnectionHandler {
     public static final int PORT_RANGE_START = 49152;
     public static final int PORT_RANGE_END = 65534;
 
-    private ServerSocketChannel channel;
+    private ServerSocketChannel listenChannel;
     @Getter private InetAddress ipAddress;
     private Thread ipFetcherThread;
+    private Thread serverThread;
     private static final String[] IP_PROVIDERS = new String[]{
             "http://whatismyip.akamai.com",
             "http://ipecho.net/plain",
@@ -51,11 +52,11 @@ public class ConnectionHandler {
     };
 
     public int getPort() {
-        return this.channel.socket().getLocalPort();
+        return this.listenChannel.socket().getLocalPort();
     }
 
     public void start() throws IOException {
-        this.channel = this.bindToPort();
+        this.listenChannel = this.bindToPort();
         log.info("Listening for incoming peer connections on port {}", getPort());
 
         this.ipAddress = fetchIp();
@@ -63,7 +64,7 @@ public class ConnectionHandler {
 
         // TODO: use @Scheduled
         this.ipFetcherThread = new Thread(() -> {
-            while (this.ipFetcherThread == null || !this.ipFetcherThread.isInterrupted()) {
+            while (this.ipFetcherThread != null && !this.ipFetcherThread.isInterrupted()) {
                 try {
                     MINUTES.sleep(90);  // TODO: move to config
                     this.ipAddress = this.fetchIp();
@@ -76,6 +77,29 @@ public class ConnectionHandler {
         });
 
         this.ipFetcherThread.start();
+
+        this.serverThread = new Thread(() -> {
+            try {
+                Selector selector = Selector.open();
+                this.listenChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+                while (this.listenChannel != null && this.serverThread != null && !this.serverThread.isInterrupted()) {
+                    selector.select();
+                    for (SelectionKey key : selector.selectedKeys()) {
+                        if (key.isAcceptable()) {
+                            this.listenChannel.accept();
+                        }
+                    }
+                }
+            } catch (ClosedChannelException e) {
+                log.debug("channel already closed", e);
+            } catch (IOException ioe) {
+                log.warn("Problem in server loop", ioe);
+                throw new RuntimeException(ioe);
+            }
+        });
+
+        this.serverThread.start();
     }
 
     @VisibleForTesting
@@ -156,23 +180,30 @@ public class ConnectionHandler {
 
     public void close() {
         log.debug("Closing ConnectionHandler...");
-        try {
-            if (this.channel != null) {
-                this.channel.close();
-            }
-        } catch (final Exception e) {
-            log.warn("ConnectionHandler channel has failed to release channel, but the shutdown will proceed", e);
-        } finally {
-            this.channel = null;
-        }
 
         try {
             if (this.ipFetcherThread != null) {
                 this.ipFetcherThread.interrupt();
             }
+
+            if (this.serverThread != null) {
+                this.serverThread.interrupt();
+            }
         } finally {
             this.ipFetcherThread = null;
+            this.serverThread = null;
         }
+
+        try {
+            if (this.listenChannel != null) {
+                this.listenChannel.close();
+            }
+        } catch (final Exception e) {
+            log.warn("ConnectionHandler channel has failed to release channel, but the shutdown will proceed", e);
+        } finally {
+            this.listenChannel = null;
+        }
+
         log.debug("ConnectionHandler closed");
     }
 }
