@@ -1,6 +1,6 @@
 package com.araymond.joalcore.core.sharing.domain;
 
-import com.araymond.joalcore.core.sharing.domain.exception.InvalidChangeOfStateException;
+import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidChangeOfStateException;
 import org.junit.jupiter.api.Test;
 
 import static com.araymond.joalcore.core.sharing.domain.SharingStatus.*;

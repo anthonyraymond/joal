@@ -1,6 +1,6 @@
 package com.araymond.joalcore.core.sharing.domain;
 
-import com.araymond.joalcore.core.sharing.domain.exception.InvalidContributionAmountException;
+import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionAmountException;
 
 public record UploadAmount(long bytes) {
     public UploadAmount {

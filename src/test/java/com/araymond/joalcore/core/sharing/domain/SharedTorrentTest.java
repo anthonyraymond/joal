@@ -5,7 +5,7 @@ import com.araymond.joalcore.core.sharing.domain.events.DoneDownloadingEvent;
 import com.araymond.joalcore.core.sharing.domain.events.TorrentPausedEvent;
 import com.araymond.joalcore.core.sharing.domain.events.TorrentStartedDownloadingEvent;
 import com.araymond.joalcore.core.sharing.domain.events.TorrentStartedSeedingEvent;
-import com.araymond.joalcore.core.sharing.domain.exception.IllegalActionForTorrentState;
+import com.araymond.joalcore.core.sharing.domain.exceptions.IllegalActionForTorrentState;
 import com.araymond.joalcore.events.DomainEvent;
 import org.junit.jupiter.api.Test;
 

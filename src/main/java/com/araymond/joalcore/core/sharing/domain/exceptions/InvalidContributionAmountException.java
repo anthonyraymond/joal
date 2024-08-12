@@ -1,4 +1,4 @@
-package com.araymond.joalcore.core.sharing.domain.exception;
+package com.araymond.joalcore.core.sharing.domain.exceptions;
 
 import java.io.Serial;
 

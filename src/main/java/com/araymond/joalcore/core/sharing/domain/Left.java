@@ -1,7 +1,7 @@
 package com.araymond.joalcore.core.sharing.domain;
 
 import com.araymond.joalcore.annotations.ddd.ValueObject;
-import com.araymond.joalcore.core.sharing.domain.exception.InvalidContributionAmountException;
+import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionAmountException;
 
 @ValueObject
 public record Left(long bytes) {
