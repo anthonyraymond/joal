@@ -15,16 +15,16 @@ import java.util.UUID;
 
 @AggregateRoot
 public class SharedTorrent {
-    private final UUID id;
+    private final SharedTorrentId id;
     private final InfoHash infoHash;
     private SharingStatus status;
     private Contributions contributions;
 
     public SharedTorrent(InfoHash infoHash, Contribution overallContribution, Left left) {
-        this(UUID.randomUUID(), infoHash, SharingStatus.Paused, new Contributions(overallContribution, left));
+        this(SharedTorrentId.random(), infoHash, SharingStatus.Paused, new Contributions(overallContribution, left));
     }
 
-    public SharedTorrent(UUID id, InfoHash infoHash, SharingStatus status, Contributions contributions) {
+    public SharedTorrent(SharedTorrentId id, InfoHash infoHash, SharingStatus status, Contributions contributions) {
         this.id = id;
         this.infoHash = infoHash;
         this.status = status;

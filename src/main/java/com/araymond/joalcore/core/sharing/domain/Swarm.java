@@ -40,7 +40,7 @@ public final class Swarm {
 
     public record TrackerUniqueIdentifier(String value) {
         public TrackerUniqueIdentifier {
-            Objects.requireNonNull(value, "TrackerUniqueIdentifier value cannot be null");
+            Objects.requireNonNull(value, "TrackerUniqueIdentifier require a non-null [value]");
         }
     }
 }
