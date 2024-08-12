@@ -1,7 +1,7 @@
 package com.araymond.joalcore.core.sharing.domain;
 
-import com.araymond.joalcore.annotations.ddd.ValueObject;
 import com.araymond.joalcore.annotations.VisibleForTesting;
+import com.araymond.joalcore.annotations.ddd.ValueObject;
 
 import java.util.Objects;
 
