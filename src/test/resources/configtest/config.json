@@ -1,8 +1,0 @@
-{
-  "minUploadRate": 180,
-  "maxUploadRate": 190,
-  "simultaneousSeed": 5,
-  "client": "azureus-5.7.5.0.client",
-  "keepTorrentWithZeroLeechers": false,
-  "uploadRatioTarget": 1.0
-}
