@@ -65,10 +65,9 @@ class SharedTorrentServiceTest {
     }
 
 
-
-
     private static final class FakePublisher implements DomainEventPublisher {
         public final List<DomainEvent> events = new ArrayList<>();
+
         @Override
         public void publish(DomainEvent event) {
             events.add(event);
@@ -80,10 +79,15 @@ class SharedTorrentServiceTest {
         public Optional<Contribution> overallContributions(InfoHash infoHash) {
             return Optional.empty();
         }
+
+        @Override
+        public void persistOverallContribution(InfoHash infoHash, Contribution contribution) {
+        }
     }
 
     private static final class InMemorySharedTorrentRepository implements SharedTorrentRepository {
         private final Collection<SharedTorrent> torrents = new HashSet<>();
+
         @Override
         public Optional<SharedTorrent> findById(SharedTorrentId id) {
             return torrents.stream().filter(t -> t.id().equals(id)).findFirst();

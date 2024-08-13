@@ -86,6 +86,7 @@ public class SharedTorrentService {
 
         torrent.add(upload);
         torrents.save(torrent);
+        persistentStats.persistOverallContribution(torrent.infoHash(), torrent.overallContributions());
     }
 
     public void addDownload(SharedTorrentId id, DownloadAmount download) {
@@ -95,6 +96,7 @@ public class SharedTorrentService {
         torrents.save(torrent);
 
         publish(events);
+        persistentStats.persistOverallContribution(torrent.infoHash(), torrent.overallContributions());
     }
 
     private void publish(List<DomainEvent> events) {
