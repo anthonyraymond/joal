@@ -3,7 +3,8 @@ package com.araymond.joalcore.core.sharing.domain;
 import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidChangeOfStateException;
 import org.junit.jupiter.api.Test;
 
-import static com.araymond.joalcore.core.sharing.domain.SharingStatus.*;
+import static com.araymond.joalcore.core.sharing.domain.SharingStatus.Paused;
+import static com.araymond.joalcore.core.sharing.domain.SharingStatus.Sharing;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 

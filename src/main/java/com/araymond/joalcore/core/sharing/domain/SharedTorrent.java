@@ -2,7 +2,10 @@ package com.araymond.joalcore.core.sharing.domain;
 
 import com.araymond.joalcore.annotations.ddd.AggregateRoot;
 import com.araymond.joalcore.core.infohash.domain.InfoHash;
-import com.araymond.joalcore.core.sharing.domain.events.*;
+import com.araymond.joalcore.core.sharing.domain.events.DoneDownloadingEvent;
+import com.araymond.joalcore.core.sharing.domain.events.TorrentPausedEvent;
+import com.araymond.joalcore.core.sharing.domain.events.TorrentPeersChangedEvent;
+import com.araymond.joalcore.core.sharing.domain.events.TorrentStartedSharingEvent;
 import com.araymond.joalcore.core.sharing.domain.exceptions.IllegalActionForTorrentState;
 import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionException;
 import com.araymond.joalcore.core.sharing.domain.services.PeerElection;

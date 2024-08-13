@@ -2,15 +2,12 @@ package com.araymond.joalcore.core.sharing.domain;
 
 import com.araymond.joalcore.core.fixtures.TestFixtures;
 import com.araymond.joalcore.core.sharing.domain.events.DoneDownloadingEvent;
-import com.araymond.joalcore.core.sharing.domain.events.TorrentPausedEvent;
 import com.araymond.joalcore.core.sharing.domain.events.TorrentPeersChangedEvent;
 import com.araymond.joalcore.core.sharing.domain.exceptions.IllegalActionForTorrentState;
 import com.araymond.joalcore.core.sharing.domain.services.PeerElection;
 import com.araymond.joalcore.events.DomainEvent;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
