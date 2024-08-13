@@ -23,5 +23,5 @@ jobs:
         cache: maven
         
     - name: Maven verify
-      run: mvn --batch-mode --update-snapshot verify
+      run: mvn --batch-mode --update-snapshots verify
 
