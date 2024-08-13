@@ -15,6 +15,10 @@ public final class Contributions {
         this(overall, Contribution.ZERO, left);
     }
 
+    public Contribution overall() {
+        return this.overall;
+    }
+
     @VisibleForTesting
     Contributions(Contribution overall, Contribution session, Left left) {
         this.overall = overall;

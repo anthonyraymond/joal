@@ -1,10 +1,10 @@
 package com.araymond.joalcore.core.sharing.domain;
 
-import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionAmountException;
+import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionException;
 
 public record DownloadAmount(long bytes) {
     public DownloadAmount {
-        if (bytes < 0) throw new InvalidContributionAmountException("DownloadAmount must be greater or equal to 0, received [%d]".formatted(bytes));
+        if (bytes < 0) throw new InvalidContributionException("DownloadAmount must be greater or equal to 0, received [%d]".formatted(bytes));
     }
 
     DownloadAmount plus(DownloadAmount downloadAmount) {

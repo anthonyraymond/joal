@@ -4,12 +4,13 @@ import com.araymond.joalcore.annotations.ddd.AggregateRoot;
 import com.araymond.joalcore.core.infohash.domain.InfoHash;
 import com.araymond.joalcore.core.sharing.domain.events.*;
 import com.araymond.joalcore.core.sharing.domain.exceptions.IllegalActionForTorrentState;
+import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionException;
 import com.araymond.joalcore.core.sharing.domain.services.PeerElection;
 import com.araymond.joalcore.events.DomainEvent;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.Objects;
 
 @AggregateRoot
 public class SharedTorrent {
@@ -31,23 +32,26 @@ public class SharedTorrent {
         this.swarm = swarm;
     }
 
-/* TODO
-    public void create(TorrentMetadata metadata) {
-        factory.build();
-    }*/
+    public SharedTorrentId id() {
+        return id;
+    }
+
+    public InfoHash infoHash() {
+        return infoHash;
+    }
 
     public List<DomainEvent> add(DownloadAmount download) {
-        if (!isDownloading()) {
+        if (!isSharing()) {
             throw new IllegalActionForTorrentState("can not add download to a %s torrent".formatted(status));
         }
+        if (contributions.isFullyDownloaded()) {
+            throw new InvalidContributionException("can not add download to a torrent fully downloaded");
+        }
+
         this.contributions = this.contributions.add(download);
 
-        if (isDownloading() && contributions.isFullyDownloaded()) {
-            var events = this.seed();
-            return Stream.concat(
-                    Stream.of(new DoneDownloadingEvent()),
-                    events.stream()
-            ).toList();
+        if (contributions.isFullyDownloaded()) {
+            return List.of(new DoneDownloadingEvent());
         }
         return Collections.emptyList();
     }
@@ -56,19 +60,15 @@ public class SharedTorrent {
         if (isPaused()) {
             throw new IllegalActionForTorrentState("can not add download to a %s torrent".formatted(status));
         }
-        this.contributions.add(upload);
+        this.contributions = this.contributions.add(upload);
     }
 
-    public boolean isDownloading() {
-        return status == SharingStatus.Downloading;
+    public boolean isSharing() {
+        return status == SharingStatus.Sharing;
     }
 
     public boolean isPaused() {
         return status == SharingStatus.Paused;
-    }
-
-    public boolean isSeeding() {
-        return status == SharingStatus.Seeding;
     }
 
     public List<DomainEvent> pause() {
@@ -76,21 +76,10 @@ public class SharedTorrent {
         return List.of(new TorrentPausedEvent());
     }
 
-    public List<DomainEvent> resume() {
-        if (contributions.isFullyDownloaded()) {
-            return seed();
-        }
-        return download();
-    }
+    public List<DomainEvent> share() {
+        status = status.share();
 
-    public List<DomainEvent> download() {
-        status = status.download();
-        return List.of(new TorrentStartedDownloadingEvent());
-    }
-
-    public List<DomainEvent> seed() {
-        status = status.seed();
-        return List.of(new TorrentStartedSeedingEvent());
+        return List.of(new TorrentStartedSharingEvent(contributions.isFullyDownloaded()));
     }
 
     public List<DomainEvent> registerPeers(Swarm.TrackerUniqueIdentifier identifier, Peers peers, PeerElection peerElection) {
@@ -99,5 +88,22 @@ public class SharedTorrent {
         return this.swarm.representativePeers(peerElection)
                 .map(p -> (DomainEvent) new TorrentPeersChangedEvent(id, p))
                 .stream().toList();
+    }
+
+    public Contribution overallContributions() {
+        return contributions.overall();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SharedTorrent that = (SharedTorrent) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

@@ -1,7 +1,7 @@
 package com.araymond.joalcore.core.sharing.domain;
 
 import com.araymond.joalcore.annotations.ddd.ValueObject;
-import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionAmountException;
+import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidContributionException;
 
 @ValueObject
 public record Left(long bytes) {
@@ -9,7 +9,7 @@ public record Left(long bytes) {
 
     public Left {
         if (bytes < 0) {
-            throw new InvalidContributionAmountException("Left amount cannot be negative");
+            throw new InvalidContributionException("Left amount cannot be negative");
         }
     }
 

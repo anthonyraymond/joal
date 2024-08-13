@@ -5,8 +5,7 @@ import com.araymond.joalcore.core.sharing.domain.exceptions.InvalidChangeOfState
 
 @ValueObject
 public enum SharingStatus {
-    Downloading,
-    Seeding,
+    Sharing,
     Paused;
 
     SharingStatus pause() {
@@ -14,14 +13,9 @@ public enum SharingStatus {
         return Paused;
     }
 
-    SharingStatus download() {
-        assertNotAlready(Downloading);
-        return Downloading;
-    }
-
-    SharingStatus seed() {
-        assertNotAlready(Seeding);
-        return Seeding;
+    SharingStatus share() {
+        assertNotAlready(Sharing);
+        return Sharing;
     }
 
     private void assertNotAlready(SharingStatus status) {
