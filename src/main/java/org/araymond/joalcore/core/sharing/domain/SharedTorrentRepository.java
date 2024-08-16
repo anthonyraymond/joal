@@ -1,6 +1,6 @@
 package org.araymond.joalcore.core.sharing.domain;
 
-import org.araymond.joalcore.core.infohash.domain.InfoHash;
+import org.araymond.joalcore.core.metadata.domain.InfoHash;
 
 import java.util.Optional;
 

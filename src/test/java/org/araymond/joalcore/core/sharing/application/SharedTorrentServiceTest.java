@@ -1,8 +1,9 @@
 package org.araymond.joalcore.core.sharing.application;
 
 import org.araymond.joalcore.core.fixtures.TestFixtures;
-import org.araymond.joalcore.core.infohash.domain.InfoHash;
+import org.araymond.joalcore.core.metadata.domain.InfoHash;
 import org.araymond.joalcore.core.metadata.domain.TorrentMetadata;
+import org.araymond.joalcore.core.metadata.domain.TorrentSize;
 import org.araymond.joalcore.core.sharing.domain.*;
 import org.araymond.joalcore.core.sharing.domain.events.*;
 import org.araymond.joalcore.core.sharing.domain.services.PeerElection;
@@ -18,17 +19,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SharedTorrentServiceTest {
     private InMemorySharedTorrentRepository repo;
     private FakePublisher publisher;
-    private PersistentStats persistentStats;
+    private OverallContributions overallContributions;
 
     @BeforeEach
     public void setUp() {
         this.repo = new InMemorySharedTorrentRepository();
         this.publisher = new FakePublisher();
-        this.persistentStats = new ZeroPersistentStats();
+        this.overallContributions = new ZeroOverallContributions();
     }
 
     public SharedTorrentService newService() {
-        return new SharedTorrentService(repo, publisher, () -> PeerElection.MOST_LEECHED, persistentStats);
+        return new SharedTorrentService(repo, publisher, overallContributions, new SharedTorrentConfig(
+                () -> PeerElection.MOST_LEECHED,
+                () -> false
+        ));
     }
 
     @Test
@@ -36,7 +40,7 @@ class SharedTorrentServiceTest {
         var service = newService();
 
         var infoHash = TestFixtures.randomInfoHash();
-        service.create(new TorrentMetadata(infoHash, 5000));
+        service.create(new TorrentMetadata(infoHash, TorrentSize.ofBytes(5000)));
 
         assertThat(publisher.events).hasSizeGreaterThanOrEqualTo(1).first().isInstanceOf(TorrentCreatedEvent.class);
         var torrentId = ((TorrentCreatedEvent) publisher.events.getFirst()).sharedTorrentId();
@@ -74,14 +78,14 @@ class SharedTorrentServiceTest {
         }
     }
 
-    private static final class ZeroPersistentStats implements PersistentStats {
+    private static final class ZeroOverallContributions implements OverallContributions {
         @Override
-        public Optional<Contribution> overallContributions(InfoHash infoHash) {
+        public Optional<Contribution> load(InfoHash infoHash) {
             return Optional.empty();
         }
 
         @Override
-        public void persistOverallContribution(InfoHash infoHash, Contribution contribution) {
+        public void save(InfoHash infoHash, Contribution contribution) {
         }
     }
 

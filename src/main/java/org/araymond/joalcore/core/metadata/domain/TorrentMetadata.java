@@ -1,21 +1,10 @@
 package org.araymond.joalcore.core.metadata.domain;
 
-import org.araymond.joalcore.core.infohash.domain.InfoHash;
+import java.util.Objects;
 
-public class TorrentMetadata {
-    private final InfoHash infoHash;
-    private final long totalSize;
-
-    public TorrentMetadata(InfoHash infoHash, long totalSize) {
-        this.infoHash = infoHash;
-        this.totalSize = totalSize;
-    }
-
-    public InfoHash infoHash() {
-        return infoHash;
-    }
-
-    public long totalSize() {
-        return totalSize;
+public record TorrentMetadata(InfoHash infoHash, TorrentSize size) {
+    public TorrentMetadata {
+        Objects.requireNonNull(infoHash, "TorrentMetadata requires a non-null [infoHash]");
+        Objects.requireNonNull(size, "TorrentMetadata requires a non-null [size]");
     }
 }

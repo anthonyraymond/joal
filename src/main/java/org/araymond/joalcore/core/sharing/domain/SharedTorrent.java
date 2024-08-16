@@ -1,7 +1,7 @@
 package org.araymond.joalcore.core.sharing.domain;
 
 import org.araymond.joalcore.annotations.ddd.AggregateRoot;
-import org.araymond.joalcore.core.infohash.domain.InfoHash;
+import org.araymond.joalcore.core.metadata.domain.InfoHash;
 import org.araymond.joalcore.core.sharing.domain.events.DoneDownloadingEvent;
 import org.araymond.joalcore.core.sharing.domain.events.TorrentPausedEvent;
 import org.araymond.joalcore.core.sharing.domain.events.TorrentPeersChangedEvent;

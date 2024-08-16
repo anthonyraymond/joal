@@ -1,4 +1,4 @@
-package org.araymond.joalcore.core.infohash.domain;
+package org.araymond.joalcore.core.metadata.domain;
 
 import org.araymond.joalcore.annotations.ddd.ValueObject;
 
