@@ -31,18 +31,7 @@ public class SharedTorrentService {
     public void create(TorrentMetadata metadata) {
         var events = new ArrayList<DomainEvent>();
 
-        var overallContributions = this.overallContributions.load(metadata.infoHash())
-                .orElseGet(() -> {
-                    Contribution overall = Contribution.ZERO;
-                    if (config.skipDownload().get()) {
-                        // return a fully Downloaded contribution when the torrent is not yet known and skip download is true
-                        overall = new Contribution(new DownloadAmount(metadata.size().bytes()), new UploadAmount(0));
-                    }
-                    this.overallContributions.save(metadata.infoHash(), overall);
-
-                    return overall;
-                });
-
+        var overallContributions = loadOverallContribution(metadata);
         var left = new Left(Math.max(metadata.size().bytes() - overallContributions.downloaded().bytes(), 0));
 
         var torrent = new SharedTorrent(metadata.infoHash(), overallContributions, left);
@@ -54,6 +43,20 @@ public class SharedTorrentService {
         torrents.save(torrent);
 
         publish(events);
+    }
+
+    private Contribution loadOverallContribution(TorrentMetadata metadata) {
+        return this.overallContributions.load(metadata.infoHash())
+                .orElseGet(() -> {
+                    Contribution overall = Contribution.ZERO;
+                    if (config.skipDownload().get()) {
+                        // return a fully Downloaded contribution when the torrent is not yet known and skip download is true
+                        overall = new Contribution(new DownloadAmount(metadata.size().bytes()), new UploadAmount(0));
+                    }
+                    this.overallContributions.save(metadata.infoHash(), overall);
+
+                    return overall;
+                });
     }
 
     public void registerPeers(InfoHash infoHash, Swarm.TrackerUniqueIdentifier identifier, Peers peers) {
