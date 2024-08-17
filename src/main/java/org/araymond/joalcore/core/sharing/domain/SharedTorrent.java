@@ -97,6 +97,10 @@ public class SharedTorrent {
         return contributions.overall();
     }
 
+    public boolean isFullyDownloaded() {
+        return contributions.isFullyDownloaded();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -109,4 +113,5 @@ public class SharedTorrent {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
 }

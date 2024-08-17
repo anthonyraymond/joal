@@ -19,20 +19,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 class SharedTorrentServiceTest {
     private InMemorySharedTorrentRepository repo;
     private FakePublisher publisher;
-    private OverallContributions overallContributions;
+    private OverallContributionsLoader overallContributions;
 
     @BeforeEach
     public void setUp() {
         this.repo = new InMemorySharedTorrentRepository();
         this.publisher = new FakePublisher();
-        this.overallContributions = new ZeroOverallContributions();
+        this.overallContributions = new OverallContributionsLoader(new UnknownContributionsRepository(), () -> false);
     }
 
     public SharedTorrentService newService() {
-        return new SharedTorrentService(repo, publisher, overallContributions, new SharedTorrentConfig(
-                () -> PeerElection.MOST_LEECHED,
-                () -> false
-        ));
+        return new SharedTorrentService(repo, publisher, overallContributions, () -> PeerElection.MOST_LEECHED);
     }
 
     @Test
@@ -78,7 +75,7 @@ class SharedTorrentServiceTest {
         }
     }
 
-    private static final class ZeroOverallContributions implements OverallContributions {
+    private static final class UnknownContributionsRepository implements OverallContributionsRepository {
         @Override
         public Optional<Contribution> load(InfoHash infoHash) {
             return Optional.empty();

@@ -5,7 +5,7 @@ import org.araymond.joalcore.core.sharing.domain.Contribution;
 
 import java.util.Optional;
 
-public interface OverallContributions {
+public interface OverallContributionsRepository {
     Optional<Contribution> load(InfoHash infoHash);
 
     /*
