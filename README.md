@@ -50,6 +50,8 @@ By default the web-ui is disabled, you can enable it with some more arguments:
 Once joal is started head to: `http://localhost:port/SECRET_OBFUSCATION_PATH/ui/` (obviously, replace `SECRET_OBFUSCATION_PATH`) by the value you had chosen
 The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to set it as complex as possible to prevent people to know that joal is running on your server.
 
+Optionnaly, you can pass `--joal.ui.proxy.websocket.path` and `--joal.ui.proxy.host` if you are hosting Joal behing a reverse proxy and you proxying websocket. This will autoconfigure the UI settings.
+
 If you want to use iframe you may also pass the `joal.iframe.enabled=true` argument. If you don't known what that is just ignore it.
 
 ## 2. Run with Docker
