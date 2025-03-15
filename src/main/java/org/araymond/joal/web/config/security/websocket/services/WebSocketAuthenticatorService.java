@@ -1,5 +1,6 @@
 package org.araymond.joal.web.config.security.websocket.services;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.araymond.joal.web.annotations.ConditionalOnWebUi;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,16 +18,31 @@ import java.util.Collections;
  */
 @ConditionalOnWebUi
 @Component
+@Slf4j
 public class WebSocketAuthenticatorService {
     private final String appSecretToken;
 
-    public WebSocketAuthenticatorService(@Value("${joal.ui.secret-token}") final String appSecretToken) {
+    public WebSocketAuthenticatorService(@Value("${joal.ui.secret-token:}") final String appSecretToken) {
         this.appSecretToken = appSecretToken;
+        if (StringUtils.isEmpty(appSecretToken)) {
+            log.warn("Websocket auth is disabled. UI will be accessible anonymously. " +
+                    "Pass '--joal.ui.secret-token' with non-empty string option if you want to fix that.");
+        }
     }
 
     // This method must return a UsernamePasswordAuthenticationToken, another component in the security chain is testing it with 'instanceof'
     @SuppressWarnings("TypeMayBeWeakened")
     public UsernamePasswordAuthenticationToken getAuthenticatedOrFail(final CharSequence username, final CharSequence authToken) throws AuthenticationException {
+        // Auth is disabled
+        if(StringUtils.isBlank(appSecretToken)) {
+            log.debug("Websocket auth is disabled. Authenticating anonymous user.");
+            return new UsernamePasswordAuthenticationToken(
+                    username == null ? "" : username,
+                    null,
+                    Collections.singleton((GrantedAuthority) () -> "USER")
+            );
+        }
+
         if (StringUtils.isBlank(username)) {
             throw new AuthenticationCredentialsNotFoundException("Username was null or empty.");
         }

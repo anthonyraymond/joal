@@ -10,6 +10,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WebSocketAuthenticatorServiceTest {
 
@@ -81,5 +82,16 @@ public class WebSocketAuthenticatorServiceTest {
 
         assertThat(authToken.getAuthorities().size()).isGreaterThanOrEqualTo(1);
     }
+
+    @Test
+    public void shouldAllowAnonymousAccess() {
+        // This is not a useless test, Spring security chain test if there is at least one granted authority, if there is none, we are considered as non authenticated
+        final WebSocketAuthenticatorService authService = new WebSocketAuthenticatorService("");
+        assertTrue(authService.getAuthenticatedOrFail("", "").isAuthenticated());
+        assertTrue(authService.getAuthenticatedOrFail(null, "").isAuthenticated());
+        assertTrue(authService.getAuthenticatedOrFail(null, null).isAuthenticated());
+        assertTrue(authService.getAuthenticatedOrFail("", null).isAuthenticated());
+    }
+
 
 }
