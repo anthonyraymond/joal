@@ -10,6 +10,8 @@ import org.springframework.stereotype.Component;
 
 import javax.inject.Inject;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 @Profile("!test")
@@ -48,6 +50,14 @@ public class TrayIconManager implements ApplicationListener<ApplicationReadyEven
             g.dispose();
 
             trayIcon = new TrayIcon(image, "JOAL", popup);
+            trayIcon.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(final MouseEvent e) {
+                    if (e.getButton() == MouseEvent.BUTTON1) {
+                        applicationContext.close();
+                    }
+                }
+            });
             tray.add(trayIcon);
         } catch (final Exception e) {
             log.warn("Failed to initialise system tray", e);
