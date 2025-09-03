@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 public class JackOfAllTradesApplication {
 
     public static void main(final String[] args) {
+        System.setProperty("java.awt.headless", "false");
         SpringApplication.run(JackOfAllTradesApplication.class, args);
     }
 }
