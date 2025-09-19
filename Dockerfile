@@ -1,28 +1,22 @@
-# Builder image with jdk
-FROM maven:3.8.3-eclipse-temurin-11 AS build
+FROM anthonyraymond/joal:2.1.36
 
 WORKDIR /build
 
-COPY . /build/
-
-RUN mvn -B --quiet package -DskipTests=true \
-    && mkdir /artifact \
-    && mv /build/target/jack-of-all-trades-*.jar /artifact/joal.jar
-
-
-# Actual joal image with jre only
-FROM eclipse-temurin:11.0.13_8-jre
-
 LABEL name="joal"
-LABEL maintainer="joal.contact@gmail.com"
-LABEL url="https://github.com/anthonyraymond/joal"
-LABEL vcs-url="https://github.com/anthonyraymond/joal"
+LABEL maintainer="skylanix@favrep.ch"
+LABEL url="https://github.com/skylanix/joal"
+LABEL vcs-url="https://github.com/skylanix/joal"
+
+RUN apt-get update && apt-get install -y gosu wget && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /joal/
 
-COPY --from=build /artifact/joal.jar /joal/joal.jar
+COPY init.sh /init.sh
+RUN chmod +x /init.sh
+
+RUN mkdir -p /data/torrents /data/clients && chmod 777 /data
 
 VOLUME /data
 
-ENTRYPOINT ["java", "-jar", "/joal/joal.jar"]
+ENTRYPOINT ["/init.sh"]
 CMD ["--joal-conf=/data"]

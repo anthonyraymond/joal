@@ -1,0 +1,22 @@
+services:
+  joal:
+#    build: .
+#    image: joal
+    image: ghcr.io/skylanix/joal:latest
+
+    container_name: joaltest
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+    ports:
+      - 6161:8080
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Zurich
+    command: 
+      - "--joal-conf=/data"
+      - "--spring.main.web-environment=true"
+      - "--server.port=8080"
+      - "--joal.ui.path.prefix=joal"
+      - "--joal.ui.secret-token=YourToken"

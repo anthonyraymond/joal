@@ -1,157 +1,170 @@
-# Disclamer
+# Disclaimer
+
 JOAL is not designed to help or encourage you downloading illegal materials ! You must respect the law applicable in your country. I couldn't be held responsible for illegal activities performed by your usage of JOAL.
 
-## Official Docker Hub page:
-https://hub.docker.com/r/anthonyraymond/joal
-
 # JOAL
-This is the server application (with an **optional** webui), if you are interested in the desktop app look at [here](https://github.com/anthonyraymond/joal-desktop).
-
-### Which client can JOAL emulate?
-
-| Client        | Support                       | Comment        |  | Client        | Support                       | Comment        |
-| ------------- |:-----------------------------:|----------------|--|---------------|:-----------------------------:|----------------|
-| BitComet      | ![Numwant mess][support-never]| Will never be !|  | Transmission  | ![Yes][support-yes]           |                |
-| BitTorrent    | ![Yes][support-yes]           |                |  | µTorrent      | ![Yes][support-yes]           |                |
-| Deluge        | ![Yes][support-yes]           |                |  | Vuze Azureus  | ![Yes][support-yes]           |                |
-| qBittorrent   | ![Yes][support-yes]           |                |  | Vuze Leap     | ![Yes][support-yes]           |                |
-| rTorrent      | ![Yes][support-yes]           |                |  |
-
-If your favorite client is not yet supported feel free to ask (except for BitComet).<br/>
-Ask for it in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal.contact@gmail.com</a>.
+Is an open-source tool that simulates a BitTorrent client to manipulate the ratio without real file transfers. I forked the [project](https://github.com/anthonyraymond/joal) to provide a complete version, including the JAR file, configuration, and all necessary files within a Docker image. It serves as the server application (with an optional web UI). For the desktop version, see [here](https://github.com/anthonyraymond/joal-desktop).
 
 ## Preview
+
 ![preview](readme-assets/webui-preview.png?raw=true)
 
 
-# HOW TO USE
-## 1. Setting up configuration
-In the folder of your choice (ie: /home/anthony/joal-conf), download the [latest tar.gz release](https://github.com/anthonyraymond/joal/releases/latest) and extract `config.json` `clients` and `torrents`, this folder will be our `joal-conf`.
+## Which clients can JOAL emulate?
 
-It must look similar to this:<br/>
-![joal-conf][joal-conf-folder]
+| Client        | Support                       | Comment        |  | Client        | Support                       | Comment        |
+| ------------- |:-----------------------------:|----------------|--|---------------|:-----------------------------:|----------------|
+| BitComet      | ![Numwant mess][support-never]| Will never be! |  | Transmission  | ![Yes][support-yes]           |                |
+| BitTorrent    | ![Yes][support-yes]           |                |  | µTorrent      | ![Yes][support-yes]           |                |
+| Deluge        | ![Yes][support-yes]           |                |  | Vuze Azureus  | ![Yes][support-yes]           |                |
+| qBittorrent   | ![Yes][support-yes]           |                |  | Vuze Leap     | ![Yes][support-yes]           |                |
+| rTorrent      | ![Yes][support-yes]           |                |  |               |                              |                |
 
-## 2. Run with Java
+If your favorite client is not yet supported, feel free to ask (except for BitComet).  
+Ask for it in GitHub issues or mail <a href="mailto:joal.contact@gmail.com">joal.contact@gmail.com</a>.
 
-```
-java -jar ./jack-of-all-trades-X.X.X.jar --joal-conf="PATH_TO_CONF"
-```
 
-- `--joal-conf=PATH_TO_CONF` is a **required** argument: path to the joal-conf folder (ie: /home/anthony/joal-conf).
+## Run with Docker
 
-<br />
-By default the web-ui is disabled, you can enable it with some more arguments:
+In the next command, replace `PATH_TO_CONF`, `PORT`, `SECRET_OBFUSCATION_PATH`, and `SECRET_TOKEN` with your desired values.
 
-- `--spring.main.web-environment=true`: to enable the web context.
-- `--server.port=YOUR_PORT`: the port to be used for both HTTP and WebSocket connection.
-- `--joal.ui.path.prefix="SECRET_OBFUSCATION_PATH"`: use your own complicated path here (this will be your first layer of security to keep joal secret). This is security though obscurity, but it is required in our case.  *This must contains only alphanumeric characters (no slash, backslash, or any other non-alphanum char)*
-- `--joal.ui.secret-token="SECRET_TOKEN"`: use your own secret token here (this is some kind of a password, choose a complicated one).
-
-Once joal is started head to: `http://localhost:port/SECRET_OBFUSCATION_PATH/ui/` (obviously, replace `SECRET_OBFUSCATION_PATH`) by the value you had chosen
-The `joal.ui.path.prefix` might seems useless but it's actually **crucial** to set it as complex as possible to prevent people to know that joal is running on your server.
-
-If you want to use iframe you may also pass the `joal.iframe.enabled=true` argument. If you don't known what that is just ignore it.
-
-## 2. Run with Docker
-
-In next command you have to replace `PATH_TO_CONF`, `PORT`, `SECRET_OBFUSCATION_PATH` and `SECRET_TOKEN` with your desired values.
-```
+```bash
 docker run -d \
-    -p PORT:PORT \
-    -v PATH_TO_CONF:/data \
-    --name="joal" \
-    anthonyraymond/joal:X.X.X \
-    --joal-conf="/data" \
-    --spring.main.web-environment=true \
-    --server.port="PORT" \
-    --joal.ui.path.prefix="SECRET_OBFUSCATION_PATH" \
-    --joal.ui.secret-token="SECRET_TOKEN"
+  --name=joal \
+  --restart=unless-stopped \
+  -v "$(pwd)/data:/data" \
+  -p 8080:8080 \
+  ghcr.io/skylanix/joal:latest \
+  --joal-conf=/data \
+  --spring.main.web-environment=true \
+  --server.port=8080 \
+  --joal.ui.path.prefix=joal \
+  --joal.ui.secret-token=YourToken
 ```
-Or the equivalent docker-compose service.
-```
-version: "2"
+
+Or the equivalent docker-compose service:
+
+```yaml
 services:
   joal:
-    image: anthonyraymond/joal:X.X.X
+    image: ghcr.io/skylanix/joal:latest
     container_name: joal
     restart: unless-stopped
     volumes:
-      - PATH_TO_CONF:/data
+      - ./data:/data
     ports:
-      - PORT:PORT
-    command: ["--joal-conf=/data", "--spring.main.web-environment=true", "--server.port=PORT", "--joal.ui.path.prefix=SECRET_OBFUSCATION_PATH", "--joal.ui.secret-token=SECRET_TOKEN"]
+      - 8080:8080
+    command: 
+      - "--joal-conf=/data"
+      - "--spring.main.web-environment=true"
+      - "--server.port=8080"
+      - "--joal.ui.path.prefix=joal"
+      - "--joal.ui.secret-token=YourToken"
 ```
 
-Replace the `X.X.X` in `anthonyraymond/joal:X.X.X` with the desired version of joal (all versions are available [here](https://hub.docker.com/r/anthonyraymond/joal/tags)).
+**Warnings:**
+- ⚠️ Set a strong password for `YourToken` and do not expose the Joal admin page to the public.
+- ⚠️ If you are satisfied with your ratio and want to avoid getting banned, stop the simulator by adding a `#` in front of `restart: unless-stopped` in the compose.yml file. This will prevent the container from automatically restarting, as the simulator starts uploading when it launches.
 
+Access the web interface (make sure to add `/joal/ui`):
 
-## 3. Start seeding
-Just add some `.torrent` files to the `joal-conf/torrents` folder. There is no need to restart JOAL to add more torrents, add it to the folder and JOAL will be aware of after few seconds.
+```
+http://ip:8080/joal/ui
+```
 
-If WebUi is enabled you can also drag and drop torrents in the joal ui.
+### Usage steps
 
+1. Click the "Modify connection settings" option.  
+   ![Webui change connection settings](readme-assets/webui-change-connection-settings.png?raw=true)
+2. On your first login, set up the connection settings:
+    - Server address: enter the server’s IP address
+    - Server port: 8080
+    - Path prefix: joal
+    - Secret token: use the token you chose, here "YourToken"
+    - Click "Save"  
+      ![Webui connection settings](readme-assets/webui-connection-settings.png?raw=true)
+3. The "Configuration" tab allows you to set different options:
+    - Minimum and maximum upload speeds
+    - Your preferred torrent client
+    - Maximum number of torrents that can be uploaded simultaneously
+    - Required ratio for each torrent (use "-1" for unlimited ratio)
+4. It is recommended to be careful with the configuration settings and not to set the upload speeds too high.
+5. There are three ways to add a torrent to Joal:
+    - Drag and drop torrents onto the dashboard
+    - Click on "+" and select the torrent
+    - Place the torrent in the `joal/data/torrents` folder
+6. It is preferable to choose torrents with many seeds to ensure that sharing works properly.
+
+## Start seeding
+
+Just add some `.torrent` files to the `joal-conf/torrents` folder.  
+There is no need to restart JOAL to add more torrents; add them to the folder and JOAL will recognize them after a few seconds.  
+If the web UI is enabled, you can also drag and drop torrents into the Joal UI.
 
 ## Configuration file
-### Application configuration
-The application configuration belongs in `joal-conf/config.json`.
 
-```
+### Application configuration
+
+The application configuration belongs in `joal-conf/config.json`:
+
+```json
 {
-  "minUploadRate" : 30,
-  "maxUploadRate" : 160,
-  "simultaneousSeed" : 20,
-  "client" : "qbittorrent-3.3.16.client",
-  "keepTorrentWithZeroLeechers" : true,
+  "minUploadRate": 30,
+  "maxUploadRate": 160,
+  "simultaneousSeed": 20,
+  "client": "qbittorrent-3.3.16.client",
+  "keepTorrentWithZeroLeechers": true,
   "uploadRatioTarget": -1.0
 }
 ```
-- `minUploadRate` : The minimum uploadRate you want to fake (in kB/s) (**required**)
-- `maxUploadRate` : The maximum uploadRate you want to fake (in kB/s) (**required**)
-- `simultaneousSeed` : How many torrents should be seeding at the same time (**required**)
-- `client` : The name of the .client file to use in `joal-conf/clients/` (**required**)
-- `keepTorrentWithZeroLeechers`: should JOAL keep torrent with no leechers or seeders. If yes, torrent with no peers will be seed at 0kB/s. If false torrents will be deleted on 0 peers reached. (**required**)
-- `uploadRatioTarget`: when JOAL has uploaded X times the size of the torrent **in a single session**, the torrent is removed. If -1.0 torrents are never removed.
 
+- `minUploadRate`: The minimum upload rate you want to fake (in kB/s) (**required**)
+- `maxUploadRate`: The maximum upload rate you want to fake (in kB/s) (**required**)
+- `simultaneousSeed`: How many torrents should be seeding at the same time (**required**)
+- `client`: The name of the `.client` file to use from `joal-conf/clients/` (**required**)
+- `keepTorrentWithZeroLeechers`: Should JOAL keep torrents with no leechers or seeders? If true, torrents with no peers will be seeded at 0kB/s. If false, torrents will be deleted when 0 peers are reached. (**required**)
+- `uploadRatioTarget`: When JOAL has uploaded X times the size of the torrent **in a single session**, the torrent is removed. If -1.0, torrents are never removed.
 
+## Supported browsers (for web-UI)
 
-## Supported browser (for web-ui)
-| Client                              | Support                 | Comment                                              |
-| ----------------------------------- |:-----------------------:|------------------------------------------------------|
-| ![Google Chrome][browser-chrome]    | ![yes][support-yes]     |                                                      |
-| ![Mozilla Firefox][browser-firefox] | ![yes][support-yes]     |                                                      |
-| ![Opera][browser-opera]             | ![yes][support-yes]     |                                                      |
-| ![Opera mini][browser-opera-mini]   | ![no][support-no]       | Lack of `referrer-policy` & No support for WebSocket |
-| ![Safari][browser-safari]           | ![no][support-no]       | Lack of `referrer-policy`                            |
-| ![Edge][browser-edge]               | ![no][support-no]       | Lack of `referrer-policy`                            |
-| ![Internet explorer][browser-ie]    | ![no][support-never]    | Not enough space to explain...                       |
+| Browser                               | Support                | Comment                                              |
+| -------------------------------------  |:---------------------: | ---------------------------------------------------- |
+| ![Google Chrome][browser-chrome]      | ![yes][support-yes]    |                                                      |
+| ![Mozilla Firefox][browser-firefox]   | ![yes][support-yes]    |                                                      |
+| ![Opera][browser-opera]               | ![yes][support-yes]    |                                                      |
+| ![Opera mini][browser-opera-mini]     | ![no][support-no]      | Lack of `referrer-policy` & No support for WebSocket |
+| ![Safari][browser-safari]             | ![no][support-no]      | Lack of `referrer-policy`                            |
+| ![Edge][browser-edge]                 | ![no][support-no]      | Lack of `referrer-policy`                            |
+| ![Internet Explorer][browser-ie]      | ![no][support-never]   | Not enough space to explain...                       |
 
-Some non-supported browser might work, but they may be unsafe due to the lack of support for `referrer-policy`.
-
+Some non-supported browsers might work, but they may be unsafe due to the lack of support for `referrer-policy`.
 
 ## Community projects
-Those projects are maintained by their individual authors, if you have any question on how to use it use the corresponding repository to ask questions. I do not offer any support nor responsability for these projets. But i want a say a special **thanks** to them for speinding some time on this project.
+
+These projects are maintained by their individual authors. For any questions, use the corresponding repository. I do not offer support nor take responsibility for these projects. But I want to say a special **thanks** to them for spending some time on this project.
+
 - [Addon for Home Assistant](https://github.com/alexbelgium/hassio-addons/tree/master/joal) by [alexbelgium](https://github.com/alexbelgium)
+
 - [Ansible role](https://github.com/slundi/ansible-joal) by [slundi](https://github.com/slundi)
 
+# Thanks
 
-# Thanks:
-This project use a modified version of the awesome [mpetazzoni/ttorrent](http://mpetazzoni.github.com/ttorrent/) library. Thanks to **mpetazzoni** for this.
-Also this project has benefited from the help of several people, see [Thanks.md](THANKS.md)
+This project uses a modified version of the awesome [mpetazzoni/ttorrent](https://github.com/mpetazzoni/ttorrent) library. Thanks to **mpetazzoni** for this.  
+Also, this project has benefited from the help of several people – see [Thanks.md](THANKS.md).
 
 ## Supporters
+
 [![Thanks for providing Jetbrain license](readme-assets/jetbrains.svg)](https://www.jetbrains.com/?from=joal)
 
-
-
-[support-never]:readme-assets/warning.png
-[support-no]:readme-assets/cross-mark.png
-[support-yes]:readme-assets/check-mark.png
-[joal-conf-folder]:readme-assets/joal-conf-folder.png
-[browser-chrome]:readme-assets/browsers/chrome.png
-[browser-firefox]:readme-assets/browsers/firefox.png
-[browser-opera]:readme-assets/browsers/opera.png
-[browser-opera-mini]:readme-assets/browsers/opera-mini.png
-[browser-safari]:readme-assets/browsers/safari.png
-[browser-ie]:readme-assets/browsers/ie.png
-[browser-edge]:readme-assets/browsers/edge.png
-[jetbrain-logo]:readme-assets/jetbrains.svg
+[support-never]: readme-assets/warning.png
+[support-no]: readme-assets/cross-mark.png
+[support-yes]: readme-assets/check-mark.png
+[joal-conf-folder]: readme-assets/joal-conf-folder.png
+[browser-chrome]: readme-assets/browsers/chrome.png
+[browser-firefox]: readme-assets/browsers/firefox.png
+[browser-opera]: readme-assets/browsers/opera.png
+[browser-opera-mini]: readme-assets/browsers/opera-mini.png
+[browser-safari]: readme-assets/browsers/safari.png
+[browser-ie]: readme-assets/browsers/ie.png
+[browser-edge]: readme-assets/browsers/edge.png
+[jetbrain-logo]: readme-assets/jetbrains.svg
