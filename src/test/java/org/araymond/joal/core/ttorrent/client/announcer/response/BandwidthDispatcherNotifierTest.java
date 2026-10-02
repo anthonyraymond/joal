@@ -75,10 +75,12 @@ public class BandwidthDispatcherNotifierTest {
         final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
         doReturn(10).when(successAnnounceResponse).getLeechers();
         doReturn(15).when(successAnnounceResponse).getSeeders();
+        doReturn(100).when(successAnnounceResponse).getInterval();
         notifier.onAnnounceStartSuccess(announcer, successAnnounceResponse);
 
         Mockito.verify(dispatcher, times(1)).registerTorrent(ArgumentMatchers.eq(infoHash));
         Mockito.verify(dispatcher, times(1)).updateTorrentPeers(ArgumentMatchers.eq(infoHash), ArgumentMatchers.eq(15), ArgumentMatchers.eq(10));
+        Mockito.verify(dispatcher, times(1)).getSpeedMap();
         Mockito.verifyNoMoreInteractions(dispatcher);
     }
 
@@ -95,9 +97,11 @@ public class BandwidthDispatcherNotifierTest {
         final SuccessAnnounceResponse successAnnounceResponse = mock(SuccessAnnounceResponse.class);
         doReturn(10).when(successAnnounceResponse).getLeechers();
         doReturn(15).when(successAnnounceResponse).getSeeders();
+        doReturn(100).when(successAnnounceResponse).getInterval();
         notifier.onAnnounceRegularSuccess(announcer, successAnnounceResponse);
 
         Mockito.verify(dispatcher, times(1)).updateTorrentPeers(ArgumentMatchers.eq(infoHash), ArgumentMatchers.eq(15), ArgumentMatchers.eq(10));
+        Mockito.verify(dispatcher, times(1)).getSpeedMap();
         Mockito.verifyNoMoreInteractions(dispatcher);
     }
 
