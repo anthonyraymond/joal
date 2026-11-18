@@ -33,10 +33,10 @@ public class InfoHashTest {
     }
 
     @Test
-    public void shouldRemoveNonHumanReadableChars() {
-        final InfoHash infoHash = new InfoHash("a\u0001b\u0001\u0001cc\u0002".getBytes());
+    public void shouldReturnHexEncodedHumanReadable() {
+        final InfoHash infoHash = new InfoHash(new byte[] {(byte) 0xab, (byte) 0xcd, (byte) 0x12, (byte) 0x34});
 
-        assertThat(infoHash.getHumanReadable()).isEqualTo("abcc");
+        assertThat(infoHash.getHumanReadable()).isEqualTo("abcd1234");
     }
 
 }

@@ -24,6 +24,7 @@ import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 
 @Slf4j
 public class Announcer implements AnnouncerFacade {
@@ -67,8 +68,10 @@ public class Announcer implements AnnouncerFacade {
                     this.announceDataAccessor.getHttpRequestQueryForTorrent(this.torrent.getTorrentInfoHash(), event),
                     this.announceDataAccessor.getHttpHeadersForTorrent()
             );
-            log.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval",
-                    this.torrent.getTorrentInfoHash().getHumanReadable(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval());
+            log.info("{} has announced successfully. Response: {} seeders, {} leechers, {}s interval. Uploaded: {}, Speed: {}/s",
+                    this.torrent.getTorrentInfoHash().getHumanReadable(), responseMessage.getSeeders(), responseMessage.getLeechers(), responseMessage.getInterval(),
+                    byteCountToDisplaySize(announceDataAccessor.getUploaded(this.torrent.getTorrentInfoHash())),
+                    byteCountToDisplaySize(announceDataAccessor.getSpeedInBytesPerSecond(this.torrent.getTorrentInfoHash())));
 
             this.reportedUploadBytes = announceDataAccessor.getUploaded(this.torrent.getTorrentInfoHash());
             this.lastKnownInterval = responseMessage.getInterval();
